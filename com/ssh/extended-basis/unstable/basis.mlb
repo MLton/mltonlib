@@ -1,0 +1,47 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+ann
+   "forceUsed"
+   "sequenceNonUnit warn"
+   "warnUnused true"
+in
+   $(SML_LIB)/basis/basis.mlb
+   iso.sml
+   emb.sml
+   local
+      mk-integer-ext.fun
+      mk-mono-array-ext.fun
+      mk-mono-vector-ext.fun
+      mk-real-ext.fun
+      mk-word-ext.fun
+
+      mk-int-inf-ext.fun
+
+      mk-text-ext.fun
+   in
+      char.sig
+      int-inf.sig
+      integer.sig
+      mono-array.sig
+      mono-vector.sig
+      real.sig
+      string.sig
+      word.sig
+
+      text.sig
+
+      array.sml
+      ints-mlton.sml
+      mono-arrays-mlton.sml
+      mono-vectors-mlton.sml
+      reals-mlton.sml
+      vector.sml
+      words-mlton.sml
+
+      texts-mlton.sml
+   end
+end
