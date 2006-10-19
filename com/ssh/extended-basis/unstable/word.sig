@@ -21,7 +21,7 @@ signature WORD =
       val largeX : (word, LargeWord.word) iso
       val word : (word, Word.word) iso
       val string : (word, string) emb
-      val is0 : word -> bool
+      val isZero : word -> bool
       val isEven : word -> bool
       val isOdd : word -> bool
       val minWord : word

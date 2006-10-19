@@ -14,8 +14,8 @@ functor MkIntegerExt (I : INTEGER) =
       val int = (toInt, fromInt)
       val large = (toLarge, fromLarge)
       val string = (toString, fromString)
-      fun is0 i = fromInt 0 = i
-      fun isEven i = is0 (rem (i, fromInt 2))
+      fun isZero i = fromInt 0 = i
+      fun isEven i = isZero (rem (i, fromInt 2))
       val isOdd = not o isEven
       val bounds = case (minInt, maxInt) of
                       (NONE, NONE) => NONE

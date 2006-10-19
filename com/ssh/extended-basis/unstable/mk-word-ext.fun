@@ -21,8 +21,8 @@ functor MkWordExt (W : WORD) =
       val largeX = (toLargeX, fromLarge)
       val word = (toWord, fromWord)
       val string = (toString, fromString)
-      fun is0 w = fromInt 0 = w
-      fun isEven w = is0 (andb (fromInt 1, w))
+      fun isZero w = fromInt 0 = w
+      fun isEven w = isZero (andb (fromInt 1, w))
       val isOdd = not o isEven
       val bounds as (minWord, maxWord) = (fromInt 0, fromInt~1)
    end

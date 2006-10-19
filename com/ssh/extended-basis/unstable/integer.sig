@@ -14,7 +14,7 @@ signature INTEGER =
       val int : (int, Int.int) iso
       val large : (int, LargeInt.int) iso
       val string : (int, string) emb
-      val is0 : int -> bool
+      val isZero : int -> bool
       val isEven : int -> bool
       val isOdd : int -> bool
       val bounds : (int * int) option
