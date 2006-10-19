@@ -16,4 +16,7 @@ signature MONO_ARRAY =
       val toVector : array -> vector
       val fromVector : vector -> array
       val vectorIso : (array, vector) iso
+      val toPoly : array -> elem Array.array
+      val fromPoly : elem Array.array -> array
+      val polyIso : (array, elem Array.array) iso
    end
