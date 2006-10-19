@@ -11,7 +11,7 @@
 signature CHAR =
    sig
       include CHAR
-      val int : (char, Int.int) iso
+      val intIso : (char, Int.int) iso
       val minOrd : Int.int
       val boundsChar : char * char
       val boundsOrd : Int.int * Int.int

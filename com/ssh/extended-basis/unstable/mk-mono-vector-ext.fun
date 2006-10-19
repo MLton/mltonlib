@@ -12,5 +12,5 @@ functor MkMonoVectorExt (M : MONO_VECTOR) =
    struct
       open M
       fun toList v = foldr op :: [] v
-      val list = (toList, fromList)
+      val listIso = (toList, fromList)
    end

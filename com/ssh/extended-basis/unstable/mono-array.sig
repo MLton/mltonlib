@@ -11,6 +11,9 @@
 signature MONO_ARRAY =
    sig
       include MONO_ARRAY
-      val list : (array, elem list) iso
       val toList : array -> elem list
+      val listIso : (array, elem list) iso
+      val toVector : array -> vector
+      val fromVector : vector -> array
+      val vectorIso : (array, vector) iso
    end

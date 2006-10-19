@@ -10,38 +10,62 @@ ann
    "warnUnused true"
 in
    $(SML_LIB)/basis/basis.mlb
+
+   (* New {Iso :> ISO} and {Emb :> EMB} modules *)
    iso.sml
    emb.sml
+
+   (* Extended integer modules *)
    local
       mk-integer-ext.fun
-      mk-mono-array-ext.fun
-      mk-mono-vector-ext.fun
-      mk-real-ext.fun
-      mk-word-ext.fun
-
       mk-int-inf-ext.fun
-
-      mk-text-ext.fun
    in
-      char.sig
       int-inf.sig
       integer.sig
-      mono-array.sig
-      mono-vector.sig
-      real.sig
-      string.sig
-      word.sig
-
-      text.sig
-
-      array.sml
       ints-mlton.sml
-      mono-arrays-mlton.sml
-      mono-vectors-mlton.sml
-      reals-mlton.sml
-      vector.sml
-      words-mlton.sml
+   end
 
-      texts-mlton.sml
+   (* Extended real modules *)
+   local
+      mk-real-ext.fun
+      real.sig
+   in
+      reals-mlton.sml
+   end
+
+   (* Extended word modules *)
+   local
+      mk-word-ext.fun
+   in
+      word.sig
+      words-mlton.sml
+   end
+
+   (* Extended vector modules *)
+   local
+      mk-mono-vector-ext.fun
+   in
+      mono-vector.sig
+      mono-vectors-mlton.sml
+      vector.sml
+
+      (* Extended array modules (may depend on vector modules) *)
+      local
+         mk-mono-array-ext.fun
+      in
+         mono-array.sig
+         array.sml
+         mono-arrays-mlton.sml
+
+         (* Extended text modules (may depend on vector and array modules) *)
+         local
+            mk-text-ext.fun
+         in
+            char.sig
+            string.sig
+            text.sig
+            texts-mlton.sml
+         end
+      end
    end
 end

@@ -13,14 +13,14 @@ signature WORD =
       include WORD
       val toWord : word -> Word.word
       val fromWord : Word.word -> word
-      val int : (word, Int.int) iso
-      val intX : (word, Int.int) iso
-      val large : (word, LargeWord.word) iso
-      val largeInt : (word, LargeInt.int) iso
-      val largeIntX : (word, LargeInt.int) iso
-      val largeX : (word, LargeWord.word) iso
-      val word : (word, Word.word) iso
-      val string : (word, string) emb
+      val intIso : (word, Int.int) iso
+      val intXIso : (word, Int.int) iso
+      val largeIso : (word, LargeWord.word) iso
+      val largeIntIso : (word, LargeInt.int) iso
+      val largeIntXIso : (word, LargeInt.int) iso
+      val largeXIso : (word, LargeWord.word) iso
+      val wordIso : (word, Word.word) iso
+      val stringEmb : (word, string) emb
       val isZero : word -> bool
       val isEven : word -> bool
       val isOdd : word -> bool

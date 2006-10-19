@@ -11,7 +11,7 @@
 signature VECTOR =
    sig
       include VECTOR
-      val list : ('a vector, 'a list) iso
+      val listIso : ('a vector, 'a list) iso
       val toList : 'a vector -> 'a list
    end
 
@@ -19,5 +19,5 @@ structure Vector : VECTOR =
    struct
       open Vector
       fun toList v = foldr op :: [] v
-      val list = (toList, fromList)
+      val listIso = (toList, fromList)
    end

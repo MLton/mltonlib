@@ -11,9 +11,9 @@
 signature INT_INF =
    sig
       include INT_INF
-      val int : (int, Int.int) iso
-      val large : (int, LargeInt.int) iso
-      val string : (int, string) emb
+      val intIso : (int, Int.int) iso
+      val largeIso : (int, LargeInt.int) iso
+      val stringEmb : (int, string) emb
       val isZero : int -> bool
       val isEven : int -> bool
       val isOdd : int -> bool

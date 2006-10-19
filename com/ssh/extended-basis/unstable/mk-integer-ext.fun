@@ -11,9 +11,9 @@
 functor MkIntegerExt (I : INTEGER) =
    struct
       open I
-      val int = (toInt, fromInt)
-      val large = (toLarge, fromLarge)
-      val string = (toString, fromString)
+      val intIso = (toInt, fromInt)
+      val largeIso = (toLarge, fromLarge)
+      val stringEmb = (toString, fromString)
       fun isZero i = fromInt 0 = i
       fun isEven i = isZero (rem (i, fromInt 2))
       val isOdd = not o isEven

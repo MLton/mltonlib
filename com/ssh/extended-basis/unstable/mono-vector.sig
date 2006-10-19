@@ -11,6 +11,6 @@
 signature MONO_VECTOR =
    sig
       include MONO_VECTOR
-      val list : (vector, elem list) iso
+      val listIso : (vector, elem list) iso
       val toList : vector -> elem list
    end

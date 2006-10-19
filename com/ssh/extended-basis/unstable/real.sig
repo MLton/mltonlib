@@ -11,10 +11,10 @@
 signature REAL =
    sig
       include REAL
-      val decimal : (real, IEEEReal.decimal_approx) emb
-      val int : (real, Int.int) iso
-      val large : (real, LargeReal.real) iso
-      val largeInt : (real, LargeInt.int) iso
-      val manExp : (real, {man : real, exp : int}) iso
-      val string : (real, string) emb
+      val decimalEmb : (real, IEEEReal.decimal_approx) emb
+      val intIso : (real, Int.int) iso
+      val largeIso : (real, LargeReal.real) iso
+      val largeIntIso : (real, LargeInt.int) iso
+      val manExpIso : (real, {man : real, exp : int}) iso
+      val stringEmb : (real, string) emb
    end

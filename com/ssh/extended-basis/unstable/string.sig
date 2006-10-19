@@ -11,9 +11,9 @@
 signature STRING =
    sig
       include STRING
-      val list : (string, char list) iso
-      val cString : (string, string) emb
-      val string : (string, string) emb
+      val listIso : (string, char list) iso
+      val cStringEmb : (string, string) emb
+      val stringEmb : (string, string) emb
 
       type vector = string
       type elem = char

@@ -13,14 +13,14 @@ functor MkWordExt (W : WORD) =
       open W
       val toWord = Word.fromLarge o toLarge
       val fromWord = fromLarge o Word.toLarge
-      val int = (toInt, fromInt)
-      val intX = (toIntX, fromInt)
-      val large = (toLarge, fromLarge)
-      val largeInt = (toLargeInt, fromLargeInt)
-      val largeIntX = (toLargeIntX, fromLargeInt)
-      val largeX = (toLargeX, fromLarge)
-      val word = (toWord, fromWord)
-      val string = (toString, fromString)
+      val intIso = (toInt, fromInt)
+      val intXIso = (toIntX, fromInt)
+      val largeIso = (toLarge, fromLarge)
+      val largeIntIso = (toLargeInt, fromLargeInt)
+      val largeIntXIso = (toLargeIntX, fromLargeInt)
+      val largeXIso = (toLargeX, fromLarge)
+      val wordIso = (toWord, fromWord)
+      val stringEmb = (toString, fromString)
       fun isZero w = fromInt 0 = w
       fun isEven w = isZero (andb (fromInt 1, w))
       val isOdd = not o isEven
