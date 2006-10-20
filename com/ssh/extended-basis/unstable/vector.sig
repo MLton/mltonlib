@@ -5,12 +5,12 @@
  *)
 
 (**
- * Extended {Vector :> VECTOR} structure.
+ * Extended {VECTOR} signature.
  *)
 
-structure Vector : VECTOR =
-   struct
-      open Vector
-      fun toList v = foldr op :: [] v
-      val listIso = (toList, fromList)
+signature VECTOR =
+   sig
+      include VECTOR
+      val listIso : ('a vector, 'a list) iso
+      val toList : 'a vector -> 'a list
    end

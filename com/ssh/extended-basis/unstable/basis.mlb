@@ -28,8 +28,8 @@ in
    (* Extended real modules *)
    local
       mk-real-ext.fun
-      real.sig
    in
+      real.sig
       reals-mlton.sml
    end
 
@@ -41,23 +41,31 @@ in
       words-mlton.sml
    end
 
-   (* Extended vector modules *)
+   (* Extended vector module *)
+   vector.sig
+   vector.sml
+
+   (* Extended array module (may depend on vector module) *)
+   array.sig
+   array.sml
+
+   (* Extended mono vector modules *)
    local
       mk-mono-vector-ext.fun
    in
       mono-vector.sig
       mono-vectors-mlton.sml
-      vector.sml
 
-      (* Extended array modules (may depend on vector modules) *)
+      (* Extended mono array modules (may depend on mono vector modules) *)
       local
          mk-mono-array-ext.fun
       in
          mono-array.sig
-         array.sml
          mono-arrays-mlton.sml
 
-         (* Extended text modules (may depend on vector and array modules) *)
+         (* Extended text modules (may depend on mono vector and mono
+          * array modules)
+          *)
          local
             mk-text-ext.fun
          in
