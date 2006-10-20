@@ -7,24 +7,39 @@
 (**
  * Extended {WORD} signature.
  *)
-
 signature WORD =
    sig
       include WORD
-      val toWord : word -> Word.word
+
+      (** == Bounds == *)
+
+      val maxWord : word
+      val minWord : word
+
+      val bounds : word * word
+
+      (** == Conversions == *)
+
       val fromWord : Word.word -> word
+      val toWord : word -> Word.word
+
+      (** == Embeddings == *)
+
+      val stringEmb : (word, string) emb
+
+      (** == Isomorphisms == *)
+
       val intIso : (word, Int.int) iso
       val intXIso : (word, Int.int) iso
-      val largeIso : (word, LargeWord.word) iso
       val largeIntIso : (word, LargeInt.int) iso
       val largeIntXIso : (word, LargeInt.int) iso
+      val largeIso : (word, LargeWord.word) iso
       val largeXIso : (word, LargeWord.word) iso
       val wordIso : (word, Word.word) iso
-      val stringEmb : (word, string) emb
-      val isZero : word -> bool
+
+      (** == Predicates == *)
+
       val isEven : word -> bool
       val isOdd : word -> bool
-      val minWord : word
-      val maxWord : word
-      val bounds : word * word
+      val isZero : word -> bool
    end

@@ -7,16 +7,23 @@
 (**
  * Extended {STRING} signature.
  *)
-
 signature STRING =
    sig
       include STRING
-      val listIso : (string, char list) iso
+
+      (** == Embeddings == *)
+
       val cStringEmb : (string, string) emb
       val stringEmb : (string, string) emb
 
-      type vector = string
+      (** == Isomorphisms == *)
+
+      val listIso : (string, char list) iso
+
+      (** == {MONO_VECTOR} == *)
+
       type elem = char
+      type vector = string
 
       val all : (elem -> bool) -> vector -> bool
       val app  : (elem -> unit) -> vector -> unit
@@ -29,10 +36,13 @@ signature STRING =
       val foldr  : (elem * 'a -> 'a) -> 'a -> vector -> 'a
       val foldri : (int * elem * 'a -> 'a) -> 'a -> vector -> 'a
       val fromList : elem list -> vector
+      val fromPoly : elem Vector.vector -> vector
       val length : vector -> int
       val mapi : (int * elem -> elem) -> vector -> vector
       val maxLen : int
+      val polyIso : (vector, elem Vector.vector) iso
       val tabulate : int * (int -> elem) -> vector
       val toList : vector -> elem list
+      val toPoly : vector -> elem Vector.vector
       val update : vector * int * elem -> vector
    end

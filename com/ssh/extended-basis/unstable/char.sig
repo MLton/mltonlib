@@ -11,11 +11,11 @@ signature CHAR =
    sig
       include CHAR
 
-      val intIso : (char, Int.int) iso
+      (** == Bounds == *)
+
+      val minOrd : Int.int
       (**
-       * The isomorphism between characters and character codes.  It
-       * always equals {(ord, chr)}.  Note that the projection part of the
-       * isomorphism, namely {chr}, is likely to be a partial function.
+       * The least character code.  It always equals {0}.
        *)
 
       val boundsChar : char * char
@@ -24,14 +24,18 @@ signature CHAR =
        * {(minChar, maxChar)}.
        *)
 
-      val minOrd : Int.int
-      (**
-       * The least character code.  It always equals {0}.
-       *)
-
       val boundsOrd : Int.int * Int.int
       (**
        * Pair of the least and greatest character codes.  It always equals
        * {(minOrd, maxOrd)}.
+       *)
+
+      (** == Isomorphisms == *)
+
+      val intIso : (char, Int.int) iso
+      (**
+       * The isomorphism between characters and character codes.  It
+       * always equals {(ord, chr)}.  Note that the projection part of the
+       * isomorphism, namely {chr}, is likely to be a partial function.
        *)
    end

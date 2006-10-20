@@ -7,16 +7,22 @@
 (**
  * Extended {MONO_ARRAY} signature.
  *)
-
 signature MONO_ARRAY =
    sig
       include MONO_ARRAY
-      val toList : array -> elem list
-      val listIso : (array, elem list) iso
-      val toVector : array -> vector
-      val fromVector : vector -> array
-      val vectorIso : (array, vector) iso
-      val toPoly : array -> elem Array.array
+
+      (** == Conversions == *)
+
       val fromPoly : elem Array.array -> array
+      val fromVector : vector -> array
+
+      val toList : array -> elem list
+      val toPoly : array -> elem Array.array
+      val toVector : array -> vector
+
+      (** == Isomorphisms == *)
+
+      val listIso : (array, elem list) iso
       val polyIso : (array, elem Array.array) iso
+      val vectorIso : (array, vector) iso
    end

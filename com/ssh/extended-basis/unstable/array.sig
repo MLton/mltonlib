@@ -7,13 +7,19 @@
 (**
  * Extended {ARRAY} signature.
  *)
-
 signature ARRAY =
    sig
       include ARRAY
-      val toList : 'a array -> 'a list
-      val listIso : ('a array, 'a list) iso
-      val toVector : 'a array -> 'a vector
+
+      (** == Conversions == *)
+
       val fromVector : 'a vector -> 'a array
+
+      val toList : 'a array -> 'a list
+      val toVector : 'a array -> 'a vector
+
+      (** == Isomorphisms == *)
+
+      val listIso : ('a array, 'a list) iso
       val vectorIso : ('a array, 'a vector) iso
    end

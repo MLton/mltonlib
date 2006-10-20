@@ -6,8 +6,10 @@
 
 (**
  * Extended {TEXT} signature.
+ *
+ * This signature is just a restament of the {TEXT} signature using the
+ * extended substructure signatures.
  *)
-
 signature TEXT =
    sig
       structure Char            : CHAR
