@@ -7,26 +7,25 @@
 (**
  * Extended {INTEGER} signature.
  *)
-signature INTEGER =
-   sig
-      include INTEGER
+signature INTEGER = sig
+   include INTEGER
 
-      (** == Bounds == *)
+   (** == Bounds == *)
 
-      val bounds : (int * int) option
+   val bounds : (int * int) option
 
-      (** == Embeddings == *)
+   (** == Embeddings == *)
 
-      val stringEmb : (int, string) emb
+   val stringEmb : (int, string) emb
 
-      (** == Isomorphisms == *)
+   (** == Isomorphisms == *)
 
-      val intIso : (int, Int.int) iso
-      val largeIso : (int, LargeInt.int) iso
+   val intIso : (int, Int.int) iso
+   val largeIso : (int, LargeInt.int) iso
 
-      (** == Predicates == *)
+   (** == Predicates == *)
 
-      val isEven : int -> bool
-      val isOdd : int -> bool
-      val isZero : int -> bool
-   end
+   val isEven : int -> bool
+   val isOdd : int -> bool
+   val isZero : int -> bool
+end

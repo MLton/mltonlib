@@ -5,27 +5,13 @@
  *)
 
 (**
- * Utility module for dealing with isomorphisms.
+ * Structure for isomorphisms.
  *)
+structure Iso :> ISO = struct
+   type ('a, 'b) iso = ('a, 'b) iso
 
-signature ISO =
-   sig
-      type ('a, 'b) iso = ('a -> 'b) * ('b -> 'a)
+   val id = (fn a => a, fn a => a)
 
-      val id : ('a, 'a) iso
-
-      val to : ('a, 'b) iso -> 'a -> 'b
-      val from : ('a, 'b) iso -> 'b -> 'a
-   end
-
-structure Iso :> ISO =
-   struct
-      type ('a, 'b) iso = ('a -> 'b) * ('b -> 'a)
-
-      val id = (fn a => a, fn a => a)
-
-      fun to (a2b, _) = a2b
-      fun from (_, b2a) = b2a
-   end
-
-type ('a, 'b) iso = ('a, 'b) Iso.iso
+   fun to (a2b, _) = a2b
+   fun from (_, b2a) = b2a
+end

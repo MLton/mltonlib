@@ -7,19 +7,18 @@
 (**
  * Extended {MONO_VECTOR} signature.
  *)
-signature MONO_VECTOR =
-   sig
-      include MONO_VECTOR
+signature MONO_VECTOR = sig
+   include MONO_VECTOR
 
-      (** == Conversions == *)
+   (** == Conversions == *)
 
-      val fromPoly : elem Vector.vector -> vector
+   val fromPoly : elem Vector.vector -> vector
 
-      val toList : vector -> elem list
-      val toPoly : vector -> elem Vector.vector
+   val toList : vector -> elem list
+   val toPoly : vector -> elem Vector.vector
 
-      (** == Isomorphisms *)
+   (** == Isomorphisms == *)
 
-      val listIso : (vector, elem list) iso
-      val polyIso : (vector, elem Vector.vector) iso
-   end
+   val listIso : (vector, elem list) iso
+   val polyIso : (vector, elem Vector.vector) iso
+end

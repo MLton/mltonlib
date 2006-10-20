@@ -7,26 +7,25 @@
 (**
  * Extended {INT_INF} signature.
  *)
-signature INT_INF =
-   sig
-      include INT_INF
+signature INT_INF = sig
+   include INT_INF
 
-      (** == Bounds == *)
+   (** == Bounds == *)
 
-      val bounds : (int * int) option
+   val bounds : (int * int) option
 
-      (** == Embeddings == *)
+   (** == Embeddings == *)
 
-      val stringEmb : (int, string) emb
+   val stringEmb : (int, string) emb
 
-      (** == Isomorphisms == *)
+   (** == Isomorphisms == *)
 
-      val intIso : (int, Int.int) iso
-      val largeIso : (int, LargeInt.int) iso
+   val intIso : (int, Int.int) iso
+   val largeIso : (int, LargeInt.int) iso
 
-      (** == Predicates == *)
+   (** == Predicates == *)
 
-      val isEven : int -> bool
-      val isOdd : int -> bool
-      val isZero : int -> bool
-   end
+   val isEven : int -> bool
+   val isOdd : int -> bool
+   val isZero : int -> bool
+end

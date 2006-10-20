@@ -7,39 +7,38 @@
 (**
  * Extended {WORD} signature.
  *)
-signature WORD =
-   sig
-      include WORD
+signature WORD = sig
+   include WORD
 
-      (** == Bounds == *)
+   (** == Bounds == *)
 
-      val maxWord : word
-      val minWord : word
+   val maxWord : word
+   val minWord : word
 
-      val bounds : word * word
+   val bounds : word * word
 
-      (** == Conversions == *)
+   (** == Conversions == *)
 
-      val fromWord : Word.word -> word
-      val toWord : word -> Word.word
+   val fromWord : Word.word -> word
+   val toWord : word -> Word.word
 
-      (** == Embeddings == *)
+   (** == Embeddings == *)
 
-      val stringEmb : (word, string) emb
+   val stringEmb : (word, string) emb
 
-      (** == Isomorphisms == *)
+   (** == Isomorphisms == *)
 
-      val intIso : (word, Int.int) iso
-      val intXIso : (word, Int.int) iso
-      val largeIntIso : (word, LargeInt.int) iso
-      val largeIntXIso : (word, LargeInt.int) iso
-      val largeIso : (word, LargeWord.word) iso
-      val largeXIso : (word, LargeWord.word) iso
-      val wordIso : (word, Word.word) iso
+   val intIso : (word, Int.int) iso
+   val intXIso : (word, Int.int) iso
+   val largeIntIso : (word, LargeInt.int) iso
+   val largeIntXIso : (word, LargeInt.int) iso
+   val largeIso : (word, LargeWord.word) iso
+   val largeXIso : (word, LargeWord.word) iso
+   val wordIso : (word, Word.word) iso
 
-      (** == Predicates == *)
+   (** == Predicates == *)
 
-      val isEven : word -> bool
-      val isOdd : word -> bool
-      val isZero : word -> bool
-   end
+   val isEven : word -> bool
+   val isOdd : word -> bool
+   val isZero : word -> bool
+end

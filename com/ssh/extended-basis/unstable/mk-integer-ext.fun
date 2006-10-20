@@ -7,18 +7,16 @@
 (**
  * Functor for extending {INTEGER} modules.
  *)
-
-functor MkIntegerExt (I : INTEGER) =
-   struct
-      open I
-      val intIso = (toInt, fromInt)
-      val largeIso = (toLarge, fromLarge)
-      val stringEmb = (toString, fromString)
-      fun isZero i = fromInt 0 = i
-      fun isEven i = isZero (rem (i, fromInt 2))
-      val isOdd = not o isEven
-      val bounds = case (minInt, maxInt) of
-                      (NONE, NONE) => NONE
-                    | (SOME min, SOME max) => SOME (min, max)
-                    | _ => raise Fail "impossible"
-   end
+functor MkIntegerExt (I : INTEGER) = struct
+   open I
+   val intIso = (toInt, fromInt)
+   val largeIso = (toLarge, fromLarge)
+   val stringEmb = (toString, fromString)
+   fun isZero i = fromInt 0 = i
+   fun isEven i = isZero (rem (i, fromInt 2))
+   val isOdd = not o isEven
+   val bounds = case (minInt, maxInt) of
+                   (NONE, NONE) => NONE
+                 | (SOME min, SOME max) => SOME (min, max)
+                 | _ => raise Fail "impossible"
+end

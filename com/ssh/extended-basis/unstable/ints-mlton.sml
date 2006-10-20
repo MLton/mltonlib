@@ -6,7 +6,7 @@
 
 (** == Extended {INTEGER} and {INT_INF} modules for MLton == *)
 
-structure Int : INTEGER = MkIntegerExt (Int)
+structure Int      : INTEGER = MkIntegerExt (Int)
 structure FixedInt : INTEGER = MkIntegerExt (FixedInt)
 structure LargeInt : INTEGER = MkIntegerExt (LargeInt)
 structure Position : INTEGER = MkIntegerExt (Position)

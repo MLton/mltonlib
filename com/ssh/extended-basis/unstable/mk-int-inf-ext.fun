@@ -7,12 +7,10 @@
 (**
  * Functor for extending {INT_INF} modules.
  *)
-
-functor MkIntInfExt (I : INT_INF) =
-   let
+functor MkIntInfExt (I : INT_INF) = struct
+   local
       structure E = MkIntegerExt (I)
    in
-      struct
-         open E I
-      end
+      open E I
    end
+end

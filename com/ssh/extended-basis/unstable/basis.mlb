@@ -12,7 +12,9 @@ in
    $(SML_LIB)/basis/basis.mlb
 
    (* New {Iso :> ISO} and {Emb :> EMB} modules *)
+   iso.sig
    iso.sml
+   emb.sig
    emb.sml
 
    (* Extended integer modules *)

@@ -6,9 +6,9 @@
 
 (** == Extended {WORD} modules for MLton == *)
 
-structure Word : WORD = MkWordExt (Word)
+structure Word      : WORD = MkWordExt (Word)
 structure LargeWord : WORD = MkWordExt (LargeWord)
-structure SysWord : WORD = MkWordExt (SysWord)
+structure SysWord   : WORD = MkWordExt (SysWord)
 
 structure Word1  : WORD = MkWordExt (Word1)
 structure Word2  : WORD = MkWordExt (Word2)

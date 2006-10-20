@@ -7,30 +7,26 @@
 (**
  * Functor for extending {TEXT} modules.
  *)
+functor MkTextExt (T : TEXT) = struct
+   open T
 
-functor MkTextExt (T : TEXT) =
-   struct
-      open T
-
-      structure Char =
-         struct
-            open Char
-            val intIso = (ord, chr)
-            val minOrd = 0
-            val boundsChar = (minChar, maxChar)
-            val boundsOrd = (minOrd, maxOrd)
-         end
-
-      structure CharVector = MkMonoVectorExt (CharVector)
-      structure CharArray =
-         MkMonoArrayExt (structure MonoArray = CharArray
-                         structure MonoVector = CharVector)
-
-      structure String =
-         struct
-            open CharVector String
-            val listIso = (explode, implode)
-            val cStringEmb = (toCString, fromCString)
-            val stringEmb = (toString, fromString)
-         end
+   structure Char = struct
+      open Char
+      val intIso = (ord, chr)
+      val minOrd = 0
+      val boundsChar = (minChar, maxChar)
+      val boundsOrd = (minOrd, maxOrd)
    end
+
+   structure CharVector = MkMonoVectorExt (CharVector)
+   structure CharArray =
+      MkMonoArrayExt (structure MonoArray = CharArray
+                      structure MonoVector = CharVector)
+
+   structure String = struct
+      open CharVector String
+      val listIso = (explode, implode)
+      val cStringEmb = (toCString, fromCString)
+      val stringEmb = (toString, fromString)
+   end
+end

@@ -7,13 +7,11 @@
 (**
  * Extended {Array :> ARRAY} structure.
  *)
-
-structure Array : ARRAY =
-   struct
-      open Array
-      fun toList v = foldr op :: [] v
-      val listIso = (toList, fromList)
-      val toVector = vector
-      fun fromVector v = tabulate (Vector.length v, fn i => Vector.sub (v, i))
-      val vectorIso = (toVector, fromVector)
-   end
+structure Array : ARRAY = struct
+   open Array
+   fun toList v = foldr op :: [] v
+   val listIso = (toList, fromList)
+   val toVector = vector
+   fun fromVector v = tabulate (Vector.length v, fn i => Vector.sub (v, i))
+   val vectorIso = (toVector, fromVector)
+end

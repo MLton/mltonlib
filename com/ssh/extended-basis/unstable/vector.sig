@@ -7,15 +7,14 @@
 (**
  * Extended {VECTOR} signature.
  *)
-signature VECTOR =
-   sig
-      include VECTOR
+signature VECTOR = sig
+   include VECTOR
 
-      (** == Conversions == *)
+   (** == Conversions == *)
 
-      val toList : 'a vector -> 'a list
+   val toList : 'a vector -> 'a list
 
-      (** == Isomorphisms == *)
+   (** == Isomorphisms == *)
 
-      val listIso : ('a vector, 'a list) iso
-   end
+   val listIso : ('a vector, 'a list) iso
+end

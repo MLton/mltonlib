@@ -7,10 +7,8 @@
 (**
  * Extended {Vector :> VECTOR} structure.
  *)
-
-structure Vector : VECTOR =
-   struct
-      open Vector
-      fun toList v = foldr op :: [] v
-      val listIso = (toList, fromList)
-   end
+structure Vector : VECTOR = struct
+   open Vector
+   fun toList v = foldr op :: [] v
+   val listIso = (toList, fromList)
+end
