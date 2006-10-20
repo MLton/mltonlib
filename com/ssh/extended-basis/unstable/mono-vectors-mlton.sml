@@ -4,9 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {MONO_VECTOR} modules for MLton.
- *)
+(** == Extended {MONO_VECTOR} modules for MLton == *)
 
 structure BoolVector : MONO_VECTOR = MkMonoVectorExt (BoolVector)
 

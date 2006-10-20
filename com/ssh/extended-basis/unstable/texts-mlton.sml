@@ -4,9 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {TEXT} modules for MLton.
- *)
+(** == Extended {TEXT} modules for MLton == *)
 
 structure Text       : TEXT        = MkTextExt (Text)
 structure Char       : CHAR        = Text.Char

@@ -4,9 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {REAL} modules for MLton.
- *)
+(** == Extended {REAL} modules for MLton == *)
 
 structure Real : REAL = MkRealExt (Real)
 

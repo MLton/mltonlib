@@ -4,9 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {WORD} modules for MLton.
- *)
+(** == Extended {WORD} modules for MLton == *)
 
 structure Word : WORD = MkWordExt (Word)
 structure LargeWord : WORD = MkWordExt (LargeWord)

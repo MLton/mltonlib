@@ -4,9 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(*
- * Extended {INTEGER} and {INT_INF} modules for MLton.
- *)
+(** == Extended {INTEGER} and {INT_INF} modules for MLton == *)
 
 structure Int : INTEGER = MkIntegerExt (Int)
 structure FixedInt : INTEGER = MkIntegerExt (FixedInt)

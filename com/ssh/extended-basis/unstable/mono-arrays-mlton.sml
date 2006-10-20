@@ -4,9 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {MONO_ARRAY} modules for MLton.
- *)
+(** == Extended {MONO_ARRAY} modules for MLton == *)
 
 structure BoolArray : MONO_ARRAY =
    MkMonoArrayExt (structure MonoArray = BoolArray
