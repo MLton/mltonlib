@@ -16,7 +16,18 @@ signature EMB = sig
    type ('a, 'b) emb = ('a, 'b) emb
 
    val id : ('a, 'a) emb
+   (**
+    * The identity embedding.  This is always equivalent to {(fn a => a,
+    * SOME)}.
+    *)
 
    val to : ('a, 'b) emb -> 'a -> 'b
+   (**
+    * Extracts the injection part of the given embedding.
+    *)
+
    val from : ('a, 'b) emb -> 'b -> 'a option
+   (**
+    * Extracts the projection part of the given embedding.
+    *)
 end

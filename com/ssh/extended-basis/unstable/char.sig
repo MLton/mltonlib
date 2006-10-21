@@ -9,7 +9,7 @@
  *)
 signature CHAR = sig
    include CHAR
-           
+
    (** == Bounds == *)
 
    val minOrd : Int.int
