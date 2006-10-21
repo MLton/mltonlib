@@ -24,17 +24,17 @@ signature WORD = sig
 
    (** == Embeddings == *)
 
-   val stringEmb : (word, string) emb
+   val embString : (word, string) emb
 
    (** == Isomorphisms == *)
 
-   val intIso : (word, Int.int) iso
-   val intXIso : (word, Int.int) iso
-   val largeIntIso : (word, LargeInt.int) iso
-   val largeIntXIso : (word, LargeInt.int) iso
-   val largeIso : (word, LargeWord.word) iso
-   val largeXIso : (word, LargeWord.word) iso
-   val wordIso : (word, Word.word) iso
+   val isoInt : (word, Int.int) iso
+   val isoIntX : (word, Int.int) iso
+   val isoLarge : (word, LargeWord.word) iso
+   val isoLargeInt : (word, LargeInt.int) iso
+   val isoLargeIntX : (word, LargeInt.int) iso
+   val isoLargeX : (word, LargeWord.word) iso
+   val isoWord : (word, Word.word) iso
 
    (** == Predicates == *)
 

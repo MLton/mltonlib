@@ -10,5 +10,5 @@
 structure Vector : VECTOR = struct
    open Vector
    fun toList v = foldr op :: [] v
-   val listIso = (toList, fromList)
+   val isoList = (toList, fromList)
 end

@@ -12,13 +12,13 @@ signature REAL = sig
 
    (** == Embeddings == *)
 
-   val decimalEmb : (real, IEEEReal.decimal_approx) emb
-   val stringEmb : (real, string) emb
+   val embDecimal : (real, IEEEReal.decimal_approx) emb
+   val embString : (real, string) emb
 
    (** == Isomorphisms == *)
 
-   val intIso : (real, Int.int) iso
-   val largeIntIso : (real, LargeInt.int) iso
-   val largeIso : (real, LargeReal.real) iso
-   val manExpIso : (real, {man : real, exp : int}) iso
+   val isoInt : (real, Int.int) iso
+   val isoLarge : (real, LargeReal.real) iso
+   val isoLargeInt : (real, LargeInt.int) iso
+   val isoManExp : (real, {man : real, exp : int}) iso
 end

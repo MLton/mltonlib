@@ -12,12 +12,12 @@ signature STRING = sig
 
    (** == Embeddings == *)
 
-   val cStringEmb : (string, string) emb
-   val stringEmb : (string, string) emb
+   val embCString : (string, string) emb
+   val embString : (string, string) emb
 
    (** == Isomorphisms == *)
 
-   val listIso : (string, char list) iso
+   val isoList : (string, char list) iso
 
    (** == {MONO_VECTOR} == *)
 
@@ -36,10 +36,10 @@ signature STRING = sig
    val foldri : (int * elem * 'a -> 'a) -> 'a -> vector -> 'a
    val fromList : elem list -> vector
    val fromPoly : elem Vector.vector -> vector
+   val isoPoly : (vector, elem Vector.vector) iso
    val length : vector -> int
    val mapi : (int * elem -> elem) -> vector -> vector
    val maxLen : int
-   val polyIso : (vector, elem Vector.vector) iso
    val tabulate : int * (int -> elem) -> vector
    val toList : vector -> elem list
    val toPoly : vector -> elem Vector.vector

@@ -19,6 +19,6 @@ signature MONO_VECTOR = sig
 
    (** == Isomorphisms == *)
 
-   val listIso : (vector, elem list) iso
-   val polyIso : (vector, elem Vector.vector) iso
+   val isoList : (vector, elem list) iso
+   val isoPoly : (vector, elem Vector.vector) iso
 end

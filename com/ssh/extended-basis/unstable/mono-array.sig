@@ -21,7 +21,7 @@ signature MONO_ARRAY = sig
 
    (** == Isomorphisms == *)
 
-   val listIso : (array, elem list) iso
-   val polyIso : (array, elem Array.array) iso
-   val vectorIso : (array, vector) iso
+   val isoList : (array, elem list) iso
+   val isoPoly : (array, elem Array.array) iso
+   val isoVector : (array, vector) iso
 end

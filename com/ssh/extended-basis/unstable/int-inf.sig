@@ -16,12 +16,12 @@ signature INT_INF = sig
 
    (** == Embeddings == *)
 
-   val stringEmb : (int, string) emb
+   val embString : (int, string) emb
 
    (** == Isomorphisms == *)
 
-   val intIso : (int, Int.int) iso
-   val largeIso : (int, LargeInt.int) iso
+   val isoInt : (int, Int.int) iso
+   val isoLarge : (int, LargeInt.int) iso
 
    (** == Predicates == *)
 

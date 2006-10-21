@@ -10,8 +10,8 @@
 structure Array : ARRAY = struct
    open Array
    fun toList v = foldr op :: [] v
-   val listIso = (toList, fromList)
+   val isoList = (toList, fromList)
    val toVector = vector
    fun fromVector v = tabulate (Vector.length v, fn i => Vector.sub (v, i))
-   val vectorIso = (toVector, fromVector)
+   val isoVector = (toVector, fromVector)
 end

@@ -10,10 +10,10 @@
 
 functor MkRealExt (R : REAL) = struct
    open R
-   val decimalEmb = (toDecimal, fromDecimal)
-   val intIso = (toInt IEEEReal.TO_NEAREST, fromInt)
-   val largeIso = (toLarge, fromLarge IEEEReal.TO_NEAREST)
-   val largeIntIso = (toLargeInt IEEEReal.TO_NEAREST, fromLargeInt)
-   val manExpIso = (toManExp, fromManExp)
-   val stringEmb = (toString, fromString)
+   val embDecimal = (toDecimal, fromDecimal)
+   val embString = (toString, fromString)
+   val isoInt = (toInt IEEEReal.TO_NEAREST, fromInt)
+   val isoLarge = (toLarge, fromLarge IEEEReal.TO_NEAREST)
+   val isoLargeInt = (toLargeInt IEEEReal.TO_NEAREST, fromLargeInt)
+   val isoManExp = (toManExp, fromManExp)
 end

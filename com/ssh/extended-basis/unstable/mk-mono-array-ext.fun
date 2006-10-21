@@ -13,13 +13,13 @@ functor MkMonoArrayExt (structure MonoVector : MONO_VECTOR
                            where type vector = MonoVector.vector) = struct
    open MonoArray
    fun toList a = foldr op :: [] a
-   val listIso = (toList, fromList)
+   val isoList = (toList, fromList)
    val toVector = vector
    fun fromVector v =
        tabulate (MonoVector.length v, fn i => MonoVector.sub (v, i))
-   val vectorIso = (toVector, fromVector)
+   val isoVector = (toVector, fromVector)
    fun toPoly a = Array.tabulate (length a, fn i => sub (a, i))
    fun fromPoly a = tabulate (Array.length a, fn i => Array.sub (a, i))
-   val polyIso = (toPoly, fromPoly)
+   val isoPoly = (toPoly, fromPoly)
 end
 

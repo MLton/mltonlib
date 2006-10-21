@@ -19,6 +19,6 @@ signature ARRAY = sig
 
    (** == Isomorphisms == *)
 
-   val listIso : ('a array, 'a list) iso
-   val vectorIso : ('a array, 'a vector) iso
+   val isoList : ('a array, 'a list) iso
+   val isoVector : ('a array, 'a vector) iso
 end

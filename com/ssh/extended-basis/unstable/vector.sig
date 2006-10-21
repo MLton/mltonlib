@@ -16,5 +16,5 @@ signature VECTOR = sig
 
    (** == Isomorphisms == *)
 
-   val listIso : ('a vector, 'a list) iso
+   val isoList : ('a vector, 'a list) iso
 end

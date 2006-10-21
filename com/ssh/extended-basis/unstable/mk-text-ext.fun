@@ -12,10 +12,10 @@ functor MkTextExt (T : TEXT) = struct
 
    structure Char = struct
       open Char
-      val intIso = (ord, chr)
       val minOrd = 0
       val boundsChar = (minChar, maxChar)
       val boundsOrd = (minOrd, maxOrd)
+      val isoInt = (ord, chr)
    end
 
    structure CharVector = MkMonoVectorExt (CharVector)
@@ -25,8 +25,8 @@ functor MkTextExt (T : TEXT) = struct
 
    structure String = struct
       open CharVector String
-      val listIso = (explode, implode)
-      val cStringEmb = (toCString, fromCString)
-      val stringEmb = (toString, fromString)
+      val embCString = (toCString, fromCString)
+      val embString = (toString, fromString)
+      val isoList = (explode, implode)
    end
 end
