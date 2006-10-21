@@ -33,7 +33,7 @@ signature CHAR = sig
 
    val isoInt : (char, Int.int) iso
    (**
-    * The isomorphism between characters and character codes.  It always
+    * An isomorphism between characters and character codes.  It always
     * equals {(ord, chr)}.  Note that the projection part of the
     * isomorphism, namely {chr}, is likely to be a partial function.
     *)

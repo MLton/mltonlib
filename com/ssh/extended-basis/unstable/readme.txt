@@ -36,12 +36,11 @@ Extended Basis Library
    easier to use.
 
    On the other hand, it probably doesn't make sense to put everything
-   into such extended basis library.  As a rule of thumb, things that
-   naturally belong (fuzzy, yes) to specific basis library modules and
-   what those things depend on should go into such an extended basis lib.
-   Everything else, even if looks like stuff that could be in a basis lib,
-   but there is no module in *the* basis lib for it, should go into other
-   libraries.
+   into this library.  As a rule of thumb, things that naturally belong
+   (fuzzy, yes) to specific basis library modules and what those things
+   depend on should go into this library.  Everything else, even if looks
+   like stuff that could be in a basis library, but there is no module in
+   *the* basis library for it, should go into other libraries.
 
 
 References

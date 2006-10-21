@@ -13,8 +13,16 @@ signature VECTOR = sig
    (** == Conversions == *)
 
    val toList : 'a vector -> 'a list
+   (**
+    * Generates a list from the given vector.  Specifically, the result of
+    * {toList v} is equivalent to {foldr op :: [] v}.
+    *)
 
    (** == Isomorphisms == *)
 
    val isoList : ('a vector, 'a list) iso
+   (**
+    * An isomorphism between vectors and lists.  It is always equivalent
+    * to {(toList, fromList)}.
+    *)
 end

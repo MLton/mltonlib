@@ -13,11 +13,24 @@ signature STRING = sig
    (** == Embeddings == *)
 
    val embCString : (string, string) emb
+   (**
+    * An embedding of strings into C-style string literals.  It is always
+    * equivalent to {(toCString, fromCString)}.
+    *)
+
    val embString : (string, string) emb
+   (**
+    * An embedding of strings into SML-style string literals.  It is
+    * always equivalent to {(toString, fromString)}.
+    *)
 
    (** == Isomorphisms == *)
 
    val isoList : (string, char list) iso
+   (**
+    * An isomorphism between strings and lists.  It is always equivalent
+    * to {(toList, fromList)}.
+    *)
 
    (** == {MONO_VECTOR} == *)
 
