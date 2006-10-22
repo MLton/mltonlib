@@ -4,84 +4,89 @@
  * See the file MLton-LICENSE for details.
  *)
 
-ann
-   "forceUsed"
-   "sequenceNonUnit warn"
-   "warnUnused true"
+local
+   $(SML_LIB)/basis/basis.mlb
 in
-   local
-      $(SML_LIB)/basis/basis.mlb
+   ann
+      "forceUsed"
+      "sequenceNonUnit warn"
+      "warnUnused true"
    in
-      (* New {Iso :> ISO} and {Emb :> EMB} modules *)
-      iso.sig
-      iso.sml
-      emb.sig
-      emb.sml
-
-      (* Extended integer modules *)
       local
-         mk-integer-ext.fun
-         mk-int-inf-ext.fun
-      in
-         int-inf.sig
-         integer.sig
-         ints-mlton.sml
-      end
+         (* New {Iso :> ISO} and {Emb :> EMB} modules *)
+         public/emb.sig
+         detail/emb.sml
+         public/iso.sig
+         detail/iso.sml
 
-      (* Extended real modules *)
-      local
-         mk-real-ext.fun
-      in
-         real.sig
-         reals-mlton.sml
-      end
-
-      (* Extended word modules *)
-      local
-         mk-word-ext.fun
-      in
-         word.sig
-         words-mlton.sml
-      end
-
-      (* Extended vector module *)
-      vector.sig
-      vector.sml
-
-      (* Extended array module
-       * (may depend on vector module)
-       *)
-      array.sig
-      array.sml
-
-      (* Extended mono vector modules *)
-      local
-         mk-mono-vector-ext.fun
-      in
-         mono-vector.sig
-         mono-vectors-mlton.sml
-
-         (* Extended mono array modules
-          * (may depend on mono vector modules)
-          *)
+         (* Extended integer modules *)
          local
-            mk-mono-array-ext.fun
+            detail/mk-integer-ext.fun
+            detail/mk-int-inf-ext.fun
          in
-            mono-array.sig
-            mono-arrays-mlton.sml
+            public/int-inf.sig
+            public/integer.sig
+            detail/mlton/ints.sml
+         end
 
-            (* Extended text modules
-             * (may depend on mono vector and mono array modules)
+         (* Extended real modules *)
+         local
+            detail/mk-real-ext.fun
+         in
+            public/real.sig
+            detail/mlton/reals.sml
+         end
+
+         (* Extended word modules *)
+         local
+            detail/mk-word-ext.fun
+         in
+            public/word.sig
+            detail/mlton/words.sml
+         end
+
+         (* Extended vector module *)
+         public/vector.sig
+         detail/vector.sml
+
+         (* Extended array module
+          * (may depend on vector module)
+          *)
+         public/array.sig
+         detail/array.sml
+
+         (* Extended mono vector modules *)
+         local
+            detail/mk-mono-vector-ext.fun
+         in
+            public/mono-vector.sig
+            detail/mlton/mono-vectors.sml
+
+            (* Extended mono array modules
+             * (may depend on mono vector modules)
              *)
             local
-               mk-text-ext.fun
+               detail/mk-mono-array-ext.fun
             in
-               char.sig
-               string.sig
-               text.sig
-               texts-mlton.sml
+               public/mono-array.sig
+               detail/mlton/mono-arrays.sml
+
+               (* Extended text modules
+                * (may depend on mono vector and mono array modules)
+                *)
+               local
+                  detail/mk-text-ext.fun
+               in
+                  public/char.sig
+                  public/string.sig
+                  public/text.sig
+                  detail/mlton/texts.sml
+               end
             end
          end
+      in
+         public/export.sml
+         public/export-mlton.sml
       end
    end
 end
