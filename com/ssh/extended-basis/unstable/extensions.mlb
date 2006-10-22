@@ -1,0 +1,87 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+ann
+   "forceUsed"
+   "sequenceNonUnit warn"
+   "warnUnused true"
+in
+   local
+      $(SML_LIB)/basis/basis.mlb
+   in
+      (* New {Iso :> ISO} and {Emb :> EMB} modules *)
+      iso.sig
+      iso.sml
+      emb.sig
+      emb.sml
+
+      (* Extended integer modules *)
+      local
+         mk-integer-ext.fun
+         mk-int-inf-ext.fun
+      in
+         int-inf.sig
+         integer.sig
+         ints-mlton.sml
+      end
+
+      (* Extended real modules *)
+      local
+         mk-real-ext.fun
+      in
+         real.sig
+         reals-mlton.sml
+      end
+
+      (* Extended word modules *)
+      local
+         mk-word-ext.fun
+      in
+         word.sig
+         words-mlton.sml
+      end
+
+      (* Extended vector module *)
+      vector.sig
+      vector.sml
+
+      (* Extended array module
+       * (may depend on vector module)
+       *)
+      array.sig
+      array.sml
+
+      (* Extended mono vector modules *)
+      local
+         mk-mono-vector-ext.fun
+      in
+         mono-vector.sig
+         mono-vectors-mlton.sml
+
+         (* Extended mono array modules
+          * (may depend on mono vector modules)
+          *)
+         local
+            mk-mono-array-ext.fun
+         in
+            mono-array.sig
+            mono-arrays-mlton.sml
+
+            (* Extended text modules
+             * (may depend on mono vector and mono array modules)
+             *)
+            local
+               mk-text-ext.fun
+            in
+               char.sig
+               string.sig
+               text.sig
+               texts-mlton.sml
+            end
+         end
+      end
+   end
+end
