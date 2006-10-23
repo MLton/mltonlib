@@ -7,13 +7,12 @@
 (**
  * Functor for extending {REAL} modules.
  *)
-
 functor MkRealExt (R : REAL) = struct
    open R
    val embDecimal = (toDecimal, fromDecimal)
    val embString = (toString, fromString)
-   val isoInt = (toInt IEEEReal.TO_NEAREST, fromInt)
-   val isoLarge = (toLarge, fromLarge IEEEReal.TO_NEAREST)
-   val isoLargeInt = (toLargeInt IEEEReal.TO_NEAREST, fromLargeInt)
+   fun isoInt mode = (toInt mode, fromInt)
+   fun isoLarge mode = (toLarge, fromLarge mode)
+   fun isoLargeInt mode = (toLargeInt mode, fromLargeInt)
    val isoManExp = (toManExp, fromManExp)
 end

@@ -17,8 +17,8 @@ signature REAL = sig
 
    (** == Isomorphisms == *)
 
-   val isoInt : (real, Int.int) iso
-   val isoLarge : (real, LargeReal.real) iso
-   val isoLargeInt : (real, LargeInt.int) iso
+   val isoInt : IEEEReal.rounding_mode -> (real, Int.int) iso
+   val isoLarge : IEEEReal.rounding_mode -> (real, LargeReal.real) iso
+   val isoLargeInt : IEEEReal.rounding_mode -> (real, LargeInt.int) iso
    val isoManExp : (real, {man : real, exp : int}) iso
 end
