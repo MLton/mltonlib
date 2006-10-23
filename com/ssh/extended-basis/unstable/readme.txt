@@ -12,6 +12,15 @@ Extended Basis Library
    functions such as isZero, isEven and isOdd.
 
 
+Info
+----
+
+   License:         MLton-LICENSE
+   Portability:     portable
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.karvonen@cs.helsinki.fi>
+
+
 About Library Organization
 --------------------------
 
@@ -44,7 +53,7 @@ About Library Organization
 
       This directory contains the implementation details of the library.
 
-   detail/<compiler>/
+   detail/<COMPILER>/
 
       These directories (e.g. detail/mlton/) contain compiler specific
       implementation details.  Different compilers implement different
@@ -84,6 +93,28 @@ About Motivation and Scope
    depend on should go into this library.  Everything else, even if looks
    like stuff that could be in a basis library, but there is no module in
    *the* basis library for it, should go into other libraries.
+
+
+Contributions
+-------------
+
+   The signatures and structures defined by this library are not meant to
+   be cast in stone!  We welcome contributions including new extensions,
+   bugfixes, and ports to new compilers.  The recommended submit method
+   for small contributions to this library is to send a message with a
+   brief description of the proposed contribution as well as a patch
+   containing full code and documentation (signature comments) to either
+   the MLton-user list
+
+      mlton-user@mlton.org
+
+   or the MLton list
+
+      mlton@mlton.org .
+
+   For larger extensions or changes we recommend that you first contact
+   the active maintainer(s) of this library.  The preferred contact method
+   is through the above mailing lists.
 
 
 References
