@@ -27,7 +27,7 @@ About Library Organization
    public/
 
       This directory contains the documented signature definitions (*.sig)
-      and listings of all all top-level bindings exported by this library
+      and listings of all top-level bindings exported by this library
       (export*.sml).  The contents of this directory should be sufficient
       to understand the extensions provided by this library.
 
