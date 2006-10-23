@@ -20,7 +20,10 @@ signature WORD = sig
    (** == Conversions == *)
 
    val fromWord : Word.word -> word
+   val fromWordX : Word.word -> word
+
    val toWord : word -> Word.word
+   val toWordX : word -> Word.word
 
    (** == Embeddings == *)
 
@@ -35,6 +38,7 @@ signature WORD = sig
    val isoLargeIntX : (word, LargeInt.int) iso
    val isoLargeX : (word, LargeWord.word) iso
    val isoWord : (word, Word.word) iso
+   val isoWordX : (word, Word.word) iso
 
    (** == Predicates == *)
 
