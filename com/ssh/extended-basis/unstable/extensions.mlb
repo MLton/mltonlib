@@ -4,6 +4,17 @@
  * See the file MLton-LICENSE for details.
  *)
 
+(*
+ * This basis file defines only the extensions provided by this library.
+ * Users may refer to this basis file, but this is probably more
+ * interesting to maintainers.  You can, for example, run the command
+ *
+ *    mlton -stop tc -show-basis extensions.basis extensions.mlb
+ *
+ * and inspect the generated file (extensions.basis) to get a precise and
+ * accurate picture of the extensions provided by this library.
+ *)
+
 local
    $(SML_LIB)/basis/basis.mlb
 in

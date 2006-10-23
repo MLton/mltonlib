@@ -4,5 +4,11 @@
  * See the file MLton-LICENSE for details.
  *)
 
+(*
+ * This basis file defines the extended basis library including all of the
+ * original basis library.  The idea is that users refer to this instead
+ * of the original basis library.
+ *)
+
 $(SML_LIB)/basis/basis.mlb
 extensions.mlb

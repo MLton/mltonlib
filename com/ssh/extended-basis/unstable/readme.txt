@@ -11,6 +11,49 @@ Extended Basis Library
    fromX)), bounds (pairs of the form (minX, maxX)), and simple utility
    functions such as isZero, isEven and isOdd.
 
+
+About Library Organization
+--------------------------
+
+   public/
+
+      This directory contains the documented signature definitions (*.sig)
+      and listings of all all top-level bindings exported by this library
+      (export*.sml).  The contents of this directory should be sufficient
+      to understand the extensions provided by this library.
+
+   basis.mlb
+
+      This basis file defines the extended basis library including all of
+      the original basis library.  The idea is that users refer to this
+      instead of the original basis library.
+
+   extensions.mlb
+
+      This basis file defines only the extensions provided by this
+      library.  Users may refer to this basis file, but this is probably
+      more interesting to maintainers.  You can, for example, run the
+      command
+
+         mlton -stop tc -show-basis extensions.basis extensions.mlb
+
+      and inspect the generated file (extensions.basis) to get a precise
+      and accurate picture of the extensions provided by this library.
+
+   detail/
+
+      This directory contains the implementation details of the library.
+
+   detail/<compiler>/
+
+      These directories (e.g. detail/mlton/) contain compiler specific
+      implementation details.  Different compilers implement different
+      subsets of the original basis library.
+
+
+About Motivation and Scope
+--------------------------
+
    The basis library, while certainly not perfect, is a valuable library
    and it doesn't make sense to throw it away.  There is a book describing
    the basis library and people just learning SML are likely to spend time
