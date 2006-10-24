@@ -4,7 +4,8 @@
  * See the file MLton-LICENSE for details.
  *)
 
-library
-   library(workarounds/basis.cm) - library(../../extensions.cm)
-is
-   workarounds/basis.cm
+functor MkRealSane (R : REAL) = struct
+   open R
+   val fromDecimal' = fromDecimal
+   fun fromDecimal d = SOME (fromDecimal' d) handle _ => NONE
+end

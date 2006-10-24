@@ -5,7 +5,6 @@
  *)
 
 group is
-   $/basis.cm
    ../mk-int-inf-ext.fun
    ../mk-integer-ext.fun
    ../mk-mono-array-ext.fun
@@ -13,3 +12,4 @@ group is
    ../mk-real-ext.fun
    ../mk-text-ext.fun
    ../mk-word-ext.fun
+   workarounds/basis.cm

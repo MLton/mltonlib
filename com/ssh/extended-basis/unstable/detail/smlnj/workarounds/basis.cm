@@ -5,6 +5,8 @@
  *)
 
 library
-   library(workarounds/basis.cm) - library(../../extensions.cm)
+   group(basis-minus-sane.cm)
+   library(sane.cm)
 is
-   workarounds/basis.cm
+   basis-minus-sane.cm
+   sane.cm

@@ -4,7 +4,9 @@
  * See the file MLton-LICENSE for details.
  *)
 
-library
-   library(workarounds/basis.cm) - library(../../extensions.cm)
-is
-   workarounds/basis.cm
+functor MkWordSane (W : WORD) = struct
+   open W
+   val fromLarge = fromLargeWord
+   val toLarge = toLargeWord
+   val toLargeX = toLargeWordX
+end

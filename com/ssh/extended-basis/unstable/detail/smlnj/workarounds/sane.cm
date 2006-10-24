@@ -5,6 +5,14 @@
  *)
 
 library
-   library(workarounds/basis.cm) - library(../../extensions.cm)
+   source(real.sig)
+   source(reals.sml)
+   source(word.sig)
+   source(words.sml)
 is
-   workarounds/basis.cm
+   $/basis.cm
+   funs.cm
+   real.sig
+   reals.sml
+   word.sig
+   words.sml

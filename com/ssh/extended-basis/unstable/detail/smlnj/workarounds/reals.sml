@@ -4,7 +4,8 @@
  * See the file MLton-LICENSE for details.
  *)
 
-library
-   library(workarounds/basis.cm) - library(../../extensions.cm)
-is
-   workarounds/basis.cm
+structure Real = MkRealSane (Real)
+
+structure LargeReal = MkRealSane (LargeReal)
+
+structure Real64 = MkRealSane (Real64)

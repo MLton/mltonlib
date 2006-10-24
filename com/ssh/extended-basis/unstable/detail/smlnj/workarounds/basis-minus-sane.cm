@@ -4,7 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-library
-   library(workarounds/basis.cm) - library(../../extensions.cm)
+group
+   library($/basis.cm) - library(sane.cm)
 is
-   workarounds/basis.cm
+   $/basis.cm

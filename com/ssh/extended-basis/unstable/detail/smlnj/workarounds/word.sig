@@ -4,7 +4,9 @@
  * See the file MLton-LICENSE for details.
  *)
 
-library
-   library(workarounds/basis.cm) - library(../../extensions.cm)
-is
-   workarounds/basis.cm
+signature WORD = sig
+   include WORD
+   val fromLarge : LargeWord.word -> word
+   val toLarge : word -> LargeWord.word
+   val toLargeX : word -> LargeWord.word
+end
