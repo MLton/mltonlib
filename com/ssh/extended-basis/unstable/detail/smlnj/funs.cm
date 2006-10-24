@@ -1,0 +1,15 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+group is
+   $/basis.cm
+   ../mk-int-inf-ext.fun
+   ../mk-integer-ext.fun
+   ../mk-mono-array-ext.fun
+   ../mk-mono-vector-ext.fun
+   ../mk-real-ext.fun
+   ../mk-text-ext.fun
+   ../mk-word-ext.fun

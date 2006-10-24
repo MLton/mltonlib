@@ -1,0 +1,32 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+group is
+   $/basis.cm
+   ../array.sml
+   ../emb.sml
+   ../iso.sml
+   ../smlnj/ints.sml
+   ../smlnj/mono-arrays.sml
+   ../smlnj/mono-vectors.sml
+   ../smlnj/reals.sml
+   ../smlnj/texts.sml
+   ../smlnj/words.sml
+   ../vector.sml
+   funs.cm
+   ../../public/array.sig
+   ../../public/char.sig
+   ../../public/emb.sig
+   ../../public/int-inf.sig
+   ../../public/integer.sig
+   ../../public/iso.sig
+   ../../public/mono-array.sig
+   ../../public/mono-vector.sig
+   ../../public/real.sig
+   ../../public/string.sig
+   ../../public/text.sig
+   ../../public/vector.sig
+   ../../public/word.sig

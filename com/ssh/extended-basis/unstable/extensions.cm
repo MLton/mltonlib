@@ -1,0 +1,13 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+library
+   source(public/export-smlnj.sml)
+   source(public/export.sml)
+is
+   detail/smlnj/unsealed.cm
+   public/export-smlnj.sml
+   public/export.sml
