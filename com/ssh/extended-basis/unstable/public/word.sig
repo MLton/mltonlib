@@ -67,7 +67,7 @@ signature WORD = sig
 
    (** == Embeddings == *)
 
-   val embString : (word, string) emb
+   val embString : (word, string) Emb.emb
    (**
     * An embedding of words into strings.  It is always equivalent to
     * {(toString, fromString)}.
@@ -75,49 +75,49 @@ signature WORD = sig
 
    (** == Isomorphisms == *)
 
-   val isoInt : (word, Int.int) iso
+   val isoInt : (word, Int.int) Iso.iso
    (**
     * An isomorphism between words of type {word} and the default integer
     * type.  It is always equivalent to {(toInt, fromInt)}.
     *)
 
-   val isoIntX : (word, Int.int) iso
+   val isoIntX : (word, Int.int) Iso.iso
    (**
     * An isomorphism between words of type {word} and the default integer
     * type.  It is always equivalent to {(toIntX, fromInt)}.
     *)
 
-   val isoLarge : (word, LargeWord.word) iso
+   val isoLarge : (word, LargeWord.word) Iso.iso
    (**
     * An isomorphism between words of type {word} and the {LargeWord.word}
     * type.  It is always equivalent to {(toLarge, fromLarge)}.
     *)
 
-   val isoLargeInt : (word, LargeInt.int) iso
+   val isoLargeInt : (word, LargeInt.int) Iso.iso
    (**
     * An isomorphism between words of type {word} and the {LargeInt.int}
     * type.  It is always equivalent to {(toLargeInt, fromLargeInt)}.
     *)
 
-   val isoLargeIntX : (word, LargeInt.int) iso
+   val isoLargeIntX : (word, LargeInt.int) Iso.iso
    (**
     * An isomorphism between words of type {word} and the {LargeInt.int}
     * type.  It is always equivalent to {(toLargeIntX, fromLargeInt)}.
     *)
 
-   val isoLargeX : (word, LargeWord.word) iso
+   val isoLargeX : (word, LargeWord.word) Iso.iso
    (**
     * An isomorphism between words of type {word} and the {LargeWord.word}
     * type.  It is always equivalent to {(toLargeX, fromLarge)}.
     *)
 
-   val isoWord : (word, Word.word) iso
+   val isoWord : (word, Word.word) Iso.iso
    (**
     * An isomorphism between words of type {word} and the default word
     * type.  It is always equivalent to {(toWord, fromWord)}.
     *)
 
-   val isoWordX : (word, Word.word) iso
+   val isoWordX : (word, Word.word) Iso.iso
    (**
     * An isomorphism between words of type {word} and the default word
     * type.  It is always equivalent to {(toWordX, fromWordX)}.

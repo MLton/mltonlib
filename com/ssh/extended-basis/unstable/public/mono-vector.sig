@@ -36,13 +36,13 @@ signature MONO_VECTOR = sig
 
    (** == Isomorphisms == *)
 
-   val isoList : (vector, elem list) iso
+   val isoList : (vector, elem list) Iso.iso
    (**
     * An isomorphism between vectors and lists.  It is always equivalent
     * to {(toList, fromList)}.
     *)
 
-   val isoPoly : (vector, elem Vector.vector) iso
+   val isoPoly : (vector, elem Vector.vector) Iso.iso
    (**
     * An isomorphism between monomorphic and polymorphic vectors.  It is
     * always equivalent to {(toPoly, fromPoly)}.

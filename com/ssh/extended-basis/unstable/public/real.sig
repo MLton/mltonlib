@@ -12,13 +12,13 @@ signature REAL = sig
 
    (** == Embeddings == *)
 
-   val embDecimal : (real, IEEEReal.decimal_approx) emb
+   val embDecimal : (real, IEEEReal.decimal_approx) Emb.emb
    (**
     * An embedding of reals into decimal approximations.  It is always
     * equivalent to {(toDecimal, fromDecimal)}.
     *)
 
-   val embString : (real, string) emb
+   val embString : (real, string) Emb.emb
    (**
     * An embedding of reals into strings.  It is always equivalent to
     * {(toString, fromString)}.
@@ -26,7 +26,7 @@ signature REAL = sig
 
    (** == Isomorphisms == *)
 
-   val isoInt : IEEEReal.rounding_mode -> (real, Int.int) iso
+   val isoInt : IEEEReal.rounding_mode -> (real, Int.int) Iso.iso
    (**
     * Returns an isomorphism between integers of type {Int.int} and reals
     * given a rounding mode.  Specifically, the result of {isoInt mode} is
@@ -34,7 +34,7 @@ signature REAL = sig
     * an isomorphism in the mathematical sense.
     *)
 
-   val isoLarge : IEEEReal.rounding_mode -> (real, LargeReal.real) iso
+   val isoLarge : IEEEReal.rounding_mode -> (real, LargeReal.real) Iso.iso
    (**
     * Returns an isomorphism between reals of type {LargeReal.real} and
     * reals of type {real} given a rounding mode.  Specifically, the
@@ -43,7 +43,7 @@ signature REAL = sig
     * mathematical sense.
     *)
 
-   val isoLargeInt : IEEEReal.rounding_mode -> (real, LargeInt.int) iso
+   val isoLargeInt : IEEEReal.rounding_mode -> (real, LargeInt.int) Iso.iso
    (**
     * Returns an isomorphism between integers of type {LargeInt.int} and
     * reals given a rounding mode.  Specifically, the result of
@@ -52,7 +52,7 @@ signature REAL = sig
     * mathematical sense.
     *)
 
-   val isoManExp : (real, {man : real, exp : int}) iso
+   val isoManExp : (real, {man : real, exp : int}) Iso.iso
    (**
     * An isomorphism between reals and their representation as a mantissa
     * and an exponent.  It is always equivalent to {(toManExp,

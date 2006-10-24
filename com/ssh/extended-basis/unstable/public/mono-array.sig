@@ -57,21 +57,21 @@ signature MONO_ARRAY = sig
 
    (** == Isomorphisms == *)
 
-   val isoList : (array, elem list) iso
+   val isoList : (array, elem list) Iso.iso
    (**
     * An isomorphism between arrays and lists.  It is always equivalent to
     * {(toList, fromList)}.  Note that the isomorphism does not preserve
     * identity.
     *)
 
-   val isoPoly : (array, elem Array.array) iso
+   val isoPoly : (array, elem Array.array) Iso.iso
    (**
     * An isomorphism between monomorphic and polymorphic arrays.  It is
     * always equivalent to {(toPoly, fromPoly)}.  Note that the
     * isomorphism does not preserve identity.
     *)
 
-   val isoVector : (array, vector) iso
+   val isoVector : (array, vector) Iso.iso
    (**
     * An isomorphism between arrays and vectors.  It is always equivalent
     * to {(toVector, fromVector)}.  Note that the isomorphism does not
