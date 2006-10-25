@@ -31,18 +31,18 @@ About Library Organization
       (export*.sml).  The contents of this directory should be sufficient
       to understand the extensions provided by this library.
 
-   basis.mlb
+   basis.mlb, basis.cm
 
-      This basis file defines the extended basis library including all of
-      the original basis library.  The idea is that users refer to this
-      instead of the original basis library.
+      These build files define the extended basis library including all of
+      the original basis library.  The idea is that users refer to one of
+      these, depending on the compiler, instead of the original basis
+      library.
 
-   extensions.mlb
+   extensions.mlb, extensions.cm
 
-      This basis file defines only the extensions provided by this
-      library.  Users may refer to this basis file, but this is probably
-      more interesting to maintainers.  You can, for example, run the
-      command
+      These build files define only the extensions provided by this
+      library.  Users may refer to these files, but they are probably more
+      interesting to maintainers.  You can, for example, run the command
 
          mlton -stop tc -show-basis extensions.basis extensions.mlb
 
@@ -58,6 +58,14 @@ About Library Organization
       These directories (e.g. detail/mlton/) contain compiler specific
       implementation details.  Different compilers implement different
       subsets of the original basis library.
+
+   detail/<COMPILER>/workarounds/
+
+      These directories (e.g. detail/smlnj/workarounds) contain compiler
+      specific workarounds.  The idea is that workarounds are separated
+      from other code so that once a compiler becomes more conforming to
+      the language definition and basis library specification, the
+      workarounds can be easily removed.
 
 
 About Motivation and Scope
