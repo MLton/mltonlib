@@ -1,0 +1,16 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+val () =
+    app (fn file => use ("detail/smlnj/workarounds/"^file))
+        ["mk-real-sane.fun",
+         "real.sig",
+         "reals.sml",
+         "mk-word-sane.fun",
+         "word.sig",
+         "words.sml"]
+
+(* XXX Is there a way to "forget" top-level bindings in SML/NJ? *)
