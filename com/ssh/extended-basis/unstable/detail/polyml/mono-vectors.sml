@@ -6,7 +6,6 @@
 
 (** == Extended {MONO_VECTOR} modules for Poly/ML == *)
 
-structure BoolVector  : MONO_VECTOR = MkMonoVectorExt (BoolVector)
-structure IntVector   : MONO_VECTOR = MkMonoVectorExt (IntVector)
-structure RealVector  : MONO_VECTOR = MkMonoVectorExt (RealVector)
-structure Word8Vector : MONO_VECTOR = MkMonoVectorExt (Word8Vector)
+structure BoolVector : MONO_VECTOR = MkMonoVectorExt (BoolVector)
+structure IntVector  : MONO_VECTOR = MkMonoVectorExt (IntVector)
+structure RealVector : MONO_VECTOR = MkMonoVectorExt (RealVector)

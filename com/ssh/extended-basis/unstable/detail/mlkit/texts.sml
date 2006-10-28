@@ -5,9 +5,3 @@
  *)
 
 (** == Extended {TEXT} modules for MLKit == *)
-
-structure Text       : TEXT        = MkTextExt (Text)
-structure Char       : CHAR        = Text.Char
-structure CharArray  : MONO_ARRAY  = Text.CharArray
-structure CharVector : MONO_VECTOR = Text.CharVector
-structure String     : STRING      = Text.String

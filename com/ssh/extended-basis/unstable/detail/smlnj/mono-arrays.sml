@@ -12,7 +12,3 @@ structure RealArray =
 structure Real64Array =
    MkMonoArrayExt (structure MonoArray = Real64Array
                    structure MonoVector = Real64Vector)
-
-structure Word8Array =
-   MkMonoArrayExt (structure MonoArray = Word8Array
-                   structure MonoVector = Word8Vector)

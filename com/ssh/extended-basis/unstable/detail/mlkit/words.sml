@@ -6,11 +6,7 @@
 
 (** == Extended {WORD} modules for MLKit == *)
 
-structure Word      : WORD = MkWordExt (Word)
-structure LargeWord : WORD = MkWordExt (LargeWord)
-structure SysWord   : WORD = MkWordExt (SysWord)
-
-structure Word8 : WORD = MkWordExt (Word8)
+structure SysWord : WORD = MkWordExt (SysWord)
 
 structure Word31 : WORD = MkWordExt (Word31)
 structure Word32 : WORD = MkWordExt (Word32)

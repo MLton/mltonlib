@@ -6,10 +6,7 @@
 
 (** == Extended {INTEGER} and {INT_INF} modules for SML/NJ == *)
 
-structure Int      = MkIntegerExt (Int)
 structure FixedInt = MkIntegerExt (FixedInt)
-structure LargeInt = MkIntegerExt (LargeInt)
-structure Position = MkIntegerExt (Position)
 
 structure Int31 = MkIntegerExt (Int31)
 structure Int32 = MkIntegerExt (Int32)

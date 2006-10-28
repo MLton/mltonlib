@@ -19,13 +19,13 @@ group is
    ../../public/vector.sig
    ../../public/word.sig
    ../array.sml
+   ../common.sml
    ../emb.sml
    ../iso.sml
    ../smlnj/ints.sml
    ../smlnj/mono-arrays.sml
    ../smlnj/mono-vectors.sml
    ../smlnj/reals.sml
-   ../smlnj/texts.sml
    ../smlnj/words.sml
    ../vector.sml
    funs.cm

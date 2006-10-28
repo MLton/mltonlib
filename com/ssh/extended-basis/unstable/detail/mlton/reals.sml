@@ -6,9 +6,5 @@
 
 (** == Extended {REAL} modules for MLton == *)
 
-structure Real : REAL = MkRealExt (Real)
-
-structure LargeReal : REAL = MkRealExt (LargeReal)
-
 structure Real32 : REAL = MkRealExt (Real32)
 structure Real64 : REAL = MkRealExt (Real64)

@@ -22,7 +22,6 @@ structure Real64Vector    : MONO_VECTOR = MkMonoVectorExt (Real64Vector)
 
 structure WordVector      : MONO_VECTOR = MkMonoVectorExt (WordVector)
 structure LargeWordVector : MONO_VECTOR = MkMonoVectorExt (LargeWordVector)
-structure Word8Vector     : MONO_VECTOR = MkMonoVectorExt (Word8Vector)
 structure Word16Vector    : MONO_VECTOR = MkMonoVectorExt (Word16Vector)
 structure Word32Vector    : MONO_VECTOR = MkMonoVectorExt (Word32Vector)
 structure Word64Vector    : MONO_VECTOR = MkMonoVectorExt (Word64Vector)

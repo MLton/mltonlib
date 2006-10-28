@@ -6,8 +6,4 @@
 
 (** == Extended {INTEGER} and {INT_INF} modules for Poly/ML == *)
 
-structure Int      : INTEGER = MkIntegerExt (Int)
-structure LargeInt : INTEGER = MkIntegerExt (LargeInt)
-structure Position : INTEGER = MkIntegerExt (Position)
-
 structure IntInf : INT_INF = MkIntInfExt (IntInf)

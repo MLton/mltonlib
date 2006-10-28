@@ -5,6 +5,3 @@
  *)
 
 (** == Extended {REAL} modules for Poly/ML == *)
-
-structure Real      : REAL = MkRealExt (Real)
-structure LargeReal : REAL = MkRealExt (LargeReal)

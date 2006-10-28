@@ -5,5 +5,3 @@
  *)
 
 (** == Extended {MONO_VECTOR} modules for MLKit == *)
-
-structure Word8Vector : MONO_VECTOR = MkMonoVectorExt (Word8Vector)

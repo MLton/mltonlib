@@ -6,8 +6,4 @@
 
 (** == Extended {REAL} modules for MLKit == *)
 
-structure Real : REAL = MkRealExt (Real)
-
-structure LargeReal : REAL = MkRealExt (LargeReal)
-
 structure Real64 : REAL = MkRealExt (Real64)

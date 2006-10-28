@@ -17,7 +17,3 @@ structure IntArray : MONO_ARRAY =
 structure RealArray : MONO_ARRAY =
    MkMonoArrayExt (structure MonoArray = RealArray
                    structure MonoVector = RealVector)
-
-structure Word8Array : MONO_ARRAY =
-   MkMonoArrayExt (structure MonoArray = Word8Array
-                   structure MonoVector = Word8Vector)

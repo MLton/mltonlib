@@ -6,7 +6,5 @@
 
 (** == Extended {MONO_VECTOR} modules for SML/NJ == *)
 
-structure RealVector      = MkMonoVectorExt (RealVector)
-structure Real64Vector    = MkMonoVectorExt (Real64Vector)
-
-structure Word8Vector     = MkMonoVectorExt (Word8Vector)
+structure RealVector = MkMonoVectorExt (RealVector)
+structure Real64Vector = MkMonoVectorExt (Real64Vector)

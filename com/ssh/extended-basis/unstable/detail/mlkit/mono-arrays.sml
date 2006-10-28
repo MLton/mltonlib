@@ -5,7 +5,3 @@
  *)
 
 (** == Extended {MONO_ARRAY} modules for MLKit == *)
-
-structure Word8Array : MONO_ARRAY =
-   MkMonoArrayExt (structure MonoArray = Word8Array
-                   structure MonoVector = Word8Vector)

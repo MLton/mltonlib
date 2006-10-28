@@ -6,11 +6,7 @@
 
 (** == Extended {WORD} modules for SML/NJ == *)
 
-structure Word      = MkWordExt (Word)
-structure LargeWord = MkWordExt (LargeWord)
-structure SysWord   = MkWordExt (SysWord)
-
-structure Word8  = MkWordExt (Word8)
+structure SysWord = MkWordExt (SysWord)
 
 structure Word31 = MkWordExt (Word31)
 structure Word32 = MkWordExt (Word32)

@@ -5,9 +5,3 @@
  *)
 
 (** == Extended {TEXT} modules for SML/NJ == *)
-
-structure Text       = MkTextExt (Text)
-structure Char       = Text.Char
-structure CharArray  = Text.CharArray
-structure CharVector = Text.CharVector
-structure String     = Text.String
