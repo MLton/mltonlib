@@ -1,0 +1,15 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+val () =
+    app (fn file => use ("detail/polyml/workarounds/"^file))
+        ["mk-real-sane.fun",
+         "real.sig",
+         "reals.sml"]
+
+val () =
+    app PolyML.Compiler.forgetFunctor
+        ["MkRealSane"]

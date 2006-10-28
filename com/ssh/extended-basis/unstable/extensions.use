@@ -1,0 +1,65 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+local
+   val compiler =
+       case OS.Process.getEnv "SML_COMPILER" of
+          SOME c => c
+        | NONE => raise Fail "The SML_COMPILER env var isn't defined"
+in
+   val () =
+       app use
+           [(* NOTE: Order matters. *)
+
+            (* Workarounds (if any) *)
+            "detail/"^compiler^"/workarounds.use",
+
+            (* New {Iso :> ISO} and {Emb :> EMB} modules *)
+            "public/emb.sig",
+            "detail/emb.sml",
+            "public/iso.sig",
+            "detail/iso.sml",
+
+            (* Extension functors *)
+            "detail/mk-integer-ext.fun",
+            "detail/mk-int-inf-ext.fun",
+            "detail/mk-real-ext.fun",
+            "detail/mk-word-ext.fun",
+            "detail/mk-mono-vector-ext.fun",
+            "detail/mk-mono-array-ext.fun",
+            "detail/mk-text-ext.fun",
+
+            (* Extended signatures *)
+            "public/int-inf.sig",
+            "public/integer.sig",
+            "public/real.sig",
+            "public/word.sig",
+            "public/vector.sig",
+            "public/array.sig",
+            "public/mono-vector.sig",
+            "public/mono-array.sig",
+            "public/char.sig",
+            "public/string.sig",
+            "public/text.sig",
+
+            (* Extended modules *)
+            "detail/vector.sml",
+            "detail/array.sml",
+            "detail/common.sml",
+            "detail/"^compiler^"/ints.sml",
+            "detail/"^compiler^"/reals.sml",
+            "detail/"^compiler^"/words.sml",
+            "detail/"^compiler^"/mono-vectors.sml",
+            "detail/"^compiler^"/mono-arrays.sml",
+            "detail/"^compiler^"/texts.sml",
+
+            (* Forget implementation details (if possible) *)
+            "detail/"^compiler^"/forget.use",
+
+            (* Export filter *)
+            "public/export.sml",
+            "public/export-"^compiler^".sml"]
+end
