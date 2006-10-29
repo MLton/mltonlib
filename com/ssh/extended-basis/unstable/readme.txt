@@ -31,14 +31,14 @@ About Library Organization
       (export*.sml).  The contents of this directory should be sufficient
       to understand the extensions provided by this library.
 
-   basis.mlb, basis.cm
+   basis.{cm,mlb,use}
 
       These build files define the extended basis library including all of
       the original basis library.  The idea is that users refer to one of
       these, depending on the compiler, instead of the original basis
       library.  See the build files for further instructions.
 
-   extensions.mlb, extensions.cm
+   extensions.{cm,mlb,use}
 
       These build files define only the extensions provided by this
       library.  Users may refer to these files, but they are probably more
