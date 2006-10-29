@@ -4,6 +4,9 @@
  * See the file MLton-LICENSE for details.
  *)
 
+(**
+ * Extended {SUBSTRING} signature.
+ *)
 signature SUBSTRING = sig
    include SUBSTRING
 
