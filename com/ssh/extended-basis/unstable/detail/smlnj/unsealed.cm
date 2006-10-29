@@ -11,6 +11,7 @@ group is
    ../../public/int-inf.sig
    ../../public/integer.sig
    ../../public/iso.sig
+   ../../public/list.sig
    ../../public/mono-array.sig
    ../../public/mono-vector.sig
    ../../public/real.sig
@@ -23,6 +24,7 @@ group is
    ../common.sml
    ../emb.sml
    ../iso.sml
+   ../list.sml
    ../smlnj/ints.sml
    ../smlnj/mono-arrays.sml
    ../smlnj/mono-vectors.sml

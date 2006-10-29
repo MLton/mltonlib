@@ -54,6 +54,7 @@ in
          public/integer.sig
          public/real.sig
          public/word.sig
+         public/list.sig
          public/vector.sig
          public/array.sig
          public/mono-vector.sig
@@ -64,6 +65,7 @@ in
          public/text.sig
 
          (* Extended modules *)
+         detail/list.sml
          detail/vector.sml
          detail/array.sml
          detail/common.sml
