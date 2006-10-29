@@ -4,16 +4,14 @@
  * See the file MLton-LICENSE for details.
  *)
 
-type ('a, 'b) emb = ('a -> 'b) * ('b -> 'a option)
-(**
- * Embedding of {'a} into {'b} with injection and projection functions.
- *)
-
 (**
  * Signature for the {Emb} structure for embeddings.
  *)
 signature EMB = sig
-   type ('a, 'b) emb = ('a, 'b) emb
+   type ('a, 'b) emb = ('a -> 'b) * ('b -> 'a option)
+   (**
+    * Embedding of {'a} into {'b} with injection and projection functions.
+    *)
 
    val id : ('a, 'a) emb
    (**

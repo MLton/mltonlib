@@ -8,7 +8,7 @@
  * Structure for isomorphisms.
  *)
 structure Iso :> ISO = struct
-   type ('a, 'b) iso = ('a, 'b) iso
+   type ('a, 'b) iso = ('a -> 'b) * ('b -> 'a)
 
    val id = (fn a => a, fn a => a)
 

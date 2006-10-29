@@ -8,7 +8,7 @@
  * Structure for embeddings.
  *)
 structure Emb :> EMB = struct
-   type ('a, 'b) emb = ('a, 'b) emb
+   type ('a, 'b) emb = ('a -> 'b) * ('b -> 'a option)
 
    val id = (fn a => a, SOME)
 
