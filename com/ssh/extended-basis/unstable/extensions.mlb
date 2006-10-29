@@ -60,6 +60,7 @@ in
          public/mono-array.sig
          public/char.sig
          public/string.sig
+         public/substring.sig
          public/text.sig
 
          (* Extended modules *)
@@ -73,8 +74,8 @@ in
          detail/$(SML_COMPILER)/mono-arrays.sml
          detail/$(SML_COMPILER)/texts.sml
       in
-         public/export.sml
          public/export-$(SML_COMPILER).sml
+         public/export.sml
       end
    end
 end

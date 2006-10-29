@@ -29,4 +29,9 @@ functor MkTextExt (T : TEXT) = struct
       val embString = (toString, fromString)
       val isoList = (explode, implode)
    end
+
+   structure Substring = struct
+      open Substring
+      val length = size
+   end
 end

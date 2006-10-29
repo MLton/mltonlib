@@ -15,6 +15,7 @@ group is
    ../../public/mono-vector.sig
    ../../public/real.sig
    ../../public/string.sig
+   ../../public/substring.sig
    ../../public/text.sig
    ../../public/vector.sig
    ../../public/word.sig

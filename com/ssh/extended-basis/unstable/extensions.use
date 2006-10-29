@@ -43,6 +43,7 @@ in
             "public/mono-array.sig",
             "public/char.sig",
             "public/string.sig",
+            "public/substring.sig",
             "public/text.sig",
 
             (* Extended modules *)
@@ -60,6 +61,6 @@ in
             "detail/"^compiler^"/forget.use",
 
             (* Export filter *)
-            "public/export.sml",
-            "public/export-"^compiler^".sml"]
+            "public/export-"^compiler^".sml",
+            "public/export.sml"]
 end

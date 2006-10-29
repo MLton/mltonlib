@@ -26,3 +26,4 @@ structure Char = Text.Char
 structure CharArray = Text.CharArray
 structure CharVector = Text.CharVector
 structure String = Text.String
+structure Substring = Text.Substring
