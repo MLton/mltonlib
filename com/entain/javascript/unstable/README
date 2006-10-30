@@ -1,0 +1,107 @@
+This directory contains SML code for tools (compressor, lexer, parser,
+pretty-printer) to manipulate Javascript, as specified by:
+
+  ECMAScript Language Specification 
+  Edition 3 Final
+  24 March 2000
+
+This directory includes:
+
+  * An ML-Lex specification for Javascript tokens.
+  * An ML-Yacc specification for Javascript.
+  * A hand-crafted top-down-parser generator.
+  * A specification of Javascript's grammar that works with the
+    top-down-parser generator. 
+  * Datatypes for Javascript tokens and abstract syntax trees.
+  * A command-line tool for Javascript compression, tokenization,
+    parsing, and pretty printing.
+
+The ML-Yacc parser works except that it doesn't handle semicolon
+insertion.  It is not used.  Instead, the top-down parser is used.
+
+The code is available under the MLton license.  See the LICENSE file
+or http://mlton.org/License .
+
+----------------------------------------
+Command-line tool
+----------------------------------------
+
+The command-line tool compresses, parses, or tokenizes a Javascript
+file.  The usage is
+
+  mjs {compress|parse|tokenize} <file>
+
+where <file> is a file containing Javascript code.
+
+(The mnemonic for "mjs" is "Manipulate JavaScript")
+
+----------------------------------------
+Building the tool
+----------------------------------------
+
+This code compiles with MLton and uses the MLton library that lives in
+the MLton SVN.
+
+  svn://mlton.org/mlton/trunk/lib/mlton
+
+To compile, you must set the MLB Path variable "MLTON_LIB" to point
+at a local copy of that directory.  This code works with the MLton
+library as of 2006-10-30.  To set MLTON_LIB, edit the mlb-path-map
+file.  Once you've set that correctly, you should be able to type
+"make" and watch MLton build the "mjs" executable.
+
+----------------------------------------
+Files in this directory.
+----------------------------------------
+
+control.{fun,sig}
+  Switches to control behavior.
+javascript.grm
+  ML-Yacc specification for Javascript.
+javascript.lex
+  ML-Lex specification for Javascript.
+javascript.{mlb}
+  MLB library file for Javasscript
+javascript.{fun,sig}
+  Abstract syntax trees for Javascript.
+javascript.sml
+  Apply functors to build the syntax trees and parser.
+join-lattice.{fun,sig}
+  A simple lattce constraint solver.
+lex.{fun,sig}
+  Wrapper around the ML-Lex generated lexer.
+lex-internals.sig
+  Specifies the routines needed within the ML-Lex specification.
+lib.mlb
+  MLB library file to import the MLton library.
+LICENSE
+  The MLton license, under which this code is released.
+main.{sig,sml}
+  The command-line tool.
+Makefile
+  Build lexer, parser, and command-line tool.
+mjs.mlb
+  Build file for the command-line tool.
+parse.{fun,sig}
+  A top-down parser for Javascript, implementing using the top-down
+  parser generator.
+README
+  This file.
+regexp.{fun,sig}
+  Syntax for Javascript regexps
+region.{fun,sig}
+  Regions of source code (taken from MLton).
+source.{fun,sig}
+  Source files (taken from MLton).
+source-pos.{fun,sig}.
+  Source code positions (taken from MLton).
+stream.{sig,sml}
+  Polymorphic sequence type.
+token.{fun,sig}
+  Javascript tokens.
+top-down-parser.{fun,mlb,sig,sml}
+  A top-down-parser generator.  
+two-point-lattice.{fun,sig}
+  A simple lattice constraint solver.
+util.sml
+  A couple of string utilities.

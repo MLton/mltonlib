@@ -1,0 +1,650 @@
+(* Copyright (C) 2006 Entain, Inc.
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+%%
+
+%eop EOF
+%header (functor Parser (structure Token: TOKEN))
+%keyword BREAK CASE CATCH CONTINUE DEFAULT DELETE DO ELSE FINALLY FOR
+  FUNCTION IF IN INSTANCE_OF NEW RETURN SWITCH THIS THROW TRY TYPEOF VAR
+  VOID WHILE WITH
+%name JAVASCRIPT
+%noshift EOF
+%pos SourcePos.t
+%start Program
+%verbose
+
+%term
+    ADDOP of string
+  | ASSIGNOP of string
+  | BANG
+  | BITOP of string
+  | BOOLEAN of string
+  | BREAK
+  | CASE
+  | CATCH
+  | COLON
+  | COMMA
+  | CONTINUE
+  | DEFAULT
+  | DELETE
+  | DO
+  | DOT
+  | ELSE
+  | EOF
+  | EQUALOP of string
+  | EQUALS
+  | FINALLY
+  | FOR
+  | FUNCTION
+  | IDENTIFIER of string
+  | IF
+  | IN
+  | INCOP of string
+  | INSTANCE_OF
+  | LBRACE
+  | LBRACKET
+  | LINE
+  | LOGICOP of string
+  | LPAREN
+  | MULOP of string
+  | NEW
+  | NULL
+  | NUMBER of string
+  | QUESTION
+  | RBRACE
+  | RBRACKET
+  | REGEXP of {body: string, caseSensitive: bool, global: bool}
+  | RELOP of string
+  | RETURN
+  | RPAREN
+  | SEMICOLON
+  | SHIFTOP of string
+  | STRING of string
+  | SWITCH
+  | THIS
+  | THROW
+  | TILDE
+  | TRY
+  | TYPEOF
+  | VAR
+  | VOID
+  | WHILE
+  | WITH
+
+%nonterm
+    AssignOpL
+  | CommaL
+  | DotL
+  | EqualsL
+  | LbraceL
+  | LbracketL
+  | LparenL
+  | RbraceL
+  | RbracketL
+  | RparenL
+  | InL
+  | QuestionL
+  | LogicalOrExpressionL
+  | UnaryExpressionL
+  | AssignmentExpressionNoInL
+  | ColonL
+  | ArgumentList
+  | ArgumentListL
+  | ArgumentListOpt
+  | ArgumentListOptL
+  | Arguments
+  | ArgumentsL
+  | ArrayLiteral
+  | AssignmentExpression
+  | AssignmentExpressionAS
+  | AssignmentExpressionL
+  | AssignmentExpressionNoIn
+  | AssignmentOperator
+  | AssignmentOperatorL
+  | Block
+  | BooleanLiteral
+  | CallExpression
+  | CallExpressionAS
+  | CallExpressionL
+  | CallExpressionRest
+  | CallExpressionRestL
+  | CaseBlock
+  | CaseClause
+  | CaseClauseOpt
+  | CaseClauses
+  | CaseClausesOpt
+  | Catch
+  | ConditionalExpression
+  | ConditionalExpressionAS
+  | ConditionalExpressionNoIn
+  | ConditionalExpressionL
+  | DefaultClause
+  | ElementList
+  | Elision
+  | ElisionOpt
+  | Expression
+  | ExpressionAS
+  | ExpressionL
+  | ExpressionNoIn
+  | ExpressionNoInOpt
+  | ExpressionOpt
+  | Finally
+  | FormalParameterList
+  | FormalParameterListOpt
+  | FunctionBody
+  | FunctionDeclaration
+  | FunctionExpression
+  | Identifier
+  | IdentifierL
+  | IdentifierOpt
+  | Initializer
+  | InitializerNoIn
+  | InitializerNoInOpt
+  | InitializerOpt
+  | LeftHandSideExpression
+  | LeftHandSideExpressionAS
+  | LeftHandSideExpressionL
+  | Literal
+  | Line
+  | LogicalOrExpression
+  | LogicalOrExpressionAS
+  | LogicalOrExpressionNoIn
+  | LogicalOrOp
+  | LogicalOrOpNoIn
+  | MemberExpression
+  | MemberExpressionAS
+  | MemberExpressionL
+  | NewExpression
+  | NewExpressionAS
+  | NewExpressionL
+  | News
+  | NullLiteral
+  | NumericLiteral
+  | ObjectLiteral
+  | OptionalSemi
+  | PostfixExpression
+  | PostfixExpressionAS
+  | PrimaryExpression
+  | PrimaryExpressionAS
+  | PropertyName
+  | PropertyNameAndValueList
+  | Program
+  | RegexpLiteral
+  | SourceElement
+  | SourceElementOS
+  | SourceElementsOS
+  | Statement
+  | Statement2
+  | StatementBeforeSemi
+  | StatementList
+  | StatementListOS (* Optional Semi *)
+  | StatementListOpt
+  | StatementListOptOS (* Optional Semi *)
+  | StatementOS (* Optional Semi *)
+  | StatementPrefix
+  | StringLiteral
+  | UnaryExpression
+  | UnaryExpressionAS
+  | UnaryOp
+  | VariableDeclaration
+  | VariableDeclarationList
+  | VariableDeclarationListNoIn
+  | VariableDeclarationNoIn
+
+%%
+
+ArgumentListL
+  : AssignmentExpressionL ()
+  | ArgumentListL CommaL AssignmentExpressionL ()
+
+ArgumentListOptL
+  :  ()
+  | ArgumentListL ()
+
+Arguments
+  : LparenL ArgumentListOptL RPAREN ()
+
+ArgumentsL
+  : LparenL ArgumentListOptL RparenL ()
+
+ArrayLiteral
+  : LbracketL ElisionOpt RBRACKET ()
+  | LbracketL ElementList RBRACKET ()
+  | LbracketL ElementList COMMA ElisionOpt RBRACKET ()
+    
+AssignmentExpression
+  : ConditionalExpression ()
+  | LeftHandSideExpression AssignmentOperatorL AssignmentExpression ()
+
+AssignmentExpressionL
+  : ConditionalExpressionL ()
+  | LeftHandSideExpressionL AssignmentOperatorL AssignmentExpressionL ()
+
+AssignmentExpressionAS
+  : ConditionalExpressionAS ()
+  | LeftHandSideExpressionAS AssignmentOperator AssignmentExpression ()
+
+AssignmentExpressionNoIn
+  : ConditionalExpressionNoIn ()
+  | LeftHandSideExpression AssignmentOperator AssignmentExpressionNoIn ()
+
+AssignmentOperator
+  : EQUALS ()
+  | ASSIGNOP ()
+
+AssignmentOperatorL
+  : EqualsL ()
+  | AssignOpL ()
+   
+Block
+  : LbraceL StatementListOptOS RBRACE ()
+
+CallExpression
+  : MemberExpression Arguments CallExpressionRest ()
+
+CallExpressionAS
+  : MemberExpressionAS Arguments CallExpressionRest ()
+
+CallExpressionL
+  : MemberExpressionL ArgumentsL CallExpressionRestL ()
+
+CallExpressionRest
+  :  ()
+  | CallExpressionRest Arguments ()
+  | CallExpressionRest LbracketL Expression RBRACKET ()
+  | CallExpressionRest DOT Identifier ()
+
+CallExpressionRestL
+  :  ()
+  | CallExpressionRestL ArgumentsL ()
+  | CallExpressionRestL LbracketL ExpressionL RbracketL ()
+  | CallExpressionRestL DotL IdentifierL ()
+
+CaseBlock
+  : LbraceL CaseClausesOpt RBRACE ()
+  | LbraceL CaseClausesOpt DefaultClause CaseClausesOpt RBRACE ()
+
+CaseClause
+  : CASE Expression COLON StatementListOpt ()
+    
+CaseClauses
+  : CaseClause ()
+  | CaseClauses CaseClause ()
+
+CaseClausesOpt
+  :  ()
+  | CaseClauses ()
+    
+Catch
+  : CATCH LparenL Identifier RPAREN Block ()
+    
+ConditionalExpression
+  : LogicalOrExpression ()
+  | LogicalOrExpression QuestionL AssignmentExpressionL
+                        ColonL AssignmentExpression ()
+
+ConditionalExpressionAS
+  : LogicalOrExpressionAS ()
+  | LogicalOrExpressionAS QuestionL AssignmentExpressionL
+                          ColonL AssignmentExpression ()
+
+ConditionalExpressionL
+  : LogicalOrExpressionL ()
+  | LogicalOrExpressionL QuestionL AssignmentExpressionL
+                         ColonL AssignmentExpressionL ()
+
+ConditionalExpressionNoIn
+  : LogicalOrExpressionNoIn ()
+  | LogicalOrExpressionNoIn QuestionL AssignmentExpressionNoInL
+                            ColonL AssignmentExpressionNoIn ()
+
+DefaultClause
+  : DEFAULT COLON StatementList ()
+
+ElementList
+  : ElisionOpt AssignmentExpression ()
+  | ElementList COMMA ElisionOpt AssignmentExpression ()
+    
+Elision
+  : COMMA ()
+  | Elision COMMA ()
+                        
+ElisionOpt
+  :  ()
+  | Elision ()
+    
+Expression
+  : AssignmentExpression ()
+  | Expression COMMA AssignmentExpression ()
+
+ExpressionL
+  : AssignmentExpressionL ()
+  | ExpressionL COMMA AssignmentExpressionL ()
+
+ExpressionAS
+  : AssignmentExpressionAS ()
+  | ExpressionAS COMMA AssignmentExpression ()
+
+ExpressionNoIn
+  : AssignmentExpressionNoIn ()
+  | ExpressionNoIn COMMA AssignmentExpressionNoIn ()
+
+ExpressionNoInOpt
+  :  ()
+  | ExpressionNoIn ()
+
+ExpressionOpt
+  :  ()
+  | Expression ()
+
+Finally
+  : FINALLY Block ()
+
+FormalParameterList
+  : Identifier ()
+  | FormalParameterList COMMA Identifier ()
+
+FormalParameterListOpt
+  : LparenL RPAREN ()
+  | LparenL FormalParameterList RPAREN ()
+
+FunctionBody
+  : LbraceL RBRACE ()
+  | LbraceL SourceElementsOS RBRACE ()
+    
+FunctionDeclaration
+  : FUNCTION Identifier FormalParameterListOpt FunctionBody ()
+
+FunctionExpression
+  : FUNCTION IdentifierOpt FormalParameterListOpt FunctionBody ()
+
+Identifier
+  : IDENTIFIER ()
+
+IdentifierL
+  : IDENTIFIER Line ()
+
+IdentifierOpt
+  :  ()
+  | Identifier ()
+
+Initializer
+  : EQUALS AssignmentExpression ()
+
+InitializerNoIn
+  : EQUALS AssignmentExpressionNoIn ()
+    
+InitializerNoInOpt
+  :  ()
+  | InitializerNoIn ()
+
+InitializerOpt
+  :  ()
+  | Initializer ()
+
+LeftHandSideExpression
+  : NewExpression ()
+  | CallExpression ()
+
+LeftHandSideExpressionAS
+  : NewExpressionAS ()
+  | CallExpressionAS ()
+
+LeftHandSideExpressionL
+  : NewExpressionL ()
+  | CallExpressionL ()
+
+Literal
+  : BOOLEAN ()
+  | NullLiteral ()
+  | NumericLiteral ()
+  | RegexpLiteral ()
+  | StringLiteral ()
+
+LogicalOrExpression
+  : UnaryExpression ()
+  | UnaryExpression LogicalOrOp LogicalOrExpression ()
+
+LogicalOrExpressionAS
+  : UnaryExpressionAS ()
+  | UnaryExpressionAS LogicalOrOp LogicalOrExpression ()
+
+LogicalOrExpressionL
+  : UnaryExpressionL ()
+  | UnaryExpressionL LogicalOrOp Line LogicalOrExpressionL ()
+
+LogicalOrExpressionNoIn
+  : UnaryExpression ()
+  | UnaryExpression LogicalOrOpNoIn LogicalOrExpressionNoIn ()
+
+LogicalOrOp
+  : LogicalOrOpNoIn ()
+  | IN ()
+
+LogicalOrOpNoIn
+  : ADDOP ()
+  | BITOP ()
+  | EQUALOP ()
+  | INSTANCE_OF ()
+  | LOGICOP ()
+  | MULOP ()
+  | RELOP ()
+  | SHIFTOP ()
+
+MemberExpression
+  : PrimaryExpression ()
+  | FunctionExpression ()
+  | MemberExpression LbracketL ExpressionL RBRACKET ()
+  | MemberExpression DotL Identifier ()
+  | NewL MemberExpression Arguments ()
+
+MemberExpressionAS
+  : PrimaryExpressionAS ()
+  | FUNCTION FormalParameterListOpt FunctionBody ()
+  | MemberExpressionAS LbracketL Expression RBRACKET ()
+  | MemberExpressionAS DOT Identifier ()
+  | NEW MemberExpressionAS Arguments ()
+
+MemberExpressionL
+  : PrimaryExpressionL ()
+  | FunctionExpressionL ()
+  | MemberExpressionL LbracketL ExpressionL RbracketL ()
+  | MemberExpressionL DotL IdentifierL ()
+  | NewL MemberExpressionL ArgumentsL ()
+
+NewExpression
+  : MemberExpression ()
+  | NEW NewExpression ()
+
+NewExpressionAS
+  : MemberExpressionAS ()
+  | NEW NewExpressionAS ()
+
+NewExpressionL
+  : MemberExpressionL ()
+  | NewL NewExpressionL ()
+
+NullLiteral
+  : NULL ()
+
+NumericLiteral
+  : NUMBER ()
+
+ObjectLiteral
+  : LbraceL RBRACE ()
+  | LbraceL PropertyNameAndValueList RBRACE ()
+
+OptionalSemi
+  :  ()
+  | SEMICOLON ()
+
+PostfixExpression
+  : LeftHandSideExpression ()
+  | LeftHandSideExpression INCOP ()
+
+PostfixExpressionAS
+  : LeftHandSideExpressionAS ()
+  | LeftHandSideExpressionAS INCOP ()
+
+PostfixExpressionL
+  : LeftHandSideExpressionL ()
+  | LeftHandSideExpression INCOP ()
+
+PrimaryExpression
+  : ObjectLiteral ()
+  | PrimaryExpressionAS ()
+
+PrimaryExpressionAS
+  : THIS ()
+  | Identifier ()
+  | Literal ()
+  | ArrayLiteral ()
+  | LparenL Expression RPAREN ()
+
+Program
+  : SourceElementsOS ()
+
+PropertyName
+  : Identifier ()
+  | StringLiteral ()
+  | NumericLiteral ()
+    
+PropertyNameAndValueList
+  : PropertyName COLON AssignmentExpression ()
+  | PropertyNameAndValueList COMMA PropertyName COLON AssignmentExpression ()
+
+RegexpLiteral
+  : REGEXP ()
+    
+SourceElement
+  : Statement ()
+  | FunctionDeclaration ()
+
+SourceElementOS
+  : StatementOS ()
+  | FunctionDeclaration ()
+
+SourceElementsOS
+  : SourceElementOS ()
+  | SourceElement SourceElementsOS ()
+
+Statement
+  : SEMICOLON ()
+  | Statement2 ()
+  | StatementPrefix Statement ()
+  | StatementBeforeSemi SEMICOLON ()
+  | StatementBeforeSemi LINE ()
+  | IF LparenL Line ExpressionL RPAREN Statement ()
+
+StatementOS
+  : SEMICOLON ()
+  | Statement2 ()
+  | StatementPrefix StatementOS ()
+  | StatementBeforeSemi OptionalSemi ()
+  | IF LparenL Expression RPAREN StatementOS ()
+
+Statement2
+  : Block ()
+  | SWITCH LparenL Expression RPAREN CaseBlock ()
+  | TRY Block Catch ()
+  | TRY Block Finally ()
+  | TRY Block Catch Finally ()
+
+StatementPrefix
+  : Identifier COLON ()
+  | FOR LparenL ExpressionNoInOpt SEMICOLON
+               ExpressionOpt SEMICOLON
+               ExpressionOpt RPAREN ()
+  | FOR LparenL VAR VariableDeclarationListNoIn SEMICOLON
+               ExpressionOpt SEMICOLON
+               ExpressionOpt RPAREN ()
+  | FOR LparenL LeftHandSideExpression IN Expression RPAREN ()
+  | FOR LparenL VAR VariableDeclarationNoIn IN Expression RPAREN ()
+  | IF LparenL Expression RPAREN Statement ELSE ()
+  | WHILE LparenL Expression RPAREN ()
+  | WITH LparenL Expression RPAREN ()
+
+StatementBeforeSemi
+  : ExpressionAS ()
+  | BREAK IdentifierOpt ()
+  | CONTINUE IdentifierOpt ()
+  | DO Statement WHILE LparenL Expression RPAREN ()
+  | RETURN ExpressionOpt ()
+  | THROW Expression ()
+  | VAR VariableDeclarationList ()
+    
+StatementList
+  : Statement ()
+  | StatementList Statement ()
+
+StatementListOS
+  : StatementOS ()
+  | Statement StatementListOS ()
+
+StatementListOpt
+  :  ()
+  | StatementList ()
+
+StatementListOptOS
+  :  ()
+  | StatementListOS ()
+
+StringLiteral
+  : STRING ()
+
+UnaryExpression
+  : PostfixExpression ()
+  | UnaryOp UnaryExpression ()
+
+UnaryExpressionL
+  : PostfixExpressionL ()
+  | UnaryOp Line UnaryExpressionL ()
+
+UnaryExpressionAS
+  : PostfixExpressionAS ()
+  | UnaryOp UnaryExpression ()
+
+UnaryOp
+  : INCOP ()
+  | ADDOP ()
+  | TILDE ()
+  | BANG ()
+  | DELETE ()
+  | VOID ()
+  | TYPEOF ()
+
+VariableDeclaration
+  : Identifier InitializerOpt ()
+
+VariableDeclarationNoIn
+  : Identifier InitializerNoInOpt ()
+
+VariableDeclarationList
+  : VariableDeclaration ()
+  | VariableDeclarationList COMMA VariableDeclaration ()
+
+VariableDeclarationListNoIn
+  : VariableDeclarationNoIn ()
+  | VariableDeclarationListNoIn COMMA VariableDeclarationNoIn ()
+
+Line
+  :  ()
+  | LINE ()
+
+AssignOpL: ASSIGNOP Line ()
+CommaL: COMMA Line ()
+DotL: DOT Line ()
+EqualsL: EQUALS Line ()
+LbraceL: LBRACE Line ()
+LbracketL: LBRACKET Line ()
+LparenL: LPAREN Line ()
+RbraceL: RBRACE Line ()
+RbracketL: RBRACKET Line ()
+RparenL: RPAREN Line ()
+QuestionL: QUESTION Line ()
+InL: IN Line ()
+NewL: NEW Line ()

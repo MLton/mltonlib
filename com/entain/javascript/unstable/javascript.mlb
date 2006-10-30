@@ -1,0 +1,47 @@
+(* Copyright (C) 2006 Entain, Inc.
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+ann "forceUsed" in
+local
+  lib.mlb
+  source-pos.sig
+  source-pos.fun
+  region.sig
+  region.fun
+  control.sig
+  control.fun
+  source.sig
+  source.fun
+  regexp.sig
+  regexp.fun
+  token.sig
+  token.fun
+  lex-internals.sig
+  ann
+    "warnUnused false"
+  in
+    lex-internals.fun
+  end
+  lex.sig
+  lex.fun
+  javascript.sig
+  javascript.fun
+  parse.sig
+  local
+     top-down-parser.mlb
+  in
+     parse.fun
+  end
+  javascript.sml
+in
+   signature JAVASCRIPT
+   structure Control
+   structure Javascript
+   structure Lex
+   structure Parse
+   structure SourcePos
+   structure Token
+end
+end
