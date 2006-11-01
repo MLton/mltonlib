@@ -1,0 +1,22 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+local
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+in
+   ann
+      "forceUsed"
+      "sequenceNonUnit warn"
+      "warnUnused true"
+   in
+      local
+         public/exit.sig
+         detail/exit.sml
+      in
+         public/export.sml
+      end
+   end
+end
