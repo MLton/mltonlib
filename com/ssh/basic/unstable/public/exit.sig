@@ -7,10 +7,11 @@
 (**
  * Signature for exit (or escape) handlers.
  *
- * Note the type of the {to} function.  The return type of {to} is a type
- * variable that only appears as the return type.  This means that the
- * {to} function doesn't return normally to the caller and that you can
- * call it from a context of any type.
+ * Note that the implementation necessarily uses exception handling.  This
+ * is to make proper resource handling possible.  Exceptions raised by the
+ * implementation can be caught by wildcard exception handlers.  Wildcard
+ * exception handlers should generally reraise exceptions after performing
+ * their effects.
  *)
 signature EXIT = sig
    type 'a t
@@ -19,8 +20,8 @@ signature EXIT = sig
    val within : ('a t -> 'a) -> 'a
    (**
     * Sets up an exit and passes it to the given function.  The function
-    * may then either return normally or by calling {to} with the exit and
-    * a return value.  For example,
+    * may then return normally or by calling {to} with the exit and a
+    * return value.  For example,
     *
     *> Exit.within
     *>    (fn l =>
@@ -38,13 +39,12 @@ signature EXIT = sig
    val to : 'a t -> 'a -> 'b
    (**
     * {to l v} returns from the {within} invocation that introduced the
-    * exit {l} with the value {v}.
+    * exit {l} with the value {v}.  Evaluating {to l v} outside of the
+    * {within} invocation that introduced {l} is a programming error and
+    * raises an exception.
     *
-    * Note that {to} works by raising an exception.  The exception can be
-    * caught by a wildcard exception handler.  Wildcard exception handlers
-    * should usually reraise the exception after performing their effects.
-    * Also, if the {within} invocation that introduced the exit {l} has
-    * already returned, the effect is (still) that an exception will be
-    * raised.
+    * Note that the type variable {'b} only appears as the return type.
+    * This means that {to} doesn't return normally to the caller and can
+    * be called from a context of any type.
     *)
 end
