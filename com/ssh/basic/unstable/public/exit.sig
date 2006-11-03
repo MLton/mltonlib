@@ -47,4 +47,10 @@ signature EXIT = sig
     * This means that {to} doesn't return normally to the caller and can
     * be called from a context of any type.
     *)
+
+   val call : (('a -> 'b) -> 'a) -> 'a
+   (**
+    * Simpler, but less flexibly typed, interface to {within} and {to}.
+    * Specifically, {call f} is equivalent to {within (f o to)}.
+    *)
 end

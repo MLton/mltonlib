@@ -15,4 +15,6 @@ structure Exit :> EXIT = struct
    end
 
    fun to exit value = raise exit value
+
+   fun call block = within (block o to)
 end
