@@ -10,6 +10,11 @@
 signature MONO_VECTOR = sig
    include MONO_VECTOR
 
+   type t = vector
+   (**
+    * Convenience alias.
+    *)
+
    (** == Conversions == *)
 
    val fromPoly : elem Vector.vector -> vector

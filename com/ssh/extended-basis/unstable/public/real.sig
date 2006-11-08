@@ -10,6 +10,11 @@
 signature REAL = sig
    include REAL
 
+   type t = real
+   (**
+    * Convenience alias.
+    *)
+
    (** == Embeddings == *)
 
    val embDecimal : (real, IEEEReal.decimal_approx) Emb.emb

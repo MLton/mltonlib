@@ -10,6 +10,11 @@
 signature INT_INF = sig
    include INT_INF
 
+   type t = int
+   (**
+    * Convenience alias.
+    *)
+
    (** == Bounds == *)
 
    val bounds : (int * int) option

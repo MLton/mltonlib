@@ -10,6 +10,11 @@
 signature LIST = sig
    include LIST
 
+   type 'a t = 'a list
+   (**
+    * Convenience alias.
+    *)
+
    val sub : 'a list * int -> 'a
    (**
     * {sub (l, i)} returns the {i}th element of the list {l}.  This is

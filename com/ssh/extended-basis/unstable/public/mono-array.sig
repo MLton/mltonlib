@@ -10,6 +10,11 @@
 signature MONO_ARRAY = sig
    include MONO_ARRAY
 
+   type t = array
+   (**
+    * Convenience alias.
+    *)
+
    (** == Conversions == *)
 
    val fromPoly : elem Array.array -> array

@@ -9,6 +9,7 @@
  *)
 structure Array : ARRAY = struct
    open Array
+   type 'a t = 'a array
    fun toList a = foldr op :: [] a
    val isoList = (toList, fromList)
    val toVector = vector

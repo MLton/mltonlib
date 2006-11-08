@@ -5,10 +5,9 @@
  *)
 
 (**
- * Extended {List :> LIST} structure.
+ * Extended {Option : OPTION} structure.
  *)
-structure List : LIST = struct
-   open List
-   type 'a t = 'a list
-   val sub = nth
+structure Option : OPTION = struct
+   open Option
+   type 'a t = 'a option
 end

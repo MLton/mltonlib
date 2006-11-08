@@ -9,6 +9,7 @@
  *)
 functor MkIntegerExt (I : INTEGER) = struct
    open I
+   type t = int
    val embString = (toString, fromString)
    val isoInt = (toInt, fromInt)
    val isoLarge = (toLarge, fromLarge)

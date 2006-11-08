@@ -10,6 +10,11 @@
 signature ARRAY = sig
    include ARRAY
 
+   type 'a t = 'a array
+   (**
+    * Convenience alias.
+    *)
+
    (** == Conversions == *)
 
    val fromVector : 'a vector -> 'a array

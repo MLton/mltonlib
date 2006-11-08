@@ -10,6 +10,11 @@
 signature VECTOR = sig
    include VECTOR
 
+   type 'a t = 'a vector
+   (**
+    * Convenience alias.
+    *)
+
    (** == Conversions == *)
 
    val toList : 'a vector -> 'a list

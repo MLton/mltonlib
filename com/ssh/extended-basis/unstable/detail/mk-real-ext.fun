@@ -9,6 +9,7 @@
  *)
 functor MkRealExt (R : REAL) = struct
    open R
+   type t = real
    val embDecimal = (toDecimal, fromDecimal)
    val embString = (toString, fromString)
    fun isoInt mode = (toInt mode, fromInt)

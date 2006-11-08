@@ -10,6 +10,11 @@
 signature CHAR = sig
    include CHAR
 
+   type t = char
+   (**
+    * Convenience alias.
+    *)
+
    (** == Bounds == *)
 
    val minOrd : Int.int

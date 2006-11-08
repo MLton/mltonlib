@@ -9,6 +9,7 @@
  *)
 functor MkWordExt (W : WORD) = struct
    open W
+   type t = word
    val bounds as (minWord, maxWord) = (fromInt 0, fromInt~1)
    val fromWord = fromLarge o Word.toLarge
    val fromWordX = fromLarge o Word.toLargeX

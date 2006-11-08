@@ -10,6 +10,11 @@
 signature INTEGER = sig
    include INTEGER
 
+   type t = int
+   (**
+    * Convenience alias.
+    *)
+
    (** == Bounds == *)
 
    val bounds : (int * int) option

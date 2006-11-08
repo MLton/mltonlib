@@ -6,6 +6,7 @@
 
 group is
    ../../public/array.sig
+   ../../public/bool.sig
    ../../public/char.sig
    ../../public/emb.sig
    ../../public/int-inf.sig
@@ -14,6 +15,7 @@ group is
    ../../public/list.sig
    ../../public/mono-array.sig
    ../../public/mono-vector.sig
+   ../../public/option.sig
    ../../public/real.sig
    ../../public/string.sig
    ../../public/substring.sig
@@ -21,10 +23,12 @@ group is
    ../../public/vector.sig
    ../../public/word.sig
    ../array.sml
+   ../bool.sml
    ../common.sml
    ../emb.sml
    ../iso.sml
    ../list.sml
+   ../option.sml
    ../smlnj/ints.sml
    ../smlnj/mono-arrays.sml
    ../smlnj/mono-vectors.sml

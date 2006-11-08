@@ -12,6 +12,7 @@ functor MkTextExt (T : TEXT) = struct
 
    structure Char = struct
       open Char
+      type t = char
       val minOrd = 0
       val boundsChar = (minChar, maxChar)
       val boundsOrd = (minOrd, maxOrd)
@@ -25,6 +26,7 @@ functor MkTextExt (T : TEXT) = struct
 
    structure String = struct
       open CharVector String
+      type t = string
       val embCString = (toCString, fromCString)
       val embString = (toString, fromString)
       val isoList = (explode, implode)
@@ -32,6 +34,7 @@ functor MkTextExt (T : TEXT) = struct
 
    structure Substring = struct
       open Substring
+      type t = substring
       val length = size
    end
 end

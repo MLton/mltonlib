@@ -5,10 +5,9 @@
  *)
 
 (**
- * Extended {List :> LIST} structure.
+ * Extended {Bool : BOOL} structure.
  *)
-structure List : LIST = struct
-   open List
-   type 'a t = 'a list
-   val sub = nth
+structure Bool : BOOL = struct
+   open Bool
+   type t = bool
 end

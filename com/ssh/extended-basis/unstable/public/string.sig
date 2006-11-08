@@ -10,6 +10,11 @@
 signature STRING = sig
    include STRING
 
+   type t = string
+   (**
+    * Convenience alias.
+    *)
+
    (** == Embeddings == *)
 
    val embCString : (string, string) Emb.emb

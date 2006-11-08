@@ -5,10 +5,13 @@
  *)
 
 (**
- * Extended {List :> LIST} structure.
+ * Extended {OPTION} signature.
  *)
-structure List : LIST = struct
-   open List
-   type 'a t = 'a list
-   val sub = nth
+signature OPTION = sig
+   include OPTION
+
+   type 'a t = 'a option
+   (**
+    * Convenience alias.
+    *)
 end

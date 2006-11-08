@@ -9,6 +9,7 @@
  *)
 functor MkMonoVectorExt (M : MONO_VECTOR) = struct
    open M
+   type t = vector
    fun toList v = foldr op :: [] v
    val isoList = (toList, fromList)
    (* XXX It would be nice to avoid copying in toPoly and fromPoly *)

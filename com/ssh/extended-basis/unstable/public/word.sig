@@ -10,6 +10,11 @@
 signature WORD = sig
    include WORD
 
+   type t = word
+   (**
+    * Convenience alias.
+    *)
+
    (** == Bounds == *)
 
    val maxWord : word

@@ -10,6 +10,11 @@
 signature SUBSTRING = sig
    include SUBSTRING
 
+   type t = substring
+   (**
+    * Convenience alias.
+    *)
+
    val length : substring -> int
    (**
     * Returns the size of the given substring.  This is equivalent to
