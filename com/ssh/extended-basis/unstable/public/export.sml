@@ -6,8 +6,8 @@
 
 (** == Implementation independent extensions == *)
 
-type ('a, 'b) emb = ('a, 'b) Emb.emb
-type ('a, 'b) iso = ('a, 'b) Iso.iso
+type ('a, 'b) emb = ('a, 'b) Emb.t
+type ('a, 'b) iso = ('a, 'b) Iso.t
 
 signature ARRAY = ARRAY
 signature BOOL = BOOL

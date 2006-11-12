@@ -25,7 +25,7 @@ signature VECTOR = sig
 
    (** == Isomorphisms == *)
 
-   val isoList : ('a vector, 'a list) Iso.iso
+   val isoList : ('a vector, 'a list) Iso.t
    (**
     * An isomorphism between vectors and lists.  It is always equivalent
     * to {(toList, fromList)}.

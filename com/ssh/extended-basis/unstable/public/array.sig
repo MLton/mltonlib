@@ -41,14 +41,14 @@ signature ARRAY = sig
 
    (** == Isomorphisms == *)
 
-   val isoList : ('a array, 'a list) Iso.iso
+   val isoList : ('a array, 'a list) Iso.t
    (**
     * An isomorphism between arrays and lists.  It is always equivalent to
     * {(toList, fromList)}.  Note that the isomorphism does not preserve
     * identity.
     *)
 
-   val isoVector : ('a array, 'a vector) Iso.iso
+   val isoVector : ('a array, 'a vector) Iso.t
    (**
     * An isomorphism between arrays and vectors.  It is always equivalent
     * to {(toVector, fromVector)}.  Note that the isomorphism does not

@@ -13,6 +13,11 @@ signature EMB = sig
     * Embedding of {'a} into {'b} with injection and projection functions.
     *)
 
+   type ('a, 'b) t = ('a, 'b) emb
+   (**
+    * Convenience alias.
+    *)
+
    val id : ('a, 'a) emb
    (**
     * The identity embedding.  This is always equivalent to {(fn a => a,

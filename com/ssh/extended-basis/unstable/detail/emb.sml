@@ -9,6 +9,7 @@
  *)
 structure Emb :> EMB = struct
    type ('a, 'b) emb = ('a -> 'b) * ('b -> 'a option)
+   type ('a, 'b) t = ('a, 'b) emb
 
    val id = (fn a => a, SOME)
 

@@ -14,6 +14,11 @@ signature ISO = sig
     * functions.
     *)
 
+   type ('a, 'b) t = ('a, 'b) iso
+   (**
+    * Convenience alias.
+    *)
+
    val id : ('a, 'a) iso
    (**
     * The identity isomorphism.  This is always equivalent to {(fn a => a,

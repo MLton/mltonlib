@@ -27,7 +27,7 @@ signature INT_INF = sig
 
    (** == Embeddings == *)
 
-   val embString : (int, string) Emb.emb
+   val embString : (int, string) Emb.t
    (**
     * An embedding of integers into strings.  It is always equivalent to
     * {(toString, fromString)}.
@@ -35,14 +35,14 @@ signature INT_INF = sig
 
    (** == Isomorphisms == *)
 
-   val isoInt : (int, Int.int) Iso.iso
+   val isoInt : (int, Int.int) Iso.t
    (**
     * An isomorphism between integers of type {int} and the default
     * integer type.  It is always equivalent to {(toInt, fromInt)}.  Note
     * that one of the injection and projection parts may be partial.
     *)
 
-   val isoLarge : (int, LargeInt.int) Iso.iso
+   val isoLarge : (int, LargeInt.int) Iso.t
    (**
     * An isomorphism between integers of type {int} and integers of type
     * {LargeInt.int}.  It is always equivalent to {(toLarge, fromLarge)}.

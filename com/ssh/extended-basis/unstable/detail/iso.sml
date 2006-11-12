@@ -9,6 +9,7 @@
  *)
 structure Iso :> ISO = struct
    type ('a, 'b) iso = ('a -> 'b) * ('b -> 'a)
+   type ('a, 'b) t = ('a, 'b) iso
 
    val id = (fn a => a, fn a => a)
 
