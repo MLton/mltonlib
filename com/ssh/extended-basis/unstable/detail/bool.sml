@@ -10,4 +10,10 @@
 structure Bool : BOOL = struct
    open Bool
    type t = bool
+   val equal = op = : bool * bool -> bool
+   val compare = fn (false,  true) => LESS
+                  | (true,  false) => GREATER
+                  | (_,         _) => EQUAL
+   fun isFalse b = b = false
+   fun isTrue b = b = true
 end
