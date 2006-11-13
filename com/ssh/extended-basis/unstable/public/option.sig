@@ -14,4 +14,9 @@ signature OPTION = sig
    (**
     * Convenience alias.
     *)
+
+   val isNone : 'a option -> bool
+   (**
+    * Returns {true} if given option is {NONE}; otherwise returns {false}.
+    *)
 end
