@@ -68,5 +68,6 @@ in
 
             (* Export filter *)
             "public/export-"^compiler^".sml",
-            "public/export.sml"]
+            "public/export.sml",
+            "public/top-level.sml"]
 end

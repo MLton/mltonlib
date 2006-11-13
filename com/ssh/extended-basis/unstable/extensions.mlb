@@ -82,6 +82,7 @@ in
       in
          public/export-$(SML_COMPILER).sml
          public/export.sml
+         public/top-level.sml
       end
    end
 end
