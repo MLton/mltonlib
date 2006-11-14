@@ -17,6 +17,12 @@ signature WORD = sig
 
    (** == Bounds == *)
 
+   val numBytes : int
+   (**
+    * The number of bytes (8-bit words) it takes to store a {word}.  This
+    * is always equal to {(wordSize + 7) quot 8}.
+    *)
+
    val maxWord : word
    (**
     * The maximal representable {word}.  This is always equal to {fromInt
@@ -36,6 +42,22 @@ signature WORD = sig
 
    (** == Conversions == *)
 
+   val fromBigBytes : Word8Vector.vector -> word
+   (**
+    * Converts a vector of bytes in big-endian order to a word.  Raises
+    * {Subscript} if the length of the given vector is not equal to
+    * {numBytes}.  Extra bits, if any, in the most significant byte are
+    * ignored.
+    *)
+
+   val fromLittleBytes : Word8Vector.vector -> word
+   (**
+    * Converts a vector of bytes in little-endian order to a word.  Raises
+    * {Subscript} if the length of the given vector is not equal to
+    * {numBytes}.  Extra bits, if any, in the most significant byte are
+    * ignored.
+    *)
+
    val fromWord : Word.word -> word
    (**
     * Converts the given word {w : Word.word} to the value {w(mod
@@ -51,6 +73,20 @@ signature WORD = sig
     * low-order bits of {w} and {fromWordX w} are the same, and the
     * remaining bits of {fromWordX w} are all equal to the most
     * significant bit of {w}.
+    *)
+
+   val toBigBytes : word -> Word8Vector.vector
+   (**
+    * Converts the given word to a vector of bytes in big-endian order.
+    * Extra bits, if any, in the most significant byte will be set to
+    * zeroes.
+    *)
+
+   val toLittleBytes : word -> Word8Vector.vector
+   (**
+    * Converts the given word to a vector of bytes in little-endian order.
+    * Extra bits, if any, in the most significant byte will be set to
+    * zeroes.
     *)
 
    val toWord : word -> Word.word
