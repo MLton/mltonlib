@@ -58,7 +58,9 @@ in
          public/word.sig
          public/list.sig
          public/vector.sig
+         public/vector-slice.sig
          public/array.sig
+         public/array-slice.sig
          public/mono-vector.sig
          public/mono-array.sig
          public/char.sig
@@ -71,7 +73,9 @@ in
          detail/option.sml
          detail/list.sml
          detail/vector.sml
+         detail/vector-slice.sml
          detail/array.sml
+         detail/array-slice.sml
          detail/common.sml
          detail/$(SML_COMPILER)/ints.sml
          detail/$(SML_COMPILER)/reals.sml

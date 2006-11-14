@@ -7,6 +7,7 @@
 (** == Implementation independent extensions == *)
 
 signature ARRAY = ARRAY
+signature ARRAY_SLICE = ARRAY_SLICE
 signature BOOL = BOOL
 signature CHAR = CHAR
 signature EMB = EMB
@@ -22,9 +23,11 @@ signature STRING = STRING
 signature SUBSTRING = SUBSTRING
 signature TEXT = TEXT
 signature VECTOR = VECTOR
+signature VECTOR_SLICE = VECTOR_SLICE
 signature WORD = WORD
 
 structure Array : ARRAY = Array
+structure ArraySlice : ARRAY_SLICE = ArraySlice
 structure Bool : BOOL = Bool
 structure Char : CHAR = Char
 structure CharArray : MONO_ARRAY = CharArray
@@ -43,6 +46,7 @@ structure String : STRING = String
 structure Substring : SUBSTRING = Substring
 structure Text : TEXT = Text
 structure Vector : VECTOR = Vector
+structure VectorSlice : VECTOR_SLICE = VectorSlice
 structure Word : WORD = Word
 structure Word8 : WORD = Word8
 structure Word8Array : MONO_ARRAY = Word8Array
