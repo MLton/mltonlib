@@ -46,7 +46,9 @@ in
          detail/mk-real-ext.fun
          detail/mk-word-ext.fun
          detail/mk-mono-vector-ext.fun
+         detail/mk-mono-vector-slice-ext.fun
          detail/mk-mono-array-ext.fun
+         detail/mk-mono-array-slice-ext.fun
          detail/mk-text-ext.fun
 
          (* Extended signatures *)
@@ -62,7 +64,9 @@ in
          public/array.sig
          public/array-slice.sig
          public/mono-vector.sig
+         public/mono-vector-slice.sig
          public/mono-array.sig
+         public/mono-array-slice.sig
          public/char.sig
          public/string.sig
          public/substring.sig
@@ -81,7 +85,9 @@ in
          detail/$(SML_COMPILER)/reals.sml
          detail/$(SML_COMPILER)/words.sml
          detail/$(SML_COMPILER)/mono-vectors.sml
+         detail/$(SML_COMPILER)/mono-vector-slices.sml
          detail/$(SML_COMPILER)/mono-arrays.sml
+         detail/$(SML_COMPILER)/mono-array-slices.sml
          detail/$(SML_COMPILER)/texts.sml
       in
          public/export-$(SML_COMPILER).sml

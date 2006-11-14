@@ -29,7 +29,9 @@ in
             "detail/mk-real-ext.fun",
             "detail/mk-word-ext.fun",
             "detail/mk-mono-vector-ext.fun",
+            "detail/mk-mono-vector-slice-ext.fun",
             "detail/mk-mono-array-ext.fun",
+            "detail/mk-mono-array-slice-ext.fun",
             "detail/mk-text-ext.fun",
 
             (* Extended signatures *)
@@ -45,7 +47,9 @@ in
             "public/array.sig",
             "public/array-slice.sig",
             "public/mono-vector.sig",
+            "public/mono-vector-slice.sig",
             "public/mono-array.sig",
+            "public/mono-array-slice.sig",
             "public/char.sig",
             "public/string.sig",
             "public/substring.sig",
@@ -64,7 +68,9 @@ in
             "detail/"^compiler^"/reals.sml",
             "detail/"^compiler^"/words.sml",
             "detail/"^compiler^"/mono-vectors.sml",
+            "detail/"^compiler^"/mono-vector-slices.sml",
             "detail/"^compiler^"/mono-arrays.sml",
+            "detail/"^compiler^"/mono-array-slices.sml",
             "detail/"^compiler^"/texts.sml",
 
             (* Forget implementation details (if possible) *)

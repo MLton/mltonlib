@@ -14,7 +14,9 @@ group is
    ../../public/integer.sig
    ../../public/iso.sig
    ../../public/list.sig
+   ../../public/mono-array-slice.sig
    ../../public/mono-array.sig
+   ../../public/mono-vector-slice.sig
    ../../public/mono-vector.sig
    ../../public/option.sig
    ../../public/real.sig
@@ -33,7 +35,9 @@ group is
    ../list.sml
    ../option.sml
    ../smlnj/ints.sml
+   ../smlnj/mono-array-slices.sml
    ../smlnj/mono-arrays.sml
+   ../smlnj/mono-vector-slices.sml
    ../smlnj/mono-vectors.sml
    ../smlnj/reals.sml
    ../smlnj/words.sml

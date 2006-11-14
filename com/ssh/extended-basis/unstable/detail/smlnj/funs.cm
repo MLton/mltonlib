@@ -8,7 +8,9 @@ group is
    ../mk-int-inf-ext.fun
    ../mk-integer-ext.fun
    ../mk-mono-array-ext.fun
+   ../mk-mono-array-slice-ext.fun
    ../mk-mono-vector-ext.fun
+   ../mk-mono-vector-slice-ext.fun
    ../mk-real-ext.fun
    ../mk-text-ext.fun
    ../mk-word-ext.fun

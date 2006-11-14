@@ -20,9 +20,16 @@ functor MkTextExt (T : TEXT) = struct
    end
 
    structure CharVector = MkMonoVectorExt (CharVector)
+
+   structure CharVectorSlice =
+      MkMonoVectorSliceExt (structure MonoVectorSlice = CharVectorSlice)
+
    structure CharArray =
       MkMonoArrayExt (structure MonoArray = CharArray
                       structure MonoVector = CharVector)
+
+   structure CharArraySlice =
+      MkMonoArraySliceExt (structure MonoArraySlice = CharArraySlice)
 
    structure String = struct
       open CharVector String

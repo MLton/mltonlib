@@ -11,5 +11,7 @@ val () =
          "MkRealExt",
          "MkWordExt",
          "MkMonoVectorExt",
+         "MkMonoVectorSliceExt",
          "MkMonoArrayExt",
+         "MkMonoArraySliceExt",
          "MkTextExt"]
