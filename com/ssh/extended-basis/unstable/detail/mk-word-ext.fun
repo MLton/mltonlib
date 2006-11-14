@@ -41,12 +41,14 @@ functor MkWordExt (W : WORD) = struct
    val toWord = Word.fromLarge o toLarge
    val toWordX = Word.fromLarge o toLargeX
    val embString = (toString, fromString)
+   val isoBigBytes = (toBigBytes, fromBigBytes)
    val isoInt = (toInt, fromInt)
    val isoIntX = (toIntX, fromInt)
    val isoLarge = (toLarge, fromLarge)
    val isoLargeInt = (toLargeInt, fromLargeInt)
    val isoLargeIntX = (toLargeIntX, fromLargeInt)
    val isoLargeX = (toLargeX, fromLarge)
+   val isoLittleBytes = (toLittleBytes, fromLittleBytes)
    val isoWord = (toWord, fromWord)
    val isoWordX = (toWordX, fromWordX)
    fun isZero w = fromInt 0 = w

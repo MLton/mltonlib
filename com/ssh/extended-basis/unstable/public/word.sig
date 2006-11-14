@@ -116,6 +116,12 @@ signature WORD = sig
 
    (** == Isomorphisms == *)
 
+   val isoBigBytes : (word, Word8Vector.vector) Iso.t
+   (**
+    * An isomorphism between words and byte vectors.  It is always
+    * equivalent to {(toBigBytes, fromBigBytes)}.
+    *)
+
    val isoInt : (word, Int.int) Iso.t
    (**
     * An isomorphism between words of type {word} and the default integer
@@ -150,6 +156,12 @@ signature WORD = sig
    (**
     * An isomorphism between words of type {word} and the {LargeWord.word}
     * type.  It is always equivalent to {(toLargeX, fromLarge)}.
+    *)
+
+   val isoLittleBytes : (word, Word8Vector.vector) Iso.t
+   (**
+    * An isomorphism between words and byte vectors.  It is always
+    * equivalent to {(toLittleBytes, fromLittleBytes)}.
     *)
 
    val isoWord : (word, Word.word) Iso.t
