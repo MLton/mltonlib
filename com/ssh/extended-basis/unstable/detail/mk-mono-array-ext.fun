@@ -13,6 +13,7 @@ functor MkMonoArrayExt (structure MonoVector : MONO_VECTOR
                            where type vector = MonoVector.vector) = struct
    open MonoArray
    type t = array
+   fun dup a = tabulate (length a, fn i => sub (a, i))
    fun toList a = foldr op :: [] a
    val isoList = (toList, fromList)
    val toVector = vector

@@ -15,6 +15,12 @@ signature ARRAY = sig
     * Convenience alias.
     *)
 
+   val dup : 'a t -> 'a t
+   (**
+    * Makes a fresh duplicate of the given array.  {dup a} is equivalent
+    * to {tabulate (length a, fn i => sub (a, i))}.
+    *)
+
    (** == Conversions == *)
 
    val fromVector : 'a vector -> 'a array

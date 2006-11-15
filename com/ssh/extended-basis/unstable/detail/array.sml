@@ -10,6 +10,7 @@
 structure Array : ARRAY = struct
    open Array
    type 'a t = 'a array
+   fun dup a = tabulate (length a, fn i => sub (a, i))
    fun toList a = foldr op :: [] a
    val isoList = (toList, fromList)
    val toVector = vector

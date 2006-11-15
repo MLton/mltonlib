@@ -15,6 +15,12 @@ signature MONO_ARRAY = sig
     * Convenience alias.
     *)
 
+   val dup : t -> t
+   (**
+    * Makes a fresh duplicate of the given array.  {dup a} is equivalent
+    * to {tabulate (length a, fn i => sub (a, i))}.
+    *)
+
    (** == Conversions == *)
 
    val fromPoly : elem Array.array -> array
