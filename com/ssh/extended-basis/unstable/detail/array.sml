@@ -17,7 +17,7 @@ structure Array : ARRAY = struct
    in
       open Array Common
    end
-   fun dup a = tabulate (length a, fn i => sub (a, i))
+   fun duplicate a = tabulate (length a, fn i => sub (a, i))
    val toVector = vector
    fun fromVector v = tabulate (Vector.length v, fn i => Vector.sub (v, i))
    val isoVector = (toVector, fromVector)

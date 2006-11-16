@@ -15,10 +15,10 @@ signature MONO_ARRAY = sig
     * Convenience alias.
     *)
 
-   val dup : t -> t
+   val duplicate : t -> t
    (**
-    * Makes a fresh duplicate of the given array.  {dup a} is equivalent
-    * to {tabulate (length a, fn i => sub (a, i))}.
+    * Makes a fresh duplicate of the given array.  {duplicate a} is
+    * equivalent to {tabulate (length a, fn i => sub (a, i))}.
     *)
 
    val unfoldi : (int * 'a -> elem * 'a) -> int * 'a -> t * 'a

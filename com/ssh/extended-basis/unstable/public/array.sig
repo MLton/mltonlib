@@ -15,10 +15,10 @@ signature ARRAY = sig
     * Convenience alias.
     *)
 
-   val dup : 'a t -> 'a t
+   val duplicate : 'a t -> 'a t
    (**
-    * Makes a fresh duplicate of the given array.  {dup a} is equivalent
-    * to {tabulate (length a, fn i => sub (a, i))}.
+    * Makes a fresh duplicate of the given array.  {duplicate a} is
+    * equivalent to {tabulate (length a, fn i => sub (a, i))}.
     *)
 
    val unfoldi : (int * 'b -> 'a * 'b) -> int * 'b -> 'a t * 'b

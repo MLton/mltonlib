@@ -20,7 +20,7 @@ functor MkMonoArrayExt (structure MonoVector : MONO_VECTOR
    in
       open MonoArray Common
    end
-   fun dup a = tabulate (length a, fn i => sub (a, i))
+   fun duplicate a = tabulate (length a, fn i => sub (a, i))
    val toVector = vector
    fun fromVector v =
        tabulate (MonoVector.length v, fn i => MonoVector.sub (v, i))
