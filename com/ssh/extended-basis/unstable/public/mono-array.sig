@@ -21,6 +21,13 @@ signature MONO_ARRAY = sig
     * to {tabulate (length a, fn i => sub (a, i))}.
     *)
 
+   val unfoldi : (int * 'a -> elem * 'a) -> int * 'a -> t * 'a
+   (**
+    * {unfoldi f (n, b)} constructs an array a of length {n}, whose
+    * elements {ai} are determined by the equations {b0 = b} and {(ai,
+    * bi+1) = f (i, bi)}.
+    *)
+
    (** == Conversions == *)
 
    val fromPoly : elem Array.array -> array

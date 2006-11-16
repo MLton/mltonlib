@@ -8,11 +8,16 @@
  * Extended {Array :> ARRAY} structure.
  *)
 structure Array : ARRAY = struct
-   open Array
-   type 'a t = 'a array
+   local
+      structure Array = struct
+         open Array
+         type 'a t = 'a array
+      end
+      structure Common = MkSeqCommonExt (Array)
+   in
+      open Array Common
+   end
    fun dup a = tabulate (length a, fn i => sub (a, i))
-   fun toList a = foldr op :: [] a
-   val isoList = (toList, fromList)
    val toVector = vector
    fun fromVector v = tabulate (Vector.length v, fn i => Vector.sub (v, i))
    val isoVector = (toVector, fromVector)

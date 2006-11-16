@@ -9,9 +9,11 @@ group is
    ../mk-integer-ext.fun
    ../mk-mono-array-ext.fun
    ../mk-mono-array-slice-ext.fun
+   ../mk-mono-seq-common-ext.fun
    ../mk-mono-vector-ext.fun
    ../mk-mono-vector-slice-ext.fun
    ../mk-real-ext.fun
+   ../mk-seq-common-ext.fun
    ../mk-text-ext.fun
    ../mk-word-ext.fun
    workarounds/basis.cm

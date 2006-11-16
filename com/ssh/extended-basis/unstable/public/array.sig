@@ -21,6 +21,13 @@ signature ARRAY = sig
     * to {tabulate (length a, fn i => sub (a, i))}.
     *)
 
+   val unfoldi : (int * 'b -> 'a * 'b) -> int * 'b -> 'a t * 'b
+   (**
+    * {unfoldi f (n, b)} constructs an array a of length {n}, whose
+    * elements {ai} are determined by the equations {b0 = b} and {(ai,
+    * bi+1) = f (i, bi)}.
+    *)
+
    (** == Conversions == *)
 
    val fromVector : 'a vector -> 'a array

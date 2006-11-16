@@ -8,8 +8,13 @@
  * Extended {Vector :> VECTOR} structure.
  *)
 structure Vector : VECTOR = struct
-   open Vector
-   type 'a t = 'a vector
-   fun toList v = foldr op :: [] v
-   val isoList = (toList, fromList)
+   local
+      structure Vector = struct
+         open Vector
+         type 'a t = 'a vector
+      end
+      structure Common = MkSeqCommonExt (Vector)
+   in
+      open Vector Common
+   end
 end

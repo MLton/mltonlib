@@ -28,6 +28,8 @@ in
             "detail/mk-int-inf-ext.fun",
             "detail/mk-real-ext.fun",
             "detail/mk-word-ext.fun",
+            "detail/mk-seq-common-ext.fun",
+            "detail/mk-mono-seq-common-ext.fun",
             "detail/mk-mono-vector-ext.fun",
             "detail/mk-mono-vector-slice-ext.fun",
             "detail/mk-mono-array-ext.fun",

@@ -15,6 +15,13 @@ signature VECTOR = sig
     * Convenience alias.
     *)
 
+   val unfoldi : (int * 'b -> 'a * 'b) -> int * 'b -> 'a t * 'b
+   (**
+    * {unfoldi f (n, b)} constructs a vector {v} of a length {n}, whose
+    * elements {vi} are determined by the equations {b0 = b} and {(vi,
+    * bi+1) = f (i, bi)}.
+    *)
+
    (** == Conversions == *)
 
    val toList : 'a vector -> 'a list

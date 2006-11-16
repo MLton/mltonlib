@@ -15,6 +15,13 @@ signature MONO_VECTOR = sig
     * Convenience alias.
     *)
 
+   val unfoldi : (int * 'a -> elem * 'a) -> int * 'a -> t * 'a
+   (**
+    * {unfoldi f (n, b)} constructs a vector {v} of a length {n}, whose
+    * elements {vi} are determined by the equations {b0 = b} and {(vi,
+    * bi+1) = f (i, bi)}.
+    *)
+
    (** == Conversions == *)
 
    val fromPoly : elem Vector.vector -> vector
