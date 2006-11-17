@@ -13,10 +13,119 @@ in
       "warnUnused true"
    in
       local
-         public/exit.sig
-         detail/exit.sml
+         (* The following is basically an experiment in having explicit
+          * dependencies.  Each basis defined below is self contained.
+          * Interface and implementation dependencies aren't separated.
+          *)
+
+         basis Fn = bas public/fn.sig detail/fn.sml end
+         basis Sq = bas public/sq.sig detail/sq.sml end
+         basis UnOp = bas public/un-op.sig detail/un-op.sml end
+         basis Thunk = let
+            open Fn
+         in
+            bas public/thunk.sig detail/thunk.sml end
+         end
+         basis Univ = let
+            open Thunk
+         in
+            bas public/univ.sig detail/univ.sml end
+         end
+         basis BinOp = let
+            open Sq
+         in
+            bas public/bin-op.sig detail/bin-op.sml end
+         end
+         basis Effect = let
+            open UnOp
+         in
+            bas public/effect.sig detail/effect.sml end
+         end
+         basis Fix = let open UnOp in bas public/fix.sig detail/fix.sml end end
+         basis UnPr = let
+            open BinOp UnOp
+         in
+            bas public/un-pr.sig detail/un-pr.sml end
+         end
+         basis Order = let
+            open Thunk UnOp UnPr
+         in
+            bas public/order.sig detail/order.sml end
+         end
+         basis BinPr = let
+            open Sq UnPr
+         in
+            bas public/bin-pr.sig detail/bin-pr.sml end
+         end
+         basis Cmp = let
+            open BinPr Order Sq
+         in
+            bas public/cmp.sig detail/cmp.sml end
+         end
+         basis Ref = let
+            open BinPr Effect Sq UnOp
+         in
+            bas public/ref.sig detail/ref.sml end
+         end
+         basis Prod = let
+            open BinPr Cmp Effect Fn Order Thunk UnPr
+         in
+            bas
+               public/product-type.sig
+               public/pair.sig
+               detail/pair.sml
+               public/product.sig
+               detail/product.sml
+            end
+         end
+         basis Sum = let
+            open BinPr Cmp Effect UnOp UnPr
+         in
+            bas public/sum.sig detail/sum.sml end
+         end
+         basis Iso = let
+            open Fn Prod Sum
+         in
+            bas public/iso.sig detail/iso.sml end
+         end
+         basis Tie = let
+            open Effect Fix Fn Iso Prod Sq Thunk UnOp
+         in
+            bas public/tie.sig detail/tie.sml end
+         end
+         basis Buffer = let
+            open Effect Fn Prod Thunk UnOp
+         in
+            bas public/buffer.sig detail/buffer.sml end
+         end
+         basis Reader = let
+            open Fn Prod Thunk Univ
+         in
+            bas public/reader.sig detail/reader.sml end
+         end
+         basis Writer = let
+            open Fn Prod Effect Univ
+         in
+            bas public/writer.sig detail/writer.sml end
+         end
+         basis Exit = bas public/exit.sig detail/exit.sml end
+
+         open BinOp BinPr Buffer
+         open Cmp
+         open Effect Exit
+         open Fix Fn
+         open Iso
+         open Order
+         open Prod
+         open Reader Ref
+         open Sq Sum
+         open Thunk Tie
+         open Univ UnOp UnPr
+         open Writer
       in
          public/export.sml
+         public/top-level.sml
+         public/infixes.sml
       end
    end
 end

@@ -1,0 +1,54 @@
+(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+ *
+ * MLton is released under a BSD-style license.
+ * See the file MLton-LICENSE for details.
+ *)
+
+group is
+   ../../../../extended-basis/unstable/basis.cm
+   ../../public/bin-op.sig
+   ../../public/bin-pr.sig
+   ../../public/buffer.sig
+   ../../public/cmp.sig
+   ../../public/effect.sig
+   ../../public/exit.sig
+   ../../public/fix.sig
+   ../../public/fn.sig
+   ../../public/order.sig
+   ../../public/pair.sig
+   ../../public/product-type.sig
+   ../../public/product.sig
+   ../../public/random-gen.sig
+   ../../public/reader.sig
+   ../../public/ref.sig
+   ../../public/rng.sig
+   ../../public/sq.sig
+   ../../public/sum.sig
+   ../../public/thunk.sig
+   ../../public/tie.sig
+   ../../public/un-op.sig
+   ../../public/un-pr.sig
+   ../../public/univ.sig
+   ../../public/writer.sig
+   ../bin-op.sml
+   ../bin-pr.sml
+   ../buffer.sml
+   ../cmp.sml
+   ../effect.sml
+   ../exit.sml
+   ../fix.sml
+   ../fn.sml
+   ../mk-random-gen.fun
+   ../order.sml
+   ../pair.sml
+   ../product.sml
+   ../reader.sml
+   ../ref.sml
+   ../sq.sml
+   ../sum.sml
+   ../thunk.sml
+   ../tie.sml
+   ../un-op.sml
+   ../un-pr.sml
+   ../univ.sml
+   ../writer.sml
