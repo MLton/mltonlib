@@ -18,10 +18,8 @@ group is
    ../../public/pair.sig
    ../../public/product-type.sig
    ../../public/product.sig
-   ../../public/random-gen.sig
    ../../public/reader.sig
    ../../public/ref.sig
-   ../../public/rng.sig
    ../../public/sq.sig
    ../../public/sum.sig
    ../../public/thunk.sig
@@ -38,7 +36,6 @@ group is
    ../exit.sml
    ../fix.sml
    ../fn.sml
-   ../mk-random-gen.fun
    ../order.sml
    ../pair.sml
    ../product.sml
