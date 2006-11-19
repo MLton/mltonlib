@@ -67,7 +67,7 @@ in
          in
             bas public/ref.sig detail/ref.sml end
          end
-         basis Prod = let
+         basis Products = let
             open BinPr Cmp Effect Fn Order Thunk UnPr
          in
             bas
@@ -84,27 +84,27 @@ in
             bas public/sum.sig detail/sum.sml end
          end
          basis Iso = let
-            open Fn Prod Sum
+            open Fn Products Sum
          in
             bas public/iso.sig detail/iso.sml end
          end
          basis Tie = let
-            open Effect Fix Fn Iso Prod Sq Thunk UnOp
+            open Effect Fix Fn Iso Products Sq Thunk UnOp
          in
             bas public/tie.sig detail/tie.sml end
          end
          basis Buffer = let
-            open Effect Fn Prod Thunk UnOp
+            open Effect Fn Products Thunk UnOp
          in
             bas public/buffer.sig detail/buffer.sml end
          end
          basis Reader = let
-            open Fn Prod Thunk Univ
+            open Fn Products Thunk Univ
          in
             bas public/reader.sig detail/reader.sml end
          end
          basis Writer = let
-            open Fn Prod Effect Univ
+            open Fn Products Effect Univ
          in
             bas public/writer.sig detail/writer.sml end
          end
@@ -116,7 +116,7 @@ in
          open Fix Fn
          open Iso
          open Order
-         open Prod
+         open Products
          open Reader Ref
          open Sq Sum
          open Thunk Tie
