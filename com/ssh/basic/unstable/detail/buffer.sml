@@ -28,22 +28,30 @@ structure Buffer :> BUFFER = struct
                end
    end
    local
-      fun mk sLength sSub sCopy (b as IN {length, data}, s) =
+      fun mk sLength sAny sCopy (b as IN {length, data}, s) =
           case sLength s of
              0 => ()
            | n => let
                 val newLength = !length + n
-             in ensureCap b newLength (sSub (s, 0))
+             in ensureCap b newLength (sAny s)
               ; sCopy {src = s, dst = !data, di = !length} : unit
               ; length := newLength
              end
+      infixr />
+      val op /> = Fn./>
    in
-      fun push ? = mk (Fn.const 1) Pair.fst
-                      (fn {src, dst, di} => A.update (dst, di, src)) ?
-      fun pushArray ? = mk A.length A.sub A.copy ?
-      fun pushArraySlice ? = mk AS.length AS.sub AS.copy ?
-      fun pushVector ? = mk V.length V.sub A.copyVec ?
-      fun pushVectorSlice ? = mk VS.length VS.sub AS.copyVec ?
+      fun push ? =
+          mk (Fn.const 1) Fn.id (fn {src, dst, di} => A.update (dst, di, src)) ?
+      fun pushArray ? = mk A.length (A.sub /> 0) A.copy ?
+      fun pushArraySlice ? = mk AS.length (AS.sub /> 0) AS.copy ?
+      fun pushBuffer (b, s) =
+          pushArraySlice (b, AS.slice (data s, 0, SOME (length s)))
+      fun pushList ? =
+          mk List.length List.hd
+             (fn {src, dst, di} =>
+                 List.appi (fn (i, x) => A.update (dst, di+i, x)) src) ?
+      fun pushVector ? = mk V.length (V.sub /> 0) A.copyVec ?
+      fun pushVectorSlice ? = mk VS.length (VS.sub /> 0) AS.copyVec ?
    end
    local
       fun mk tabulate b = tabulate (length b, fn i => sub (b, i))

@@ -20,6 +20,8 @@ signature BUFFER = sig
 
    val pushArray : ('a t * 'a Array.t) Effect.t
    val pushArraySlice : ('a t * 'a ArraySlice.t) Effect.t
+   val pushBuffer : ('a t * 'a t) Effect.t
+   val pushList : ('a t * 'a List.t) Effect.t
    val pushVector : ('a t * 'a Vector.t) Effect.t
    val pushVectorSlice : ('a t * 'a VectorSlice.t) Effect.t
 
