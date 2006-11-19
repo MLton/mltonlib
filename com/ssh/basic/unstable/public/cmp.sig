@@ -4,13 +4,31 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(** Utilities for dealing with compare functions. *)
+(** Utilities for dealing with compare functions or orderings. *)
 signature CMP = sig
    type 'a t = 'a Sq.t -> Order.t
-   (** Type of compare functions (e.g. {Int.compare, String.compare, ...}). *)
+   (**
+    * Type of compare functions or orderings (e.g. {Int.compare,
+    * String.compare, ...}).
+    *)
+
+   val map : ('b -> 'a) -> 'a t -> 'b t
+   (** Changes the domain of an ordering. *)
 
    val mkRelOps : 'a t -> {<  : 'a BinPr.t, <= : 'a BinPr.t,
                            >  : 'a BinPr.t, >= : 'a BinPr.t,
                            == : 'a BinPr.t, != : 'a BinPr.t}
-   (** Returns a record of relational operators given a compare function. *)
+   (** Given an ordering, returns a record of relational operators. *)
+
+   val max : 'a t -> 'a BinOp.t
+   (**
+    * Given an ordering, returns a function that returns the greater of
+    * its arguments.
+    *)
+
+   val min : 'a t -> 'a BinOp.t
+   (**
+    * Given an ordering, returns a function that returns the lesser of its
+    * arguments.
+    *)
 end

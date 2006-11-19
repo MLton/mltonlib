@@ -58,7 +58,7 @@ in
             bas public/bin-pr.sig detail/bin-pr.sml end
          end
          basis Cmp = let
-            open BinPr Order Sq
+            open BinOp BinPr Fn Order Sq
          in
             bas public/cmp.sig detail/cmp.sml end
          end
