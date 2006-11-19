@@ -81,7 +81,7 @@ signature TIE = sig
     * 'b}.
     *)
 
-   val option : 'a option t
+   val option : 'a Option.t t
    (** Tier for options. *)
 
    val function : ('a -> 'b) t
