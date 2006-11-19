@@ -14,4 +14,7 @@ signature SQ = sig
 
    val mk : 'a -> 'a t
    (** {mk x = (x, x)}. *)
+
+   val map : ('a -> 'b) -> 'a t -> 'b t
+   (** {map f (x, y) = (f x, f y)}. *)
 end

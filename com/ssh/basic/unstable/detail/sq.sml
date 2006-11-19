@@ -7,4 +7,5 @@
 structure Sq :> SQ = struct
    type 'a t = 'a * 'a
    fun mk x = (x, x)
+   fun map f (x, y) = (f x, f y)
 end
