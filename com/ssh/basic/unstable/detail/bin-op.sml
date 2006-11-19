@@ -6,4 +6,5 @@
 
 structure BinOp :> BIN_OP = struct
    type 'a t = 'a Sq.t -> 'a
+   fun map (b2a, a2b) = Fn.map (Sq.map b2a, a2b)
 end

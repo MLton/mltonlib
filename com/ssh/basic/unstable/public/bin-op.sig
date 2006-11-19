@@ -8,4 +8,7 @@
 signature BIN_OP = sig
    type 'a t = 'a Sq.t -> 'a
    (** Type of binary operators (e.g. {+, -, @, ...}). *)
+
+   val map : ('b, 'a) Iso.t -> 'a t -> 'b t
+   (** Change the sort of a binary operator. *)
 end

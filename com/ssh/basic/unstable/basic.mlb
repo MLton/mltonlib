@@ -32,7 +32,7 @@ in
             bas public/univ.sig detail/univ.sml end
          end
          basis BinOp = let
-            open Sq
+            open Fn Sq
          in
             bas public/bin-op.sig detail/bin-op.sml end
          end
