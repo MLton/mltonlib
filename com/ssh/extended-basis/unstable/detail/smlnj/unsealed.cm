@@ -20,6 +20,7 @@ is
    ../effect.sml
    ../emb.sml
    ../exit.sml
+   ../exn.sml
    ../fix.sml
    ../fn.sml
    ../iso.sml
@@ -47,4 +48,5 @@ is
    ../vector-slice.sml
    ../vector.sml
    ../writer.sml
+   ext.sml
    sigs.cm

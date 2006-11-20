@@ -19,6 +19,7 @@ is
    ../../public/effect.sig
    ../../public/emb.sig
    ../../public/exit.sig
+   ../../public/exn.sig
    ../../public/fix.sig
    ../../public/fn.sig
    ../../public/int-inf.sig
