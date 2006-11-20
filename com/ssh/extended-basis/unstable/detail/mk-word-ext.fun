@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Functor for extending {WORD} modules.
- *)
 functor MkWordExt (W : WORD) = struct
    open W
    type t = word

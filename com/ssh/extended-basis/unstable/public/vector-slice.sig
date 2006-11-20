@@ -4,14 +4,10 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {VECTOR_SLICE} signature.
- *)
+(** Extended {VECTOR_SLICE} signature. *)
 signature VECTOR_SLICE = sig
    include VECTOR_SLICE
 
    type 'a t = 'a slice
-   (**
-    * Convenience alias.
-    *)
+   (** Convenience alias. *)
 end

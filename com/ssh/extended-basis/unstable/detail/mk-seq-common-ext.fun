@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Functor to make common sequence (array or vector) extensions.
- *)
 functor MkSeqCommonExt (type 'a t
                         val foldr : ('a * 'b -> 'b) -> 'b -> 'a t -> 'b
                         val fromList : 'a list -> 'a t

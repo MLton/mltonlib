@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Functor for extending {MONO_ARRAY} modules.
- *)
 functor MkMonoArrayExt (structure MonoVector : MONO_VECTOR
                         structure MonoArray : MONO_ARRAY
                            where type elem = MonoVector.elem

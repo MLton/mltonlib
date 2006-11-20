@@ -9,5 +9,4 @@
  *)
 structure VectorSlice : VECTOR_SLICE = struct
    open VectorSlice
-   type 'a t = 'a slice
 end

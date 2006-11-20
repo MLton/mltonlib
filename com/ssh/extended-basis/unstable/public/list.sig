@@ -4,9 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {LIST} signature.
- *)
+(** Extended {LIST} signature. *)
 signature LIST = sig
    include LIST
 
@@ -15,19 +13,19 @@ signature LIST = sig
 
    (** == Basic == *)
 
-   val sub : 'a t * int -> 'a
+   val sub : 'a t * Int.t -> 'a
    (**
     * {sub (l, i)} returns the {i}th element of the list {l}.  This is
     * equivalent to {nth}.
     *)
 
-   val init : 'a t -> 'a t
+   val init : 'a t UnOp.t
    (**
     * Return all the elements of a list except the last one.  Raises
     * {Empty} if the list is empty.
     *)
 
-   val split : 'a t * int -> 'a t * 'a t
+   val split : 'a t * Int.t -> 'a t Sq.t
    (**
     * {split (l, i)} returns a pair f the first {i} and last {length l -
     * i} elements of the list {l}.  Raises {Subscript} if {i < 0 orelse
@@ -37,16 +35,16 @@ signature LIST = sig
 
    (** == Transformations == *)
 
-   val intersperse : 'a -> 'a t -> 'a t
+   val intersperse : 'a -> 'a t UnOp.t
    (**
     * {intersperse d l} forms the list {[sub (l, 0), d, sub (l, 1), d,
     * ..., d, sub (l, n-1)]} where {n = length l}.
     *)
 
-   val transpose : 'a t t -> 'a t t
+   val transpose : 'a t t UnOp.t
    (** Transposes the rows and columns of its argument. *)
 
-   val index : 'a t -> (int * 'a) t
+   val index : 'a t -> (Int.t * 'a) t
    (**
     * {index l} returns the list {[(0, sub (l, 0)), (1, sub (l, 1)), ...,
     * (n-1, sub (l, n-1))]} where {n = length l} is the length of the
@@ -55,37 +53,37 @@ signature LIST = sig
 
    (** == Stack == *)
 
-   val push : 'a t ref * 'a -> unit
-   val pop : 'a t ref -> 'a option
+   val push : ('a t Ref.t * 'a) Effect.t
+   val pop : 'a t Ref.t -> 'a Option.t
 
    (** == HOFs == *)
 
-   val foldl1 : ('a * 'a -> 'a) -> 'a t -> 'a
-   val foldr1 : ('a * 'a -> 'a) -> 'a t -> 'a
+   val foldl1 : 'a BinOp.t -> 'a t -> 'a
+   val foldr1 : 'a BinOp.t -> 'a t -> 'a
 
-   val appr : ('a -> unit) -> 'a t -> unit
+   val appr : 'a Effect.t -> 'a t Effect.t
    (** {appr f l} applies {f} to the elements of {l}, from right to left. *)
 
    val concatMap : ('a -> 'b t) -> 'a t -> 'b t
 
    (** == Indexed HOFs == *)
 
-   val appi : (int * 'a -> unit) -> 'a t -> unit
-   val appri : (int * 'a -> unit) -> 'a t -> unit
-   val concatMapi : (int * 'a -> 'b t) -> 'a t -> 'b t
-   val mapi : (int * 'a -> 'b) -> 'a t -> 'b t
-   val mapiPartial : (int * 'a -> 'b option) -> 'a t -> 'b t
-   val foldli : (int * 'a * 'b -> 'b) -> 'b -> 'a t -> 'b
-   val foldri : (int * 'a * 'b -> 'b) -> 'b -> 'a t -> 'b
-   val alli : (int * 'a -> bool) -> 'a t -> bool
-   val existsi : (int * 'a -> bool) -> 'a t -> bool
-   val findi : (int * 'a -> bool) -> 'a t -> (int * 'a) option
+   val appi : (Int.t * 'a) Effect.t -> 'a t Effect.t
+   val appri : (Int.t * 'a) Effect.t -> 'a t Effect.t
+   val concatMapi : (Int.t * 'a -> 'b t) -> 'a t -> 'b t
+   val mapi : (Int.t * 'a -> 'b) -> 'a t -> 'b t
+   val mapiPartial : (Int.t * 'a -> 'b Option.t) -> 'a t -> 'b t
+   val foldli : (Int.t * 'a * 'b -> 'b) -> 'b -> 'a t -> 'b
+   val foldri : (Int.t * 'a * 'b -> 'b) -> 'b -> 'a t -> 'b
+   val alli : (Int.t * 'a) UnPr.t -> 'a t UnPr.t
+   val existsi : (Int.t * 'a) UnPr.t -> 'a t UnPr.t
+   val findi : (Int.t * 'a) UnPr.t -> 'a t -> (Int.t * 'a) Option.t
 
    (** == Set Operations == *)
 
-   val contains : ''a t -> ''a -> bool
+   val contains : ''a t -> ''a UnPr.t
 
    (** == Equality == *)
 
-   val equal : ('a * 'b -> bool) -> 'a t * 'b t -> bool
+   val equal : 'a BinPr.t -> 'a t BinPr.t
 end

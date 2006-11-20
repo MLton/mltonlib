@@ -4,18 +4,14 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {SUBSTRING} signature.
- *)
+(** Extended {SUBSTRING} signature. *)
 signature SUBSTRING = sig
    include SUBSTRING
 
    type t = substring
-   (**
-    * Convenience alias.
-    *)
+   (** Convenience alias. *)
 
-   val length : substring -> int
+   val length : t -> Int.t
    (**
     * Returns the size of the given substring.  This is equivalent to
     * {size}.

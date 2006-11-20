@@ -4,18 +4,14 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {MONO_VECTOR} signature.
- *)
+(** Extended {MONO_VECTOR} signature. *)
 signature MONO_VECTOR = sig
    include MONO_VECTOR
 
    type t = vector
-   (**
-    * Convenience alias.
-    *)
+   (** Convenience alias. *)
 
-   val unfoldi : (int * 'a -> elem * 'a) -> int * 'a -> t * 'a
+   val unfoldi : (Int.t * 'a -> elem * 'a) -> Int.t * 'a -> t * 'a
    (**
     * {unfoldi f (n, b)} constructs a vector {v} of a length {n}, whose
     * elements {vi} are determined by the equations {b0 = b} and {(vi,
@@ -24,7 +20,7 @@ signature MONO_VECTOR = sig
 
    (** == Conversions == *)
 
-   val fromPoly : elem Vector.vector -> vector
+   val fromPoly : elem Vector.t -> t
    (**
     * Generates a monomorphic vector from the given polymorphic vector.
     * Specifically, the result of {fromPoly v} is equivalent to
@@ -32,13 +28,13 @@ signature MONO_VECTOR = sig
     *> tabulate (Vector.length v, fn i => Vector.sub (v, i))
     *)
 
-   val toList : vector -> elem list
+   val toList : t -> elem List.t
    (**
     * Generates a list from the given vector.  Specifically, the result of
     * {toList v} is equivalent to {foldr op :: [] v}.
     *)
 
-   val toPoly : vector -> elem Vector.vector
+   val toPoly : t -> elem Vector.t
    (**
     * Generates a new polymorphic vector from the given monomorphic
     * vector.  Specifically, the result of {toPoly v} is equivalent to
@@ -48,13 +44,13 @@ signature MONO_VECTOR = sig
 
    (** == Isomorphisms == *)
 
-   val isoList : (vector, elem list) Iso.t
+   val isoList : (t, elem List.t) Iso.t
    (**
     * An isomorphism between vectors and lists.  It is always equivalent
     * to {(toList, fromList)}.
     *)
 
-   val isoPoly : (vector, elem Vector.vector) Iso.t
+   val isoPoly : (t, elem Vector.t) Iso.t
    (**
     * An isomorphism between monomorphic and polymorphic vectors.  It is
     * always equivalent to {(toPoly, fromPoly)}.

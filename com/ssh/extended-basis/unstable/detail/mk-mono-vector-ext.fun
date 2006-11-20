@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Functor for extending {MONO_VECTOR} modules.
- *)
 functor MkMonoVectorExt (MonoVector : MONO_VECTOR) = struct
    local
       structure MonoVector = struct

@@ -4,12 +4,8 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {List :> LIST} structure.
- *)
 structure List : LIST = struct
    open List
-   type 'a t = 'a list
    val sub = nth
    fun init l = rev (tl (rev l))
    fun intersperse d =

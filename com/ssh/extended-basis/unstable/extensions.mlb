@@ -29,72 +29,161 @@ in
       "warnUnused true"
    in
       local
-         (* NOTE: Order matters. *)
-
          (* Workarounds (if any) *)
          detail/$(SML_COMPILER)/workarounds.mlb
 
-         (* New {Iso :> ISO} and {Emb :> EMB} modules *)
-         public/emb.sig
-         detail/emb.sml
-         public/iso.sig
-         detail/iso.sml
+         (* Minimal modules for bootstrapping. *)
+         detail/bootstrap.sml
 
-         (* Extension functors *)
-         detail/mk-integer-ext.fun
-         detail/mk-int-inf-ext.fun
-         detail/mk-real-ext.fun
-         detail/mk-word-ext.fun
-         detail/mk-seq-common-ext.fun
-         detail/mk-mono-seq-common-ext.fun
-         detail/mk-mono-vector-ext.fun
-         detail/mk-mono-vector-slice-ext.fun
-         detail/mk-mono-array-ext.fun
-         detail/mk-mono-array-slice-ext.fun
-         detail/mk-text-ext.fun
+         basis Fn = bas public/fn.sig detail/fn.sml end
+         basis Unit = bas public/unit.sig end
+         basis Sq = bas public/sq.sig detail/sq.sml end
+         basis UnOp = bas public/un-op.sig detail/un-op.sml end
+         basis Thunk = let
+            open Fn
+         in
+            bas public/thunk.sig detail/thunk.sml end
+         end
+         basis Univ = bas public/univ.sig detail/univ.sml end
+         basis BinOp = let
+            open Fn Sq
+         in
+            bas public/bin-op.sig detail/bin-op.sml end
+         end
+         basis Effect = bas public/effect.sig detail/effect.sml end
+         basis Fix = bas public/fix.sig detail/fix.sml end
+         basis UnPr = bas public/un-pr.sig detail/un-pr.sml end
+         basis Order = bas public/order.sig detail/order.sml end
+         basis BinPr = bas public/bin-pr.sig detail/bin-pr.sml end
+         basis Cmp = let
+            open Fn Order Sq
+         in
+            bas public/cmp.sig detail/cmp.sml end
+         end
+         basis Ref = bas public/ref.sig detail/ref.sml end
+         basis Bool = bas public/bool.sig detail/bool.sml end
+         basis Products = let
+            open Bool Effect Fn Order
+         in
+            bas
+               public/product-type.sig
+               public/pair.sig
+               detail/pair.sml
+               public/product.sig
+               detail/product.sml
+            end
+         end
+         basis Sum = bas public/sum.sig detail/sum.sml end
+         basis Emb = let
+            open Fn Products
+         in
+            bas public/emb.sig detail/emb.sml end
+         end
+         basis Iso = let
+            open Fn Products Sum
+         in
+            bas public/iso.sig detail/iso.sml end
+         end
+         basis Tie = let
+            open Fix Fn Iso Products Sq
+         in
+            bas public/tie.sig detail/tie.sml end
+         end
+         basis Seqs = bas
+            detail/mk-seq-common-ext.fun
 
-         (* Extended signatures *)
-         public/bool.sig
-         public/option.sig
-         public/int-inf.sig
-         public/integer.sig
-         public/real.sig
-         public/word.sig
-         public/list.sig
-         public/vector.sig
-         public/vector-slice.sig
-         public/array.sig
-         public/array-slice.sig
-         public/mono-vector.sig
-         public/mono-vector-slice.sig
-         public/mono-array.sig
-         public/mono-array-slice.sig
-         public/char.sig
-         public/string.sig
-         public/substring.sig
-         public/text.sig
+            public/array.sig
+            detail/array.sml
+            public/array-slice.sig
+            detail/array-slice.sml
 
-         (* Extended modules *)
-         detail/bool.sml
-         detail/option.sml
-         detail/list.sml
-         detail/vector.sml
-         detail/vector-slice.sml
-         detail/array.sml
-         detail/array-slice.sml
-         detail/common.sml
-         detail/$(SML_COMPILER)/ints.sml
-         detail/$(SML_COMPILER)/reals.sml
-         detail/$(SML_COMPILER)/words.sml
-         detail/$(SML_COMPILER)/mono-vectors.sml
-         detail/$(SML_COMPILER)/mono-vector-slices.sml
-         detail/$(SML_COMPILER)/mono-arrays.sml
-         detail/$(SML_COMPILER)/mono-array-slices.sml
-         detail/$(SML_COMPILER)/texts.sml
+            public/vector.sig
+            detail/vector.sml
+            public/vector-slice.sig
+            detail/vector-slice.sml
+         end
+         basis Option = bas public/option.sig detail/option.sml end
+         basis List = let
+            open Option
+         in
+            bas public/list.sig detail/list.sml end
+         end
+         basis Buffer = let
+            open Seqs List Fn Products
+         in
+            bas public/buffer.sig detail/buffer.sml end
+         end
+         basis Reader = let
+            open Fn Products Univ
+         in
+            bas public/reader.sig detail/reader.sml end
+         end
+         basis Writer = let
+            open Fn Products Univ
+         in
+            bas public/writer.sig detail/writer.sml end
+         end
+         basis Exit = bas public/exit.sig detail/exit.sml end
+         basis Scalars = bas
+            detail/mk-integer-ext.fun
+            detail/mk-int-inf-ext.fun
+            detail/mk-real-ext.fun
+            detail/mk-word-ext.fun
+
+            public/int-inf.sig
+            public/integer.sig
+            public/real.sig
+            public/word.sig
+
+            detail/common-scalars.sml
+            detail/$(SML_COMPILER)/ints.sml
+            detail/$(SML_COMPILER)/reals.sml
+            detail/$(SML_COMPILER)/words.sml
+         end
+         basis MonoSeqs = bas
+            detail/mk-mono-seq-common-ext.fun
+            detail/mk-mono-vector-ext.fun
+            detail/mk-mono-vector-slice-ext.fun
+            detail/mk-mono-array-ext.fun
+            detail/mk-mono-array-slice-ext.fun
+            detail/mk-text-ext.fun
+
+            public/mono-vector.sig
+            public/mono-vector-slice.sig
+            public/mono-array.sig
+            public/mono-array-slice.sig
+            public/char.sig
+            public/string.sig
+            public/substring.sig
+            public/text.sig
+
+            detail/common-mono-seqs.sml
+            detail/$(SML_COMPILER)/mono-vectors.sml
+            detail/$(SML_COMPILER)/mono-vector-slices.sml
+            detail/$(SML_COMPILER)/mono-arrays.sml
+            detail/$(SML_COMPILER)/mono-array-slices.sml
+            detail/$(SML_COMPILER)/texts.sml
+         end
+
+         open BinOp BinPr Bool Buffer
+         open Cmp
+         open Effect Emb Exit
+         open Fix Fn
+         open Iso
+         open List
+         open MonoSeqs
+         open Option Order
+         open Products
+         open Reader Ref
+         open Scalars Seqs Sq Sum
+         open Thunk Tie
+         open Unit Univ UnOp UnPr
+         open Writer
       in
          public/export-$(SML_COMPILER).sml
          public/export.sml
          public/top-level.sml
+         public/infixes.sml
       end
    end
 end

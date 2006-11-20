@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Functor for extending {REAL} modules.
- *)
 functor MkRealExt (R : REAL) = struct
    open R
    type t = real

@@ -4,37 +4,31 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {WORD} signature.
- *)
+(** Extended {WORD} signature. *)
 signature WORD = sig
    include WORD
 
    type t = word
-   (**
-    * Convenience alias.
-    *)
+   (** Convenience alias. *)
 
    (** == Bounds == *)
 
-   val numBytes : int
+   val numBytes : Int.t
    (**
     * The number of bytes (8-bit words) it takes to store a {word}.  This
     * is always equal to {(wordSize + 7) quot 8}.
     *)
 
-   val maxWord : word
+   val maxWord : t
    (**
     * The maximal representable {word}.  This is always equal to {fromInt
     * ~1}.
     *)
 
-   val minWord : word
-   (**
-    * The minimal representable {word}.  This is always {0w0}.
-    *)
+   val minWord : t
+   (** The minimal representable {word}.  This is always {0w0}. *)
 
-   val bounds : word * word
+   val bounds : t Sq.t
    (**
     * Pair of the minimal and maximal representable {word}s.  This is
     * always equal to {(minWord, maxWord)}.
@@ -42,7 +36,7 @@ signature WORD = sig
 
    (** == Conversions == *)
 
-   val fromBigBytes : Word8Vector.vector -> word
+   val fromBigBytes : Word8Vector.t -> t
    (**
     * Converts a vector of bytes in big-endian order to a word.  Raises
     * {Subscript} if the length of the given vector is not equal to
@@ -50,7 +44,7 @@ signature WORD = sig
     * ignored.
     *)
 
-   val fromLittleBytes : Word8Vector.vector -> word
+   val fromLittleBytes : Word8Vector.t -> t
    (**
     * Converts a vector of bytes in little-endian order to a word.  Raises
     * {Subscript} if the length of the given vector is not equal to
@@ -58,48 +52,48 @@ signature WORD = sig
     * ignored.
     *)
 
-   val fromWord : Word.word -> word
+   val fromWord : Word.t -> t
    (**
-    * Converts the given word {w : Word.word} to the value {w(mod
+    * Converts the given word {w : Word.t} to the value {w(mod
     * (2^wordSize))} of type {word}.  This has the effect of taking the
     * low-order {wordSize} bits of the 2's complement representation of
     * {w}.
     *)
 
-   val fromWordX : Word.word -> word
+   val fromWordX : Word.t -> t
    (**
-    * Converts the given word {w : Word.word} to a value of type {word}.
+    * Converts the given word {w : Word.t} to a value of type {word}.
     * {w} is ``sign-extended,'' i.e., the {min (Word.wordSize, wordSize)}
     * low-order bits of {w} and {fromWordX w} are the same, and the
     * remaining bits of {fromWordX w} are all equal to the most
     * significant bit of {w}.
     *)
 
-   val toBigBytes : word -> Word8Vector.vector
+   val toBigBytes : t -> Word8Vector.t
    (**
     * Converts the given word to a vector of bytes in big-endian order.
     * Extra bits, if any, in the most significant byte will be set to
     * zeroes.
     *)
 
-   val toLittleBytes : word -> Word8Vector.vector
+   val toLittleBytes : t -> Word8Vector.t
    (**
     * Converts the given word to a vector of bytes in little-endian order.
     * Extra bits, if any, in the most significant byte will be set to
     * zeroes.
     *)
 
-   val toWord : word -> Word.word
+   val toWord : t -> Word.t
    (**
     * Converts the given word {w : word} to the value {w(mod
-    * (2^Word.wordSize))} of type {Word.word}.  This has the effect of
+    * (2^Word.wordSize))} of type {Word.t}.  This has the effect of
     * taking the low-order {Word.wordSize} bits of the 2's complement
     * representation of {w}.
     *)
 
-   val toWordX : word -> Word.word
+   val toWordX : t -> Word.t
    (**
-    * Converts the given word {w : word} to a value of type {Word.word}.
+    * Converts the given word {w : word} to a value of type {Word.t}.
     * {w} is ``sign-extended,'' i.e., the {min (Word.wordSize, wordSize)}
     * low-order bits of {w} and {toWordX w} are the same, and the
     * remaining bits of {toWordX w} are all equal to the most significant
@@ -108,7 +102,7 @@ signature WORD = sig
 
    (** == Embeddings == *)
 
-   val embString : (word, string) Emb.t
+   val embString : (t, String.t) Emb.t
    (**
     * An embedding of words into strings.  It is always equivalent to
     * {(toString, fromString)}.
@@ -116,61 +110,61 @@ signature WORD = sig
 
    (** == Isomorphisms == *)
 
-   val isoBigBytes : (word, Word8Vector.vector) Iso.t
+   val isoBigBytes : (t, Word8Vector.t) Iso.t
    (**
     * An isomorphism between words and byte vectors.  It is always
     * equivalent to {(toBigBytes, fromBigBytes)}.
     *)
 
-   val isoInt : (word, Int.int) Iso.t
+   val isoInt : (t, Int.t) Iso.t
    (**
     * An isomorphism between words of type {word} and the default integer
     * type.  It is always equivalent to {(toInt, fromInt)}.
     *)
 
-   val isoIntX : (word, Int.int) Iso.t
+   val isoIntX : (t, Int.t) Iso.t
    (**
     * An isomorphism between words of type {word} and the default integer
     * type.  It is always equivalent to {(toIntX, fromInt)}.
     *)
 
-   val isoLarge : (word, LargeWord.word) Iso.t
+   val isoLarge : (t, LargeWord.t) Iso.t
    (**
-    * An isomorphism between words of type {word} and the {LargeWord.word}
+    * An isomorphism between words of type {word} and the {LargeWord.t}
     * type.  It is always equivalent to {(toLarge, fromLarge)}.
     *)
 
-   val isoLargeInt : (word, LargeInt.int) Iso.t
+   val isoLargeInt : (t, LargeInt.t) Iso.t
    (**
-    * An isomorphism between words of type {word} and the {LargeInt.int}
+    * An isomorphism between words of type {word} and the {LargeInt.t}
     * type.  It is always equivalent to {(toLargeInt, fromLargeInt)}.
     *)
 
-   val isoLargeIntX : (word, LargeInt.int) Iso.t
+   val isoLargeIntX : (t, LargeInt.t) Iso.t
    (**
-    * An isomorphism between words of type {word} and the {LargeInt.int}
+    * An isomorphism between words of type {word} and the {LargeInt.t}
     * type.  It is always equivalent to {(toLargeIntX, fromLargeInt)}.
     *)
 
-   val isoLargeX : (word, LargeWord.word) Iso.t
+   val isoLargeX : (t, LargeWord.t) Iso.t
    (**
-    * An isomorphism between words of type {word} and the {LargeWord.word}
+    * An isomorphism between words of type {word} and the {LargeWord.t}
     * type.  It is always equivalent to {(toLargeX, fromLarge)}.
     *)
 
-   val isoLittleBytes : (word, Word8Vector.vector) Iso.t
+   val isoLittleBytes : (t, Word8Vector.t) Iso.t
    (**
     * An isomorphism between words and byte vectors.  It is always
     * equivalent to {(toLittleBytes, fromLittleBytes)}.
     *)
 
-   val isoWord : (word, Word.word) Iso.t
+   val isoWord : (t, Word.t) Iso.t
    (**
     * An isomorphism between words of type {word} and the default word
     * type.  It is always equivalent to {(toWord, fromWord)}.
     *)
 
-   val isoWordX : (word, Word.word) Iso.t
+   val isoWordX : (t, Word.t) Iso.t
    (**
     * An isomorphism between words of type {word} and the default word
     * type.  It is always equivalent to {(toWordX, fromWordX)}.
@@ -178,20 +172,18 @@ signature WORD = sig
 
    (** == Predicates == *)
 
-   val isEven : word -> bool
+   val isEven : t -> Bool.t
    (**
     * Returns true if the given word is of the form {0w2*n} for some
     * word {n}.
     *)
 
-   val isOdd : word -> bool
+   val isOdd : t -> Bool.t
    (**
     * Returns true if the given word is of the form {0w2*n+0w1} for some
     * word {n}.
     *)
 
-   val isZero : word -> bool
-   (**
-    * Returns true if the given word is {0w0}.
-    *)
+   val isZero : t -> Bool.t
+   (** Returns true if the given word is {0w0}. *)
 end

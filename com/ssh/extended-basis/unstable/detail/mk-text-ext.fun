@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Functor for extending {TEXT} modules.
- *)
 functor MkTextExt (T : TEXT) = struct
    open T
 

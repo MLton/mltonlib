@@ -4,18 +4,14 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {VECTOR} signature.
- *)
+(** Extended {VECTOR} signature. *)
 signature VECTOR = sig
    include VECTOR
 
    type 'a t = 'a vector
-   (**
-    * Convenience alias.
-    *)
+   (** Convenience alias. *)
 
-   val unfoldi : (int * 'b -> 'a * 'b) -> int * 'b -> 'a t * 'b
+   val unfoldi : (Int.t * 'b -> 'a * 'b) -> Int.t * 'b -> 'a t * 'b
    (**
     * {unfoldi f (n, b)} constructs a vector {v} of a length {n}, whose
     * elements {vi} are determined by the equations {b0 = b} and {(vi,
@@ -24,7 +20,7 @@ signature VECTOR = sig
 
    (** == Conversions == *)
 
-   val toList : 'a vector -> 'a list
+   val toList : 'a t -> 'a List.t
    (**
     * Generates a list from the given vector.  Specifically, the result of
     * {toList v} is equivalent to {foldr op :: [] v}.
@@ -32,7 +28,7 @@ signature VECTOR = sig
 
    (** == Isomorphisms == *)
 
-   val isoList : ('a vector, 'a list) Iso.t
+   val isoList : ('a t, 'a List.t) Iso.t
    (**
     * An isomorphism between vectors and lists.  It is always equivalent
     * to {(toList, fromList)}.

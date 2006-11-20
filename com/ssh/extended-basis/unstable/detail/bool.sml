@@ -4,13 +4,9 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {Bool : BOOL} structure.
- *)
 structure Bool : BOOL = struct
    open Bool
-   type t = bool
-   val equal = op = : bool * bool -> bool
+   val equal = op = : t BinOp.t
    val compare = fn (false,  true) => LESS
                   | (true,  false) => GREATER
                   | (_,         _) => EQUAL

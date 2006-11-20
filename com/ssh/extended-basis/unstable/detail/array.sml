@@ -4,15 +4,8 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {Array :> ARRAY} structure.
- *)
 structure Array : ARRAY = struct
    local
-      structure Array = struct
-         open Array
-         type 'a t = 'a array
-      end
       structure Common = MkSeqCommonExt (Array)
    in
       open Array Common

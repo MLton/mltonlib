@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Functor for extending {MONO_ARRAY_SLICE} modules.
- *)
 functor MkMonoArraySliceExt (structure MonoArraySlice : MONO_ARRAY_SLICE) =
 struct
    open MonoArraySlice

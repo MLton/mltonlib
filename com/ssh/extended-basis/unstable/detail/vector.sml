@@ -9,10 +9,6 @@
  *)
 structure Vector : VECTOR = struct
    local
-      structure Vector = struct
-         open Vector
-         type 'a t = 'a vector
-      end
       structure Common = MkSeqCommonExt (Vector)
    in
       open Vector Common

@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Functor for extending {MONO_VECTOR_SLICE} modules.
- *)
 functor MkMonoVectorSliceExt (structure MonoVectorSlice : MONO_VECTOR_SLICE) =
 struct
    open MonoVectorSlice

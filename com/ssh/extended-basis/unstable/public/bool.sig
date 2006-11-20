@@ -11,15 +11,15 @@ signature BOOL = sig
    type t = bool
    (** Convenience alias. *)
 
-   val isTrue : t -> t
+   val isTrue : t UnPr.t
    (** {isTrue x = x = true} *)
 
-   val isFalse : t -> t
+   val isFalse : t UnPr.t
    (** {isFalse x = x = false} *)
 
-   val equal : t * t -> t
+   val equal : t BinPr.t
    (** Equivalent to {op =}. *)
 
-   val compare : t * t -> order
+   val compare : t Cmp.t
    (** An ordering on booleans.  {false} is defined less than {true}. *)
 end

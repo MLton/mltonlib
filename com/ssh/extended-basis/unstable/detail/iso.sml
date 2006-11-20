@@ -4,15 +4,26 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Structure for isomorphisms.
- *)
 structure Iso :> ISO = struct
-   type ('a, 'b) iso = ('a -> 'b) * ('b -> 'a)
-   type ('a, 'b) t = ('a, 'b) iso
+   open Iso
 
-   val id = (fn a => a, fn a => a)
+   infix <-->
 
-   fun to (a2b, _) = a2b
-   fun from (_, b2a) = b2a
+   val id = (Fn.id, Fn.id)
+
+   val to = Pair.fst
+   val from = Pair.snd
+   val swap = Pair.swap
+
+   fun (a2b, b2a) <--> (c2a, a2c) = (a2b o c2a, a2c o b2a)
+
+   fun map (l, r) iso = r <--> iso <--> l
+
+   local
+      fun mk map = Pair.map map o Pair.swizzle
+   in
+      fun op --> ? = mk (Fn.map, Fn.map) ?
+      fun op  +` ? = mk (Sum.map, Sum.map) ?
+      fun op  *` ? = mk (Product.map, Product.map) ?
+   end
 end

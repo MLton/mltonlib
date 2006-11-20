@@ -4,19 +4,13 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {OPTION} signature.
- *)
+(** Extended {OPTION} signature. *)
 signature OPTION = sig
    include OPTION
 
    type 'a t = 'a option
-   (**
-    * Convenience alias.
-    *)
+   (** Convenience alias. *)
 
-   val isNone : 'a option -> bool
-   (**
-    * Returns {true} if given option is {NONE}; otherwise returns {false}.
-    *)
+   val isNone : 'a t UnPr.t
+   (** Returns {true} if given option is {NONE}; otherwise returns {false}. *)
 end

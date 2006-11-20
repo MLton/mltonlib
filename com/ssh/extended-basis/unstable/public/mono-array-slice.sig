@@ -4,14 +4,10 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {MONO_ARRAY_SLICE} signature.
- *)
+(** Extended {MONO_ARRAY_SLICE} signature. *)
 signature MONO_ARRAY_SLICE = sig
    include MONO_ARRAY_SLICE
 
    type t = slice
-   (**
-    * Convenience alias.
-    *)
+   (** Convenience alias. *)
 end

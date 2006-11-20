@@ -4,12 +4,8 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {Option : OPTION} structure.
- *)
 structure Option : OPTION = struct
    open Option
-   type 'a t = 'a option
    val isNone = fn NONE   => true
                  | SOME _ => false
 end

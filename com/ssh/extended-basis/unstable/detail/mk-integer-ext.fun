@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Functor for extending {INTEGER} modules.
- *)
 functor MkIntegerExt (I : INTEGER) = struct
    open I
    type t = int

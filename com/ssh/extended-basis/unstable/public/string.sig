@@ -17,13 +17,13 @@ signature STRING = sig
 
    (** == Embeddings == *)
 
-   val embCString : (string, string) Emb.t
+   val embCString : (t, t) Emb.t
    (**
     * An embedding of strings into C-style string literals.  It is always
     * equivalent to {(toCString, fromCString)}.
     *)
 
-   val embString : (string, string) Emb.t
+   val embString : (t, t) Emb.t
    (**
     * An embedding of strings into SML-style string literals.  It is
     * always equivalent to {(toString, fromString)}.
@@ -31,7 +31,7 @@ signature STRING = sig
 
    (** == Isomorphisms == *)
 
-   val isoList : (string, char list) Iso.t
+   val isoList : (t, char List.t) Iso.t
    (**
     * An isomorphism between strings and lists.  It is always equivalent
     * to {(toList, fromList)}.
@@ -40,26 +40,26 @@ signature STRING = sig
    (** == {MONO_VECTOR} == *)
 
    type elem = char
-   type vector = string
+   type vector = t
 
-   val all : (elem -> bool) -> vector -> bool
-   val app  : (elem -> unit) -> vector -> unit
-   val appi : (int * elem -> unit) -> vector -> unit
-   val exists : (elem -> bool) -> vector -> bool
-   val find  : (elem -> bool) -> vector -> elem option
-   val findi : (int * elem -> bool) -> vector -> (int * elem) option
+   val all : elem UnPr.t -> vector UnPr.t
+   val app  : elem Effect.t -> vector Effect.t
+   val appi : (Int.t * elem) Effect.t -> vector Effect.t
+   val exists : elem UnPr.t -> vector UnPr.t
+   val find  : elem UnPr.t -> vector -> elem Option.t
+   val findi : (Int.t * elem -> Bool.t) -> vector -> (Int.t * elem) Option.t
    val foldl  : (elem * 'a -> 'a) -> 'a -> vector -> 'a
-   val foldli : (int * elem * 'a -> 'a) -> 'a -> vector -> 'a
+   val foldli : (Int.t * elem * 'a -> 'a) -> 'a -> vector -> 'a
    val foldr  : (elem * 'a -> 'a) -> 'a -> vector -> 'a
-   val foldri : (int * elem * 'a -> 'a) -> 'a -> vector -> 'a
-   val fromList : elem list -> vector
-   val fromPoly : elem Vector.vector -> vector
-   val isoPoly : (vector, elem Vector.vector) Iso.t
-   val length : vector -> int
-   val mapi : (int * elem -> elem) -> vector -> vector
-   val maxLen : int
-   val tabulate : int * (int -> elem) -> vector
-   val toList : vector -> elem list
-   val toPoly : vector -> elem Vector.vector
-   val update : vector * int * elem -> vector
+   val foldri : (Int.t * elem * 'a -> 'a) -> 'a -> vector -> 'a
+   val fromList : elem List.t -> vector
+   val fromPoly : elem Vector.t -> vector
+   val isoPoly : (vector, elem Vector.t) Iso.t
+   val length : vector -> Int.t
+   val mapi : (Int.t * elem -> elem) -> vector UnOp.t
+   val maxLen : Int.t
+   val tabulate : Int.t * (Int.t -> elem) -> vector
+   val toList : vector -> elem List.t
+   val toPoly : vector -> elem Vector.t
+   val update : vector * Int.t * elem -> vector
 end

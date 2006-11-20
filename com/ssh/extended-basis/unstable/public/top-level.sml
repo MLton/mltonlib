@@ -6,5 +6,5 @@
 
 (** == Top-Level Bindings == *)
 
-type ('a, 'b) emb = ('a, 'b) Emb.t
-type ('a, 'b) iso = ('a, 'b) Iso.t
+datatype product = datatype Product.product
+datatype sum = datatype Sum.sum

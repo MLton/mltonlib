@@ -4,33 +4,23 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Signature for the {Emb} structure for embeddings.
- *)
+(** Signature for the {Emb} structure for embeddings. *)
 signature EMB = sig
-   type ('a, 'b) emb = ('a -> 'b) * ('b -> 'a option)
-   (**
-    * Embedding of {'a} into {'b} with injection and projection functions.
-    *)
+   type ('a, 'b) t = ('a -> 'b) * ('b -> 'a Option.t)
+   (** Embedding of {'a} into {'b} with injection and projection functions. *)
 
-   type ('a, 'b) t = ('a, 'b) emb
-   (**
-    * Convenience alias.
-    *)
-
-   val id : ('a, 'a) emb
+   val id : ('a, 'a) t
    (**
     * The identity embedding.  This is always equivalent to {(fn a => a,
     * SOME)}.
     *)
 
-   val to : ('a, 'b) emb -> 'a -> 'b
-   (**
-    * Extracts the injection part of the given embedding.
-    *)
+   val to : ('a, 'b) t -> 'a -> 'b
+   (** Extracts the injection part of the given embedding. *)
 
-   val from : ('a, 'b) emb -> 'b -> 'a option
-   (**
-    * Extracts the projection part of the given embedding.
-    *)
+   val from : ('a, 'b) t -> 'b -> 'a Option.t
+   (** Extracts the projection part of the given embedding. *)
+
+   val <--> : ('a, 'b) t * ('c, 'a) t -> ('c, 'b) t
+   (** Embedding composition. *)
 end

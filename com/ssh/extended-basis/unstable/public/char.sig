@@ -17,18 +17,18 @@ signature CHAR = sig
 
    (** == Bounds == *)
 
-   val minOrd : Int.int
+   val minOrd : Int.t
    (**
     * The least character code.  It always equals {0}.
     *)
 
-   val boundsChar : char * char
+   val boundsChar : t Sq.t
    (**
     * Pair of the least and greatest characters.  It always equals
     * {(minChar, maxChar)}.
     *)
 
-   val boundsOrd : Int.int * Int.int
+   val boundsOrd : Int.t Sq.t
    (**
     * Pair of the least and greatest character codes.  It always equals
     * {(minOrd, maxOrd)}.
@@ -36,7 +36,7 @@ signature CHAR = sig
 
    (** == Isomorphisms == *)
 
-   val isoInt : (char, Int.int) Iso.t
+   val isoInt : (t, Int.t) Iso.t
    (**
     * An isomorphism between characters and character codes.  It always
     * equals {(ord, chr)}.  Note that the projection part of the

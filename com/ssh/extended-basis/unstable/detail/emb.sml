@@ -4,15 +4,16 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Structure for embeddings.
- *)
 structure Emb :> EMB = struct
-   type ('a, 'b) emb = ('a -> 'b) * ('b -> 'a option)
-   type ('a, 'b) t = ('a, 'b) emb
+   open Emb
 
-   val id = (fn a => a, SOME)
+   infix <-->
 
-   fun to (a2b, _) = a2b
-   fun from (_, b2a) = b2a
+   val id = (Fn.id, SOME)
+
+   val to = Pair.fst
+   val from = Pair.snd
+
+   fun (a2b, b2aOpt) <--> (c2a, a2cOpt) =
+       (a2b o c2a, Option.composePartial (a2cOpt, b2aOpt))
 end
