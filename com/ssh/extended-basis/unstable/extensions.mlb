@@ -29,13 +29,21 @@ in
       "warnUnused true"
    in
       local
-         (* Workarounds (if any) *)
+         (* Workarounds (if any). *)
          detail/$(SML_COMPILER)/workarounds.mlb
 
          (* Minimal modules for bootstrapping. *)
          detail/bootstrap.sml
 
+         (* Compiler specific extensions (if any). *)
+         basis Ext = bas detail/$(SML_COMPILER)/extensions.mlb end
+
          basis Fn = bas public/fn.sig detail/fn.sml end
+         basis Exn = let
+            open Ext
+         in
+            bas public/exn.sig detail/exn.sml end
+         end
          basis Unit = bas public/unit.sig end
          basis Sq = bas public/sq.sig detail/sq.sml end
          basis UnOp = bas public/un-op.sig detail/un-op.sml end
@@ -167,7 +175,7 @@ in
 
          open BinOp BinPr Bool Buffer
          open Cmp
-         open Effect Emb Exit
+         open Effect Emb Exit Exn
          open Fix Fn
          open Iso
          open List
