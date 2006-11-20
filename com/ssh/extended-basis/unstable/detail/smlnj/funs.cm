@@ -4,7 +4,10 @@
  * See the file MLton-LICENSE for details.
  *)
 
-group is
+group
+   group(bootstrap.cm)
+   source(-)
+is
    ../mk-int-inf-ext.fun
    ../mk-integer-ext.fun
    ../mk-mono-array-ext.fun
@@ -16,4 +19,4 @@ group is
    ../mk-seq-common-ext.fun
    ../mk-text-ext.fun
    ../mk-word-ext.fun
-   workarounds/basis.cm
+   bootstrap.cm

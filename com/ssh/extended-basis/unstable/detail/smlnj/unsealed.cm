@@ -4,36 +4,32 @@
  * See the file MLton-LICENSE for details.
  *)
 
-group is
-   ../../public/array-slice.sig
-   ../../public/array.sig
-   ../../public/bool.sig
-   ../../public/char.sig
-   ../../public/emb.sig
-   ../../public/int-inf.sig
-   ../../public/integer.sig
-   ../../public/iso.sig
-   ../../public/list.sig
-   ../../public/mono-array-slice.sig
-   ../../public/mono-array.sig
-   ../../public/mono-vector-slice.sig
-   ../../public/mono-vector.sig
-   ../../public/option.sig
-   ../../public/real.sig
-   ../../public/string.sig
-   ../../public/substring.sig
-   ../../public/text.sig
-   ../../public/vector-slice.sig
-   ../../public/vector.sig
-   ../../public/word.sig
+group
+   group(sigs.cm)
+   source(-)
+is
    ../array-slice.sml
    ../array.sml
+   ../bin-op.sml
+   ../bin-pr.sml
    ../bool.sml
-   ../common.sml
+   ../buffer.sml
+   ../cmp.sml
+   ../common-mono-seqs.sml
+   ../common-scalars.sml
+   ../effect.sml
    ../emb.sml
+   ../exit.sml
+   ../fix.sml
+   ../fn.sml
    ../iso.sml
    ../list.sml
    ../option.sml
+   ../order.sml
+   ../pair.sml
+   ../product.sml
+   ../reader.sml
+   ../ref.sml
    ../smlnj/ints.sml
    ../smlnj/mono-array-slices.sml
    ../smlnj/mono-arrays.sml
@@ -41,7 +37,14 @@ group is
    ../smlnj/mono-vectors.sml
    ../smlnj/reals.sml
    ../smlnj/words.sml
+   ../sq.sml
+   ../sum.sml
+   ../thunk.sml
+   ../tie.sml
+   ../un-op.sml
+   ../un-pr.sml
+   ../univ.sml
    ../vector-slice.sml
    ../vector.sml
-   funs.cm
-   workarounds/basis.cm
+   ../writer.sml
+   sigs.cm

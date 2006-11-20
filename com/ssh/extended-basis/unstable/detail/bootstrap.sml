@@ -41,6 +41,7 @@ structure Sq = struct type 'a t = 'a * 'a end
 structure Thunk = struct type 'a t = Unit.t -> 'a end
 structure UnOp = struct type 'a t = 'a -> 'a end
 structure UnPr = struct type 'a t = 'a -> Bool.t end
+structure Fix = struct type 'a t = 'a UnOp.t -> 'a end
 structure Reader = struct type ('a, 'b) t = 'b -> ('a * 'b) Option.t end
 structure Writer = struct type ('a, 'b) t = 'a * 'b -> 'b end
 structure Cmp = struct type 'a t = 'a Sq.t -> Order.t end
