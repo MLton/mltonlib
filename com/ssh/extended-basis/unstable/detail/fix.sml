@@ -5,6 +5,6 @@
  *)
 
 structure Fix :> FIX = struct
-   type 'a t = 'a UnOp.t -> 'a
+   open Fix
    exception Fix
 end
