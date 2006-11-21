@@ -112,7 +112,7 @@ in
          end
          basis Option = bas public/option.sig detail/option.sml end
          basis List = let
-            open Option
+            open Cmp Option Products
          in
             bas public/list.sig detail/list.sml end
          end
