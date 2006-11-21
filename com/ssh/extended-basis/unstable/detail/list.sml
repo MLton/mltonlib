@@ -8,12 +8,14 @@ structure List : LIST = struct
    open List
    val sub = nth
    fun init l = rev (tl (rev l))
-   fun unfoldl f x = let
-      fun lp (ys, x) = case f x of NONE => ys | SOME (y, x) => lp (y::ys, x)
+   fun unfoldl' f x = let
+      fun lp (ys, x) = case f x of NONE => (ys, x) | SOME (y, x) => lp (y::ys, x)
    in
       lp ([], x)
    end
-   fun unfoldr f = rev o unfoldl f
+   fun unfoldr' f = Pair.map (rev, Fn.id) o unfoldl' f
+   fun unfoldl f = #1 o unfoldl' f
+   fun unfoldr f = #1 o unfoldr' f
    fun intersperse d =
        fn [] => [] | x::xs => x::rev (foldl (fn (x, ys) => x::d::ys) [] xs)
    local
@@ -36,13 +38,13 @@ structure List : LIST = struct
    fun foldr1 f = foldl1 f o rev
    fun push (r, x) = r := x :: !r
    fun pop r = case !r of x::xs => (r := xs ; SOME x) | [] => NONE
-   fun split (l, i) = let
-      fun lp (hs,    ts, 0) = (rev hs, ts)
-        | lp (_,     [], _) = raise Subscript
-        | lp (hs, t::ts, n) = lp (t::hs, ts, n-1)
-   in
-      if i < 0 then raise Subscript else lp ([], l, i)
-   end
+   fun split (l, i) =
+       if i < 0 then raise Subscript
+       else Pair.map (Fn.id, #1)
+                     (unfoldr' (fn (_, 0) => NONE
+                                 | ([], _) => raise Subscript
+                                 | (x::xs, n) => SOME (x, (xs, n-1)))
+                               (l, i))
    fun findi p l = let
       fun lp (_, []) = NONE
         | lp (i, x::xs) = if p (i, x) then SOME (i, x) else lp (i+1, xs)
