@@ -79,6 +79,16 @@ signature LIST = sig
    val existsi : (Int.t * 'a) UnPr.t -> 'a t UnPr.t
    val findi : (Int.t * 'a) UnPr.t -> 'a t -> (Int.t * 'a) Option.t
 
+   (** == Special Folds == *)
+
+   val maximum : 'a Cmp.t -> 'a t -> 'a
+   val minimum : 'a Cmp.t -> 'a t -> 'a
+
+   (** == Unfolding == *)
+
+   val unfoldl : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list
+   val unfoldr : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list
+
    (** == Set Operations == *)
 
    val contains : ''a t -> ''a UnPr.t

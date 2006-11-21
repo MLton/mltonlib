@@ -8,14 +8,19 @@ structure List : LIST = struct
    open List
    val sub = nth
    fun init l = rev (tl (rev l))
+   fun unfoldl f x = let
+      fun lp (ys, x) = case f x of NONE => ys | SOME (y, x) => lp (y::ys, x)
+   in
+      lp ([], x)
+   end
+   fun unfoldr f = rev o unfoldl f
    fun intersperse d =
        fn [] => [] | x::xs => x::rev (foldl (fn (x, ys) => x::d::ys) [] xs)
    local
-      fun cross (f, g) (x, y) = (f x, g y)
       fun headsAndTails xss =
-          cross (rev, rev)
-                (foldl (fn (h::t, (hs, ts)) => (h::hs, t::ts) | ([], ?) => ?)
-                       ([], []) xss)
+          Pair.map (rev, rev)
+                   (foldl (fn (h::t, (hs, ts)) => (h::hs, t::ts) | ([], ?) => ?)
+                          ([], []) xss)
    in
       fun transpose xss =
           case xss of
@@ -71,4 +76,6 @@ structure List : LIST = struct
    fun alli p = Option.isNone o findi (not o p)
    fun index ? = mapi (fn ? => ?) ?
    fun contains l x = exists (fn y => x = y) l
+   fun maximum cmp = foldl1 (Cmp.max cmp o Pair.swap)
+   fun minimum cmp = foldl1 (Cmp.min cmp o Pair.swap)
 end
