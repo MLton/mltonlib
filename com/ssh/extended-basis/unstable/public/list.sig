@@ -87,7 +87,9 @@ signature LIST = sig
    (** == Unfolding == *)
 
    val unfoldl : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list
+   val unfoldl' : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list * 'a
    val unfoldr : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list
+   val unfoldr' : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list * 'a
 
    (** == Set Operations == *)
 

@@ -17,22 +17,25 @@ structure List : LIST = struct
    fun unfoldl f = #1 o unfoldl' f
    fun unfoldr f = #1 o unfoldr' f
    fun intersperse d =
-       fn [] => [] | x::xs => x::rev (foldl (fn (x, ys) => x::d::ys) [] xs)
+       fn [] => [] | x::xs => x::foldr (fn (x, ys) => d::x::ys) [] xs
    local
       fun headsAndTails xss =
           Pair.map (rev, rev)
                    (foldl (fn (h::t, (hs, ts)) => (h::hs, t::ts) | ([], ?) => ?)
                           ([], []) xss)
    in
-      fun transpose xss =
-          case xss of
-             [] => []
-           | []::xss => transpose xss
-           | (x::xs)::xss => let
-                val (hs, ts) = headsAndTails xss
-             in
-                (x::hs)::transpose (xs::ts)
-             end
+      fun transpose xss = let
+         fun lp yss =
+             fn [] => rev yss
+              | []::xss => lp yss xss
+              | (x::xs)::xss => let
+                   val (hs, ts) = headsAndTails xss
+                in
+                   lp ((x::hs)::yss) (xs::ts)
+                end
+      in
+         lp [] xss
+      end
    end
    fun foldl1 f = fn [] => raise Empty | x::xs => foldl f x xs
    fun foldr1 f = foldl1 f o rev
@@ -58,7 +61,7 @@ structure List : LIST = struct
    in
       lp
    end
-   fun concatMap f = rev o foldl (fn (x, ys) => revAppend (f x, ys)) []
+   fun concatMap f = rev o foldl (revAppend o Pair.map (f, Fn.id)) []
    fun appr e = app e o rev
    fun foldli f y = #2 o foldl (fn (x, (i, y)) => (i+1, f (i+1, x, y))) (~1, y)
    fun foldri f y xs = let
@@ -76,7 +79,7 @@ structure List : LIST = struct
    fun appri e = foldri (fn (i, x, ()) => e (i, x)) ()
    fun existsi p = Option.isSome o findi p
    fun alli p = Option.isNone o findi (not o p)
-   fun index ? = mapi (fn ? => ?) ?
+   fun index ? = mapi Fn.id ?
    fun contains l x = exists (fn y => x = y) l
    fun maximum cmp = foldl1 (Cmp.max cmp o Pair.swap)
    fun minimum cmp = foldl1 (Cmp.min cmp o Pair.swap)
