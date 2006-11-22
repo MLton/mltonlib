@@ -4,7 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(** == Extended mono sequence modules common to all compilers == *)
+(* Extended mono sequence modules common to all compilers *)
 
 structure Word8Vector = MkMonoVectorExt (Word8Vector)
 structure Word8VectorSlice =

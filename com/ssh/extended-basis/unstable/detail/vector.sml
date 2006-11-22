@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {Vector :> VECTOR} structure.
- *)
 structure Vector : VECTOR = struct
    local
       structure Common = MkSeqCommonExt (Vector)

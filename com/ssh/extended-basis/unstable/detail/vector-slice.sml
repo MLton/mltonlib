@@ -4,9 +4,6 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {VectorSlice :> VECTOR_SLICE} structure.
- *)
 structure VectorSlice : VECTOR_SLICE = struct
    open VectorSlice
 end

@@ -4,7 +4,7 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(** == Extended scalar modules common to all compilers == *)
+(* Extended scalar modules common to all compilers *)
 
 structure Int = MkIntegerExt (Int)
 structure LargeInt = MkIntegerExt (LargeInt)
