@@ -17,12 +17,15 @@ functor MkMonoArrayExt (structure MonoVector : MONO_VECTOR
    in
       open MonoArray Common
    end
-   fun duplicate a = tabulate (length a, fn i => sub (a, i))
+   local
+      fun mk tabulate length sub ? = tabulate (length ?, fn i => sub (?, i))
+   in
+      fun duplicate ? = mk tabulate length sub ?
+      fun fromVector ? = mk tabulate MonoVector.length MonoVector.sub ?
+      fun toPoly ? = mk Array.tabulate length sub ?
+      fun fromPoly ? = mk tabulate Array.length Array.sub ?
+   end
    val toVector = vector
-   fun fromVector v =
-       tabulate (MonoVector.length v, fn i => MonoVector.sub (v, i))
    val isoVector = (toVector, fromVector)
-   fun toPoly a = Array.tabulate (length a, fn i => sub (a, i))
-   fun fromPoly a = tabulate (Array.length a, fn i => Array.sub (a, i))
    val isoPoly = (toPoly, fromPoly)
 end
