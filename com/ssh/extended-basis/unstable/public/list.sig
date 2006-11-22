@@ -25,14 +25,6 @@ signature LIST = sig
     * {Empty} if the list is empty.
     *)
 
-   val split : 'a t * Int.t -> 'a t Sq.t
-   (**
-    * {split (l, i)} returns a pair f the first {i} and last {length l -
-    * i} elements of the list {l}.  Raises {Subscript} if {i < 0 orelse
-    * length l < i}.  Specifically, {split (l, n) = (take (l, n), drop (l,
-    * n))}.
-    *)
-
    (** == Transformations == *)
 
    val intersperse : 'a -> 'a t UnOp.t
@@ -90,6 +82,28 @@ signature LIST = sig
    val unfoldl' : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list * 'a
    val unfoldr : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list
    val unfoldr' : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list * 'a
+
+   (** == Extracting sublists == *)
+
+   val split : 'a t * Int.t -> 'a t Sq.t
+   (**
+    * {split (l, i)} returns a pair f the first {i} and last {length l -
+    * i} elements of the list {l}.  Raises {Subscript} if {i < 0 orelse
+    * length l < i}.  Specifically, {split (l, n) = (take (l, n), drop (l,
+    * n))}.
+    *)
+
+   val takeWhile : 'a UnPr.t -> 'a t UnOp.t
+   (**
+    * {takeWhile p xs} returns the longest prefix of {xs} of elements that
+    * satisfy {p}.
+    *)
+
+   val dropWhile : 'a UnPr.t -> 'a t UnOp.t
+   (** {dropWhile p xs} returns the suffix remaining after {takeWhile p xs}. *)
+
+   val span : 'a UnPr.t -> 'a t -> 'a t Sq.t
+   (** {span p xs = (takeWhile p xs, dropWhile p xs)}. *)
 
    (** == Set Operations == *)
 

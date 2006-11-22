@@ -83,4 +83,17 @@ structure List : LIST = struct
    fun contains l x = exists (fn y => x = y) l
    fun maximum cmp = foldl1 (Cmp.max cmp o Pair.swap)
    fun minimum cmp = foldl1 (Cmp.min cmp o Pair.swap)
+   local
+      fun mk combine init pred xs = let
+         fun lp (ts, []) = (ts, [])
+           | lp (ts, x::xs) =
+             if pred x then lp (combine (x, ts), xs) else (ts, x::xs)
+      in
+         lp (init, xs)
+      end
+   in
+      fun span ? = Pair.map (rev, Fn.id) o mk op :: [] ?
+      fun takeWhile ? = rev o #1 o mk op :: [] ?
+      fun dropWhile ? = #2 o mk ignore () ?
+   end
 end
