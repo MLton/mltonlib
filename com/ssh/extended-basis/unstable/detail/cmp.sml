@@ -17,7 +17,11 @@ structure Cmp :> CMP = struct
            == = isEqual   o cmp, != = not o isEqual   o cmp,
            >  = isGreater o cmp, >= = not o isLess    o cmp}
 
-      fun max cmp (x, y) = if isLess (cmp (x, y)) then y else x
-      fun min cmp (x, y) = if isGreater (cmp (x, y)) then y else x
+      local
+         fun mk is cmp (x, y) = if is (cmp (x, y)) then y else x
+      in
+         fun max ? = mk isLess ?
+         fun min ? = mk isGreater ?
+      end
    end
 end
