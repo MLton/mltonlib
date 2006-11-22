@@ -8,7 +8,7 @@
 signature WRITER = sig
    type ('a, 'b) t = 'a * 'b -> 'b
 
-   (** == Useful Combinators == *)
+   (** == Functor Interface == *)
 
    val map : ('b -> 'a) -> ('a, 's) t -> ('b, 's) t
 

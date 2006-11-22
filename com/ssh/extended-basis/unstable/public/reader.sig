@@ -13,9 +13,12 @@ signature READER = sig
    val return : 'a -> ('a, 's) t
    val >>= : ('a, 's) t * ('a -> ('b, 's) t) -> ('b, 's) t
 
-   (** == Useful Combinators == *)
+   (** == Functor Interface == *)
 
    val map : ('a -> 'b) -> ('a, 's) t -> ('b, 's) t
+
+   (** == Useful Combinators == *)
+
    val >>& : ('a, 's) t * ('b, 's) t -> (('a, 'b) Product.t, 's) t
 
    (** == Typing == *)
