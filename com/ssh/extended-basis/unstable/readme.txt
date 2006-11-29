@@ -1,15 +1,15 @@
 Extended Basis Library
 ----------------------
 
-   This library implements a number of minor extensions to the signatures
-   and structures of the Standard ML Basis Library [1].  These extensions
-   are done in a non-intrusive manner by simply rebinding the signatures
-   and structures of the basis library.  The reason for extending the
-   basis library in this way is that the extensions are naturally
-   associated with specific basis library modules.  Extensions include
-   things like isomorphisms and embeddings (pairs of the form (toX,
-   fromX)), bounds (pairs of the form (minX, maxX)), and simple utility
-   functions such as isZero, isEven and isOdd.
+   This library implements a number of extensions to the signatures and
+   structures of the Standard ML Basis Library [1] as well as several
+   additional modules.  The extensions are done in a non-intrusive manner
+   by simply rebinding the signatures and structures of the basis library.
+   The reason for extending the basis library in this way is that the
+   extensions are naturally associated with specific basis library
+   modules.  Extensions include things like isomorphisms and embeddings
+   (pairs of the form (toX, fromX)), bounds (pairs of the form (minX,
+   maxX)), and simple utility functions such as isZero, isEven and isOdd.
 
 
 Info
@@ -92,11 +92,11 @@ About Motivation and Scope
    easier to use.
 
    On the other hand, it probably doesn't make sense to put everything
-   into this library.  As a rule of thumb, things that naturally belong
-   (fuzzy, yes) to specific basis library modules and what those things
-   depend on should go into this library.  Everything else, even if looks
-   like stuff that could be in a basis library, but there is no module in
-   *the* basis library for it, should go into other libraries.
+   into this library.  As a rule of thumb, things that naturally belong to
+   specific basis library modules and what those things depend on should
+   go into this library.  On the other hand, when there are several ways
+   to implement something with significantly different trade-offs, it
+   should most likely go into another library.
 
 
 Contributions
