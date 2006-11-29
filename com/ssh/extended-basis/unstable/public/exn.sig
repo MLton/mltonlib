@@ -7,6 +7,7 @@
 (** Utilities for dealing with exceptions. *)
 signature EXN = sig
    type t = exn
+   (** Convenience alias. *)
 
    val addMessager : (t -> String.t Option.t) Effect.t
    (**

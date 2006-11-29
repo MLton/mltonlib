@@ -4,23 +4,17 @@
  * See the file MLton-LICENSE for details.
  *)
 
-(**
- * Extended {CHAR} signature.
- *)
+(** Extended {CHAR} signature. *)
 signature CHAR = sig
    include CHAR
 
    type t = char
-   (**
-    * Convenience alias.
-    *)
+   (** Convenience alias. *)
 
    (** == Bounds == *)
 
    val minOrd : Int.t
-   (**
-    * The least character code.  It always equals {0}.
-    *)
+   (** The least character code.  It always equals {0}. *)
 
    val boundsChar : t Sq.t
    (**

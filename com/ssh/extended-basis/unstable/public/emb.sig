@@ -7,13 +7,10 @@
 (** Signature for the {Emb} structure for embeddings. *)
 signature EMB = sig
    type ('a, 'b) t = ('a -> 'b) * ('b -> 'a Option.t)
-   (** Embedding of {'a} into {'b} with injection and projection functions. *)
+   (** Witness to an embedding of {'a} into {'b}. *)
 
    val id : ('a, 'a) t
-   (**
-    * The identity embedding.  This is always equivalent to {(fn a => a,
-    * SOME)}.
-    *)
+   (** The identity embedding.  This is always equivalent to {(id, SOME)}. *)
 
    val to : ('a, 'b) t -> 'a -> 'b
    (** Extracts the injection part of the given embedding. *)
