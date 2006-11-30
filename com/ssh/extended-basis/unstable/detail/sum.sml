@@ -14,19 +14,22 @@ structure Sum : SUM = struct
    val swap = fn INL x => INR x | INR x => INL x
 
    val out = fn INL x => x | INR x => x
-
    val app = sum
    fun map (fA, fB) = sum (INL o fA, INR o fB)
 
-   val isL = fn INL _ => true | INR _ => false
-   val outL = fn INL l => l | INR _ => raise Sum
-   val getL = fn INL x => (fn _ => x) | INR _ => (fn x => x)
-   fun mapL f = map (f, fn r => r)
+   fun appL f = app (f, ignore)
+   fun getL (INL x) _ = x | getL (INR _) x = x
+   fun isL (INL _) = true | isL (INR _) = false
+   fun mapL f = map (f, Fn.id)
+   fun outL (INL l) = l | outL (INR _) = raise Sum
 
-   fun isR ? = (isL o swap) ?
-   fun outR ? = (outL o swap) ?
+   fun appR f = appL f o swap
    fun getR ? = (getL o swap) ?
+   fun isR ? = (isL o swap) ?
    fun mapR f = swap o mapL f o swap
+   fun outR ? = (outL o swap) ?
+
+   fun mapLR f = map (f, f)
 
    fun equal (eqA, eqB) =
        fn (INL l, INL r) => eqA (l, r)

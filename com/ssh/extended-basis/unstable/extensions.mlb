@@ -81,7 +81,7 @@ in
                detail/product.sml
             end
          end
-         basis Sum = bas public/sum.sig detail/sum.sml end
+         basis Sum = let open Fn in bas public/sum.sig detail/sum.sml end end
          basis Emb = let
             open Fn Products
          in
