@@ -108,8 +108,13 @@ signature LIST = sig
    (** == Set Operations == *)
 
    val contains : ''a t -> ''a UnPr.t
+   (** {contains l x = exists (x <\ op =) l} *)
 
    (** == Equality == *)
 
    val equal : 'a BinPr.t -> 'a t BinPr.t
+   (**
+    * Given an equality predicate on an element type returns an equality
+    * predicate on lists of the element type.
+    *)
 end
