@@ -8,4 +8,9 @@ structure Exn : EXN = struct
    open Exn Ext.Exn
    val name = General.exnName
    val message = General.exnMessage
+   fun apply f x = Sum.INR (f x) handle e => Sum.INL e
+   fun eval th = apply th ()
+   fun throw e = raise e
+   fun try (th, fv, fe) = Sum.sum (fe, fv) (eval th)
+   fun finally (th, ef) = try (th, Effect.past ef, throw o Effect.past ef)
 end

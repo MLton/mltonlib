@@ -9,14 +9,35 @@ signature EXN = sig
    type t = exn
    (** Convenience alias. *)
 
+   (** == Exception Handling == *)
+
+   val apply : ('a -> 'b) -> 'a -> (t, 'b) Sum.t
+   (** Perform an application ({apply f x = INR (f x) handle e => INL e}). *)
+
+   val eval : 'a Thunk.t -> (t, 'a) Sum.t
+   (** Evaluate a thunk ({eval th = INR (th ()) handle e => INL e}). *)
+
+   val finally : 'a Thunk.t * Unit.t Effect.t -> 'a
+   (** {finally (th, ef) = try (th, past ef, throw o past ef)}. *)
+
+   val throw : t -> 'a
+   (** Raise exception ({throw exn = raise exn}). *)
+
+   val try : 'a Thunk.t * ('a -> 'b) * (t -> 'b) -> 'b
+   (**
+    * Try-in-unless ({try (th, fv, fe) = sum (fv, fe) (eval th)}).  {try}
+    * facilitates fine control over exception handling.  {try} implements
+    * the try-in-unless construct of Benton and Kennedy.
+    *)
+
+   (** == Examining Exceptions == *)
+
    val addMessager : (t -> String.t Option.t) Effect.t
    (**
     * Adds a pretty-printer to be used by {message} for converting
     * exceptions to strings.  Messagers are tried in order from most
     * recently added to least recently added.
     *)
-
-   (** == Examining Exceptions == *)
 
    val message : t -> String.t
    (** Same as {General.exnMessage}. *)
