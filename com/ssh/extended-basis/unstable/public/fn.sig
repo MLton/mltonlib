@@ -36,6 +36,9 @@ signature FN = sig
    val o : ('a -> 'b) * ('c -> 'a) -> 'c -> 'b
    (** Function composition ({(g o f) x = f (g x)}). *)
 
+   val pass : 'a -> ('a -> 'b) -> 'b
+   (** Pass to continuation ({pass x f = f x}). *)
+
    val undefined : 'a -> 'b
    (**
     * An undefined function.  This is equivalent to {failing (Fail

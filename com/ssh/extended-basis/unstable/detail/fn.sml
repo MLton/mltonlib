@@ -14,6 +14,7 @@ structure Fn :> FN = struct
    fun id x = x
    fun uncurry f (x, y) = f x y
    val op o = op o
+   fun pass x f = f x
    fun undefined _ = raise Fail "undefined"
    fun op <\ (x, f) y = f (x, y)
    fun op \> (f, y) = f y
