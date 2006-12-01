@@ -47,6 +47,7 @@ is
    ../univ.sml
    ../vector-slice.sml
    ../vector.sml
+   ../with.sml
    ../writer.sml
    ext.sml
    sigs.cm

@@ -76,6 +76,11 @@ in
                detail/product.sml
             end
          end
+         basis With = let
+            open Fn Products
+         in
+            bas public/with.sig detail/with.sml end
+         end
          basis Sum = let open Fn in bas public/sum.sig detail/sum.sml end end
          basis Exn = let
             open Effect Ext Sum
@@ -186,7 +191,7 @@ in
          open Scalars Seqs Sq Sum
          open Thunk Tie
          open Unit Univ UnOp UnPr
-         open Writer
+         open With Writer
       in
          public/export-$(SML_COMPILER).sml
          public/export.sml

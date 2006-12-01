@@ -50,6 +50,7 @@ signature UN_OP = UN_OP
 signature UN_PR = UN_PR
 signature VECTOR = VECTOR
 signature VECTOR_SLICE = VECTOR_SLICE
+signature WITH = WITH
 signature WORD = WORD
 signature WRITER = WRITER
 
@@ -99,6 +100,7 @@ structure Unit : UNIT = Unit
 structure Univ : UNIV = Univ
 structure Vector : VECTOR = Vector
 structure VectorSlice : VECTOR_SLICE = VectorSlice
+structure With : WITH = With
 structure Word : WORD = Word
 structure Word8 : WORD = Word8
 structure Word8Array : MONO_ARRAY = Word8Array

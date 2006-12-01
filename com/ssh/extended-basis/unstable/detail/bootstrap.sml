@@ -50,3 +50,4 @@ structure BinOp = struct type 'a t = 'a Sq.t -> 'a end
 structure BinPr = struct type 'a t = 'a Sq.t UnPr.t end
 structure Emb = struct type ('a, 'b) t = ('a -> 'b) * ('b -> 'a Option.t) end
 structure Iso = struct type ('a, 'b) t = ('a -> 'b) * ('b -> 'a) end
+structure With = struct type ('a, 'b) t = ('a -> 'b) -> 'b end

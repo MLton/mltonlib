@@ -4,4 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(* The use files of this library assume that they are used from the root
+ * directory of this library (the directory of this file).
+ *)
+
 val () = use "extensions.use"

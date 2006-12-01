@@ -34,6 +34,7 @@ in
         "detail/pair.sml",
         "public/product.sig",
         "detail/product.sml",
+        "public/with.sig", "detail/with.sml",
         "public/sum.sig", "detail/sum.sml",
         "public/exn.sig", "detail/exn.sml",
         "public/emb.sig", "detail/emb.sml",

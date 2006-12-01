@@ -51,6 +51,7 @@ is
    ../../public/univ.sig
    ../../public/vector-slice.sig
    ../../public/vector.sig
+   ../../public/with.sig
    ../../public/word.sig
    ../../public/writer.sig
    funs.cm
