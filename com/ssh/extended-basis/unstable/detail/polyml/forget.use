@@ -5,15 +5,17 @@
  *)
 
 val () =
-    app PolyML.Compiler.forgetFunctor
-        ["MkIntInfExt",
-         "MkIntegerExt",
-         "MkRealExt",
-         "MkWordExt",
-         "MkSeqCommonExt",
-         "MkMonoSeqCommonExt",
-         "MkMonoVectorExt",
-         "MkMonoVectorSliceExt",
-         "MkMonoArrayExt",
-         "MkMonoArraySliceExt",
-         "MkTextExt"]
+    (app PolyML.Compiler.forgetFunctor
+         ["MkIntInfExt",
+          "MkIntegerExt",
+          "MkRealExt",
+          "MkWordExt",
+          "MkSeqCommonExt",
+          "MkMonoSeqCommonExt",
+          "MkMonoVectorExt",
+          "MkMonoVectorSliceExt",
+          "MkMonoArrayExt",
+          "MkMonoArraySliceExt",
+          "MkTextExt"]
+   ; app PolyML.Compiler.forgetStructure
+         ["Ext"])
