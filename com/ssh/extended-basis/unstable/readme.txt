@@ -15,7 +15,7 @@ Extended Basis Library
 Info
 ----
 
-   License:         MLton-LICENSE
+   License:         MLton license (a BSD-style license)
    Portability:     portable
    Stability:       experimental
    Maintainer:      Vesa Karvonen <vesa.karvonen@cs.helsinki.fi>
