@@ -44,11 +44,9 @@ is
    ../../public/sum.sig
    ../../public/text.sig
    ../../public/thunk.sig
-   ../../public/tie.sig
    ../../public/un-op.sig
    ../../public/un-pr.sig
    ../../public/unit.sig
-   ../../public/univ.sig
    ../../public/vector-slice.sig
    ../../public/vector.sig
    ../../public/with.sig

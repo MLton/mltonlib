@@ -8,6 +8,9 @@ group
    group(sigs.cm)
    source(-)
 is
+   ../../public/promise.sig
+   ../../public/tie.sig
+   ../../public/univ.sig
    ../array-slice.sml
    ../array.sml
    ../bin-op.sml
@@ -29,6 +32,7 @@ is
    ../order.sml
    ../pair.sml
    ../product.sml
+   ../promise.sml
    ../reader.sml
    ../ref.sml
    ../smlnj/ints.sml

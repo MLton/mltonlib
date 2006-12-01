@@ -87,6 +87,7 @@ in
         "detail/"^compiler^"/mono-arrays.sml",
         "detail/"^compiler^"/mono-array-slices.sml",
         "detail/"^compiler^"/texts.sml",
+        "public/promise.sig", "detail/promise.sml",
         "detail/"^compiler^"/forget.use",
         "public/export-"^compiler^".sml",
         "public/export.sml",

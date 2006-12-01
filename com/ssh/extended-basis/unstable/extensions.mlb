@@ -177,6 +177,11 @@ in
             detail/$(SML_COMPILER)/mono-array-slices.sml
             detail/$(SML_COMPILER)/texts.sml
          end
+         basis Promise = let
+            open Exn Fix Fn Products Sq Sum Tie
+         in
+            bas public/promise.sig detail/promise.sml end
+         end
 
          open BinOp BinPr Bool Buffer
          open Cmp
@@ -186,7 +191,7 @@ in
          open List
          open MonoSeqs
          open Option Order
-         open Products
+         open Products Promise
          open Reader Ref
          open Scalars Seqs Sq Sum
          open Thunk Tie
