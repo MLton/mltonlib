@@ -19,7 +19,7 @@ in
         "public/sq.sig", "detail/sq.sml",
         "public/un-op.sig", "detail/un-op.sml",
         "public/thunk.sig", "detail/thunk.sml",
-        "public/univ.sig", "detail/univ.sml",
+        "public/univ.sig", "detail/univ-exn.sml",
         "public/bin-op.sig", "detail/bin-op.sml",
         "public/effect.sig", "detail/effect.sml",
         "public/fix.sig", "detail/fix.sml",

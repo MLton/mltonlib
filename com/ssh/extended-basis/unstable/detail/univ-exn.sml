@@ -4,8 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure Univ :> UNIV = struct
-   type t = exn
+structure UnivExn :> UNIV = struct
+   type t = Exn.t
 
    fun newIso () = let
       exception U of 'a
@@ -19,3 +19,5 @@ structure Univ :> UNIV = struct
       (U, fn U ? => SOME ? | _ => NONE)
    end
 end
+
+structure Univ :> UNIV = UnivExn

@@ -48,7 +48,7 @@ is
    ../tie.sml
    ../un-op.sml
    ../un-pr.sml
-   ../univ.sml
+   ../univ-exn.sml
    ../vector-slice.sml
    ../vector.sml
    ../with.sml

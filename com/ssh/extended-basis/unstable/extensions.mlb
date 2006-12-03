@@ -47,7 +47,17 @@ in
          in
             bas public/thunk.sig detail/thunk.sml end
          end
-         basis Univ = bas public/univ.sig detail/univ.sml end
+         basis Univ = bas
+            public/univ.sig
+            local
+               ann "warnUnused false" in
+                  detail/univ-ref.sml
+                  detail/univ-exn.sml
+               end
+            in
+               detail/$(SML_COMPILER)/univ.sml
+            end
+         end
          basis BinOp = let
             open Fn Sq
          in
