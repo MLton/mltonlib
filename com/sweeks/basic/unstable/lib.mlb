@@ -1,0 +1,200 @@
+$(SML_LIB)/basis/infixes.mlb
+$(SML_LIB)/basis/equal.mlb
+$(SML_LIB)/basis/overloads.mlb
+ann
+   "forceUsed"
+   "warnUnused true"
+in
+   local
+      local
+         $(SML_LIB)/basis/pervasive-types.mlb
+         ann "allowPrim true" in
+            primitive.sml
+         end
+      in
+         structure Primitive
+      end
+
+      local
+         $(SML_LIB)/basis/basis.mlb
+         $(SML_LIB)/basis/mlton.mlb
+         $(SML_LIB)/basis/unsafe.mlb
+      in
+         basis.sml
+         signature BASIS_BIT_FLAGS = BIT_FLAGS
+         signature BASIS_INT = INTEGER
+         signature BASIS_PACK_REAL = PACK_REAL
+         signature BASIS_PACK_WORD = PACK_WORD
+         signature BASIS_REAL = REAL
+         signature BASIS_WORD = WORD
+         signature COMMAND_LINE
+      end
+
+      order.sig
+      order.sml
+      option.0.sml
+      seq.0.sml
+      radix.sig
+      radix.sml
+      util.sig
+      util.sml
+      scanner.sig
+      scanner.0.sml
+      thunk.sig
+      thunk.sml
+      enumerate.sig
+      enumerable.sig
+      sliceable.sig
+      sequence.sig
+      generic-slice.sig
+      mono-slice.sig
+      slice.sig
+      array-slice.sig
+      vector-slice.sig
+      generic-array.sig
+      mono-array.sig
+      array.sig
+      generic-vector.sig
+      mono-vector.sig
+      vector.sig
+      ordered.sig
+      bool.sig
+      char.sig
+      exn.sig
+      in.sig
+      int.sig
+      lazy.sig
+      list.sig
+      option.sig
+      out.sig
+      ref.sig
+      seq.sig
+      string.sig
+      seq.1.sml
+      exn.sml
+      list.0.sml
+      lazy.sml
+      recur.fun
+      get.sig
+      enumerate-get.fun
+      enumerable.fun
+      get.fun
+      fields-and-tokens.fun
+      seq.2.sml
+      option.1.sml
+      list.1.sml
+      ref.sml
+      bool.sml
+      char.sml
+      string.0.sml
+      scanner.1.sml
+      static-sum.sig
+      static-sum.sml
+      int.fun
+      int.sml
+      int-inf.sig
+      int-inf.sml
+      array.0.sml
+      ram-sequence.fun
+      array.1.sml
+      vector.sml
+      slice.fun
+      array-slice.sml
+      vector-slice.sml
+      string.1.sml
+      mono-vector-slice.sig
+      substring.sig
+      substring.sml
+      endian.sig
+      endian.sml
+      word.sig
+      word.fun
+      packable-word.sig
+      packable-word.fun
+      word.sml
+      in.sml
+      out.sml
+      real.sig
+      real-structs.sml
+      real.fun
+      packable-real.sig
+      packable-real.fun
+      real.sml
+      time.sig
+      time.sml
+      sys-error.sig
+      sys-error.sml
+      file.sig
+      file.sml
+      dir.sig
+      dir.sml
+      path.sig
+      path.sml
+      process.sig
+      process.sml
+      io-desc.sig
+      io-desc.sml
+      poll.sig
+      poll.sml
+      date.sig
+      date.sml
+      bit-flags.sig
+      bit-flags.fun
+      posix.sig
+      posix.sml
+      net.sig
+      net.sml
+      export.sig
+      export.sml
+      local
+         ann "forceUsed"
+         in
+            subtypes.sml
+         end
+      in
+      end
+   in
+      $(SML_LIB)/basis/equal.mlb
+      $(SML_LIB)/basis/overloads.mlb
+      open-export.sml
+      signature ARRAY
+      signature ARRAY_SLICE
+      signature BOOL
+      signature CHAR
+      signature COMMAND_LINE
+      signature DATE
+      signature DIR
+      signature ENDIAN
+      signature EXN
+      signature FILE
+      signature IN
+      signature INT
+      signature INT_INF
+      signature IO_DESC
+      signature LAZY
+      signature LIST
+      signature NET
+      signature OPTION
+      signature ORDER
+      signature OUT
+      signature PACKABLE_WORD
+      signature PATH
+      signature POLL
+      signature POSIX
+      signature PROCESS
+      signature RADIX
+      signature REAL
+      signature PACKABLE_REAL
+      signature REF
+      signature SCANNER
+      signature SEQ
+      signature SUBSTRING
+      signature STRING
+      signature SYS_ERROR
+      signature TIME
+      signature VECTOR
+      signature VECTOR_SLICE
+      signature WORD
+   end
+end
+

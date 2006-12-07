@@ -1,0 +1,95 @@
+structure Word8 = struct
+   open Word8
+   type t = word
+end
+
+structure LargeWord = struct
+   open LargeWord
+   type t = word
+end
+
+signature WORD = sig
+
+   include ORDERED
+
+   val + : t * t -> t
+   (**
+    * i + j returns the sum of i and j.
+    *)
+   val - : t * t -> t
+   (**
+    * i - j returns the difference of i and j.
+    *)
+   val * : t * t -> t
+   (**
+    * w1 - w2 returns the difference of w1 and w2.
+    *)
+   val << : t * word -> t
+   (**
+    * << (w1, w2) shifts w1 to the left by w2 bit positions.
+    * Logical shift left.
+    *)
+   val >> : t * word -> t
+   (**
+    * >> (w1, w2) shifts w1 to the right by w2 bit positions.
+    * Logical shift right.
+    *)
+   val ~>> : t * word -> t
+   (**
+    * >> (w1, w2) shifts w1 to the right by w2 bit positions.
+    * Arithmetic shift right.
+    *)
+   val andb: t * t -> t
+   (**
+    * andb (w1, w2) returns the "bitwise and" of w1 and w2.
+    *)
+   val div: t * t -> t
+   (**
+    * i div j returns floor (i/j).  It may raise Overflow.
+    * i div 0 raises Div.
+    *)
+   val mod: t * t -> t
+   (**
+    * i mod j returns the remainder of the division of i by j.
+    * i mod j has the same sign as j.
+    * i mod 0 raises Div.
+    * i = j * (i div j) + i mod j.
+    *)
+   val notb: t -> t
+   (**
+    * notb w returns the "bitwise not" of w.
+    *)
+   val ofLarge: LargeWord.t -> t
+   val ofString: string -> t option
+   (**
+    * ofString s = ofStringRadix (s, Radix.hex)
+    *)
+   val ofStringRadix: string * Radix.t -> t option
+   (**
+    * ofStringRadix (s, r) returns Some i if s is the representation of i in
+    * radix r.
+    *)
+   val orb: t * t -> t
+   (**
+    * orb (w1, w2) returns the "bitwise or" of w1 and w2.
+    *)
+   val scanner: Radix.t -> t Scanner.t
+   (**
+    * scanner r returns a scanner for words where characters are interepreted
+    * according to radix r.
+    *)
+   val toString: t -> string
+   (**
+    * toString i = toStringRadix (i, Radix.Dec)
+    *)
+   val toStringRadix: t * Radix.t -> string
+   val toLarge: t -> LargeWord.t
+   val toLargeX: t -> LargeWord.t
+   (**
+    * toStringRadix (i, r) returns the string representation of i in radix r.
+    *)
+   val xorb: t * t -> t
+   (**
+    * xorb (w1, w2) returns the "bitwise xor" of w1 and w2.
+    *)
+end

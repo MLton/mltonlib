@@ -1,0 +1,168 @@
+Overview
+----------------------------------------------------------------------
+This library is intended to be a complete replacement for the standard
+basis library (henceforth basis library).  Although it has many
+similarities to the basis library, it is not compatible.
+
+This library is available via the MLB file "lib.mlb".
+
+The basis defined by this library is in the file EXPORT, which is the
+output of mlton -show-basis, and can be regenerated via the EXPORT
+Makefile target.  There is also a file, export.sig, which is a
+signature describing all of the types, values, and structures exported
+by this library.
+
+Organization
+----------------------------------------------------------------------
+This library uses a simple organizing principle, summed up by the
+equation
+
+  structure = abstract data type
+
+A structure define a main type, called "t", and operations in the
+structure operate on type "t".  Different types go in different
+(sub)structures.
+
+Where the basis library would include several types in a single
+structure and mix operations on those types, this library defines
+separate structures and groups the operations by the type the operate
+on.  For example, the basis library defines a single structure,
+TextIO, that has two types, instream and outstream.  On the other
+hand, this library defines two structures, In and Out, where In.t is
+analogous to TextIO.instream and Out.t is analogous to
+TextIO.outstream.  The basis library operations of TextIO that operate
+on instreams, appear, in this library, in the In structure.
+
+Conventions
+----------------------------------------------------------------------
+This library uses some conventions that are not followed by the basis
+library.
+
+ * Constructors are always mixed case (e.g. None, Some, HelloThere).
+ * Function arguments are tupled, unless there is staging, in which
+   case currying is used.
+ * The main type "t" of a structure is always the first argument to a
+   function operating on t.
+ * The main type "t" of a structure is always the first result of a
+   function returning t.
+ * A datatype isn't exposed if it isn't necessary to express that the
+   type is closed.  Instead an abstract type with values are used.
+ * X.ofY is used instead of X.fromY.
+
+Subtyping
+----------------------------------------------------------------------
+The file subtypes.sml describes all of the subtyping of this library.
+if SIGA describes some type "a" and SIGB describes some type "b", then
+the following functor describes that "a" is a subtype of "b".
+
+  functor (S: SIGA): SIGB = S
+
+Sequences
+----------------------------------------------------------------------
+This library uses signature inclusion to provide a consistent
+interface to all sequence types.  The inclusion hierarchy (subtyping)
+looks like this: 
+
+     ENUMERABLE
+         |
+         |
+         |
+     SLICEABLE
+        / \ 
+       /   \  
+      /     \
+  SEQUENCE  SLICE
+
+The ENUMERABLE signature is for any container whose elements can be
+enumerated.  The SLICEABLE signature is for any sequence of which one
+can take contiguous subsequences.  The SEQUENCE signature is for
+arbitray sequences, of which one can build arbitrary subsequences.
+The SLICE signature is for slices of some base sequence.
+
+The following structures match the SEQUENCE signature:
+
+  Array, List, Seq, String, Vector
+
+The following structures match the SLICE signature:
+
+  ArraySlice, Substring, VectorSlice
+
+The Seq structure has no counterpart in the basis library.  It is for
+arbitrary sequences, including lazy and infinite ones.  All other
+sequence types can be converted to and from Seq.t.
+
+Monomorphic Types
+----------------------------------------------------------------------
+Unlike the basis library, this library does not use special
+monomorphic types (e.g. Word8Vector.vector).  Instead, it uses an
+instance of a polymorphic type (e.g. Word8.t Vector.t).
+
+The only exceptions are String (the same as Char.t Vector.t) and
+Substring (the same as Char.t VectorSlice.t), which have some
+functionality in addition to the underlying sequence type.
+
+Posix 
+----------------------------------------------------------------------
+The Posix structure has been completely reorganized along the lines of
+"structure = type".  However, all of the Posix substructures from the
+basis library that are used simply to group posix functions (FileSys,
+IO, Process ProcEnv, SysDB, TTY) have been eliminated.  Instead, the
+functions appear in the toplevel of the Posix structure so that one
+doesn't have to remember what substructure they are in.
+
+OS
+----------------------------------------------------------------------
+The basis library's OS structure has been eliminated, with its
+constituents reorganized and made available at the toplevel.  The
+relevant structures are:
+
+  Dir, File, IoDesc, Path, Poll, Process
+
+Reals
+----------------------------------------------------------------------
+There is no IEEEReal structure.  Instead, there are substructures of
+the Real structure that describe classes (Real.Class), decimal
+conversions (Real.Decimal), and rounding modes (Real.RoundingMode).
+
+Packing
+----------------------------------------------------------------------
+There are no PackReal or PackWord structures.  Instead, the
+functionality has been moved into the corresponding Real or Word
+structure.   There are two new signatures, PACKABLE_REAL and
+PACKABLE_WORD, which describe reals and words that support packing.
+The packing functions take an endianness as an argument, rather than
+have separate functions.
+
+Networking
+----------------------------------------------------------------------
+All networking functionality is now in the "Net" structure, which has a
+several substructures, roughly corresponding to the basis library as
+follows.
+
+  This library               Basis library
+  ------------------------   ------------------------------------------
+  Net.Host                   NetHostDB
+  Net.Protocol               NetProtDB
+  Net.Service                NetServDB
+  Net.Family + Net.Socket    GenericSock + INetSock + Socket + UnixSock
+
+Net.Socket combines the 16 receive functions of the basis library: 
+
+  recv{Arr,Vec}{,From}{,NB}{,'}
+
+into a single function, Socket.Receive.receive, 
+
+Net.Socket combines the 16 send functions of the basis library: 
+
+  send{Arr,Vec}{,To}{,NB}{,'}
+
+into a single functions, Socket.Send.send, while preserving the static
+guarantees of the basis library.
+
+Missing Functionality
+----------------------------------------------------------------------
+The following basis library structures have not yet been ported:
+
+  Array2
+  Timer
+
