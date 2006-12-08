@@ -31,7 +31,7 @@ signature STRING = sig
 
    (** == Isomorphisms == *)
 
-   val isoList : (t, char List.t) Iso.t
+   val isoList : (t, Char.t List.t) Iso.t
    (**
     * An isomorphism between strings and lists.  It is always equivalent
     * to {(toList, fromList)}.

@@ -10,6 +10,7 @@ structure Exn = struct type t = exn end
 structure Fn = struct type ('a, 'b) t = 'a -> 'b end
 structure Unit = struct type t = unit end
 structure Bool = struct open Bool type t = bool end
+structure Char = struct open Char type t = char end
 structure Option = struct open Option type 'a t = 'a option end
 structure String = struct open String type t = string end
 structure Int = struct open Int type t = int end
