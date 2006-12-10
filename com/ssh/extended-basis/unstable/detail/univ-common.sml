@@ -4,10 +4,6 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-group
-   library(workarounds/basis.cm)
-   source(-)
-is
-   ../bootstrap.sml
-   ../univ-common.sml
-   workarounds/basis.cm
+structure Univ = struct
+   exception Univ
+end

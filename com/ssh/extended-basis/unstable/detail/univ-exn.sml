@@ -5,12 +5,14 @@
  *)
 
 structure UnivExn :> UNIV = struct
+   open Univ
+
    type t = Exn.t
 
    fun newIso () = let
       exception U of 'a
    in
-      (U, fn U ? => ? | _ => raise Match)
+      (U, fn U ? => ? | _ => raise Univ)
    end
 
    fun newEmb () = let

@@ -50,6 +50,7 @@ in
          basis Univ = bas
             public/univ.sig
             local
+               detail/univ-common.sml
                ann "warnUnused false" in
                   detail/univ-ref.sml
                   detail/univ-exn.sml

@@ -5,6 +5,8 @@
  *)
 
 structure UnivRef :> UNIV = struct
+   open Univ
+
    datatype t =
       IN of {clear : unit -> unit,
              store : unit -> unit}
@@ -20,7 +22,7 @@ structure UnivRef :> UNIV = struct
              deref ((store () ; !r) before clear ()))
       end
    in
-      fun newIso () = mk (fn SOME ? => ? | NONE => raise Match)
+      fun newIso () = mk (fn SOME ? => ? | NONE => raise Univ)
       fun newEmb () = mk (fn ? => ?)
    end
 end
