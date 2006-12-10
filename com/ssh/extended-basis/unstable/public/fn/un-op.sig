@@ -4,10 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-library
-   source(public/export/common.sml)
-   source(public/export/smlnj.sml)
-is
-   detail/smlnj/unsealed.cm
-   public/export/common.sml
-   public/export/smlnj.sml
+(** Utilities for dealing with unary operators. *)
+signature UN_OP = sig
+   type 'a t = 'a -> 'a
+   (** Type of unary operators (e.g. {~, rev, ...}). *)
+end

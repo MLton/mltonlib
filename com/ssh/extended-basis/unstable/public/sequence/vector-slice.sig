@@ -4,10 +4,10 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-library
-   source(public/export/common.sml)
-   source(public/export/smlnj.sml)
-is
-   detail/smlnj/unsealed.cm
-   public/export/common.sml
-   public/export/smlnj.sml
+(** Extended {VECTOR_SLICE} signature. *)
+signature VECTOR_SLICE = sig
+   include VECTOR_SLICE
+
+   type 'a t = 'a slice
+   (** Convenience alias. *)
+end

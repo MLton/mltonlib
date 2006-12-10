@@ -4,10 +4,9 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-library
-   source(public/export/common.sml)
-   source(public/export/smlnj.sml)
-is
-   detail/smlnj/unsealed.cm
-   public/export/common.sml
-   public/export/smlnj.sml
+signature PAIR = sig
+   type ('a, 'b) pair = 'a * 'b
+
+   include PRODUCT_TYPE
+      where type ('a, 'b) t = ('a, 'b) pair
+end

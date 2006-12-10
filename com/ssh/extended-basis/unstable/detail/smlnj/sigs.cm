@@ -8,48 +8,48 @@ group
    group(funs.cm)
    source(-)
 is
-   ../../public/array-slice.sig
-   ../../public/array.sig
-   ../../public/bin-op.sig
-   ../../public/bin-pr.sig
-   ../../public/bool.sig
-   ../../public/buffer.sig
-   ../../public/char.sig
-   ../../public/cmp.sig
-   ../../public/effect.sig
-   ../../public/emb.sig
+   ../../public/data/bool.sig
+   ../../public/data/exn.sig
+   ../../public/data/option.sig
+   ../../public/data/order.sig
+   ../../public/data/pair.sig
+   ../../public/data/product-type.sig
+   ../../public/data/product.sig
+   ../../public/data/ref.sig
+   ../../public/data/sq.sig
+   ../../public/data/sum.sig
+   ../../public/data/unit.sig
    ../../public/exit.sig
-   ../../public/exn.sig
-   ../../public/fix.sig
-   ../../public/fn.sig
-   ../../public/int-inf.sig
-   ../../public/integer.sig
-   ../../public/iso.sig
-   ../../public/list.sig
-   ../../public/mono-array-slice.sig
-   ../../public/mono-array.sig
-   ../../public/mono-vector-slice.sig
-   ../../public/mono-vector.sig
-   ../../public/option.sig
-   ../../public/order.sig
-   ../../public/pair.sig
-   ../../public/product-type.sig
-   ../../public/product.sig
+   ../../public/fn/bin-op.sig
+   ../../public/fn/bin-pr.sig
+   ../../public/fn/cmp.sig
+   ../../public/fn/effect.sig
+   ../../public/fn/fn.sig
+   ../../public/fn/thunk.sig
+   ../../public/fn/un-op.sig
+   ../../public/fn/un-pr.sig
+   ../../public/generic/emb.sig
+   ../../public/generic/fix.sig
+   ../../public/generic/iso.sig
+   ../../public/numeric/int-inf.sig
+   ../../public/numeric/integer.sig
+   ../../public/numeric/real.sig
+   ../../public/numeric/word.sig
    ../../public/reader.sig
-   ../../public/real.sig
-   ../../public/ref.sig
-   ../../public/sq.sig
-   ../../public/string.sig
-   ../../public/substring.sig
-   ../../public/sum.sig
-   ../../public/text.sig
-   ../../public/thunk.sig
-   ../../public/un-op.sig
-   ../../public/un-pr.sig
-   ../../public/unit.sig
-   ../../public/vector-slice.sig
-   ../../public/vector.sig
+   ../../public/sequence/array-slice.sig
+   ../../public/sequence/array.sig
+   ../../public/sequence/buffer.sig
+   ../../public/sequence/list.sig
+   ../../public/sequence/mono-array-slice.sig
+   ../../public/sequence/mono-array.sig
+   ../../public/sequence/mono-vector-slice.sig
+   ../../public/sequence/mono-vector.sig
+   ../../public/sequence/vector-slice.sig
+   ../../public/sequence/vector.sig
+   ../../public/text/char.sig
+   ../../public/text/string.sig
+   ../../public/text/substring.sig
+   ../../public/text/text.sig
    ../../public/with.sig
-   ../../public/word.sig
    ../../public/writer.sig
    funs.cm

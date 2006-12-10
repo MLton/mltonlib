@@ -8,9 +8,9 @@ group
    group(sigs.cm)
    source(-)
 is
-   ../../public/promise.sig
-   ../../public/tie.sig
-   ../../public/univ.sig
+   ../../public/data/univ.sig
+   ../../public/generic/tie.sig
+   ../../public/lazy/promise.sig
    ../array-slice.sml
    ../array.sml
    ../bin-op.sml

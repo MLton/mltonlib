@@ -4,10 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-library
-   source(public/export/common.sml)
-   source(public/export/smlnj.sml)
-is
-   detail/smlnj/unsealed.cm
-   public/export/common.sml
-   public/export/smlnj.sml
+(** Signature for the unit type home module. *)
+signature UNIT = sig
+   type t = unit
+   (** The unit type. *)
+end
