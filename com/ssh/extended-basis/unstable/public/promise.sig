@@ -7,10 +7,9 @@
 (**
  * Lazy promises.
  *
- * The design is based on SRFI-45 ``Primitives for Expressing Iterative Lazy
- * Algorithms'' by André van Tonder:
- *
- *   http://srfi.schemers.org/srfi-45/srfi-45.html
+ * The design is based on [http://srfi.schemers.org/srfi-45/ SRFI-45]
+ * ``Primitives for Expressing Iterative Lazy Algorithms'' by André van
+ * Tonder.
  *
  * The general recipe to express lazy algorithms is to
  * - wrap all constructors with {delay (fn () => ...)},
@@ -69,7 +68,7 @@ signature PROMISE = sig
     * deliver the resulting promise.
     *)
 
-   val thunk : 'a t -> 'a Thunk.t
+   val toThunk : 'a t -> 'a Thunk.t
    (**
     * Converts a promise into a thunk.  This can be useful for working
     * around the value restriction, for example.

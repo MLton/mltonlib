@@ -28,7 +28,7 @@ structure Promise :> PROMISE = struct
            | EAGER x => replay x
        end
 
-   fun thunk promise =
+   fun toThunk promise =
        case !(!promise) of
           EAGER s => Sum.sum (Fn.failing, Fn.const) s
         | LAZY _ => fn () => force promise
