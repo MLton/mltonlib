@@ -11,6 +11,7 @@ structure Buffer :> BUFFER = struct
    fun duplicate (IN {length, data}) =
        IN {length = ref (!length), data = ref (A.duplicate (!data))}
    fun length (IN {length, ...}) = !length
+   fun isEmpty b = 0 = length b
    fun data (IN {data, ...}) = !data
    fun sub (b, i) = if length b <= i then raise Subscript else A.sub (data b, i)
    local
@@ -57,6 +58,7 @@ structure Buffer :> BUFFER = struct
       fun mk tabulate b = tabulate (length b, fn i => sub (b, i))
    in
       fun toArray  ? = mk A.tabulate ?
+      fun toList   ? = mk List.tabulate ?
       fun toVector ? = mk V.tabulate ?
    end
 end
