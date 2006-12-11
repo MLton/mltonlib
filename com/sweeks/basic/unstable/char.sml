@@ -30,5 +30,7 @@ structure Char: CHAR where type t = char = struct
    val == = op =
 
    val compare = Order.ofBasis o Char.compare
+
+   val toWord8 = Byte.charToByte
       
 end

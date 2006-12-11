@@ -45,7 +45,7 @@ signature EXPORT = sig
    structure Vector: VECTOR
    structure VectorSlice: VECTOR_SLICE
    structure Word: WORD
-   structure Word8: WORD
+   structure Word8: WORD8
    structure Word16: WORD
    structure Word32: PACKABLE_WORD
    structure Word64: WORD

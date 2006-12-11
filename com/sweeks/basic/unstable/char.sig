@@ -1,3 +1,8 @@
+structure Word8 = struct
+   open Word8
+   type t = word
+end
+
 signature CHAR = sig
 
    include ORDERED
@@ -68,6 +73,10 @@ signature CHAR = sig
    (**
     * toUpper c returns the uppercase letter corresponding to c, if c is a
     * letter, otherwise returns c.
+    *)
+   val toWord8: t -> Word8.t
+   (**
+    * returns an 8-bit word holding the code for the character c. 
     *)
 
 end

@@ -108,6 +108,7 @@ in
       endian.sig
       endian.sml
       word.sig
+      word8.sig
       word.fun
       packable-word.sig
       packable-word.fun
@@ -195,6 +196,7 @@ in
       signature VECTOR
       signature VECTOR_SLICE
       signature WORD
+      signature WORD8
    end
 end
 

@@ -11,3 +11,10 @@ in
                                     structure Word = Word32)
    structure Word64 = Word (structure Word = Word64)
 end
+
+
+structure Word8 = struct
+   open Word8
+
+   val toChar = Byte.byteToChar
+end

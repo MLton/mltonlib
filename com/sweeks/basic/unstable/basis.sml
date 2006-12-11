@@ -2,6 +2,7 @@ structure Basis = struct
    structure Array = Array
    structure ArraySlice = ArraySlice
    structure Bool = Bool
+   structure Byte = Byte
    structure Char = Char
    structure CommandLine = CommandLine
    structure Date = Date

@@ -2,7 +2,7 @@ type 'a array = 'a array
 datatype bool = false | true
 eqtype char = char
 type exn = exn
-type int = int
+eqtype int = int
 datatype 'a list = nil | :: of 'a * 'a list
 datatype 'a option = None | Some of 'a
 datatype order = Equal | Greater | Less
@@ -10,8 +10,8 @@ type 'a seq = 'a seq
 eqtype string = string
 type 'a thunk = unit -> 'a
 eqtype unit = unit
-type 'a vector = 'a vector
-type word = word
+eqtype 'a vector = 'a vector
+eqtype word = word
 val * : ('a * 'a) -> 'a
 val + : ('a * 'a) -> 'a
 val - : ('a * 'a) -> 'a
@@ -37,13 +37,13 @@ val print: string -> unit
 val valOf: 'a option -> 'a
 val ~ : 'a -> 'a
 structure Array: ARRAY
-		 where type 'a elem = 'a Array.elem
+		 where type 'a elem = 'a
 		 where type 'a t = 'a ArraySlice.base
-		 where type 'a unfold = 'a Array.unfold
-		 where type 'a unfoldR = 'a Array.unfoldR
+		 where type 'a unfold = 'a
+		 where type 'a unfoldR = 'a
 structure ArraySlice: ARRAY_SLICE
 		      where type 'a base = 'a ArraySlice.base
-		      where type 'a elem = 'a ArraySlice.elem
+		      where type 'a elem = 'a
 		      where type 'a t = 'a ArraySlice.t
 structure Bool: BOOL
 structure Char: CHAR
@@ -69,13 +69,13 @@ structure Int: INT
 structure Int16: INT
 		 where type t = Int16.t
 structure Int32: INT
-		 where type t = Int32.t
+		 where type t = int
 structure Int64: INT
 		 where type t = Int64.t
 structure Int8: INT
 		where type t = Int8.t
 structure IntInf: INT_INF
-		  where type t = IntInf.t
+		  where type t = LargeInt.t
 structure IoDesc: IO_DESC
 		  where type Kind.t = IoDesc.Kind.t
 		  where type t = IoDesc.t
@@ -85,14 +85,14 @@ structure LargeReal: REAL
 		     where type Class.t = LargeReal.Class.t
 		     where type Format.t = LargeReal.Format.t
 		     where type RoundingMode.t = LargeReal.RoundingMode.t
-		     where type t = LargeReal.t
+		     where type t = Real64.t
 structure LargeWord: WORD
-		     where type t = LargeWord.t
+		     where type t = Word64.t
 structure Lazy: LAZY
 structure List: LIST
-		where type 'a elem = 'a List.elem
-		where type 'a unfold = 'a List.unfold
-		where type 'a unfoldR = 'a List.unfoldR
+		where type 'a elem = 'a
+		where type 'a unfold = 'a
+		where type 'a unfoldR = 'a
 structure Net: NET
 	       where type Family.inet = Net.Family.inet
 	       where type 'a Family.t = 'a Net.Family.t
@@ -203,7 +203,7 @@ structure Real: PACKABLE_REAL
 		where type Class.t = Real.Class.t
 		where type Format.t = Real.Format.t
 		where type RoundingMode.t = Real.RoundingMode.t
-		where type t = Real.t
+		where type t = Real64.t
 structure Real32: PACKABLE_REAL
 		  where type Class.t = Real32.Class.t
 		  where type Format.t = Real32.Format.t
@@ -218,40 +218,40 @@ structure Ref: REF
 structure Scanner: SCANNER
 		   where type 'a t = 'a Scanner.t
 structure Seq: SEQ
-	       where type 'a elem = 'a Seq.elem
+	       where type 'a elem = 'a
 	       where type 'a t = 'a seq
-	       where type 'a unfold = 'a Seq.unfold
-	       where type 'a unfoldR = 'a Seq.unfoldR
+	       where type 'a unfold = unit
+	       where type 'a unfoldR = 'a
 structure String: STRING
 		  where type t = string
-		  where type 'a unfold = 'a String.unfold
-		  where type 'a unfoldR = 'a String.unfoldR
+		  where type 'a unfold = 'a
+		  where type 'a unfoldR = 'a
 structure Substring: SUBSTRING
 		     where type 'a base = 'a Substring.base
-		     where type t = Substring.t
+		     where type t = char VectorSlice.t
 structure SysError: SYS_ERROR
 		    where type Exn.t = SysError.Exn.t
 		    where type t = SysError.t
 structure Time: TIME
 		where type t = Time.t
 structure Vector: VECTOR
-		  where type 'a elem = 'a Vector.elem
+		  where type 'a elem = 'a
 		  where type 'a t = 'a vector
-		  where type 'a unfold = 'a Vector.unfold
-		  where type 'a unfoldR = 'a Vector.unfoldR
+		  where type 'a unfold = 'a
+		  where type 'a unfoldR = 'a
 structure VectorSlice: VECTOR_SLICE
 		       where type 'a base = 'a vector
-		       where type 'a elem = 'a VectorSlice.elem
+		       where type 'a elem = 'a
 		       where type 'a t = 'a VectorSlice.t
 structure Word: WORD
 		where type t = word
 structure Word16: WORD
 		  where type t = Word16.t
 structure Word32: PACKABLE_WORD
-		  where type t = Word32.t
+		  where type t = word
 structure Word64: WORD
 		  where type t = Word64.t
-structure Word8: WORD
+structure Word8: WORD8
 		 where type t = Word8.t
 signature ARRAY = 
    sig
@@ -266,9 +266,9 @@ signature ARRAY =
       val cons: ('a ?.elem * 'a ?.t) -> 'a ?.t
       val drop: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
       val dropPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropPrefixN: ('a ?.t * int) -> 'a ?.t
       val dropSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropSuffixN: ('a ?.t * int) -> 'a ?.t
       val empty: unit -> 'a ?.t
       val exists: ('a ?.t * ('a ?.elem -> bool)) -> bool
       val fields: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
@@ -279,14 +279,14 @@ signature ARRAY =
       val join: ('a ?.t seq * 'a ?.t) -> 'a ?.t
       val keep: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
       val keepPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepPrefixN: ('a ?.t * int) -> 'a ?.t
       val keepSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepSuffixN: ('a ?.t * int) -> 'a ?.t
       val last: 'a ?.t -> 'a ?.elem
-      val make: (Int32.t * 'a) -> 'a ?.t
+      val make: (int * 'a) -> 'a ?.t
       val map: ('a ?.t * ('a ?.elem -> 'b ?.elem)) -> 'b ?.t
       val ofSeq: 'a ?.elem seq -> 'a ?.t
-      val ofSeqN: ('a ?.elem seq * Int32.t) -> 'a ?.t
+      val ofSeqN: ('a ?.elem seq * int) -> 'a ?.t
       val recur: ('a ?.t
 		  * 'b
 		  * ('b -> 'c)
@@ -295,28 +295,28 @@ signature ARRAY =
       val reverse: 'a ?.t -> 'a ?.t
       val separate: ('a ?.t * 'a ?.elem) -> 'a ?.t
       val single: 'a ?.elem -> 'a ?.t
-      val size: 'a ?.t -> Int32.t
+      val size: 'a ?.t -> int
       val splitPrefix: ('a ?.t * ('a ?.elem -> bool)) -> ('a ?.t * 'a ?.t)
-      val sub: ('a ?.t * Int32.t) -> 'a ?.elem
-      val tabulate: (Int32.t * (Int32.t -> 'a ?.elem)) -> 'a ?.t
+      val sub: ('a ?.t * int) -> 'a ?.elem
+      val tabulate: (int * (int -> 'a ?.elem)) -> 'a ?.t
       val toSeq: 'a ?.t -> 'a ?.elem seq
       val toSeqR: 'a ?.t -> 'a ?.elem seq
       val tokens: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
       val unfold: ('a * ('a -> ('b ?.elem * 'a) option))
 		  -> ('b ?.t * 'a ?.unfold)
-      val unfoldN: (Int32.t * 'a * ((Int32.t * 'a) -> ('b ?.elem * 'a) option))
+      val unfoldN: (int * 'a * ((int * 'a) -> ('b ?.elem * 'a) option))
 		   -> ('b ?.t * 'a ?.unfold)
-      val unfoldNR: (Int32.t * 'a * ((Int32.t * 'a) -> ('b ?.elem * 'a) option))
+      val unfoldNR: (int * 'a * ((int * 'a) -> ('b ?.elem * 'a) option))
 		    -> ('b ?.t * 'a ?.unfoldR)
       val unfoldR: ('a * ('a -> ('b ?.elem * 'a) option))
 		   -> ('b ?.t * 'a ?.unfoldR)
-      val update: ('a ?.t * Int32.t * 'a) -> unit
-      val updates: ('a ?.t * Int32.t * 'a seq) -> unit
+      val update: ('a ?.t * int * 'a) -> unit
+      val updates: ('a ?.t * int * 'a seq) -> unit
       structure Unsafe:
 	 sig
-	    val make: Int32.t -> 'a ?.t
-	    val sub: ('a ?.t * Int32.t) -> 'a
-	    val update: ('a ?.t * Int32.t * 'a) -> unit
+	    val make: int -> 'a ?.t
+	    val sub: ('a ?.t * int) -> 'a
+	    val update: ('a ?.t * int * 'a) -> unit
 	 end
    end
 signature ARRAY_SLICE = 
@@ -326,11 +326,11 @@ signature ARRAY_SLICE =
       type 'a t = 'a ?.t
       type 'a t0 = 'a ?.t
       val all: ('a ?.t * ('a ?.elem -> bool)) -> bool
-      val base: 'a ?.t -> ('a ?.base * {start: Int32.t})
+      val base: 'a ?.t -> ('a ?.base * {start: int})
       val dropPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropPrefixN: ('a ?.t * int) -> 'a ?.t
       val dropSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropSuffixN: ('a ?.t * int) -> 'a ?.t
       val exists: ('a ?.t * ('a ?.elem -> bool)) -> bool
       val fields: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
       val find: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.elem option
@@ -340,9 +340,9 @@ signature ARRAY_SLICE =
       val get: 'a ?.t -> ('a ?.elem * 'a ?.t) option
       val isEmpty: 'a ?.t -> bool
       val keepPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepPrefixN: ('a ?.t * int) -> 'a ?.t
       val keepSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepSuffixN: ('a ?.t * int) -> 'a ?.t
       val last: 'a ?.t -> 'a ?.elem
       val map: ('a ?.t * ('a ?.elem -> 'b ?.elem)) -> 'b ?.base
       val recur: ('a ?.t
@@ -350,10 +350,10 @@ signature ARRAY_SLICE =
 		  * ('b -> 'c)
 		  * (('a ?.elem * 'b * ('b -> 'c)) -> 'c))
 		 -> 'c
-      val size: 'a ?.t -> Int32.t
-      val slice: ('a ?.t * {size: Int32.t, start: Int32.t}) -> 'a ?.t
+      val size: 'a ?.t -> int
+      val slice: ('a ?.t * {size: int, start: int}) -> 'a ?.t
       val splitPrefix: ('a ?.t * ('a ?.elem -> bool)) -> ('a ?.t * 'a ?.t)
-      val sub: ('a ?.t * Int32.t) -> 'a ?.elem
+      val sub: ('a ?.t * int) -> 'a ?.elem
       val toSeq: 'a ?.t -> 'a ?.elem seq
       val toSeqR: 'a ?.t -> 'a ?.elem seq
       val tokens: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
@@ -384,10 +384,11 @@ signature CHAR =
       val isPunct: ?.t -> bool
       val isSpace: ?.t -> bool
       val isUpper: ?.t -> bool
-      val ofInt: Int32.t -> ?.t
-      val toInt: ?.t -> Int32.t
+      val ofInt: int -> ?.t
+      val toInt: ?.t -> int
       val toLower: ?.t -> ?.t
       val toUpper: ?.t -> ?.t
+      val toWord8: ?.t -> Word8.t
    end
 signature COMMAND_LINE = 
    sig
@@ -398,31 +399,31 @@ signature DATE =
    sig
       type t = ?.t
       val format: (?.t * string) -> string
-      val hour: ?.t -> Int32.t
+      val hour: ?.t -> int
       val isDst: ?.t -> bool option
       val localOffset: unit -> Time.t
-      val make: {hour: Int32.t,
-		 minute: Int32.t,
+      val make: {hour: int,
+		 minute: int,
 		 month: ?.Month.t,
-		 monthDay: Int32.t,
+		 monthDay: int,
 		 offset: Time.t option,
-		 second: Int32.t,
-		 year: Int32.t}
+		 second: int,
+		 year: int}
 		-> ?.t
-      val minute: ?.t -> Int32.t
+      val minute: ?.t -> int
       val month: ?.t -> ?.Month.t
-      val monthDay: ?.t -> Int32.t
+      val monthDay: ?.t -> int
       val ofString: string -> ?.t option
       val ofTimeLocal: Time.t -> ?.t
       val ofTimeUniv: Time.t -> ?.t
       val offset: ?.t -> Time.t option
       val scanner: char seq -> (?.t * char seq) option
-      val second: ?.t -> Int32.t
+      val second: ?.t -> int
       val toString: ?.t -> string
       val toTime: ?.t -> Time.t
       val weekDay: ?.t -> ?.WeekDay.t
-      val year: ?.t -> Int32.t
-      val yearDay: ?.t -> Int32.t
+      val year: ?.t -> int
+      val yearDay: ?.t -> int
       structure Month:
 	 sig
 	    type t = ?.Month.t
@@ -504,7 +505,7 @@ signature FILE =
 	    type t = ?.Id.t
 	    val == : (?.Id.t * ?.Id.t) -> bool
 	    val compare: (?.Id.t * ?.Id.t) -> order
-	    val hash: ?.Id.t -> Word32.t
+	    val hash: ?.Id.t -> word
 	 end
    end
 signature IN = 
@@ -544,7 +545,7 @@ signature INT =
       val scanner: Radix.t -> (char seq -> (?.t * char seq) option)
       val toString: ?.t -> string
       val toStringRadix: (?.t * Radix.t) -> string
-      val toWord: ?.t -> Word32.t
+      val toWord: ?.t -> word
    end
 signature INT_INF = 
    sig
@@ -573,13 +574,13 @@ signature INT_INF =
       val scanner: Radix.t -> (char seq -> (?.t * char seq) option)
       val toString: ?.t -> string
       val toStringRadix: (?.t * Radix.t) -> string
-      val toWord: ?.t -> Word32.t
+      val toWord: ?.t -> word
    end
 signature IO_DESC = 
    sig
       type t = ?.t
       val compare: (?.t * ?.t) -> order
-      val hash: ?.t -> Word32.t
+      val hash: ?.t -> word
       structure Kind:
 	 sig
 	    type t = ?.Kind.t
@@ -610,9 +611,9 @@ signature LIST =
       val cons: ('a ?.elem * 'a list) -> 'a list
       val drop: ('a list * ('a ?.elem -> bool)) -> 'a list
       val dropPrefix: ('a list * ('a ?.elem -> bool)) -> 'a list
-      val dropPrefixN: ('a list * Int32.t) -> 'a list
+      val dropPrefixN: ('a list * int) -> 'a list
       val dropSuffix: ('a list * ('a ?.elem -> bool)) -> 'a list
-      val dropSuffixN: ('a list * Int32.t) -> 'a list
+      val dropSuffixN: ('a list * int) -> 'a list
       val empty: unit -> 'a list
       val exists: ('a list * ('a ?.elem -> bool)) -> bool
       val fields: ('a list * ('a ?.elem -> bool)) -> 'a list seq
@@ -623,13 +624,13 @@ signature LIST =
       val join: ('a list seq * 'a list) -> 'a list
       val keep: ('a list * ('a ?.elem -> bool)) -> 'a list
       val keepPrefix: ('a list * ('a ?.elem -> bool)) -> 'a list
-      val keepPrefixN: ('a list * Int32.t) -> 'a list
+      val keepPrefixN: ('a list * int) -> 'a list
       val keepSuffix: ('a list * ('a ?.elem -> bool)) -> 'a list
-      val keepSuffixN: ('a list * Int32.t) -> 'a list
+      val keepSuffixN: ('a list * int) -> 'a list
       val last: 'a list -> 'a ?.elem
       val map: ('a list * ('a ?.elem -> 'b ?.elem)) -> 'b list
       val ofSeq: 'a ?.elem seq -> 'a list
-      val ofSeqN: ('a ?.elem seq * Int32.t) -> 'a list
+      val ofSeqN: ('a ?.elem seq * int) -> 'a list
       val recur: ('a list
 		  * 'b
 		  * ('b -> 'c)
@@ -638,18 +639,18 @@ signature LIST =
       val reverse: 'a list -> 'a list
       val separate: ('a list * 'a ?.elem) -> 'a list
       val single: 'a ?.elem -> 'a list
-      val size: 'a list -> Int32.t
+      val size: 'a list -> int
       val splitPrefix: ('a list * ('a ?.elem -> bool)) -> ('a list * 'a list)
-      val sub: ('a list * Int32.t) -> 'a ?.elem
-      val tabulate: (Int32.t * (Int32.t -> 'a ?.elem)) -> 'a list
+      val sub: ('a list * int) -> 'a ?.elem
+      val tabulate: (int * (int -> 'a ?.elem)) -> 'a list
       val toSeq: 'a list -> 'a ?.elem seq
       val toSeqR: 'a list -> 'a ?.elem seq
       val tokens: ('a list * ('a ?.elem -> bool)) -> 'a list seq
       val unfold: ('a * ('a -> ('b ?.elem * 'a) option))
 		  -> ('b list * 'a ?.unfold)
-      val unfoldN: (Int32.t * 'a * ((Int32.t * 'a) -> ('b ?.elem * 'a) option))
+      val unfoldN: (int * 'a * ((int * 'a) -> ('b ?.elem * 'a) option))
 		   -> ('b list * 'a ?.unfold)
-      val unfoldNR: (Int32.t * 'a * ((Int32.t * 'a) -> ('b ?.elem * 'a) option))
+      val unfoldNR: (int * 'a * ((int * 'a) -> ('b ?.elem * 'a) option))
 		    -> ('b list * 'a ?.unfoldR)
       val unfoldR: ('a * ('a -> ('b ?.elem * 'a) option))
 		   -> ('b list * 'a ?.unfoldR)
@@ -665,7 +666,7 @@ signature NET =
 	    type unknown = ?.Family.unknown
 	    val == : ('a ?.Family.t * 'a ?.Family.t) -> bool
 	    val all: unit
-		     -> (?.Family.unknown ?.Family.t * {name: string}) ?.vector
+		     -> (?.Family.unknown ?.Family.t * {name: string}) vector
 	    val inet: ?.Family.inet ?.Family.t
 	    val ofString: string -> ?.Family.unknown ?.Family.t option
 	    val toString: 'a ?.Family.t -> string
@@ -675,8 +676,8 @@ signature NET =
 	 sig
 	    type t = ?.Host.t
 	    val address: ?.Host.t -> ?.Host.Address.t
-	    val addresses: ?.Host.t -> ?.Host.Address.t ?.vector
-	    val aliases: ?.Host.t -> string ?.vector
+	    val addresses: ?.Host.t -> ?.Host.Address.t vector
+	    val aliases: ?.Host.t -> string vector
 	    val family: ?.Host.t -> ?.Family.unknown ?.Family.t
 	    val getByAddress: ?.Host.Address.t -> ?.Host.t option
 	    val getByName: string -> ?.Host.t option
@@ -693,20 +694,20 @@ signature NET =
       structure Protocol:
 	 sig
 	    type t = ?.Protocol.t
-	    val aliases: ?.Protocol.t -> string ?.vector
+	    val aliases: ?.Protocol.t -> string vector
 	    val getByName: string -> ?.Protocol.t option
-	    val getByNumber: Int32.t -> ?.Protocol.t option
+	    val getByNumber: int -> ?.Protocol.t option
 	    val name: ?.Protocol.t -> string
-	    val number: ?.Protocol.t -> Int32.t
+	    val number: ?.Protocol.t -> int
 	 end
       structure Service:
 	 sig
 	    type t = ?.Service.t
-	    val aliases: ?.Service.t -> string ?.vector
+	    val aliases: ?.Service.t -> string vector
 	    val getByName: (string * string option) -> ?.Service.t option
-	    val getByPort: (Int32.t * string option) -> ?.Service.t option
+	    val getByPort: (int * string option) -> ?.Service.t option
 	    val name: ?.Service.t -> string
-	    val port: ?.Service.t -> Int32.t
+	    val port: ?.Service.t -> int
 	    val protocol: ?.Service.t -> string
 	 end
       structure Socket:
@@ -730,17 +731,17 @@ signature NET =
 	    val getOption: (('a, 'b) ?.Socket.sock
 			    * ('c, 'a, 'b, 'd) ?.Socket.Option.t)
 			   -> 'c
-	    val ioDesc: ('a, 'b) ?.Socket.sock -> Int32.t
+	    val ioDesc: ('a, 'b) ?.Socket.sock -> int
 	    val listen: (('a, ?.Socket.Type.passive ?.Socket.Type.stream) ?.Socket.sock
-			 * Int32.t)
+			 * int)
 			-> unit
 	    val make: ('a ?.Family.t
 		       * 'b ?.Socket.Type.t
-		       * {protocol: Int32.t} option)
+		       * {protocol: int} option)
 		      -> ('a, 'b) ?.Socket.sock
 	    val makePair: ('a ?.Family.t
 			   * 'b ?.Socket.Type.t
-			   * {protocol: Int32.t} option)
+			   * {protocol: int} option)
 			  -> (('a, 'b) ?.Socket.sock * ('a, 'b) ?.Socket.sock)
 	    val myAddress: ('a, 'b) ?.Socket.sock -> 'a ?.Socket.Address.t
 	    val peerAddress: ('a, 'b) ?.Socket.sock -> 'a ?.Socket.Address.t
@@ -764,12 +765,12 @@ signature NET =
 		  val == : ('a ?.Socket.Address.t * 'a ?.Socket.Address.t)
 			   -> bool
 		  val family: 'a ?.Socket.Address.t -> 'a ?.Family.t
-		  val inet: {port: Int32.t} -> ?.Family.inet ?.Socket.Address.t
-		  val ofHost: (?.Host.Address.t * {port: Int32.t})
+		  val inet: {port: int} -> ?.Family.inet ?.Socket.Address.t
+		  val ofHost: (?.Host.Address.t * {port: int})
 			      -> ?.Family.inet ?.Socket.Address.t
 		  val ofUnix: string -> ?.Family.unix ?.Socket.Address.t
 		  val toHost: ?.Family.inet ?.Socket.Address.t
-			      -> (?.Host.Address.t * {port: Int32.t})
+			      -> (?.Host.Address.t * {port: int})
 		  val toUnix: ?.Family.unix ?.Socket.Address.t -> string
 	       end
 	    structure Block:
@@ -799,15 +800,15 @@ signature NET =
 		  val error: (bool, 'a, 'b, ?.Socket.Option.ro) ?.Socket.Option.t
 		  val keepAlive: (bool, 'a, 'b, ?.Socket.Option.rw) ?.Socket.Option.t
 		  val linger: (Time.t option, 'a, 'b, ?.Socket.Option.rw) ?.Socket.Option.t
-		  val nRead: (Int32.t, 'a, 'b, ?.Socket.Option.ro) ?.Socket.Option.t
+		  val nRead: (int, 'a, 'b, ?.Socket.Option.ro) ?.Socket.Option.t
 		  val noDelay: (bool,
 				?.Family.inet,
 				'a ?.Socket.Type.stream,
 				?.Socket.Option.rw) ?.Socket.Option.t
 		  val oobInline: (bool, 'a, 'b, ?.Socket.Option.rw) ?.Socket.Option.t
-		  val rcvBuf: (Int32.t, 'a, 'b, ?.Socket.Option.rw) ?.Socket.Option.t
+		  val rcvBuf: (int, 'a, 'b, ?.Socket.Option.rw) ?.Socket.Option.t
 		  val reuseAddr: (bool, 'a, 'b, ?.Socket.Option.rw) ?.Socket.Option.t
-		  val sndBuf: (Int32.t, 'a, 'b, ?.Socket.Option.rw) ?.Socket.Option.t
+		  val sndBuf: (int, 'a, 'b, ?.Socket.Option.rw) ?.Socket.Option.t
 		  val ty: (?.Socket.Type.unknown ?.Socket.Type.t,
 			   'a,
 			   'b,
@@ -818,10 +819,10 @@ signature NET =
 		  val receive: (('a, 'b, 'c, 'd) ?.Socket.Receive.From.t
 				* ('a, 'e, 'f, 'g, 'h, 'b, 'c) ?.Socket.Receive.To.t
 				* ('a,
-				   (Int32.t * 'a ?.Socket.Address.t),
-				   Int32.t,
-				   (Word8.t ?.vector * 'a ?.Socket.Address.t),
-				   Word8.t ?.vector,
+				   (int * 'a ?.Socket.Address.t),
+				   int,
+				   (Word8.t vector * 'a ?.Socket.Address.t),
+				   Word8.t vector,
 				   'e,
 				   'f,
 				   'g,
@@ -876,7 +877,7 @@ signature NET =
 							       'g) ?.Socket.Receive.To.t
 			val array: Word8.t ?.Sequence.Slice.t
 				   -> ('a, 'b, 'c, 'd, 'e, 'b, 'c) ?.Socket.Receive.To.t
-			val vector: {numBytes: Int32.t}
+			val vector: {numBytes: int}
 				    -> ('a, 'b, 'c, 'd, 'e, 'd, 'e) ?.Socket.Receive.To.t
 		     end
 	       end
@@ -884,7 +885,7 @@ signature NET =
 	       sig
 		  val send: (?.Socket.Send.From.t
 			     * ('a, 'b, 'c, 'd) ?.Socket.Send.To.t
-			     * ('a, unit, Int32.t, bool, Int32.t option, 'b, 'c) ?.Socket.Send.Block.t
+			     * ('a, unit, int, bool, int option, 'b, 'c) ?.Socket.Send.Block.t
 			     * ?.Socket.Send.Flag.t list)
 			    -> 'd
 		  structure Block:
@@ -910,7 +911,7 @@ signature NET =
 			type t = ?.Socket.Send.From.t
 			val array: Word8.t ?.Sequence.Slice.t
 				   -> ?.Socket.Send.From.t
-			val vector: Word8.t ?.Sequence.Slice.t
+			val vector: Word8.t VectorSlice.t
 				    -> ?.Socket.Send.From.t
 		     end
 		  structure To:
@@ -944,7 +945,7 @@ signature NET =
 		  val == : ('a ?.Socket.Type.t * 'a ?.Socket.Type.t) -> bool
 		  val all: unit
 			   -> (?.Socket.Type.unknown ?.Socket.Type.t
-			       * {name: string}) ?.vector
+			       * {name: string}) vector
 		  val dgram: ?.Socket.Type.dgram ?.Socket.Type.t
 		  val ofString: string
 				-> ?.Socket.Type.unknown ?.Socket.Type.t option
@@ -997,7 +998,7 @@ signature PACKABLE_REAL =
       val asin: ?.t -> ?.t
       val atan: ?.t -> ?.t
       val atan2: (?.t * ?.t) -> ?.t
-      val ceil: ?.t -> Int32.t
+      val ceil: ?.t -> int
       val checkFloat: ?.t -> ?.t
       val class: ?.t -> ?.Class.t
       val compare: (?.t * ?.t) -> order
@@ -1006,7 +1007,7 @@ signature PACKABLE_REAL =
       val cosh: ?.t -> ?.t
       val e: ?.t
       val exp: ?.t -> ?.t
-      val floor: ?.t -> Int32.t
+      val floor: ?.t -> int
       val format: (?.t * ?.Format.t) -> string
       val isFinite: ?.t -> bool
       val isNan: ?.t -> bool
@@ -1020,55 +1021,52 @@ signature PACKABLE_REAL =
       val minPos: ?.t
       val negInf: ?.t
       val nextAfter: (?.t * ?.t) -> ?.t
-      val ofBytes: (Word8.t ?.vector * ?.Endian.t) -> ?.t
-      val ofDecimal: {class: ?.Class.t,
-		      digits: Int32.t list,
-		      exp: Int32.t,
-		      sign: bool}
+      val ofBytes: (Word8.t vector * ?.Endian.t) -> ?.t
+      val ofDecimal: {class: ?.Class.t, digits: int list, exp: int, sign: bool}
 		     -> ?.t option
-      val ofInt: Int32.t -> ?.t
+      val ofInt: int -> ?.t
       val ofLarge: (Real64.t * ?.RoundingMode.t) -> ?.t
-      val ofLargeInt: IntInf.t -> ?.t
-      val ofManExp: {exp: Int32.t, man: ?.t} -> ?.t
+      val ofLargeInt: LargeInt.t -> ?.t
+      val ofManExp: {exp: int, man: ?.t} -> ?.t
       val ofString: string -> ?.t option
       val pi: ?.t
       val posInf: ?.t
       val pow: (?.t * ?.t) -> ?.t
-      val precision: Int32.t
-      val radix: Int32.t
+      val precision: int
+      val radix: int
       val realCeil: ?.t -> ?.t
       val realFloor: ?.t -> ?.t
       val realMod: ?.t -> ?.t
       val realRound: ?.t -> ?.t
       val realTrunc: ?.t -> ?.t
       val rem: (?.t * ?.t) -> ?.t
-      val round: ?.t -> Int32.t
+      val round: ?.t -> int
       val sameSign: (?.t * ?.t) -> bool
       val scanner: char seq -> (?.t * char seq) option
-      val sign: ?.t -> Int32.t
+      val sign: ?.t -> int
       val signBit: ?.t -> bool
       val sin: ?.t -> ?.t
       val sinh: ?.t -> ?.t
       val split: ?.t -> {frac: ?.t, whole: ?.t}
       val sqrt: ?.t -> ?.t
-      val subArr: (Word8.t ?.array * Int32.t * ?.Endian.t) -> ?.t
-      val subVec: (Word8.t ?.vector * Int32.t * ?.Endian.t) -> ?.t
+      val subArr: (Word8.t ArraySlice.base * int * ?.Endian.t) -> ?.t
+      val subVec: (Word8.t vector * int * ?.Endian.t) -> ?.t
       val tan: ?.t -> ?.t
       val tanh: ?.t -> ?.t
-      val toBytes: (?.t * ?.Endian.t) -> Word8.t ?.vector
+      val toBytes: (?.t * ?.Endian.t) -> Word8.t vector
       val toDecimal: ?.t
 		     -> {class: ?.Class.t,
-			 digits: Int32.t list,
-			 exp: Int32.t,
+			 digits: int list,
+			 exp: int,
 			 sign: bool}
-      val toInt: (?.t * ?.RoundingMode.t) -> Int32.t
+      val toInt: (?.t * ?.RoundingMode.t) -> int
       val toLarge: ?.t -> Real64.t
-      val toLargeInt: (?.t * ?.RoundingMode.t) -> IntInf.t
-      val toManExp: ?.t -> {exp: Int32.t, man: ?.t}
+      val toLargeInt: (?.t * ?.RoundingMode.t) -> LargeInt.t
+      val toManExp: ?.t -> {exp: int, man: ?.t}
       val toString: ?.t -> string
-      val trunc: ?.t -> Int32.t
+      val trunc: ?.t -> int
       val unordered: (?.t * ?.t) -> bool
-      val update: (Word8.t ?.array * Int32.t * ?.t * ?.Endian.t) -> unit
+      val update: (Word8.t ArraySlice.base * int * ?.t * ?.Endian.t) -> unit
       val ~ : ?.t -> ?.t
       structure Class:
 	 sig
@@ -1076,24 +1074,21 @@ signature PACKABLE_REAL =
 	 end
       structure Decimal:
 	 sig
-	    eqtype t = {class: ?.Class.t,
-			digits: Int32.t list,
-			exp: Int32.t,
-			sign: bool}
+	    eqtype t = {class: ?.Class.t, digits: int list, exp: int, sign: bool}
 	    val ofString: string
 			  -> {class: ?.Class.t,
-			      digits: Int32.t list,
-			      exp: Int32.t,
+			      digits: int list,
+			      exp: int,
 			      sign: bool} option
 	    val scanner: char seq
 			 -> ({class: ?.Class.t,
-			      digits: Int32.t list,
-			      exp: Int32.t,
+			      digits: int list,
+			      exp: int,
 			      sign: bool}
 			     * char seq) option
 	    val toString: {class: ?.Class.t,
-			   digits: Int32.t list,
-			   exp: Int32.t,
+			   digits: int list,
+			   exp: int,
 			   sign: bool}
 			  -> string
 	 end
@@ -1101,9 +1096,9 @@ signature PACKABLE_REAL =
 	 sig
 	    type t = ?.Format.t
 	    val exact: ?.Format.t
-	    val fix: Int32.t -> ?.Format.t
-	    val gen: Int32.t -> ?.Format.t
-	    val sci: Int32.t -> ?.Format.t
+	    val fix: int -> ?.Format.t
+	    val gen: int -> ?.Format.t
+	    val sci: int -> ?.Format.t
 	 end
       structure RoundingMode:
 	 sig
@@ -1123,12 +1118,12 @@ signature PACKABLE_WORD =
       val + : (?.t * ?.t) -> ?.t
       val - : (?.t * ?.t) -> ?.t
       val < : (?.t * ?.t) -> bool
-      val << : (?.t * Word32.t) -> ?.t
+      val << : (?.t * word) -> ?.t
       val <= : (?.t * ?.t) -> bool
       val == : (?.t * ?.t) -> bool
       val > : (?.t * ?.t) -> bool
       val >= : (?.t * ?.t) -> bool
-      val >> : (?.t * Word32.t) -> ?.t
+      val >> : (?.t * word) -> ?.t
       val andb: (?.t * ?.t) -> ?.t
       val compare: (?.t * ?.t) -> order
       val div: (?.t * ?.t) -> ?.t
@@ -1139,15 +1134,15 @@ signature PACKABLE_WORD =
       val ofStringRadix: (string * Radix.t) -> ?.t option
       val orb: (?.t * ?.t) -> ?.t
       val scanner: Radix.t -> (char seq -> (?.t * char seq) option)
-      val subArr: (Word8.t ?.array * Int32.t * ?.Endian.t) -> ?.t
-      val subVec: (Word8.t ?.vector * Int32.t * ?.Endian.t) -> ?.t
+      val subArr: (Word8.t ArraySlice.base * int * ?.Endian.t) -> ?.t
+      val subVec: (Word8.t vector * int * ?.Endian.t) -> ?.t
       val toLarge: ?.t -> Word64.t
       val toLargeX: ?.t -> Word64.t
       val toString: ?.t -> string
       val toStringRadix: (?.t * Radix.t) -> string
-      val update: (Word8.t ?.array * Int32.t * ?.t * ?.Endian.t) -> unit
+      val update: (Word8.t ArraySlice.base * int * ?.t * ?.Endian.t) -> unit
       val xorb: (?.t * ?.t) -> ?.t
-      val ~>> : (?.t * Word32.t) -> ?.t
+      val ~>> : (?.t * word) -> ?.t
    end
 signature PATH = 
    sig
@@ -1205,8 +1200,8 @@ signature POLL =
 	    val addIn: ?.Desc.t -> ?.Desc.t
 	    val addOut: ?.Desc.t -> ?.Desc.t
 	    val addPri: ?.Desc.t -> ?.Desc.t
-	    val ofIO: Int32.t -> ?.Desc.t option
-	    val toIO: ?.Desc.t -> Int32.t
+	    val ofIO: int -> ?.Desc.t option
+	    val toIO: ?.Desc.t -> int
 	 end
       structure Info:
 	 sig
@@ -1276,8 +1271,8 @@ signature POSIX =
       val pathconf: (string * string) -> Word64.t option
       val pause: unit -> unit
       val pipe: unit -> {infd: ?.FileDesc.t, outfd: ?.FileDesc.t}
-      val readArr: (?.FileDesc.t * Word8.t ?.Sequence.Slice.t) -> Int32.t
-      val readVec: (?.FileDesc.t * Int32.t) -> Word8.t ?.vector
+      val readArr: (?.FileDesc.t * Word8.t ?.Sequence.Slice.t) -> int
+      val readVec: (?.FileDesc.t * int) -> Word8.t vector
       val readdir: ?.DirStream.t -> string option
       val readlink: string -> string
       val rename: {new: string, old: string} -> unit
@@ -1296,7 +1291,7 @@ signature POSIX =
       val tcflush: (?.FileDesc.t * ?.QueueSel.t) -> unit
       val tcgetattr: ?.FileDesc.t -> ?.Termios.t
       val tcgetpgrp: ?.FileDesc.t -> ?.Pid.t
-      val tcsendbreak: (?.FileDesc.t * Int32.t) -> unit
+      val tcsendbreak: (?.FileDesc.t * int) -> unit
       val tcsetattr: (?.FileDesc.t * ?.SetAction.t * ?.Termios.t) -> unit
       val tcsetpgrp: (?.FileDesc.t * ?.Pid.t) -> unit
       val time: unit -> Time.t
@@ -1316,8 +1311,8 @@ signature POSIX =
 		   -> (?.Pid.t * ?.ExitStatus.t)
       val waitpidNohang: (?.WaitPidArg.t * ?.WaitPidFlags.t list)
 			 -> (?.Pid.t * ?.ExitStatus.t) option
-      val writeArr: (?.FileDesc.t * Word8.t ?.Sequence.Slice.t) -> Int32.t
-      val writeVec: (?.FileDesc.t * Word8.t ?.Sequence.Slice.t) -> Int32.t
+      val writeArr: (?.FileDesc.t * Word8.t ?.Sequence.Slice.t) -> int
+      val writeVec: (?.FileDesc.t * Word8.t VectorSlice.t) -> int
       structure AccessMode:
 	 sig
 	    type t = ?.AccessMode.t
@@ -1393,7 +1388,7 @@ signature POSIX =
 		       | ExitStatus of Word8.t
 		       | Signaled of ?.Signal.t
 		       | Stopped of ?.Signal.t
-	    val ofStatus: Int32.t -> ?.ExitStatus.t
+	    val ofStatus: int -> ?.ExitStatus.t
 	 end
       structure Fcntl:
 	 sig
@@ -1410,12 +1405,12 @@ signature POSIX =
       structure FileDesc:
 	 sig
 	    type t = ?.FileDesc.t
-	    val ofIODesc: Int32.t -> ?.FileDesc.t option
+	    val ofIODesc: int -> ?.FileDesc.t option
 	    val ofWord: Word64.t -> ?.FileDesc.t
 	    val stderr: ?.FileDesc.t
 	    val stdin: ?.FileDesc.t
 	    val stdout: ?.FileDesc.t
-	    val toIODesc: ?.FileDesc.t -> Int32.t
+	    val toIODesc: ?.FileDesc.t -> int
 	    val toWord: ?.FileDesc.t -> Word64.t
 	 end
       structure FileDescFlags:
@@ -1627,7 +1622,7 @@ signature POSIX =
 	    val isSock: ?.Stat.t -> bool
 	    val mode: ?.Stat.t -> ?.Mode.t
 	    val mtime: ?.Stat.t -> Time.t
-	    val nlink: ?.Stat.t -> Int32.t
+	    val nlink: ?.Stat.t -> int
 	    val size: ?.Stat.t -> Int64.t
 	    val uid: ?.Stat.t -> ?.Uid.t
 	 end
@@ -1667,21 +1662,21 @@ signature POSIX =
 	    structure CC:
 	       sig
 		  type t = ?.Termios.CC.t
-		  val eof: Int32.t
-		  val eol: Int32.t
-		  val erase: Int32.t
-		  val intr: Int32.t
-		  val kill: Int32.t
-		  val make: (Int32.t * char) list -> ?.Termios.CC.t
-		  val min: Int32.t
-		  val nccs: Int32.t
-		  val quit: Int32.t
-		  val start: Int32.t
-		  val stop: Int32.t
-		  val sub: (?.Termios.CC.t * Int32.t) -> char
-		  val susp: Int32.t
-		  val time: Int32.t
-		  val update: (?.Termios.CC.t * (Int32.t * char) list)
+		  val eof: int
+		  val eol: int
+		  val erase: int
+		  val intr: int
+		  val kill: int
+		  val make: (int * char) list -> ?.Termios.CC.t
+		  val min: int
+		  val nccs: int
+		  val quit: int
+		  val start: int
+		  val stop: int
+		  val sub: (?.Termios.CC.t * int) -> char
+		  val susp: int
+		  val time: int
+		  val update: (?.Termios.CC.t * (int * char) list)
 			      -> ?.Termios.CC.t
 	       end
 	    structure I:
@@ -1847,7 +1842,7 @@ signature REAL =
       val asin: ?.t -> ?.t
       val atan: ?.t -> ?.t
       val atan2: (?.t * ?.t) -> ?.t
-      val ceil: ?.t -> Int32.t
+      val ceil: ?.t -> int
       val checkFloat: ?.t -> ?.t
       val class: ?.t -> ?.Class.t
       val compare: (?.t * ?.t) -> order
@@ -1856,7 +1851,7 @@ signature REAL =
       val cosh: ?.t -> ?.t
       val e: ?.t
       val exp: ?.t -> ?.t
-      val floor: ?.t -> Int32.t
+      val floor: ?.t -> int
       val format: (?.t * ?.Format.t) -> string
       val isFinite: ?.t -> bool
       val isNan: ?.t -> bool
@@ -1870,31 +1865,28 @@ signature REAL =
       val minPos: ?.t
       val negInf: ?.t
       val nextAfter: (?.t * ?.t) -> ?.t
-      val ofDecimal: {class: ?.Class.t,
-		      digits: Int32.t list,
-		      exp: Int32.t,
-		      sign: bool}
+      val ofDecimal: {class: ?.Class.t, digits: int list, exp: int, sign: bool}
 		     -> ?.t option
-      val ofInt: Int32.t -> ?.t
+      val ofInt: int -> ?.t
       val ofLarge: (Real64.t * ?.RoundingMode.t) -> ?.t
-      val ofLargeInt: IntInf.t -> ?.t
-      val ofManExp: {exp: Int32.t, man: ?.t} -> ?.t
+      val ofLargeInt: LargeInt.t -> ?.t
+      val ofManExp: {exp: int, man: ?.t} -> ?.t
       val ofString: string -> ?.t option
       val pi: ?.t
       val posInf: ?.t
       val pow: (?.t * ?.t) -> ?.t
-      val precision: Int32.t
-      val radix: Int32.t
+      val precision: int
+      val radix: int
       val realCeil: ?.t -> ?.t
       val realFloor: ?.t -> ?.t
       val realMod: ?.t -> ?.t
       val realRound: ?.t -> ?.t
       val realTrunc: ?.t -> ?.t
       val rem: (?.t * ?.t) -> ?.t
-      val round: ?.t -> Int32.t
+      val round: ?.t -> int
       val sameSign: (?.t * ?.t) -> bool
       val scanner: char seq -> (?.t * char seq) option
-      val sign: ?.t -> Int32.t
+      val sign: ?.t -> int
       val signBit: ?.t -> bool
       val sin: ?.t -> ?.t
       val sinh: ?.t -> ?.t
@@ -1904,15 +1896,15 @@ signature REAL =
       val tanh: ?.t -> ?.t
       val toDecimal: ?.t
 		     -> {class: ?.Class.t,
-			 digits: Int32.t list,
-			 exp: Int32.t,
+			 digits: int list,
+			 exp: int,
 			 sign: bool}
-      val toInt: (?.t * ?.RoundingMode.t) -> Int32.t
+      val toInt: (?.t * ?.RoundingMode.t) -> int
       val toLarge: ?.t -> Real64.t
-      val toLargeInt: (?.t * ?.RoundingMode.t) -> IntInf.t
-      val toManExp: ?.t -> {exp: Int32.t, man: ?.t}
+      val toLargeInt: (?.t * ?.RoundingMode.t) -> LargeInt.t
+      val toManExp: ?.t -> {exp: int, man: ?.t}
       val toString: ?.t -> string
-      val trunc: ?.t -> Int32.t
+      val trunc: ?.t -> int
       val unordered: (?.t * ?.t) -> bool
       val ~ : ?.t -> ?.t
       structure Class:
@@ -1921,24 +1913,21 @@ signature REAL =
 	 end
       structure Decimal:
 	 sig
-	    eqtype t = {class: ?.Class.t,
-			digits: Int32.t list,
-			exp: Int32.t,
-			sign: bool}
+	    eqtype t = {class: ?.Class.t, digits: int list, exp: int, sign: bool}
 	    val ofString: string
 			  -> {class: ?.Class.t,
-			      digits: Int32.t list,
-			      exp: Int32.t,
+			      digits: int list,
+			      exp: int,
 			      sign: bool} option
 	    val scanner: char seq
 			 -> ({class: ?.Class.t,
-			      digits: Int32.t list,
-			      exp: Int32.t,
+			      digits: int list,
+			      exp: int,
 			      sign: bool}
 			     * char seq) option
 	    val toString: {class: ?.Class.t,
-			   digits: Int32.t list,
-			   exp: Int32.t,
+			   digits: int list,
+			   exp: int,
 			   sign: bool}
 			  -> string
 	 end
@@ -1946,9 +1935,9 @@ signature REAL =
 	 sig
 	    type t = ?.Format.t
 	    val exact: ?.Format.t
-	    val fix: Int32.t -> ?.Format.t
-	    val gen: Int32.t -> ?.Format.t
-	    val sci: Int32.t -> ?.Format.t
+	    val fix: int -> ?.Format.t
+	    val gen: int -> ?.Format.t
+	    val sci: int -> ?.Format.t
 	 end
       structure RoundingMode:
 	 sig
@@ -1988,9 +1977,9 @@ signature SEQ =
       val delay: (unit -> 'a ?.t) -> 'a ?.t
       val drop: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
       val dropPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropPrefixN: ('a ?.t * int) -> 'a ?.t
       val dropSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropSuffixN: ('a ?.t * int) -> 'a ?.t
       val empty: unit -> 'a ?.t
       val exists: ('a ?.t * ('a ?.elem -> bool)) -> bool
       val fields: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
@@ -2002,13 +1991,13 @@ signature SEQ =
       val join: ('a ?.t seq * 'a ?.t) -> 'a ?.t
       val keep: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
       val keepPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepPrefixN: ('a ?.t * int) -> 'a ?.t
       val keepSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepSuffixN: ('a ?.t * int) -> 'a ?.t
       val last: 'a ?.t -> 'a ?.elem
       val map: ('a ?.t * ('a ?.elem -> 'b ?.elem)) -> 'b ?.t
       val ofSeq: 'a ?.elem seq -> 'a ?.t
-      val ofSeqN: ('a ?.elem seq * Int32.t) -> 'a ?.t
+      val ofSeqN: ('a ?.elem seq * int) -> 'a ?.t
       val recur: ('a ?.t
 		  * 'b
 		  * ('b -> 'c)
@@ -2017,18 +2006,18 @@ signature SEQ =
       val reverse: 'a ?.t -> 'a ?.t
       val separate: ('a ?.t * 'a ?.elem) -> 'a ?.t
       val single: 'a ?.elem -> 'a ?.t
-      val size: 'a ?.t -> Int32.t
+      val size: 'a ?.t -> int
       val splitPrefix: ('a ?.t * ('a ?.elem -> bool)) -> ('a ?.t * 'a ?.t)
-      val sub: ('a ?.t * Int32.t) -> 'a ?.elem
-      val tabulate: (Int32.t * (Int32.t -> 'a ?.elem)) -> 'a ?.t
+      val sub: ('a ?.t * int) -> 'a ?.elem
+      val tabulate: (int * (int -> 'a ?.elem)) -> 'a ?.t
       val toSeq: 'a ?.t -> 'a ?.elem seq
       val toSeqR: 'a ?.t -> 'a ?.elem seq
       val tokens: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
       val unfold: ('a * ('a -> ('b ?.elem * 'a) option))
 		  -> ('b ?.t * 'a ?.unfold)
-      val unfoldN: (Int32.t * 'a * ((Int32.t * 'a) -> ('b ?.elem * 'a) option))
+      val unfoldN: (int * 'a * ((int * 'a) -> ('b ?.elem * 'a) option))
 		   -> ('b ?.t * 'a ?.unfold)
-      val unfoldNR: (Int32.t * 'a * ((Int32.t * 'a) -> ('b ?.elem * 'a) option))
+      val unfoldNR: (int * 'a * ((int * 'a) -> ('b ?.elem * 'a) option))
 		    -> ('b ?.t * 'a ?.unfoldR)
       val unfoldR: ('a * ('a -> ('b ?.elem * 'a) option))
 		   -> ('b ?.t * 'a ?.unfoldR)
@@ -2046,9 +2035,9 @@ signature STRING =
       val cons: (char * ?.t) -> ?.t
       val drop: (?.t * (char -> bool)) -> ?.t
       val dropPrefix: (?.t * (char -> bool)) -> ?.t
-      val dropPrefixN: (?.t * Int32.t) -> ?.t
+      val dropPrefixN: (?.t * int) -> ?.t
       val dropSuffix: (?.t * (char -> bool)) -> ?.t
-      val dropSuffixN: (?.t * Int32.t) -> ?.t
+      val dropSuffixN: (?.t * int) -> ?.t
       val empty: unit -> ?.t
       val exists: (?.t * (char -> bool)) -> bool
       val fields: (?.t * (char -> bool)) -> ?.t seq
@@ -2060,40 +2049,40 @@ signature STRING =
       val join: (?.t seq * ?.t) -> ?.t
       val keep: (?.t * (char -> bool)) -> ?.t
       val keepPrefix: (?.t * (char -> bool)) -> ?.t
-      val keepPrefixN: (?.t * Int32.t) -> ?.t
+      val keepPrefixN: (?.t * int) -> ?.t
       val keepSuffix: (?.t * (char -> bool)) -> ?.t
-      val keepSuffixN: (?.t * Int32.t) -> ?.t
+      val keepSuffixN: (?.t * int) -> ?.t
       val last: ?.t -> char
-      val make: Int32.t
+      val make: int
 		-> {done: unit -> ?.t,
-		    sub: Int32.t -> char,
-		    update: (Int32.t * char) -> unit}
+		    sub: int -> char,
+		    update: (int * char) -> unit}
       val map: (?.t * (char -> char)) -> ?.t
       val ofSeq: char seq -> ?.t
-      val ofSeqN: (char seq * Int32.t) -> ?.t
+      val ofSeqN: (char seq * int) -> ?.t
       val recur: (?.t * 'a * ('a -> 'b) * ((char * 'a * ('a -> 'b)) -> 'b))
 		 -> 'b
       val reverse: ?.t -> ?.t
       val separate: (?.t * char) -> ?.t
       val single: char -> ?.t
-      val size: ?.t -> Int32.t
+      val size: ?.t -> int
       val splitPrefix: (?.t * (char -> bool)) -> (?.t * ?.t)
-      val sub: (?.t * Int32.t) -> char
-      val tabulate: (Int32.t * (Int32.t -> char)) -> ?.t
+      val sub: (?.t * int) -> char
+      val tabulate: (int * (int -> char)) -> ?.t
       val toLower: ?.t -> ?.t
       val toSeq: ?.t -> char seq
       val toSeqR: ?.t -> char seq
       val toUpper: ?.t -> ?.t
       val tokens: (?.t * (char -> bool)) -> ?.t seq
       val unfold: ('a * ('a -> (char * 'a) option)) -> (?.t * 'a ?.unfold)
-      val unfoldN: (Int32.t * 'a * ((Int32.t * 'a) -> (char * 'a) option))
+      val unfoldN: (int * 'a * ((int * 'a) -> (char * 'a) option))
 		   -> (?.t * 'a ?.unfold)
-      val unfoldNR: (Int32.t * 'a * ((Int32.t * 'a) -> (char * 'a) option))
+      val unfoldNR: (int * 'a * ((int * 'a) -> (char * 'a) option))
 		    -> (?.t * 'a ?.unfoldR)
       val unfoldR: ('a * ('a -> (char * 'a) option)) -> (?.t * 'a ?.unfoldR)
       structure Unsafe:
 	 sig
-	    val sub: (?.t * Int32.t) -> char
+	    val sub: (?.t * int) -> char
 	 end
    end
 signature SUBSTRING = 
@@ -2103,11 +2092,11 @@ signature SUBSTRING =
       type t = ?.t
       type 'a t0 = ?.t
       val all: (?.t * (char -> bool)) -> bool
-      val base: ?.t -> ('a ?.base * {start: Int32.t})
+      val base: ?.t -> ('a ?.base * {start: int})
       val dropPrefix: (?.t * (char -> bool)) -> ?.t
-      val dropPrefixN: (?.t * Int32.t) -> ?.t
+      val dropPrefixN: (?.t * int) -> ?.t
       val dropSuffix: (?.t * (char -> bool)) -> ?.t
-      val dropSuffixN: (?.t * Int32.t) -> ?.t
+      val dropSuffixN: (?.t * int) -> ?.t
       val exists: (?.t * (char -> bool)) -> bool
       val fields: (?.t * (char -> bool)) -> ?.t seq
       val find: (?.t * (char -> bool)) -> char option
@@ -2117,17 +2106,17 @@ signature SUBSTRING =
       val get: ?.t -> (char * ?.t) option
       val isEmpty: ?.t -> bool
       val keepPrefix: (?.t * (char -> bool)) -> ?.t
-      val keepPrefixN: (?.t * Int32.t) -> ?.t
+      val keepPrefixN: (?.t * int) -> ?.t
       val keepSuffix: (?.t * (char -> bool)) -> ?.t
-      val keepSuffixN: (?.t * Int32.t) -> ?.t
+      val keepSuffixN: (?.t * int) -> ?.t
       val last: ?.t -> char
       val map: (?.t * (char -> char)) -> 'a ?.base
       val recur: (?.t * 'a * ('a -> 'b) * ((char * 'a * ('a -> 'b)) -> 'b))
 		 -> 'b
-      val size: ?.t -> Int32.t
-      val slice: (?.t * {size: Int32.t, start: Int32.t}) -> ?.t
+      val size: ?.t -> int
+      val slice: (?.t * {size: int, start: int}) -> ?.t
       val splitPrefix: (?.t * (char -> bool)) -> (?.t * ?.t)
-      val sub: (?.t * Int32.t) -> char
+      val sub: (?.t * int) -> char
       val toSeq: ?.t -> char seq
       val toSeqR: ?.t -> char seq
       val tokens: (?.t * (char -> bool)) -> ?.t seq
@@ -2160,20 +2149,20 @@ signature TIME =
       val >= : (?.t * ?.t) -> bool
       exception Time
       val compare: (?.t * ?.t) -> order
-      val format: (?.t * {fractionalDigits: Int32.t}) -> string
+      val format: (?.t * {fractionalDigits: int}) -> string
       val fromReal: Real64.t -> ?.t
       val now: unit -> ?.t
-      val ofMicroseconds: IntInf.t -> ?.t
-      val ofMilliseconds: IntInf.t -> ?.t
-      val ofNanoseconds: IntInf.t -> ?.t
-      val ofSeconds: IntInf.t -> ?.t
+      val ofMicroseconds: LargeInt.t -> ?.t
+      val ofMilliseconds: LargeInt.t -> ?.t
+      val ofNanoseconds: LargeInt.t -> ?.t
+      val ofSeconds: LargeInt.t -> ?.t
       val ofString: string -> ?.t option
       val scanner: char seq -> (?.t * char seq) option
-      val toMicroseconds: ?.t -> IntInf.t
-      val toMilliseconds: ?.t -> IntInf.t
-      val toNanoseconds: ?.t -> IntInf.t
+      val toMicroseconds: ?.t -> LargeInt.t
+      val toMilliseconds: ?.t -> LargeInt.t
+      val toNanoseconds: ?.t -> LargeInt.t
       val toReal: ?.t -> Real64.t
-      val toSeconds: ?.t -> IntInf.t
+      val toSeconds: ?.t -> LargeInt.t
       val toString: ?.t -> string
       val zero: ?.t
    end
@@ -2190,9 +2179,9 @@ signature VECTOR =
       val cons: ('a ?.elem * 'a ?.t) -> 'a ?.t
       val drop: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
       val dropPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropPrefixN: ('a ?.t * int) -> 'a ?.t
       val dropSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropSuffixN: ('a ?.t * int) -> 'a ?.t
       val empty: unit -> 'a ?.t
       val exists: ('a ?.t * ('a ?.elem -> bool)) -> bool
       val fields: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
@@ -2203,17 +2192,17 @@ signature VECTOR =
       val join: ('a ?.t seq * 'a ?.t) -> 'a ?.t
       val keep: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
       val keepPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepPrefixN: ('a ?.t * int) -> 'a ?.t
       val keepSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepSuffixN: ('a ?.t * int) -> 'a ?.t
       val last: 'a ?.t -> 'a ?.elem
-      val make: Int32.t
+      val make: int
 		-> {done: unit -> 'a ?.t,
-		    sub: Int32.t -> 'a ?.elem,
-		    update: (Int32.t * 'a ?.elem) -> unit}
+		    sub: int -> 'a ?.elem,
+		    update: (int * 'a ?.elem) -> unit}
       val map: ('a ?.t * ('a ?.elem -> 'b ?.elem)) -> 'b ?.t
       val ofSeq: 'a ?.elem seq -> 'a ?.t
-      val ofSeqN: ('a ?.elem seq * Int32.t) -> 'a ?.t
+      val ofSeqN: ('a ?.elem seq * int) -> 'a ?.t
       val recur: ('a ?.t
 		  * 'b
 		  * ('b -> 'c)
@@ -2222,24 +2211,24 @@ signature VECTOR =
       val reverse: 'a ?.t -> 'a ?.t
       val separate: ('a ?.t * 'a ?.elem) -> 'a ?.t
       val single: 'a ?.elem -> 'a ?.t
-      val size: 'a ?.t -> Int32.t
+      val size: 'a ?.t -> int
       val splitPrefix: ('a ?.t * ('a ?.elem -> bool)) -> ('a ?.t * 'a ?.t)
-      val sub: ('a ?.t * Int32.t) -> 'a ?.elem
-      val tabulate: (Int32.t * (Int32.t -> 'a ?.elem)) -> 'a ?.t
+      val sub: ('a ?.t * int) -> 'a ?.elem
+      val tabulate: (int * (int -> 'a ?.elem)) -> 'a ?.t
       val toSeq: 'a ?.t -> 'a ?.elem seq
       val toSeqR: 'a ?.t -> 'a ?.elem seq
       val tokens: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
       val unfold: ('a * ('a -> ('b ?.elem * 'a) option))
 		  -> ('b ?.t * 'a ?.unfold)
-      val unfoldN: (Int32.t * 'a * ((Int32.t * 'a) -> ('b ?.elem * 'a) option))
+      val unfoldN: (int * 'a * ((int * 'a) -> ('b ?.elem * 'a) option))
 		   -> ('b ?.t * 'a ?.unfold)
-      val unfoldNR: (Int32.t * 'a * ((Int32.t * 'a) -> ('b ?.elem * 'a) option))
+      val unfoldNR: (int * 'a * ((int * 'a) -> ('b ?.elem * 'a) option))
 		    -> ('b ?.t * 'a ?.unfoldR)
       val unfoldR: ('a * ('a -> ('b ?.elem * 'a) option))
 		   -> ('b ?.t * 'a ?.unfoldR)
       structure Unsafe:
 	 sig
-	    val sub: ('a ?.t * Int32.t) -> 'a ?.elem
+	    val sub: ('a ?.t * int) -> 'a ?.elem
 	 end
    end
 signature VECTOR_SLICE = 
@@ -2249,11 +2238,11 @@ signature VECTOR_SLICE =
       type 'a t = 'a ?.t
       type 'a t0 = 'a ?.t
       val all: ('a ?.t * ('a ?.elem -> bool)) -> bool
-      val base: 'a ?.t -> ('a ?.base * {start: Int32.t})
+      val base: 'a ?.t -> ('a ?.base * {start: int})
       val dropPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropPrefixN: ('a ?.t * int) -> 'a ?.t
       val dropSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val dropSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val dropSuffixN: ('a ?.t * int) -> 'a ?.t
       val exists: ('a ?.t * ('a ?.elem -> bool)) -> bool
       val fields: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
       val find: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.elem option
@@ -2263,9 +2252,9 @@ signature VECTOR_SLICE =
       val get: 'a ?.t -> ('a ?.elem * 'a ?.t) option
       val isEmpty: 'a ?.t -> bool
       val keepPrefix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepPrefixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepPrefixN: ('a ?.t * int) -> 'a ?.t
       val keepSuffix: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t
-      val keepSuffixN: ('a ?.t * Int32.t) -> 'a ?.t
+      val keepSuffixN: ('a ?.t * int) -> 'a ?.t
       val last: 'a ?.t -> 'a ?.elem
       val map: ('a ?.t * ('a ?.elem -> 'b ?.elem)) -> 'b ?.base
       val recur: ('a ?.t
@@ -2273,10 +2262,10 @@ signature VECTOR_SLICE =
 		  * ('b -> 'c)
 		  * (('a ?.elem * 'b * ('b -> 'c)) -> 'c))
 		 -> 'c
-      val size: 'a ?.t -> Int32.t
-      val slice: ('a ?.t * {size: Int32.t, start: Int32.t}) -> 'a ?.t
+      val size: 'a ?.t -> int
+      val slice: ('a ?.t * {size: int, start: int}) -> 'a ?.t
       val splitPrefix: ('a ?.t * ('a ?.elem -> bool)) -> ('a ?.t * 'a ?.t)
-      val sub: ('a ?.t * Int32.t) -> 'a ?.elem
+      val sub: ('a ?.t * int) -> 'a ?.elem
       val toSeq: 'a ?.t -> 'a ?.elem seq
       val toSeqR: 'a ?.t -> 'a ?.elem seq
       val tokens: ('a ?.t * ('a ?.elem -> bool)) -> 'a ?.t seq
@@ -2288,12 +2277,12 @@ signature WORD =
       val + : (?.t * ?.t) -> ?.t
       val - : (?.t * ?.t) -> ?.t
       val < : (?.t * ?.t) -> bool
-      val << : (?.t * Word32.t) -> ?.t
+      val << : (?.t * word) -> ?.t
       val <= : (?.t * ?.t) -> bool
       val == : (?.t * ?.t) -> bool
       val > : (?.t * ?.t) -> bool
       val >= : (?.t * ?.t) -> bool
-      val >> : (?.t * Word32.t) -> ?.t
+      val >> : (?.t * word) -> ?.t
       val andb: (?.t * ?.t) -> ?.t
       val compare: (?.t * ?.t) -> order
       val div: (?.t * ?.t) -> ?.t
@@ -2309,5 +2298,36 @@ signature WORD =
       val toString: ?.t -> string
       val toStringRadix: (?.t * Radix.t) -> string
       val xorb: (?.t * ?.t) -> ?.t
-      val ~>> : (?.t * Word32.t) -> ?.t
+      val ~>> : (?.t * word) -> ?.t
+   end
+signature WORD8 = 
+   sig
+      type t = ?.t
+      val * : (?.t * ?.t) -> ?.t
+      val + : (?.t * ?.t) -> ?.t
+      val - : (?.t * ?.t) -> ?.t
+      val < : (?.t * ?.t) -> bool
+      val << : (?.t * word) -> ?.t
+      val <= : (?.t * ?.t) -> bool
+      val == : (?.t * ?.t) -> bool
+      val > : (?.t * ?.t) -> bool
+      val >= : (?.t * ?.t) -> bool
+      val >> : (?.t * word) -> ?.t
+      val andb: (?.t * ?.t) -> ?.t
+      val compare: (?.t * ?.t) -> order
+      val div: (?.t * ?.t) -> ?.t
+      val mod: (?.t * ?.t) -> ?.t
+      val notb: ?.t -> ?.t
+      val ofLarge: Word64.t -> ?.t
+      val ofString: string -> ?.t option
+      val ofStringRadix: (string * Radix.t) -> ?.t option
+      val orb: (?.t * ?.t) -> ?.t
+      val scanner: Radix.t -> (char seq -> (?.t * char seq) option)
+      val toChar: ?.t -> char
+      val toLarge: ?.t -> Word64.t
+      val toLargeX: ?.t -> Word64.t
+      val toString: ?.t -> string
+      val toStringRadix: (?.t * Radix.t) -> string
+      val xorb: (?.t * ?.t) -> ?.t
+      val ~>> : (?.t * word) -> ?.t
    end
