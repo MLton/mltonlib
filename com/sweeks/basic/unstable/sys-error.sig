@@ -6,16 +6,16 @@ signature SYS_ERROR = sig
 
       exception E of t
 
-      val message: t -> string
-      val error: t -> error option
+      val message: t -> String.t
+      val error: t -> error Option.t
    end
    
    type t
    sharing type t = Exn.error
       
-   val == : t * t -> bool
-   val message: t -> string
-   val name: t -> string
-   val ofName: string -> t option
+   val == : t * t -> Bool.t
+   val message: t -> String.t
+   val name: t -> String.t
+   val ofName: String.t -> t Option.t
 
 end

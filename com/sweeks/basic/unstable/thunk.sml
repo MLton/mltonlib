@@ -1,6 +1,6 @@
 structure Thunk: THUNK = struct
 
-   type 'a t = unit -> 'a
+   type 'a t = Unit.t -> 'a
 
 end
 

@@ -1,30 +1,32 @@
 structure Basis = struct
-   structure Array = Array
+   structure Array = struct open Array type 'a t = 'a array end
    structure ArraySlice = ArraySlice
-   structure Bool = Bool
+   structure Bool = struct open Bool type t = bool end
    structure Byte = Byte
-   structure Char = Char
+   structure Char = struct open Char type t = char end
    structure CommandLine = CommandLine
    structure Date = Date
+   structure Exn = struct type t = exn end
 (*   structure General = General *)
    structure GenericSock = GenericSock
    structure IEEEReal = IEEEReal
    structure INetSock = INetSock
-   structure Int = Int
+   structure Int = struct open Int type t = int end
+   structure Int8 = Int8
    structure Int16 = Int16
    structure Int32 = Int32
    structure Int64 = Int64
-   structure Int8 = Int8
    structure IntInf = IntInf
    structure LargeInt = LargeInt
    structure LargeReal = LargeReal
    structure LargeWord = LargeWord
-(*   structure List = List *)
+   structure List = struct open List datatype t = datatype list end
    structure MLton = MLton
    structure NetHostDB = NetHostDB
    structure NetProtDB = NetProtDB
    structure NetServDB = NetServDB
-(*   structure Option = Option *)
+   structure Option = struct open Option datatype t = datatype option end
+   structure Order = struct datatype t = datatype order end
    structure OS = OS
    structure PackRealBig = PackRealBig
    structure PackRealLittle = PackRealLittle
@@ -39,35 +41,28 @@ structure Basis = struct
    structure Real = Real
    structure Real32 = Real32
    structure Real64 = Real64
+   structure Ref = struct datatype t = datatype ref end
    structure Socket = Socket
-   structure String = String
+   structure String = struct open String type t = string end
    structure StringCvt = StringCvt
    structure SysWord = SysWord
    structure TextIO = TextIO
    structure Time = Time
+   structure Unit = struct type t = unit end
    structure UnixSock = UnixSock
    structure Unsafe = Unsafe
-   structure Vector = Vector
+   structure Vector = struct open Vector type 'a t = 'a vector end
    structure VectorSlice = VectorSlice
-   structure Word = Word
+   structure Word = struct open Word type t = word end
+   structure Word8 = Word8
    structure Word16 = Word16
    structure Word32 = Word32
    structure Word64 = Word64
-   structure Word8 = Word8
 
-   type 'a array = 'a array
-   datatype bool = datatype bool
-   type char = char
-   type exn = exn
-   type int = int
-   datatype list = datatype list
-   datatype option = datatype option
-   datatype order = datatype order
-   datatype ref = datatype ref
-   type string = String.string
-   type 'a vector = 'a vector
-   type unit = unit
-   type word = word
+   datatype z = datatype bool
+   datatype z = datatype list
+   datatype z = datatype option
+   datatype z = datatype ref
 
    exception Empty = Empty
    exception Fail = Fail

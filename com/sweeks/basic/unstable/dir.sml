@@ -11,7 +11,7 @@ structure Dir: DIR = struct
       end
    end
 
-   type t = string
+   type t = String.t
 
    local
       open OS.FileSys

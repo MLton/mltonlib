@@ -1,7 +1,6 @@
 structure Vector: VECTOR = struct
 
-   type 'a vector = 'a vector
-   type 'a t = 'a vector
+   type 'a t = 'a Vector.t
 
    local
       open Vector

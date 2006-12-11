@@ -2,13 +2,13 @@ signature GENERIC_VECTOR = sig
 
    include SEQUENCE
 
-   val make: int -> {done: unit -> 'a t0,
-                     sub: int -> 'a elem,
-                     update: int * 'a elem -> unit}
+   val make: Int.t -> {done: Unit.t -> 'a t0,
+                     sub: Int.t -> 'a elem,
+                     update: Int.t * 'a elem -> Unit.t}
 
    structure Unsafe:
       sig
-         val sub: 'a t0 * int -> 'a elem
+         val sub: 'a t0 * Int.t -> 'a elem
       end
 
 end

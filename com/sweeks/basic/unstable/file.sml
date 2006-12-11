@@ -1,6 +1,6 @@
 structure File: FILE = struct
 
-   type t = string
+   type t = String.t
 
    val openIn = TextIO.openIn
    val openOut = TextIO.openOut

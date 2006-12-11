@@ -3,14 +3,14 @@ functor FieldsAndTokens
     sig
        include ENUMERATE
 
-       val dropPrefix: 'a const * 'a state * ('a elem -> bool) -> 'a state
-       val splitPrefix: 'a const * 'a state * ('a elem -> bool) -> 'a t * 'a state
+       val dropPrefix: 'a const * 'a state * ('a elem -> Bool.t) -> 'a state
+       val splitPrefix: 'a const * 'a state * ('a elem -> Bool.t) -> 'a t * 'a state
     end):
    sig
       type 'a t
       type 'a elem
-      val fields: 'a t * ('a elem -> bool) -> 'a t seq
-      val tokens: 'a t * ('a elem -> bool) -> 'a t seq
+      val fields: 'a t * ('a elem -> Bool.t) -> 'a t Seq.t
+      val tokens: 'a t * ('a elem -> Bool.t) -> 'a t Seq.t
    end = struct
 
    open S

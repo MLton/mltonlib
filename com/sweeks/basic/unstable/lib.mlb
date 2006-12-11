@@ -30,6 +30,8 @@ in
          signature COMMAND_LINE
       end
 
+      unit.sig
+      unit.sml
       order.sig
       order.sml
       option.0.sml

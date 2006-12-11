@@ -24,17 +24,17 @@ signature WORD = sig
    (**
     * w1 - w2 returns the difference of w1 and w2.
     *)
-   val << : t * word -> t
+   val << : t * Word.t -> t
    (**
     * << (w1, w2) shifts w1 to the left by w2 bit positions.
     * Logical shift left.
     *)
-   val >> : t * word -> t
+   val >> : t * Word.t -> t
    (**
     * >> (w1, w2) shifts w1 to the right by w2 bit positions.
     * Logical shift right.
     *)
-   val ~>> : t * word -> t
+   val ~>> : t * Word.t -> t
    (**
     * >> (w1, w2) shifts w1 to the right by w2 bit positions.
     * Arithmetic shift right.
@@ -60,11 +60,11 @@ signature WORD = sig
     * notb w returns the "bitwise not" of w.
     *)
    val ofLarge: LargeWord.t -> t
-   val ofString: string -> t option
+   val ofString: String.t -> t Option.t
    (**
     * ofString s = ofStringRadix (s, Radix.hex)
     *)
-   val ofStringRadix: string * Radix.t -> t option
+   val ofStringRadix: String.t * Radix.t -> t Option.t
    (**
     * ofStringRadix (s, r) returns Some i if s is the representation of i in
     * radix r.
@@ -78,11 +78,11 @@ signature WORD = sig
     * scanner r returns a scanner for words where characters are interepreted
     * according to radix r.
     *)
-   val toString: t -> string
+   val toString: t -> String.t
    (**
     * toString i = toStringRadix (i, Radix.Dec)
     *)
-   val toStringRadix: t * Radix.t -> string
+   val toStringRadix: t * Radix.t -> String.t
    val toLarge: t -> LargeWord.t
    val toLargeX: t -> LargeWord.t
    (**

@@ -7,17 +7,17 @@ functor Slice
 
           type 'a t
 
-          val sub: 'a t * int -> 'a elem
-          val tabulate: int * (int -> 'a elem) -> 'a t
+          val sub: 'a t * Int.t -> 'a elem
+          val tabulate: Int.t * (Int.t -> 'a elem) -> 'a t
        end
 
        type 'a t
 
-       val base: 'a t -> 'a Base.t * {start: int}
+       val base: 'a t -> 'a Base.t * {start: Int.t}
        val full: 'a Base.t -> 'a t
-       val size: 'a t -> int
-       val slice: 'a t * {size: int, start:int} -> 'a t
-       val sub: 'a t * int -> 'a elem
+       val size: 'a t -> Int.t
+       val slice: 'a t * {size: Int.t, start:Int.t} -> 'a t
+       val sub: 'a t * Int.t -> 'a elem
     end): SLICE = struct
 
    open S
@@ -25,9 +25,9 @@ functor Slice
    structure S = struct
       open S
 
-      type 'a const = 'a Base.t * int
+      type 'a const = 'a Base.t * Int.t
       type 'a elem = 'a elem
-      type 'a state = int
+      type 'a state = Int.t
 
       fun start s = let
          val (base, {start}) = base s

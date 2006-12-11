@@ -22,7 +22,7 @@ structure Seq: SEQ = struct
 
    fun single x = cons (x, empty ())
 
-   type 'a unfold = unit
+   type 'a unfold = Unit.t
 
    type 'a unfoldR = 'a
 
@@ -147,5 +147,3 @@ structure Seq: SEQ = struct
    end
       
 end
-
-type 'a seq = 'a Seq.t

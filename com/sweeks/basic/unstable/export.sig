@@ -42,6 +42,7 @@ signature EXPORT = sig
    structure Substring: SUBSTRING
    structure SysError: SYS_ERROR
    structure Time: TIME
+   structure Unit: UNIT
    structure Vector: VECTOR
    structure VectorSlice: VECTOR_SLICE
    structure Word: WORD
@@ -53,30 +54,15 @@ signature EXPORT = sig
    sharing type ArraySlice.base = Array.t
    sharing type VectorSlice.base = Vector.t
 
-   type 'a array
-   datatype bool = datatype Bool.t
-   type char = Char.t
-   type exn = Exn.t
-   type int = Int.t
-   datatype list = datatype List.t
-   datatype order = datatype order
-   datatype option = datatype Option.t
-   type string = String.t
-   type 'a seq = 'a Seq.t
-   type 'a thunk = 'a Thunk.t
-   type 'a vector = 'a Vector.t
-   type word = Word.t
-   type unit = unit
-
-   val @ : 'a list * 'a list -> 'a list
-   val concat: string seq -> string
-   val die: string -> 'a
-   val finally: 'a thunk * unit thunk -> 'a
-   val ignore: 'a -> unit
+   val @ : 'a List.t * 'a List.t -> 'a List.t
+   val concat: String.t Seq.t -> String.t
+   val die: String.t -> 'a
+   val finally: 'a thunk * Unit.t thunk -> 'a
+   val ignore: 'a -> Unit.t
    val lazy: 'a thunk -> 'a thunk
-   val not: bool -> bool
+   val not: Bool.t -> Bool.t
    val o: ('a -> 'b) * ('c -> 'a) -> 'c -> 'b
-   val print: string -> unit
-   val valOf: 'a option -> 'a
+   val print: String.t -> Unit.t
+   val valOf: 'a Option.t -> 'a
 
 end

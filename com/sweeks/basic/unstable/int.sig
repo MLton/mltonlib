@@ -27,20 +27,20 @@ signature INT = sig
    (**
     * fold (start, stop, b, f) = f (start, f (start+1, ... f (stop-1, b)))
     *)
-   val for: t * t * (t -> unit) -> unit
+   val for: t * t * (t -> Unit.t) -> Unit.t
    (**
     * for (start, stop, f) = (f start; f (start + 1); ...; f (stop-1))
     *)
-   val fromTo: t * t -> t seq
+   val fromTo: t * t -> t Seq.t
    (**
     * fromTo (i, j) = fromToBy (i, j, 1)
     *)
-   val fromToBy: t * t * t -> t seq
+   val fromToBy: t * t * t -> t Seq.t
    (**
     * fromToBy (i, j, k) returns the sequence [i, i + k, i + 2k, ...], stopping
     * when j is reached.
     *)
-   val geu: t * t -> bool
+   val geu: t * t -> Bool.t
    (**
     * geu (i, j) = toWord i >= toWord j
     *)
@@ -51,11 +51,11 @@ signature INT = sig
     * i mod 0 raises Div.
     * i = j * (i div j) + i mod j.
     *)
-   val ofString: string -> t option
+   val ofString: String.t -> t Option.t
    (**
     * ofString s = ofStringRadix (s, Radix.dec)
     *)
-   val ofStringRadix: string * Radix.t -> t option
+   val ofStringRadix: String.t * Radix.t -> t Option.t
    (**
     * ofStringRadix (s, r) returns Some i if s is the representation of i in
     * radix r.
@@ -77,15 +77,15 @@ signature INT = sig
     * scanner r returns a scanner for ints where characters are interepreted
     * according to radix r.
     *)
-   val toString: t -> string
+   val toString: t -> String.t
    (**
     * toString i = toStringRadix (i, Radix.Dec)
     *)
-   val toStringRadix: t * Radix.t -> string
+   val toStringRadix: t * Radix.t -> String.t
    (**
     * toStringRadix (i, r) returns the string representation of i in radix r.
     *)
-   val toWord: t -> word
+   val toWord: t -> Word.t
    (**
     * toWord i converts i to a word using i's twos-complement representation.
     *)

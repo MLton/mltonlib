@@ -11,17 +11,17 @@ signature FILE = sig
    structure Id: sig
       type t
 
-      val == : t * t -> bool
-      val compare: t * t -> order
-      val hash: t -> word
+      val == : t * t -> Bool.t
+      val compare: t * t -> Order.t
+      val hash: t -> Word.t
    end
 
-   type t = string
+   type t = String.t
    (**
     * The type of files.  It's an alias for string.
     *)
 
-   val canAccess: t * AccessMode.t list -> bool
+   val canAccess: t * AccessMode.t List.t -> Bool.t
    val id: t -> Id.t
    val modTime: t -> Time.t
    val openIn: t -> In.t
@@ -29,11 +29,11 @@ signature FILE = sig
     * openIn f opens file f for reading.
     *)
    val openOut: t -> Out.t
-   val rename: {new: string, old: string} -> unit
-   val remove: t -> unit
-   val setTime: t * Time.t -> unit
+   val rename: {new: String.t, old: String.t} -> Unit.t
+   val remove: t -> Unit.t
+   val setTime: t * Time.t -> Unit.t
    val size: t -> Position.t
-   val temp: {prefix: string, suffix: string} -> t * Out.t
+   val temp: {prefix: String.t, suffix: String.t} -> t * Out.t
    (**
     * openIn f opens file f for writing.
     *)

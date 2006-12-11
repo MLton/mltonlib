@@ -4,7 +4,7 @@ signature GENERIC_SLICE = sig
 
    include SLICEABLE
 
-   val base: 'a t0 -> 'a base * {start: int}
+   val base: 'a t0 -> 'a base * {start: Int.t}
    (**
     * base s returns the sequence of which s is a slice.
     *)
@@ -12,7 +12,7 @@ signature GENERIC_SLICE = sig
    (**
     * full b returns a slice containing all the elements of b.
     *)
-   val get: 'a t0 -> ('a elem * 'a t0) option
+   val get: 'a t0 -> ('a elem * 'a t0) Option.t
    (**
     * get [] = None
     * get [x0, x1, ..., xn-1] = (x0, [x1, ..., xn-1])
@@ -22,7 +22,7 @@ signature GENERIC_SLICE = sig
     * map (s, f) returns the base sequence [f x0, f x1, ..., f xn-1], where
     * s = [x0, x1, ..., xn-1].
     *)
-   val slice: 'a t0 * {size: int, start: int} -> 'a t0
+   val slice: 'a t0 * {size: Int.t, start: Int.t} -> 'a t0
    (**
     * slice (a, {size = n, start = i}) returns the subsequence of s starting
     * at index i and of length n.

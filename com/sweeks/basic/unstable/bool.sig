@@ -1,6 +1,6 @@
 signature BOOL = sig
 
-   datatype t = datatype Bool.bool
+   datatype t = datatype Bool.t
 
    val not: t -> t
    (**

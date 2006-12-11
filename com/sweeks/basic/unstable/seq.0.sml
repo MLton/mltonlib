@@ -1,7 +1,7 @@
 structure Seq = struct
 
    local
-      datatype 'a t = T of unit -> ('a * 'a t) option
+      datatype 'a t = T of Unit.t -> ('a * 'a t) Option.t
    in
       type 'a t = 'a t
 
@@ -16,4 +16,3 @@ structure Seq = struct
 
 end
 
-type 'a seq = 'a Seq.t

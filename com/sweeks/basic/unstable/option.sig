@@ -7,11 +7,11 @@ signature OPTION = sig
     * The standard option type (with correct capitalization).
     *)
 
-   val isNone: 'a t -> bool
+   val isNone: 'a t -> Bool.t
    (**
     * isNone None = true
     *)
-   val isSome: 'a t -> bool
+   val isSome: 'a t -> Bool.t
    (**
     * isSome (Some x) = true
     *)
@@ -20,7 +20,7 @@ signature OPTION = sig
     * map (None, f) = None
     * map (Some x, f) = Some (f x)
     *)
-   val toSeq: 'a t -> 'a seq
+   val toSeq: 'a t -> 'a Seq.t
    (**
     * toSeq None returns an empty sequence.
     * toSeq (Some x) returns the sequence [x].

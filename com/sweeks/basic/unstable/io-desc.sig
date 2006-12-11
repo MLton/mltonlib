@@ -3,7 +3,7 @@ signature IO_DESC = sig
    structure Kind: sig
       type t
 
-      val == : t * t -> bool
+      val == : t * t -> Bool.t
       val device: t
       val dir: t
       val file: t
@@ -15,7 +15,7 @@ signature IO_DESC = sig
 
    type t
 
-   val hash: t -> word
-   val compare: t * t -> order
+   val hash: t -> Word.t
+   val compare: t * t -> Order.t
 
 end

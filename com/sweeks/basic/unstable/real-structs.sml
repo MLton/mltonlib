@@ -31,9 +31,9 @@ structure RealStructs = struct
    structure Decimal = struct
 
       type 'a u = {class: 'a,
-                   digits: int list,
-                   exp: int,
-                   sign: bool}
+                   digits: Int.t List.t,
+                   exp: Int.t,
+                   sign: Bool.t}
 
       type t = Class.t u
 

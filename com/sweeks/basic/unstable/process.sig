@@ -5,14 +5,14 @@ signature PROCESS = sig
 
       val failure: t
       val success: t
-      val isSuccess: t -> bool
+      val isSuccess: t -> Bool.t
    end
 
-   val atExit: (unit -> unit) -> unit
+   val atExit: (Unit.t -> Unit.t) -> Unit.t
    val exit: Status.t -> 'a
-   val getEnv: string -> string option
-   val sleep: Time.t -> unit
-   val system: string -> Status.t
+   val getEnv: String.t -> String.t Option.t
+   val sleep: Time.t -> Unit.t
+   val system: String.t -> Status.t
    val terminate: Status.t -> 'a
 
 end

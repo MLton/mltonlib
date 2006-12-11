@@ -6,7 +6,7 @@ structure Net: NET = struct
    structure Family = struct
       type inet = INetSock.inet
       type unix = UnixSock.unix
-      type unknown = unit
+      type unknown = Unit.t
       type 'a t = NetHostDB.addr_family
 
       val == = op =
@@ -95,7 +95,7 @@ structure Net: NET = struct
 
          type activeStream = active stream
          type passiveStream = passive stream
-         type unknown = unit
+         type unknown = Unit.t
 
          local
             open Socket.SOCK
@@ -110,12 +110,11 @@ structure Net: NET = struct
          end
       end
 
-      structure Option' = Option
-      structure Option = struct
-         type ro = unit
-         type rw = unit
+      structure Opt = struct
+         type ro = Unit.t
+         type rw = Unit.t
          datatype ('a, 'b, 'c, 'd) t =
-            T of (('b, 'c) sock -> 'a) * (('b, 'c) sock * 'a -> unit)
+            T of (('b, 'c) sock -> 'a) * (('b, 'c) sock * 'a -> Unit.t)
 
          fun get (T (get, _), s) = get s
 
@@ -169,8 +168,8 @@ structure Net: NET = struct
          val shutdown = shutdown
       end
 
-      fun getOption (s, opt) = Option.get (opt, s)
-      fun setOption (s, opt, x) = Option.set (opt, s, x)
+      fun getOpt (s, opt) = Opt.get (opt, s)
+      fun setOpt (s, opt, x) = Opt.set (opt, s, x)
 
       fun make (f, t, p) =
          case p of
@@ -192,14 +191,14 @@ structure Net: NET = struct
       fun select {exs, rds, timeout, wrs} =
          Socket.select {exs = exs,
                         rds = rds,
-                        timeout = Option'.toBasis timeout,
+                        timeout = Option.toBasis timeout,
                         wrs = wrs}
 
       structure Sum = StaticSum
 
       structure Block = struct
-         type ('a, 'b, 'c) t = (unit, 'a, unit, 'b, 'c) Sum.t
-         type ('a, 'b) u = ('a, 'a option, 'b) t
+         type ('a, 'b, 'c) t = (Unit.t, 'a, Unit.t, 'b, 'c) Sum.t
+         type ('a, 'b) u = ('a, 'a Option.t, 'b) t
 
          val may = fn ? => Sum.left () ?
          val non = fn ? => Sum.right () ?
@@ -208,7 +207,7 @@ structure Net: NET = struct
 
       fun accept (s, b) =
          Block.switch (b, {may = fn () => Socket.accept s,
-                           non = fn () => Option'.ofBasis (Socket.acceptNB s)})
+                           non = fn () => Option.ofBasis (Socket.acceptNB s)})
 
       fun connect (s, a, b) =
          Block.switch
@@ -226,7 +225,7 @@ structure Net: NET = struct
 
             val outOfBand = OutOfBand
 
-            val eval: t list -> {peek: bool, oob: bool} =
+            val eval: t List.t -> {peek: Bool.t, oob: Bool.t} =
                fn l => let
                   val (oob, p) =
                      List.fold (l, (false, false), fn (f, (oob, p)) =>
@@ -252,7 +251,7 @@ structure Net: NET = struct
   
          structure To = struct
             type arr = Word8.t ArraySlice.t
-            type vec = int
+            type vec = Int.t
             type ('a, 'b, 'c, 'd, 'e, 'f, 'g) t =
                (arr,
                 ('a, 'b, 'c) From.cases,
@@ -269,10 +268,10 @@ structure Net: NET = struct
             type ('a, 'b, 'c, 'd, 'e) one =
                (('a, 'b, 'c) From.cases, ('a, 'd, 'e) From.cases) To.cases
             type ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i) t =
-               (unit,
+               (Unit.t,
                 ('a, 'b, 'c, 'd, 'e) one,
-                unit,
-                ('a, 'b option, 'c option, 'd option, 'e option) one,
+                Unit.t,
+                ('a, 'b Option.t, 'c Option.t, 'd Option.t, 'e Option.t) one,
                 ('a, 'f, 'g, 'h, 'i) one) Sum.t
 
             val may = Block.may
@@ -288,13 +287,13 @@ structure Net: NET = struct
                                 fn s => Socket.recvArr' (s, a, fs)),
                        fn n => (fn s => Socket.recvVecFrom' (s, n, fs),
                                 fn s => Socket.recvVec' (s, n, fs))),
-                const (fn a => (fn s => (Option'.ofBasis
+                const (fn a => (fn s => (Option.ofBasis
                                          (Socket.recvArrFromNB' (s, a, fs))),
-                                fn s => (Option'.ofBasis
+                                fn s => (Option.ofBasis
                                          (Socket.recvArrNB' (s, a, fs)))),
-                       fn n => (fn s => (Option'.ofBasis
+                       fn n => (fn s => (Option.ofBasis
                                          (Socket.recvVecFromNB' (s, n, fs))),
-                                fn s => (Option'.ofBasis
+                                fn s => (Option.ofBasis
                                          (Socket.recvVecNB' (s, n, fs))))))
             val (l, r) = Sum.switch (to, l, r)
          in
@@ -322,7 +321,7 @@ structure Net: NET = struct
 
             val outOfBand = OutOfBand
             
-            val eval: t list -> {don't_route: bool, oob: bool} =
+            val eval: t List.t -> {don't_route: Bool.t, oob: Bool.t} =
                fn l => let
                   val (dr, oob) =
                      List.fold (l, (false, false), fn (f, (dr, oob)) =>
@@ -370,7 +369,7 @@ structure Net: NET = struct
                   Array a => Socket.sendArr' (s, a, flags)
                 | Vector v => Socket.sendVec' (s, v, flags)
             fun streamNB s =
-               Option'.ofBasis
+               Option.ofBasis
                (case from of
                    Array a => Socket.sendArrNB' (s, a, flags)
                  | Vector v => Socket.sendVecNB' (s, v, flags))

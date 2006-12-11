@@ -2,11 +2,14 @@ structure Order = struct
 
    datatype t = Equal | Greater | Less
 
-   val ofBasis =
-      fn EQUAL => Equal
-       | GREATER => Greater
-       | LESS => Less
-
+   local
+      datatype z = datatype Basis.Order.t
+   in
+      val ofBasis =
+         fn EQUAL => Equal
+          | GREATER => Greater
+          | LESS => Less
+   end
 (*    val toBasis =
  *       fn Equal => EQUAL
  *        | Greater => GREATER
@@ -14,5 +17,3 @@ structure Order = struct
  *)
 
 end
-
-datatype order = datatype Order.t

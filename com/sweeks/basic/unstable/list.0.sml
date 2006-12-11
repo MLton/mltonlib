@@ -1,6 +1,6 @@
 structure List = struct
 
-   datatype t = datatype list
+   datatype t = datatype List.t
       
    fun fold (l, b, f) = let
       fun loop (l, b) =

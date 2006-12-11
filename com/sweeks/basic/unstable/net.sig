@@ -6,11 +6,11 @@ signature NET = sig
       type unknown (* type *)
       type 'a t
 
-      val == : 'a t * 'a t -> bool
-      val all: unit -> (unknown t * {name: string}) vector
+      val == : 'a t * 'a t -> Bool.t
+      val all: Unit.t -> (unknown t * {name: String.t}) vector
       val inet: inet t
-      val ofString: string -> unknown t option 
-      val toString: 'a t -> string
+      val ofString: String.t -> unknown t Option.t 
+      val toString: 'a t -> String.t
       val unix: unix t
    end
 
@@ -18,9 +18,9 @@ signature NET = sig
       structure Address: sig
          type t
             
-         val == : t * t -> bool
-         val ofString: string -> t option 
-         val toString: t -> string
+         val == : t * t -> Bool.t
+         val ofString: String.t -> t Option.t 
+         val toString: t -> String.t
          val scanner: t Scanner.t
       end
    
@@ -28,35 +28,35 @@ signature NET = sig
             
       val address: t -> Address.t
       val addresses: t -> Address.t vector
-      val aliases: t -> string vector
+      val aliases: t -> String.t vector
       val family: t -> Family.unknown Family.t
-      val getByAddress: Address.t -> t option
-      val getByName: string -> t option
-      val name: t -> string
+      val getByAddress: Address.t -> t Option.t
+      val getByName: String.t -> t Option.t
+      val name: t -> String.t
    end
 
    structure Protocol: sig
       type t
          
-      val aliases: t -> string vector
-      val getByName: string -> t option
-      val getByNumber: int -> t option
-      val name: t -> string
-      val number: t -> int
+      val aliases: t -> String.t vector
+      val getByName: String.t -> t Option.t
+      val getByNumber: Int.t -> t Option.t
+      val name: t -> String.t
+      val number: t -> Int.t
    end
 
    structure Service: sig
       type t
 
-      val aliases: t -> string vector
-      val getByName: string * string option -> t option
-      val getByPort: int * string option -> t option 
-      val name: t -> string
-      val port: t -> int
-      val protocol: t -> string
+      val aliases: t -> String.t vector
+      val getByName: String.t * String.t Option.t -> t Option.t
+      val getByPort: Int.t * String.t Option.t -> t Option.t 
+      val name: t -> String.t
+      val port: t -> Int.t
+      val protocol: t -> String.t
    end
 
-   val getHostName: unit -> string
+   val getHostName: Unit.t -> String.t
 
    structure Socket: sig
 
@@ -79,18 +79,18 @@ signature NET = sig
           * 'a is a family (inet, unix, or unknown).
           *)
 
-         val == : 'a t * 'a t -> bool
+         val == : 'a t * 'a t -> Bool.t
          val family: 'a t -> 'a Family.t
-         val inet: {port: int} -> Family.inet t
-         val ofHost: Host.Address.t * {port: int} -> Family.inet t
-         val ofUnix: string -> Family.unix t
-         val toHost: Family.inet t -> Host.Address.t * {port: int}
-         val toUnix: Family.unix t -> string
+         val inet: {port: Int.t} -> Family.inet t
+         val ofHost: Host.Address.t * {port: Int.t} -> Family.inet t
+         val ofUnix: String.t -> Family.unix t
+         val toHost: Family.inet t -> Host.Address.t * {port: Int.t}
+         val toUnix: Family.unix t -> String.t
       end
 
       structure Block: sig
          type ('a, 'b, 'c) t
-         type ('a, 'b) u = ('a, 'a option, 'b) t
+         type ('a, 'b) u = ('a, 'a Option.t, 'b) t
 
          val may: ('a, 'b, 'a) t
          val non: ('a, 'b, 'b) t
@@ -99,7 +99,7 @@ signature NET = sig
       structure Desc: sig
          type t
 
-         val == : t * t -> bool
+         val == : t * t -> Bool.t
       end
 
       structure Type: sig
@@ -115,15 +115,15 @@ signature NET = sig
           * 'a is dgram, active stream, passive stream, or unknown.
           *)
 
-         val == : 'a t * 'a t -> bool
-         val all: unit -> (unknown t * {name: string}) vector
+         val == : 'a t * 'a t -> Bool.t
+         val all: Unit.t -> (unknown t * {name: String.t}) vector
          val dgram: dgram t
-         val ofString: string -> unknown t option
+         val ofString: String.t -> unknown t Option.t
          val stream: 'mode stream t
-         val toString: 'a t -> string
+         val toString: 'a t -> String.t
       end
 
-      structure Option: sig
+      structure Opt: sig
          type ro (* read only *)
          type rw (* read write *)
          type ('a, 'b, 'c, 'd) t
@@ -133,19 +133,19 @@ signature NET = sig
           * 'd is either "ro" or "rw".  setOpt can only be called if 'd is rw.
           *)
 
-         val atmark: (bool, 'a, Type.activeStream, ro) t
-         val broadcast: (bool, 'a, 'b, rw) t
-         val debug: (bool, 'a, 'b, rw) t
-         val dontRoute: (bool, 'a, 'b, rw) t
-         val error: (bool, 'a, 'b, ro) t
-         val keepAlive: (bool, 'a, 'b, rw) t
-         val linger: (Time.t option, 'a, 'b, rw) t
-         val noDelay: (bool, Family.inet, 'a Type.stream, rw) t
-         val nRead: (int, 'a, 'b, ro) t
-         val oobInline: (bool, 'a, 'b, rw) t
-         val rcvBuf: (int, 'a, 'b, rw) t
-         val reuseAddr: (bool, 'a, 'b, rw) t
-         val sndBuf: (int, 'a, 'b, rw) t
+         val atmark: (Bool.t, 'a, Type.activeStream, ro) t
+         val broadcast: (Bool.t, 'a, 'b, rw) t
+         val debug: (Bool.t, 'a, 'b, rw) t
+         val dontRoute: (Bool.t, 'a, 'b, rw) t
+         val error: (Bool.t, 'a, 'b, ro) t
+         val keepAlive: (Bool.t, 'a, 'b, rw) t
+         val linger: (Time.t Option.t, 'a, 'b, rw) t
+         val noDelay: (Bool.t, Family.inet, 'a Type.stream, rw) t
+         val nRead: (Int.t, 'a, 'b, ro) t
+         val oobInline: (Bool.t, 'a, 'b, rw) t
+         val rcvBuf: (Int.t, 'a, 'b, rw) t
+         val reuseAddr: (Bool.t, 'a, 'b, rw) t
+         val sndBuf: (Int.t, 'a, 'b, rw) t
          val ty: (Type.unknown Type.t, 'a, 'b, ro) t
       end
 
@@ -167,7 +167,7 @@ signature NET = sig
                       'b, 'c, 'd, 'e) t
             val non: ('a,
                       'b, 'c, 'd, 'e,
-                      'b option, 'c option, 'd option, 'e option) t
+                      'b Option.t, 'c Option.t, 'd Option.t, 'e Option.t) t
          end
       
          structure Flag: sig
@@ -188,19 +188,19 @@ signature NET = sig
             type ('a, 'b, 'c, 'd, 'e, 'f, 'g) t
 
             val array: Word8.t ArraySlice.t -> ('a, 'b, 'c, 'd, 'e, 'b, 'c) t
-            val vector: {numBytes: int} -> ('a, 'b, 'c, 'd, 'e, 'd, 'e) t
+            val vector: {numBytes: Int.t} -> ('a, 'b, 'c, 'd, 'e, 'd, 'e) t
          end
       
          val receive:
             ('a, 'f, 'g, 'h) From.t
             * ('a, 'b, 'c, 'd, 'e, 'f, 'g) To.t
             * ('a,
-               int * 'a Address.t,
-               int,
+               Int.t * 'a Address.t,
+               Int.t,
                Word8.t vector * 'a Address.t,
                Word8.t vector,
                'b, 'c, 'd, 'e) Block.t
-            * Flag.t list
+            * Flag.t List.t
             -> 'h
       (**
        * receive (from, to, block, flags) reads data from the socket
@@ -213,14 +213,14 @@ signature NET = sig
        * depends on block in the following way:
        * from   to     block return type
        * ------ ------ ----- -----------------
-       * dgram  array  may   int * 'a Address.t
-       * dgram  array  non   (int * 'a Address.t) option
+       * dgram  array  may   Int.t * 'a Address.t
+       * dgram  array  non   (Int.t * 'a Address.t) Option.t
        * dgram  vector may   Word8.t vector * 'a addr
-       * dgram  vector non   (Word8.t vector * 'a Address.t) option
-       * stream array  may   int
-       * stream array  non   int option
+       * dgram  vector non   (Word8.t vector * 'a Address.t) Option.t
+       * stream array  may   Int.t
+       * stream array  non   Int.t Option.t
        * stream vector may   Word8.t vector
-       * stream vector non   Word8.t vector option
+       * stream vector non   Word8.t vector Option.t
        *)
       end
 
@@ -258,8 +258,8 @@ signature NET = sig
          val send:
             From.t
             * ('a, 'b, 'c, 'd) To.t
-            * ('a, unit, int, bool, int option, 'b, 'c) Block.t
-            * Flag.t list
+            * ('a, Unit.t, Int.t, Bool.t, Int.t Option.t, 'b, 'c) Block.t
+            * Flag.t List.t
             -> 'd
       (**
        * send (dest, bytes, block, flags) sends the bytes to the socket
@@ -272,10 +272,10 @@ signature NET = sig
        *
        * dest   block return type
        * ------ ----- -----------
-       * dgram   may  unit
-       * dgram   non  bool
-       * stream  may  int
-       * stream  non  int option
+       * dgram   may  Unit.t
+       * dgram   non  Bool.t
+       * stream  may  Int.t
+       * stream  non  Int.t Option.t
        *)
       end
 
@@ -283,27 +283,27 @@ signature NET = sig
          ('a, Type.passiveStream) t
          * (('a, Type.activeStream) t * 'a Address.t, 'b) Block.u
          -> 'b
-      val bind: ('a, 'b) t * 'a Address.t -> unit
-      val close: ('a, 'b) t -> unit
-      val connect: ('a, 'b) t * 'a Address.t * (unit, 'c) Block.u -> 'c
+      val bind: ('a, 'b) t * 'a Address.t -> Unit.t
+      val close: ('a, 'b) t -> Unit.t
+      val connect: ('a, 'b) t * 'a Address.t * (Unit.t, 'c) Block.u -> 'c
       val desc: ('a, 'b) t -> Desc.t
-      val getOption: ('a, 'b) t * ('c, 'a, 'b, 'd) Option.t -> 'c
+      val getOpt: ('a, 'b) t * ('c, 'a, 'b, 'd) Opt.t -> 'c
       val ioDesc: ('a, 'b) t -> IoDesc.t
-      val listen: ('a, Type.passiveStream) t * int -> unit
-      val make: 'a Family.t * 'b Type.t * {protocol: int} option -> ('a, 'b) t
-      val makePair: ('a Family.t * 'b Type.t * {protocol: int} option
+      val listen: ('a, Type.passiveStream) t * Int.t -> Unit.t
+      val make: 'a Family.t * 'b Type.t * {protocol: Int.t} Option.t -> ('a, 'b) t
+      val makePair: ('a Family.t * 'b Type.t * {protocol: Int.t} Option.t
                      -> ('a, 'b) t * ('a, 'b) t)
       val myAddress: ('a, 'b) t -> 'a Address.t
       val peerAddress: ('a, 'b) t -> 'a Address.t
-      val select: ({exs: Desc.t list,
-                    rds: Desc.t list,
-                    timeout: Time.t option,
-                    wrs: Desc.t list}
-                   -> {exs: Desc.t list,
-                       rds: Desc.t list,
-                       wrs: Desc.t list})
-      val setOption: ('a, 'b) t * ('c, 'a, 'b, Option.rw) Option.t * 'c -> unit
-      val shutdown: ('a, 'b Type.stream) t * ShutdownMode.t -> unit
+      val select: ({exs: Desc.t List.t,
+                    rds: Desc.t List.t,
+                    timeout: Time.t Option.t,
+                    wrs: Desc.t List.t}
+                   -> {exs: Desc.t List.t,
+                       rds: Desc.t List.t,
+                       wrs: Desc.t List.t})
+      val setOpt: ('a, 'b) t * ('c, 'a, 'b, Opt.rw) Opt.t * 'c -> Unit.t
+      val shutdown: ('a, 'b Type.stream) t * ShutdownMode.t -> Unit.t
    end
 
 end

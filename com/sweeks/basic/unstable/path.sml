@@ -1,7 +1,7 @@
 structure Path: PATH = struct
 
    structure Arc = struct
-      type t = string
+      type t = String.t
 
       local
          open OS.Path
@@ -12,14 +12,14 @@ structure Path: PATH = struct
    end
 
    structure Volume = struct
-      type t = string
+      type t = String.t
 
       fun isValid (v, {isAbs}) = OS.Path.validVolume {isAbs = isAbs, vol = v}
    end
 
    structure Pieces = struct
-      datatype t = T of {arcs: Arc.t list,
-                         isAbs: bool,
+      datatype t = T of {arcs: Arc.t List.t,
+                         isAbs: Bool.t,
                          volume: Volume.t}
 
       fun ofBasis {arcs, isAbs, vol} =
@@ -33,7 +33,7 @@ structure Path: PATH = struct
           vol = volume}
    end
 
-   type t = string
+   type t = String.t
 
    local
       open OS.FileSys

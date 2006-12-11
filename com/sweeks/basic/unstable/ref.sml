@@ -1,6 +1,6 @@
 structure Ref: REF = struct
    
-   datatype t = datatype ref
+   datatype t = datatype Ref.t
 
    val ! = !
    val op := = op := 

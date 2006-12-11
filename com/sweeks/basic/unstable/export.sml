@@ -34,6 +34,7 @@ structure Export:>
    where type 'a String.unfoldR = 'a String.unfoldR
    where type Substring.t = Substring.t
    where type Time.t = Time.t
+   where type Unit.t = Unit.t
    where type 'a Vector.t = 'a Vector.t
    where type 'a Vector.elem = 'a Vector.elem
    where type 'a Vector.unfold = 'a Vector.unfold
@@ -89,6 +90,7 @@ structure Export:>
    structure Substring = Substring
    structure SysError = SysError
    structure Time = Time
+   structure Unit = Unit
    structure Vector = Vector
    structure VectorSlice = VectorSlice
    structure Word = Word
@@ -107,20 +109,5 @@ structure Export:>
    val op o = op o
    val print = print
    val valOf = valOf
-
-   type 'a array = 'a array
-   datatype bool = datatype bool
-   type char = char
-   type exn = exn
-   type int = int
-   datatype list = datatype list
-   datatype order = datatype order
-   datatype option = datatype option
-   type string = string
-   type 'a seq = 'a seq
-   type 'a thunk = 'a thunk
-   type 'a vector = 'a vector
-   type word = word
-   type unit = unit
 
 end

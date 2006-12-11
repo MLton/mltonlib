@@ -1,18 +1,18 @@
-structure Exn: EXN where type t = exn = struct
+structure Exn: EXN = struct
 
-   type t = exn
+   type t = Exn.t
 
    local
-      datatype 'a z = Ok of 'a | Raise of exn
+      datatype 'a z = Ok of 'a | Raise of t
    in
-      val try: (unit -> 'a) * ('a -> 'b) * (exn -> 'b) -> 'b =
+      val try: (Unit.t -> 'a) * ('a -> 'b) * (t -> 'b) -> 'b =
          fn (t, k, h) =>
          case Ok (t ()) handle e => Raise e of
             Ok x => k x
           | Raise e => h e
    end
 
-   fun finally (thunk, cleanup: unit -> unit) =
+   fun finally (thunk, cleanup: Unit.t -> Unit.t) =
       try (thunk, fn a => (cleanup (); a), fn e => (cleanup (); raise e))
 
 end

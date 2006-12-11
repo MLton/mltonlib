@@ -1,6 +1,6 @@
-structure Char: CHAR where type t = char = struct
+structure Char: CHAR where type t = Char.t = struct
 
-   type t = char
+   type t = Char.t
 
    local
       open Char

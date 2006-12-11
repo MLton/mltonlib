@@ -89,7 +89,7 @@ structure List: LIST = struct
       else
          fold (l', reverse l, op ::)
 
-   fun concat (ls: 'a t seq): 'a t =
+   fun concat (ls: 'a t Seq.t): 'a t =
       fold (ofSeqR ls, [], append)
 
    fun separate (l, sep) =

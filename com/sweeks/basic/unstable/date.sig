@@ -31,34 +31,34 @@ signature DATE = sig
 
    type t
 
-   val format: t * string -> string
-   val hour: t -> int
-   val isDst: t -> bool option
-   val localOffset: unit -> Time.t
-   val make: {hour: int,
-              minute: int,
+   val format: t * String.t -> String.t
+   val hour: t -> Int.t
+   val isDst: t -> Bool.t Option.t
+   val localOffset: Unit.t -> Time.t
+   val make: {hour: Int.t,
+              minute: Int.t,
               month: Month.t,
-              monthDay: int,
-              offset: Time.t option,
-              second: int,
-              year: int} -> t
-   val minute: t -> int
+              monthDay: Int.t,
+              offset: Time.t Option.t,
+              second: Int.t,
+              year: Int.t} -> t
+   val minute: t -> Int.t
    val month: t -> Month.t
-   val monthDay: t -> int
-   val offset: t -> Time.t option
-   val ofString: string -> t option
+   val monthDay: t -> Int.t
+   val offset: t -> Time.t Option.t
+   val ofString: String.t -> t Option.t
    (**
     * ofString is like the basis library's Date.fromString, except that it
     * returns None if the entire string is not consumed.
     *)
    val ofTimeLocal: Time.t -> t
    val ofTimeUniv: Time.t -> t
-   val scanner: char seq -> (t * char seq) option
-   val second: t -> int
-   val toString: t -> string
+   val scanner: Char.t Seq.t -> (t * Char.t Seq.t) Option.t
+   val second: t -> Int.t
+   val toString: t -> String.t
    val toTime: t -> Time.t
    val weekDay: t -> WeekDay.t
-   val year: t -> int
-   val yearDay: t -> int
+   val year: t -> Int.t
+   val yearDay: t -> Int.t
 
 end

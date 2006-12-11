@@ -6,9 +6,9 @@ signature SCANNER = sig
     * sequence.
     *)
 
-   val make: (char seq -> ('a * char seq) option) -> 'a t
+   val make: (Char.t Seq.t -> ('a * Char.t Seq.t) Option.t) -> 'a t
    val map: 'a t * ('a -> 'b) -> 'b t
-   val scan: 'a t * char seq -> ('a * char seq) option
+   val scan: 'a t * Char.t Seq.t -> ('a * Char.t Seq.t) Option.t
    (**
     * scan (s, cs) runs scanner s on the sequence cs.
     *)

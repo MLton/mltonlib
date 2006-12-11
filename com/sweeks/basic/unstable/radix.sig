@@ -10,7 +10,7 @@ signature RADIX = sig
    val hex: t
    val oct: t
 
-   val toString: t -> string
+   val toString: t -> String.t
    (**
     * toString r returns a human-readable string for r.
     *)

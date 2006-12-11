@@ -15,16 +15,19 @@ structure Option = struct
 
    val isSome = fn Some _ => true | _ => false
 
-   val ofBasis = fn NONE => None | SOME x => Some x
-
-   val toBasis = fn None => NONE | Some x => SOME x
+   local
+      datatype z = datatype Basis.Option.option
+   in
+      val ofBasis = fn NONE => None | SOME x => Some x
+      val toBasis = fn None => NONE | Some x => SOME x
+   end
 
 end
 
 local
    open Option
 in
-   datatype option = datatype t
+   datatype z = datatype t
    val isNone = isNone
    val isSome = isSome
    val valOf = valOf

@@ -7,11 +7,11 @@ signature BIT_FLAGS = sig
 
    val all: t
    val difference: t * t -> t
-   val doIntersect: t * t -> bool
+   val doIntersect: t * t -> Bool.t
    val fromWord: SysWord.t -> t
-   val intersect: t list -> t
-   val isSubset: t * t -> bool
+   val intersect: t List.t -> t
+   val isSubset: t * t -> Bool.t
    val toWord: t -> SysWord.t
-   val union: t list -> t
+   val union: t List.t -> t
 
 end

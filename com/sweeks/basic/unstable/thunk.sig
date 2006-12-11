@@ -1,5 +1,5 @@
 signature THUNK = sig
    
-   type 'a t = unit -> 'a
+   type 'a t = Unit.t -> 'a
 
 end

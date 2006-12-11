@@ -6,23 +6,23 @@ signature IN = sig
     * open files as instreams.
     *)
 
-   val close: t -> unit
+   val close: t -> Unit.t
    (**
     * close s closes input stream s.
     *)
-   val lines: t -> string seq
+   val lines: t -> String.t Seq.t
    (**
     * lines s returns a sequence of the lines in s.  The sequence is delayed.
     *)
-   val get1: t -> char option
+   val get1: t -> Char.t Option.t
    (**
     * get1 s gets a single character from s.
     *)
-   val getAll: t -> string
+   val getAll: t -> String.t
    (**
-    * getAll s returns a string containing the rest of the characters in s.
+    * getAll s returns a String.t containing the rest of the characters in s.
     *)
-   val getLine: t -> string option
+   val getLine: t -> String.t Option.t
    (**
     * getLine s consumes a single line of s.
     *)

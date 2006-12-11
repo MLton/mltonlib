@@ -2,9 +2,9 @@ functor RamSequence
    (S: sig
           type 'a t
 
-          val fromArray: 'a array -> 'a t
-          val size: 'a t -> int
-          val sub: 'a t * int -> 'a
+          val fromArray: 'a Array.t -> 'a t
+          val size: 'a t -> Int.t
+          val sub: 'a t * Int.t -> 'a
    end): SEQUENCE = struct
 
    open S
@@ -14,7 +14,7 @@ functor RamSequence
 
       type 'a const = 'a t
       type 'a elem = 'a
-      type 'a state = int
+      type 'a state = Int.t
       fun start s = (s, 0)
       fun next (s, i) =
          if i = size s then

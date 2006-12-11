@@ -7,60 +7,60 @@ signature CHAR = sig
 
    include ORDERED
 
-   val isAscii: t -> bool
+   val isAscii: t -> Bool.t
    (**
     * isAscii c = 0 <= toInt c < 128
     *)
-   val isAlpha: t -> bool
+   val isAlpha: t -> Bool.t
    (**
     * isAlpha c = isLower c orelse isUpper c
     *)
-   val isAlphaNum: t -> bool
+   val isAlphaNum: t -> Bool.t
    (**
     * isAlphaNum c = isAlpha c orelse isDigit c
     *)
-   val isCntrl: t -> bool
+   val isCntrl: t -> Bool.t
    (**
     * isCntrl c = not (isPrint c)
     *)
-   val isDigit: t -> bool
+   val isDigit: t -> Bool.t
    (**
     * isDigit c is true iff c is in [0, 1, 2, ..., 9].
     *)
-   val isGraph: t -> bool
+   val isGraph: t -> Bool.t
    (**
     * isGraph c = isPrint c andalso not (isSpace c)
     *)
-   val isHexDigit: t -> bool
+   val isHexDigit: t -> Bool.t
    (**
     * isHexDigit c = isDigit c orelse c in [a, b, c, d, e, f, A, B, C, D, E, F].
     *)
-   val isLower: t -> bool
+   val isLower: t -> Bool.t
    (**
     * isLower c returns true iff c is a lowercase letter.
     *)
-   val isPrint: t -> bool
+   val isPrint: t -> Bool.t
    (**
     * isPrint c returns true iff c is a printable character.
     *)
-   val isSpace: t -> bool
+   val isSpace: t -> Bool.t
    (**
     * isSpace c returns true iff c is a whitespace character (tab, carriage
     * return, newline, vertical tab, form feed).
     *)
-   val isPunct: t -> bool
+   val isPunct: t -> Bool.t
    (**
     * isPunct c = isGraph c andalso not (isAlphaNum c)
     *)
-   val isUpper: t -> bool
+   val isUpper: t -> Bool.t
    (**
     * isUpper c returns true iff c is an uppercase letter.
     *)
-   val ofInt: int -> t
+   val ofInt: Int.t -> t
    (**
     * ofInt i returns the c such that toInt c = i.
     *)
-   val toInt: t -> int
+   val toInt: t -> Int.t
    (**
     * toInt c returns the integer code of the character c.
     *)

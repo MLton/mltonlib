@@ -59,11 +59,11 @@ signature POSIX = sig
       val io: t
       val isdir: t
       val loop: t
-      val message: t -> string
+      val message: t -> String.t
       val mfile: t
       val mlink: t
       val msgsize: t
-      val name: t -> string
+      val name: t -> String.t
       val nametoolong: t
       val nfile: t
       val nodev: t
@@ -78,7 +78,7 @@ signature POSIX = sig
       val notsup: t
       val notty: t
       val nxio: t
-      val ofName: string -> t option
+      val ofName: String.t -> t Option.t
       val perm: t
       val pipe: t
       val range: t
@@ -114,7 +114,7 @@ signature POSIX = sig
    structure FileDesc: sig
       include LIKE_SYSWORD
 
-      val ofIODesc: IoDesc.t -> t option
+      val ofIODesc: IoDesc.t -> t Option.t
       val stderr: t
       val stdin: t
       val stdout: t
@@ -147,9 +147,9 @@ signature POSIX = sig
    structure Group: sig
       type t
 
-      val name: t -> string
+      val name: t -> String.t
       val gid: t -> Gid.t
-      val members: t -> string list
+      val members: t -> String.t List.t
    end
 
    structure KillArg: sig
@@ -213,16 +213,16 @@ signature POSIX = sig
       val dev: t -> Dev.t
       val gid: t -> Gid.t
       val ino: t -> Ino.t
-      val isBlk: t -> bool
-      val isChr: t -> bool
-      val isDir: t -> bool
-      val isFIFO: t -> bool
-      val isLink: t -> bool
-      val isReg: t -> bool
-      val isSock: t -> bool
+      val isBlk: t -> Bool.t
+      val isChr: t -> Bool.t
+      val isDir: t -> Bool.t
+      val isFIFO: t -> Bool.t
+      val isLink: t -> Bool.t
+      val isReg: t -> Bool.t
+      val isSock: t -> Bool.t
       val mode: t -> Mode.t
       val mtime: t -> Time.t
-      val nlink: t -> int
+      val nlink: t -> Int.t
       val size: t -> Position.t
       val uid: t -> Uid.t
    end
@@ -240,11 +240,11 @@ signature POSIX = sig
 
       val len: t -> Position.t
       val make: {len: Position.t,
-                 pid: Pid.t option,
+                 pid: Pid.t Option.t,
                  start: Position.t,
                  ty: Type.t,
                  whence: Whence.t} -> t
-      val pid: t -> Pid.t option
+      val pid: t -> Pid.t Option.t
       val start: t -> Position.t
       val ty: t -> Type.t
       val whence: t -> Whence.t
@@ -254,11 +254,11 @@ signature POSIX = sig
       type ('a, 'b) t
 
       val dupfd: (FileDesc.t, FileDesc.t) t
-      val getfd: (unit, FileDescFlags.t) t
-      val getfl: (unit, FileStatusFlags.t * OpenMode.t) t
+      val getfd: (Unit.t, FileDescFlags.t) t
+      val getfl: (Unit.t, FileStatusFlags.t * OpenMode.t) t
       val getlk: (Lock.t, Lock.t) t
-      val setfd: (FileDescFlags.t, unit) t
-      val setfl: (FileStatusFlags.t, unit) t
+      val setfd: (FileDescFlags.t, Unit.t) t
+      val setfl: (FileStatusFlags.t, Unit.t) t
       val setlk: (Lock.t, Lock.t) t
       val setlkw: (Lock.t, Lock.t) t
    end
@@ -267,9 +267,9 @@ signature POSIX = sig
       type t
 
       val gid: t -> Gid.t
-      val home: t -> string
-      val name: t -> string
-      val shell: t -> string
+      val home: t -> String.t
+      val name: t -> String.t
+      val shell: t -> String.t
       val uid: t -> Uid.t
    end
 
@@ -308,24 +308,24 @@ signature POSIX = sig
       end
    
       structure CC: sig
-         val eof: int
-         val eol: int
-         val erase: int
-         val intr: int
-         val kill: int
-         val min: int
-         val quit: int
-         val susp: int
-         val time: int
-         val start: int
-         val stop: int
-         val nccs: int
+         val eof: Int.t
+         val eol: Int.t
+         val erase: Int.t
+         val intr: Int.t
+         val kill: Int.t
+         val min: Int.t
+         val quit: Int.t
+         val susp: Int.t
+         val time: Int.t
+         val start: Int.t
+         val stop: Int.t
+         val nccs: Int.t
 
          type t
 
-         val make: (int * char) list -> t
-         val update: t * (int * char) list -> t
-         val sub: t * int -> char
+         val make: (Int.t * Char.t) List.t -> t
+         val update: t * (Int.t * Char.t) List.t -> t
+         val sub: t * Int.t -> Char.t
       end
 
       structure I: sig
@@ -408,101 +408,101 @@ signature POSIX = sig
       val untraced: t
    end
 
-   val access: string * AccessMode.t list -> bool
+   val access: String.t * AccessMode.t List.t -> Bool.t
    val alarm: Time.t -> Time.t
    val cfgetispeed: Termios.t -> Termios.Speed.t
    val cfgetospeed: Termios.t -> Termios.Speed.t
    val cfsetispeed: Termios.t * Termios.Speed.t -> Termios.t
    val cfsetospeed: Termios.t * Termios.Speed.t -> Termios.t
-   val chdir: string -> unit
-   val chmod: string * Mode.t -> unit
-   val chown: string * Uid.t * Gid.t -> unit
-   val close: FileDesc.t -> unit
-   val closedir: DirStream.t -> unit
-   val creat: string * Mode.t -> FileDesc.t
-   val createf: string * OpenMode.t * OpenFlags.t * Mode.t -> FileDesc.t
-   val ctermid: unit -> string
-   val dup2: {old: FileDesc.t, new: FileDesc.t} -> unit
+   val chdir: String.t -> Unit.t
+   val chmod: String.t * Mode.t -> Unit.t
+   val chown: String.t * Uid.t * Gid.t -> Unit.t
+   val close: FileDesc.t -> Unit.t
+   val closedir: DirStream.t -> Unit.t
+   val creat: String.t * Mode.t -> FileDesc.t
+   val createf: String.t * OpenMode.t * OpenFlags.t * Mode.t -> FileDesc.t
+   val ctermid: Unit.t -> String.t
+   val dup2: {old: FileDesc.t, new: FileDesc.t} -> Unit.t
    val dup: FileDesc.t -> FileDesc.t
-   val environ: unit -> string list
-   val exec: string * string list -> 'a
-   val exece: string * string list * string list -> 'a
-   val execp: string * string list -> 'a
+   val environ: Unit.t -> String.t List.t
+   val exec: String.t * String.t List.t -> 'a
+   val exece: String.t * String.t List.t * String.t List.t -> 'a
+   val execp: String.t * String.t List.t -> 'a
    val exit: Word8.t -> 'a
-   val fchmod: FileDesc.t * Mode.t -> unit
-   val fchown: FileDesc.t * Uid.t * Gid.t -> unit
+   val fchmod: FileDesc.t * Mode.t -> Unit.t
+   val fchown: FileDesc.t * Uid.t * Gid.t -> Unit.t
    val fcntl: FileDesc.t * ('a, 'b) Fcntl.t * 'a -> 'b
-   val fork: unit -> Pid.t option
-   val fpathconf: FileDesc.t * string -> SysWord.t option
+   val fork: Unit.t -> Pid.t Option.t
+   val fpathconf: FileDesc.t * String.t -> SysWord.t Option.t
    val fstat: FileDesc.t -> Stat.t
-   val fsync: FileDesc.t -> unit
-   val ftruncate: FileDesc.t * Position.t -> unit
-   val getcwd: unit -> string
-   val getegid: unit -> Gid.t
-   val getenv: string -> string option
-   val geteuid: unit -> Uid.t
-   val getgid: unit -> Gid.t
+   val fsync: FileDesc.t -> Unit.t
+   val ftruncate: FileDesc.t * Position.t -> Unit.t
+   val getcwd: Unit.t -> String.t
+   val getegid: Unit.t -> Gid.t
+   val getenv: String.t -> String.t Option.t
+   val geteuid: Unit.t -> Uid.t
+   val getgid: Unit.t -> Gid.t
    val getgrgid: Gid.t -> Group.t
-   val getgrnam: string -> Group.t
-   val getgroups: unit -> Gid.t list
-   val getlogin: unit -> string
-   val getpgrp: unit -> Pid.t
-   val getpid: unit -> Pid.t
-   val getppid: unit -> Pid.t
-   val getpwnam: string -> Passwd.t
+   val getgrnam: String.t -> Group.t
+   val getgroups: Unit.t -> Gid.t List.t
+   val getlogin: Unit.t -> String.t
+   val getpgrp: Unit.t -> Pid.t
+   val getpid: Unit.t -> Pid.t
+   val getppid: Unit.t -> Pid.t
+   val getpwnam: String.t -> Passwd.t
    val getpwuid: Uid.t -> Passwd.t
-   val getuid: unit -> Uid.t
-   val isatty: FileDesc.t -> bool
-   val kill: KillArg.t * Signal.t -> unit
-   val link: {old: string, new: string} -> unit
+   val getuid: Unit.t -> Uid.t
+   val isatty: FileDesc.t -> Bool.t
+   val kill: KillArg.t * Signal.t -> Unit.t
+   val link: {old: String.t, new: String.t} -> Unit.t
    val lseek: FileDesc.t * Position.t * Whence.t -> Position.t
-   val lstat: string -> Stat.t
-   val mkdir: string * Mode.t -> unit
-   val mkfifo: string * Mode.t -> unit
-   val opendir: string -> DirStream.t
-   val openf: string * OpenMode.t * OpenFlags.t -> FileDesc.t
-   val pathconf: string * string -> SysWord.t option
-   val pause: unit -> unit
-   val pipe: unit -> {infd: FileDesc.t, outfd: FileDesc.t}
-   val readArr: FileDesc.t * Word8.t ArraySlice.t -> int
-   val readVec: FileDesc.t * int -> Word8.t vector
-   val readdir: DirStream.t -> string option
-   val readlink: string -> string
-   val rename: {old: string, new: string} -> unit
-   val rewinddir: DirStream.t -> unit
-   val rmdir: string -> unit
-   val setgid: Gid.t -> unit
-   val setpgid: {pid: Pid.t option, pgid: Pid.t option} -> unit
-   val setsid: unit -> Pid.t
-   val setuid: Uid.t -> unit
+   val lstat: String.t -> Stat.t
+   val mkdir: String.t * Mode.t -> Unit.t
+   val mkfifo: String.t * Mode.t -> Unit.t
+   val opendir: String.t -> DirStream.t
+   val openf: String.t * OpenMode.t * OpenFlags.t -> FileDesc.t
+   val pathconf: String.t * String.t -> SysWord.t Option.t
+   val pause: Unit.t -> Unit.t
+   val pipe: Unit.t -> {infd: FileDesc.t, outfd: FileDesc.t}
+   val readArr: FileDesc.t * Word8.t ArraySlice.t -> Int.t
+   val readVec: FileDesc.t * Int.t -> Word8.t vector
+   val readdir: DirStream.t -> String.t Option.t
+   val readlink: String.t -> String.t
+   val rename: {old: String.t, new: String.t} -> Unit.t
+   val rewinddir: DirStream.t -> Unit.t
+   val rmdir: String.t -> Unit.t
+   val setgid: Gid.t -> Unit.t
+   val setpgid: {pid: Pid.t Option.t, pgid: Pid.t Option.t} -> Unit.t
+   val setsid: Unit.t -> Pid.t
+   val setuid: Uid.t -> Unit.t
    val sleep: Time.t -> Time.t 
-   val stat: string -> Stat.t
-   val symlink: {old: string, new: string} -> unit
-   val sysconf: string -> SysWord.t
-   val tcdrain: FileDesc.t -> unit
-   val tcflow: FileDesc.t * FlowAction.t -> unit
-   val tcflush: FileDesc.t * QueueSel.t -> unit
+   val stat: String.t -> Stat.t
+   val symlink: {old: String.t, new: String.t} -> Unit.t
+   val sysconf: String.t -> SysWord.t
+   val tcdrain: FileDesc.t -> Unit.t
+   val tcflow: FileDesc.t * FlowAction.t -> Unit.t
+   val tcflush: FileDesc.t * QueueSel.t -> Unit.t
    val tcgetattr: FileDesc.t -> Termios.t
    val tcgetpgrp: FileDesc.t -> Pid.t
-   val tcsendbreak: FileDesc.t * int -> unit
-   val tcsetattr: FileDesc.t * SetAction.t * Termios.t -> unit
-   val tcsetpgrp: FileDesc.t * Pid.t -> unit
-   val time: unit -> Time.t
-   val times: unit -> {elapsed: Time.t,
+   val tcsendbreak: FileDesc.t * Int.t -> Unit.t
+   val tcsetattr: FileDesc.t * SetAction.t * Termios.t -> Unit.t
+   val tcsetpgrp: FileDesc.t * Pid.t -> Unit.t
+   val time: Unit.t -> Time.t
+   val times: Unit.t -> {elapsed: Time.t,
                        utime: Time.t,
                        stime: Time.t,
                        cutime: Time.t,
                        cstime: Time.t}
-   val ttyname: FileDesc.t -> string
+   val ttyname: FileDesc.t -> String.t
    val umask: Mode.t -> Mode.t
-   val uname: unit -> (string * string) list
-   val unlink: string -> unit
-   val utime: string * {actime: Time.t, modtime: Time.t} option -> unit
-   val wait: unit -> Pid.t * ExitStatus.t
-   val waitpid: WaitPidArg.t * WaitPidFlags.t list -> Pid.t * ExitStatus.t
-   val waitpidNohang: (WaitPidArg.t * WaitPidFlags.t list
-                       -> (Pid.t * ExitStatus.t) option)
-   val writeArr: FileDesc.t * Word8.t ArraySlice.t -> int
-   val writeVec: FileDesc.t * Word8.t VectorSlice.t -> int
+   val uname: Unit.t -> (String.t * String.t) List.t
+   val unlink: String.t -> Unit.t
+   val utime: String.t * {actime: Time.t, modtime: Time.t} Option.t -> Unit.t
+   val wait: Unit.t -> Pid.t * ExitStatus.t
+   val waitpid: WaitPidArg.t * WaitPidFlags.t List.t -> Pid.t * ExitStatus.t
+   val waitpidNohang: (WaitPidArg.t * WaitPidFlags.t List.t
+                       -> (Pid.t * ExitStatus.t) Option.t)
+   val writeArr: FileDesc.t * Word8.t ArraySlice.t -> Int.t
+   val writeVec: FileDesc.t * Word8.t VectorSlice.t -> Int.t
 
 end

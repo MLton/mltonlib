@@ -1,6 +1,6 @@
 signature LIST = sig
 
-   datatype t = datatype list
+   datatype t = datatype List.t
    (**
     * SML's built-in list type.
     *)

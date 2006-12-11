@@ -4,12 +4,12 @@ signature SEQ = sig
 
    include SEQUENCE where type 'a t0 = 'a t
 
-   val delay: (unit -> 'a t) -> 'a t
+   val delay: (Unit.t -> 'a t) -> 'a t
    (**
     * delay f returns a sequence that is like f(), except that f() is not
     * computed until the sequence is needed.
     *)
-   val get: 'a t -> ('a * 'a t) option
+   val get: 'a t -> ('a * 'a t) Option.t
    (**
     * get [] = None
     * get [x0, x1, ..., xn-1] = (x0, [x1, ..., xn-1])

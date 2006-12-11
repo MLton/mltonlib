@@ -1,6 +1,6 @@
 structure Array = struct
 
-   type 'a t = 'a array
+   type 'a t = 'a Array.t
 
    local
       open Array

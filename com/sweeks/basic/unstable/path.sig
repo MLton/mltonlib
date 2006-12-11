@@ -1,42 +1,42 @@
 signature PATH = sig
 
-   type t = string
+   type t = String.t
 
    structure Arc: sig
-      type t = string
+      type t = String.t
          
       val parent: t
       val current: t
    end
 
    structure Volume: sig
-      type t = string
+      type t = String.t
 
-      val isValid: t * {isAbs: bool} -> bool
+      val isValid: t * {isAbs: Bool.t} -> Bool.t
    end
 
    structure Pieces: sig
-      datatype t = T of {arcs: Arc.t list,
-                         isAbs: bool,
+      datatype t = T of {arcs: Arc.t List.t,
+                         isAbs: Bool.t,
                          volume: Volume.t}
    end
 
    val append: t * t -> t
    val base: t -> t
    val dir: t -> t
-   val ext: t -> string option
+   val ext: t -> String.t Option.t
    val file: t -> File.t
    val full: t -> t
    val getParent: t -> t
    val getVolume: t -> Volume.t
-   val isAbsolute: t -> bool
-   val isCanonical: t -> bool
-   val isDir: t -> bool
-   val isLink: t -> bool
-   val isRelative: t -> bool
-   val isRoot: t -> bool
-   val joinBaseExt: {base: t, ext: string option} -> t
-   val joinDirFile: {dir: string, file: string} -> string
+   val isAbsolute: t -> Bool.t
+   val isCanonical: t -> Bool.t
+   val isDir: t -> Bool.t
+   val isLink: t -> Bool.t
+   val isRelative: t -> Bool.t
+   val isRoot: t -> Bool.t
+   val joinBaseExt: {base: t, ext: String.t Option.t} -> t
+   val joinDirFile: {dir: String.t, file: String.t} -> String.t
    val mkAbsolute: t * {relativeTo: t} -> t
    val mkCanonical: t -> t
    val mkRelative: t * {relativeTo: t} -> t
@@ -44,8 +44,8 @@ signature PATH = sig
    val ofUnix: t -> t
    val readLink: t -> t
    val real: t -> t
-   val splitBaseExt: t -> {base: t, ext: string option}
-   val splitDirFile: string -> {dir: string, file: string}
+   val splitBaseExt: t -> {base: t, ext: String.t Option.t}
+   val splitDirFile: String.t -> {dir: String.t, file: String.t}
    val toPieces: t -> Pieces.t
    val toUnix: t -> t
 

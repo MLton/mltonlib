@@ -1,6 +1,6 @@
 structure Bool: BOOL = struct
 
-   datatype t = datatype bool
+   datatype t = datatype Bool.t
 
    val not = not
 

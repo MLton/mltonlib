@@ -6,7 +6,7 @@ signature OUT = sig
     * open files as outstreams.
     *)
 
-   val close: t -> unit
+   val close: t -> Unit.t
    (**
     * close s closes output stream s.
     *)
@@ -14,23 +14,23 @@ signature OUT = sig
    (**
     * The standard error stream (stderr).
     *)
-   val flush: t -> unit
+   val flush: t -> Unit.t
    (**
     * flush s causes any buffers associated with s to be written out. 
     *)
-   val newline: t -> unit
+   val newline: t -> Unit.t
    (**
     * newline s = put1 (s, #"\n")
     *)
-   val put: t * string -> unit
+   val put: t * String.t -> Unit.t
    (**
     * put (s, str) outputs the string str on s.
     *)
-   val put1: t * char -> unit
+   val put1: t * Char.t -> Unit.t
    (**
     * put (s, c) outputs the character c on s.
     *)
-   val puts: t * string seq -> unit
+   val puts: t * String.t Seq.t -> Unit.t
    (**
     * puts (s, ss) = for (ss, fn str => put (s, str))
     *)

@@ -2,7 +2,7 @@ signature EXN = sig
 
    type t
       
-   val finally: 'a thunk * unit thunk -> 'a
+   val finally: 'a thunk * Unit.t thunk -> 'a
    (**
     * finally (f, g) runs f and then g, returning the result of f.  If f raises
     * an exception, the g still runs, after which the exception is re-raised.

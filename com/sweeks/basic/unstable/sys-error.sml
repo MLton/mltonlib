@@ -4,7 +4,7 @@ structure SysError: SYS_ERROR = struct
 
    structure Exn = struct
       type error = syserror
-      type t = string * error Basis.option
+      type t = String.t * error Basis.Option.t
 
       exception E = OS.SysErr
 
