@@ -2060,6 +2060,7 @@ signature STRING =
       val map: (?.t * (char -> char)) -> ?.t
       val ofSeq: char seq -> ?.t
       val ofSeqN: (char seq * int) -> ?.t
+      val ofWord8Vector: Word8.t vector -> ?.t
       val recur: (?.t * 'a * ('a -> 'b) * ((char * 'a * ('a -> 'b)) -> 'b))
 		 -> 'b
       val reverse: ?.t -> ?.t
@@ -2073,6 +2074,7 @@ signature STRING =
       val toSeq: ?.t -> char seq
       val toSeqR: ?.t -> char seq
       val toUpper: ?.t -> ?.t
+      val toWord8Vector: ?.t -> Word8.t vector
       val tokens: (?.t * (char -> bool)) -> ?.t seq
       val unfold: ('a * ('a -> (char * 'a) option)) -> (?.t * 'a ?.unfold)
       val unfoldN: (int * 'a * ((int * 'a) -> (char * 'a) option))

@@ -13,6 +13,8 @@ structure String: STRING = struct
 
    fun hasPrefix (s, s') = String.isPrefix s' s
 
+   val ofWord8Vector = Byte.bytesToString
+   val toWord8Vector = Byte.stringToBytes
 end
 
 local
