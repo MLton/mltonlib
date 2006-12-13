@@ -22,7 +22,7 @@ functor Enumerable (S: ENUMERATE): ENUMERABLE = struct
    fun toSeq e = let
       val (c, s) = start e
    in
-      #1 (Seq.unfold (s, fn s => next (c, s)))
+      Seq.unfold (s, fn s => next (c, s))
    end
 
 end

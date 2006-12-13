@@ -2,8 +2,8 @@ signature SEQUENCE = sig
    
    include SLICEABLE
 
-   type 'a unfold
-   type 'a unfoldR
+   type ('a, 'b) unfold
+   type ('a, 'b) unfoldR
    (**
     * Used for the return state of a call to unfold{,R}.
     * Lazy constructions define this as Unit.t.
@@ -75,23 +75,24 @@ signature SEQUENCE = sig
     * tabulate (n, f) returns the sequence [f 0, f 1, ..., f (n-1)].
     * It may compute the elements in any order.
     *)
-   val unfold: 'b * ('b -> ('a elem * 'b) Option.t) -> 'a t0 * 'b unfold
+   val unfold: 'b * ('b -> ('a elem * 'b) Option.t) -> ('a t0, 'b) unfold
    (**
     * unfold (b0, f) = [a0, a1, ...] where f bi = Some (ai, bi+1)
     *)
    val unfoldN:
-      Int.t * 'b * (Int.t * 'b -> ('a elem * 'b) Option.t) -> 'a t0 * 'b unfold
+      Int.t * 'b * (Int.t * 'b -> ('a elem * 'b) Option.t) -> ('a t0, 'b) unfold
    (**
     * unfoldN (n, b0, f) = [a0, a1, ..., an-1]
     * where f (i, bi) = Some (ai, bi+1)
     *)
    val unfoldNR:
-      Int.t * 'b * (Int.t * 'b -> ('a elem * 'b) Option.t) -> 'a t0 * 'b unfoldR
+      Int.t * 'b * (Int.t * 'b -> ('a elem * 'b) Option.t)
+      -> ('a t0, 'b) unfoldR
    (**
     * unfoldNR (n, b0, f) = [an-1, ..., a1, a0]
     * where f (n - 1 - i, bi) = Some (ai, bi+1)
     *)
-   val unfoldR: 'b * ('b -> ('a elem * 'b) Option.t) -> 'a t0 * 'b unfoldR
+   val unfoldR: 'b * ('b -> ('a elem * 'b) Option.t) -> ('a t0, 'b) unfoldR
    (**
     * unfoldR (b0, f) = [an-1, ..., a1, a0] where f bi = Some (ai, bi+1) and
     * f bn = None.

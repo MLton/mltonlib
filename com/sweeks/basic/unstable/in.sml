@@ -13,6 +13,6 @@ structure In: IN = struct
    end
 
    fun lines ins =
-      #1 (Seq.unfold ((), fn () => Option.map (getLine ins, fn s => (s, ()))))
+      Seq.unfold ((), fn () => Option.map (getLine ins, fn s => (s, ())))
 
 end

@@ -13,6 +13,6 @@ structure List = struct
 
    fun reverse l = fold (l, [], op ::)
 
-   fun toSeq l = #1 (Seq.unfold (l, fn [] => None | x :: l => Some (x, l)))
+   fun toSeq l = Seq.unfold (l, fn [] => None | x :: l => Some (x, l))
       
 end

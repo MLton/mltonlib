@@ -32,21 +32,21 @@ functor Int (Int:
    val toWord = Basis.Word.fromLargeInt o Int.toLarge
 
    fun fromToBy (start, stop, by) =
-      #1 (Seq.unfold
-          (start,
-           if by > zero then
-              (fn i => if i >= stop then None else Some (i, i + by))
-           else if by < zero then
-              (fn i => let
-                 val i = i + by
-              in
-                 if i < stop then
-                    None
-                 else
-                    Some (i, i)
-              end)
-                else
-                   die "Int.fromToBy 0"))
+      Seq.unfold
+      (start,
+       if by > zero then
+          (fn i => if i >= stop then None else Some (i, i + by))
+       else if by < zero then
+          (fn i => let
+             val i = i + by
+          in
+             if i < stop then
+                None
+             else
+                Some (i, i)
+          end)
+       else
+          die "Int.fromToBy 0")
 
    fun fromTo (start, stop) = fromToBy (start, stop, one)
 

@@ -2,8 +2,8 @@ structure Export:>
    EXPORT
    where type 'a Array.t = 'a Array.t
    where type 'a Array.elem = 'a Array.elem
-   where type 'a Array.unfold = 'a Array.unfold
-   where type 'a Array.unfoldR = 'a Array.unfoldR
+   where type ('a, 'b) Array.unfold = ('a, 'b) Array.unfold
+   where type ('a, 'b) Array.unfoldR = ('a, 'b) Array.unfoldR
    where type 'a ArraySlice.elem = 'a ArraySlice.elem
    where type Char.t = Char.t
    where type In.t = In.t
@@ -17,8 +17,8 @@ structure Export:>
    where type LargeReal.t = LargeReal.t
    where type LargeWord.t = LargeWord.t
    where type 'a List.elem = 'a List.elem
-   where type 'a List.unfold = 'a List.unfold
-   where type 'a List.unfoldR = 'a List.unfoldR
+   where type ('a, 'b) List.unfold = ('a, 'b) List.unfold
+   where type ('a, 'b) List.unfoldR = ('a, 'b) List.unfoldR
    where type 'a Option.t = 'a Option.t
    where type Out.t = Out.t
    where type Radix.t = Radix.t
@@ -28,18 +28,18 @@ structure Export:>
    where type 'a Scanner.t = 'a Scanner.t
    where type 'a Seq.t = 'a Seq.t
    where type 'a Seq.elem = 'a Seq.elem
-   where type 'a Seq.unfold = 'a Seq.unfold
-   where type 'a Seq.unfoldR = 'a Seq.unfoldR
+   where type ('a, 'b) Seq.unfold = ('a, 'b) Seq.unfold
+   where type ('a, 'b) Seq.unfoldR = ('a, 'b) Seq.unfoldR
    where type String.t = String.t
-   where type 'a String.unfold = 'a String.unfold
-   where type 'a String.unfoldR = 'a String.unfoldR
+   where type ('a, 'b) String.unfold = ('a, 'b) String.unfold
+   where type ('a, 'b) String.unfoldR = ('a, 'b) String.unfoldR
    where type Substring.t = Substring.t
    where type Time.t = Time.t
    where type Unit.t = Unit.t
    where type 'a Vector.t = 'a Vector.t
    where type 'a Vector.elem = 'a Vector.elem
-   where type 'a Vector.unfold = 'a Vector.unfold
-   where type 'a Vector.unfoldR = 'a Vector.unfoldR
+   where type ('a, 'b) Vector.unfold = ('a, 'b) Vector.unfold
+   where type ('a, 'b) Vector.unfoldR = ('a, 'b) Vector.unfoldR
    where type 'a VectorSlice.t = 'a VectorSlice.t
    where type 'a VectorSlice.elem = 'a VectorSlice.elem
    where type Word.t = Word.t

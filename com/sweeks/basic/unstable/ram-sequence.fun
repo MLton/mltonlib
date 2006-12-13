@@ -61,8 +61,9 @@ functor RamSequence
 
    fun ofSeq s = ofSeqN (s, Seq.size s)
 
-   type 'a unfold = 'a
-   type 'a unfoldR = 'a
+   type ('a, 'b) unfold = 'a * 'b
+
+   type ('a, 'b) unfoldR = 'a * 'b
 
    local
       fun make fold (n, b, f) = let

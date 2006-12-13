@@ -39,9 +39,9 @@ structure List: LIST = struct
 
    fun single x = [x]
 
-   type 'a unfold = 'a
+   type ('a, 'b) unfold = 'a * 'b
 
-   type 'a unfoldR = 'a
+   type ('a, 'b) unfoldR = 'a * 'b
 
    fun unfoldNR (n, b, f) =
       Util.recur

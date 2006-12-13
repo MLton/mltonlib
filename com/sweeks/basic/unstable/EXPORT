@@ -26,8 +26,8 @@ val ~ : 'a -> 'a
 structure Array: ARRAY
 		 where type 'a elem = 'a
 		 where type 'a t = 'a ArraySlice.base
-		 where type 'a unfold = 'a
-		 where type 'a unfoldR = 'a
+		 where type ('a, 'b) unfold = 'a * 'b
+		 where type ('a, 'b) unfoldR = 'a * 'b
 structure ArraySlice: ARRAY_SLICE
 		      where type 'a base = 'a ArraySlice.base
 		      where type 'a elem = 'a
@@ -78,8 +78,8 @@ structure LargeWord: WORD
 structure Lazy: LAZY
 structure List: LIST
 		where type 'a elem = 'a
-		where type 'a unfold = 'a
-		where type 'a unfoldR = 'a
+		where type ('a, 'b) unfold = 'a * 'b
+		where type ('a, 'b) unfoldR = 'a * 'b
 structure Net: NET
 	       where type Family.inet = Net.Family.inet
 	       where type 'a Family.t = 'a Net.Family.t
@@ -207,12 +207,12 @@ structure Scanner: SCANNER
 structure Seq: SEQ
 	       where type 'a elem = 'a
 	       where type 'a t = 'a Seq.t
-	       where type 'a unfold = unit
-	       where type 'a unfoldR = 'a
+	       where type ('a, 'b) unfold = 'a
+	       where type ('a, 'b) unfoldR = 'a * 'b
 structure String: STRING
 		  where type t = string
-		  where type 'a unfold = 'a
-		  where type 'a unfoldR = 'a
+		  where type ('a, 'b) unfold = 'a * 'b
+		  where type ('a, 'b) unfoldR = 'a * 'b
 structure Substring: SUBSTRING
 		     where type 'a base = 'a Substring.base
 		     where type t = Char.t VectorSlice.t
@@ -228,8 +228,8 @@ structure Unit:
 structure Vector: VECTOR
 		  where type 'a elem = 'a
 		  where type 'a t = 'a VectorSlice.base
-		  where type 'a unfold = 'a
-		  where type 'a unfoldR = 'a
+		  where type ('a, 'b) unfold = 'a * 'b
+		  where type ('a, 'b) unfoldR = 'a * 'b
 structure VectorSlice: VECTOR_SLICE
 		       where type 'a base = 'a VectorSlice.base
 		       where type 'a elem = 'a
@@ -249,8 +249,8 @@ signature ARRAY =
       type 'a elem = 'a ?.elem
       type 'a t = 'a ?.t
       type 'a t0 = 'a ?.t
-      type 'a unfold = 'a ?.unfold
-      type 'a unfoldR = 'a ?.unfoldR
+      type ('a, 'b) unfold = ('a, 'b) ?.unfold
+      type ('a, 'b) unfoldR = ('a, 'b) ?.unfoldR
       val all: ('a ?.t * ('a ?.elem -> Bool.t)) -> Bool.t
       val append: ('a ?.t * 'a ?.t) -> 'a ?.t
       val concat: 'a ?.t Seq.t -> 'a ?.t
@@ -294,13 +294,13 @@ signature ARRAY =
       val toSeqR: 'a ?.t -> 'a ?.elem Seq.t
       val tokens: ('a ?.t * ('a ?.elem -> Bool.t)) -> 'a ?.t Seq.t
       val unfold: ('a * ('a -> ('b ?.elem * 'a) Option.t))
-		  -> ('b ?.t * 'a ?.unfold)
+		  -> ('b ?.t, 'a) ?.unfold
       val unfoldN: (Int.t * 'a * ((Int.t * 'a) -> ('b ?.elem * 'a) Option.t))
-		   -> ('b ?.t * 'a ?.unfold)
+		   -> ('b ?.t, 'a) ?.unfold
       val unfoldNR: (Int.t * 'a * ((Int.t * 'a) -> ('b ?.elem * 'a) Option.t))
-		    -> ('b ?.t * 'a ?.unfoldR)
+		    -> ('b ?.t, 'a) ?.unfoldR
       val unfoldR: ('a * ('a -> ('b ?.elem * 'a) Option.t))
-		   -> ('b ?.t * 'a ?.unfoldR)
+		   -> ('b ?.t, 'a) ?.unfoldR
       val update: ('a ?.t * Int.t * 'a) -> unit
       val updates: ('a ?.t * Int.t * 'a Seq.t) -> unit
       structure Unsafe:
@@ -594,8 +594,8 @@ signature LIST =
       type 'a elem = 'a ?.elem
       datatype 'a t = nil | :: of 'a * 'a List.t
       eqtype 'a t0 = 'a List.t
-      type 'a unfold = 'a ?.unfold
-      type 'a unfoldR = 'a ?.unfoldR
+      type ('a, 'b) unfold = ('a, 'b) ?.unfold
+      type ('a, 'b) unfoldR = ('a, 'b) ?.unfoldR
       val all: ('a List.t * ('a ?.elem -> Bool.t)) -> Bool.t
       val append: ('a List.t * 'a List.t) -> 'a List.t
       val concat: 'a List.t Seq.t -> 'a List.t
@@ -639,13 +639,13 @@ signature LIST =
       val toSeqR: 'a List.t -> 'a ?.elem Seq.t
       val tokens: ('a List.t * ('a ?.elem -> Bool.t)) -> 'a List.t Seq.t
       val unfold: ('a * ('a -> ('b ?.elem * 'a) Option.t))
-		  -> ('b List.t * 'a ?.unfold)
+		  -> ('b List.t, 'a) ?.unfold
       val unfoldN: (Int.t * 'a * ((Int.t * 'a) -> ('b ?.elem * 'a) Option.t))
-		   -> ('b List.t * 'a ?.unfold)
+		   -> ('b List.t, 'a) ?.unfold
       val unfoldNR: (Int.t * 'a * ((Int.t * 'a) -> ('b ?.elem * 'a) Option.t))
-		    -> ('b List.t * 'a ?.unfoldR)
+		    -> ('b List.t, 'a) ?.unfoldR
       val unfoldR: ('a * ('a -> ('b ?.elem * 'a) Option.t))
-		   -> ('b List.t * 'a ?.unfoldR)
+		   -> ('b List.t, 'a) ?.unfoldR
    end
 signature NET = 
    sig
@@ -1972,8 +1972,8 @@ signature SEQ =
       type 'a elem = 'a ?.elem
       type 'a t = 'a ?.t
       type 'a t0 = 'a ?.t
-      type 'a unfold = 'a ?.unfold
-      type 'a unfoldR = 'a ?.unfoldR
+      type ('a, 'b) unfold = ('a, 'b) ?.unfold
+      type ('a, 'b) unfoldR = ('a, 'b) ?.unfoldR
       val all: ('a ?.t * ('a ?.elem -> Bool.t)) -> Bool.t
       val append: ('a ?.t * 'a ?.t) -> 'a ?.t
       val concat: 'a ?.t Seq.t -> 'a ?.t
@@ -2018,21 +2018,21 @@ signature SEQ =
       val toSeqR: 'a ?.t -> 'a ?.elem Seq.t
       val tokens: ('a ?.t * ('a ?.elem -> Bool.t)) -> 'a ?.t Seq.t
       val unfold: ('a * ('a -> ('b ?.elem * 'a) Option.t))
-		  -> ('b ?.t * 'a ?.unfold)
+		  -> ('b ?.t, 'a) ?.unfold
       val unfoldN: (Int.t * 'a * ((Int.t * 'a) -> ('b ?.elem * 'a) Option.t))
-		   -> ('b ?.t * 'a ?.unfold)
+		   -> ('b ?.t, 'a) ?.unfold
       val unfoldNR: (Int.t * 'a * ((Int.t * 'a) -> ('b ?.elem * 'a) Option.t))
-		    -> ('b ?.t * 'a ?.unfoldR)
+		    -> ('b ?.t, 'a) ?.unfoldR
       val unfoldR: ('a * ('a -> ('b ?.elem * 'a) Option.t))
-		   -> ('b ?.t * 'a ?.unfoldR)
+		   -> ('b ?.t, 'a) ?.unfoldR
    end
 signature STRING = 
    sig
       eqtype 'a elem = Char.t
       type t = ?.t
       type 'a t0 = ?.t
-      type 'a unfold = 'a ?.unfold
-      type 'a unfoldR = 'a ?.unfoldR
+      type ('a, 'b) unfold = ('a, 'b) ?.unfold
+      type ('a, 'b) unfoldR = ('a, 'b) ?.unfoldR
       val all: (?.t * (Char.t -> Bool.t)) -> Bool.t
       val append: (?.t * ?.t) -> ?.t
       val concat: ?.t Seq.t -> ?.t
@@ -2080,12 +2080,12 @@ signature STRING =
       val toUpper: ?.t -> ?.t
       val toWord8Vector: ?.t -> Word8.t VectorSlice.base
       val tokens: (?.t * (Char.t -> Bool.t)) -> ?.t Seq.t
-      val unfold: ('a * ('a -> (Char.t * 'a) Option.t)) -> (?.t * 'a ?.unfold)
+      val unfold: ('a * ('a -> (Char.t * 'a) Option.t)) -> (?.t, 'a) ?.unfold
       val unfoldN: (Int.t * 'a * ((Int.t * 'a) -> (Char.t * 'a) Option.t))
-		   -> (?.t * 'a ?.unfold)
+		   -> (?.t, 'a) ?.unfold
       val unfoldNR: (Int.t * 'a * ((Int.t * 'a) -> (Char.t * 'a) Option.t))
-		    -> (?.t * 'a ?.unfoldR)
-      val unfoldR: ('a * ('a -> (Char.t * 'a) Option.t)) -> (?.t * 'a ?.unfoldR)
+		    -> (?.t, 'a) ?.unfoldR
+      val unfoldR: ('a * ('a -> (Char.t * 'a) Option.t)) -> (?.t, 'a) ?.unfoldR
       structure Unsafe:
 	 sig
 	    val sub: (?.t * Int.t) -> Char.t
@@ -2177,8 +2177,8 @@ signature VECTOR =
       type 'a elem = 'a ?.elem
       type 'a t = 'a ?.t
       type 'a t0 = 'a ?.t
-      type 'a unfold = 'a ?.unfold
-      type 'a unfoldR = 'a ?.unfoldR
+      type ('a, 'b) unfold = ('a, 'b) ?.unfold
+      type ('a, 'b) unfoldR = ('a, 'b) ?.unfoldR
       val all: ('a ?.t * ('a ?.elem -> Bool.t)) -> Bool.t
       val append: ('a ?.t * 'a ?.t) -> 'a ?.t
       val concat: 'a ?.t Seq.t -> 'a ?.t
@@ -2225,13 +2225,13 @@ signature VECTOR =
       val toSeqR: 'a ?.t -> 'a ?.elem Seq.t
       val tokens: ('a ?.t * ('a ?.elem -> Bool.t)) -> 'a ?.t Seq.t
       val unfold: ('a * ('a -> ('b ?.elem * 'a) Option.t))
-		  -> ('b ?.t * 'a ?.unfold)
+		  -> ('b ?.t, 'a) ?.unfold
       val unfoldN: (Int.t * 'a * ((Int.t * 'a) -> ('b ?.elem * 'a) Option.t))
-		   -> ('b ?.t * 'a ?.unfold)
+		   -> ('b ?.t, 'a) ?.unfold
       val unfoldNR: (Int.t * 'a * ((Int.t * 'a) -> ('b ?.elem * 'a) Option.t))
-		    -> ('b ?.t * 'a ?.unfoldR)
+		    -> ('b ?.t, 'a) ?.unfoldR
       val unfoldR: ('a * ('a -> ('b ?.elem * 'a) Option.t))
-		   -> ('b ?.t * 'a ?.unfoldR)
+		   -> ('b ?.t, 'a) ?.unfoldR
       structure Unsafe:
 	 sig
 	    val sub: ('a ?.t * Int.t) -> 'a ?.elem

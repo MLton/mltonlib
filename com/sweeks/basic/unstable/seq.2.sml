@@ -22,9 +22,9 @@ structure Seq: SEQ = struct
 
    fun single x = cons (x, empty ())
 
-   type 'a unfold = Unit.t
+   type ('a, 'b) unfold = 'a
 
-   type 'a unfoldR = 'a
+   type ('a, 'b) unfoldR = 'a * 'b
 
    fun unfoldR (b, f) =
       Util.recur ((b, empty ()),  fn ((b, ac), loop) =>
@@ -45,7 +45,7 @@ structure Seq: SEQ = struct
            | Some (a, b) => loop (i, b, cons (a, ac))
        end)
 
-   fun ofList l = #1 (unfold (l, fn [] => None | x :: l => Some (x, l)))
+   fun ofList l = unfold (l, fn [] => None | x :: l => Some (x, l))
 
    fun ofListR l =
       Util.recur
@@ -59,20 +59,20 @@ structure Seq: SEQ = struct
    val toSeqR = reverse
      
    fun tabulate (n, f) =
-      #1 (unfold (0, fn i => if i = n then None else Some (f i, i + 1)))
+      unfold (0, fn i => if i = n then None else Some (f i, i + 1))
 
    fun map (s, f) =
-      #1 (unfold (s, fn s => Option.map (get s, fn (x, s) => (f x, s))))
+      unfold (s, fn s => Option.map (get s, fn (x, s) => (f x, s)))
 
    fun drop (s, f) =
-      #1 (unfold
-          (s, fn s =>
-           Util.recur
-           (s, fn (s, loop) =>
-            case get s of
-               None => None
-             | Some (x, s) => if f x then loop s else Some (x, s))))
-
+      unfold
+      (s, fn s =>
+       Util.recur
+       (s, fn (s, loop) =>
+        case get s of
+           None => None
+         | Some (x, s) => if f x then loop s else Some (x, s)))
+      
    fun keep (s, f) = drop (s, not o f)
 
    fun append (s, s') =
@@ -100,23 +100,23 @@ structure Seq: SEQ = struct
    fun join (vs, sep) = concat (separate (vs, sep))
 
    fun keepPrefix (s, f) =
-      #1 (unfold (s, fn s =>
-                  case get s of
-                     None => None
-                   | Some (x, s) => if f x then Some (x, s) else None))
+      unfold (s, fn s =>
+              case get s of
+                 None => None
+               | Some (x, s) => if f x then Some (x, s) else None)
 
    fun keepPrefixN (s, n) =
       if n < 0 then
          die "takeN"
       else
-         #1 (unfold ((s, n), fn (s, n) =>
-                     if n = 0 then
-                        None
-                     else
-                        case get s of
-                           None => die "takeN"
-                         | Some (x, s) => Some (x, (s, n - 1))))
-
+         unfold ((s, n), fn (s, n) =>
+                 if n = 0 then
+                    None
+                 else
+                    case get s of
+                       None => die "takeN"
+                     | Some (x, s) => Some (x, (s, n - 1)))
+         
    fun keepSuffix (s, f) = reverse (keepPrefix (reverse s, f))
 
    fun keepSuffixN (s, n) = dropPrefixN (s, size s - n)
