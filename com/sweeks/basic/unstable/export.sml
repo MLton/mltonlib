@@ -25,6 +25,7 @@ structure Export:>
    where type Real.t = Real.t
    where type Real32.t = Real32.t
    where type Real64.t = Real64.t
+   where type 'a Scanner.t = 'a Scanner.t
    where type 'a Seq.t = 'a Seq.t
    where type 'a Seq.elem = 'a Seq.elem
    where type 'a Seq.unfold = 'a Seq.unfold

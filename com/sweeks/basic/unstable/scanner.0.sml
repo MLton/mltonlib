@@ -1,9 +1,9 @@
 structure Scanner = struct
 
-   type 'a t = Char.t Seq.t -> ('a * Char.t Seq.t) Option.t
+   datatype 'a t = T of Char.t Seq.t -> ('a * Char.t Seq.t) Option.t
 
-   val make = id
+   val make = T
 
-   fun scan (s, cs) = s cs
+   fun scan (T s, cs) = s cs
 
 end

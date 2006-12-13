@@ -408,7 +408,7 @@ signature DATE =
       val ofTimeLocal: Time.t -> ?.t
       val ofTimeUniv: Time.t -> ?.t
       val offset: ?.t -> Time.t Option.t
-      val scanner: Char.t Seq.t -> (?.t * Char.t Seq.t) Option.t
+      val scanner: ?.t Scanner.t
       val second: ?.t -> Int.t
       val toString: ?.t -> string
       val toTime: ?.t -> Time.t
@@ -533,7 +533,7 @@ signature INT =
       val ofStringRadix: (string * Radix.t) -> ?.t Option.t
       val quot: (?.t * ?.t) -> ?.t
       val rem: (?.t * ?.t) -> ?.t
-      val scanner: Radix.t -> (Char.t Seq.t -> (?.t * Char.t Seq.t) Option.t)
+      val scanner: Radix.t -> ?.t Scanner.t
       val toString: ?.t -> string
       val toStringRadix: (?.t * Radix.t) -> string
       val toWord: ?.t -> Word.t
@@ -562,7 +562,7 @@ signature INT_INF =
       val ofStringRadix: (string * Radix.t) -> ?.t Option.t
       val quot: (?.t * ?.t) -> ?.t
       val rem: (?.t * ?.t) -> ?.t
-      val scanner: Radix.t -> (Char.t Seq.t -> (?.t * Char.t Seq.t) Option.t)
+      val scanner: Radix.t -> ?.t Scanner.t
       val toString: ?.t -> string
       val toStringRadix: (?.t * Radix.t) -> string
       val toWord: ?.t -> Word.t
@@ -679,8 +679,7 @@ signature NET =
 		  type t = ?.Host.Address.t
 		  val == : (?.Host.Address.t * ?.Host.Address.t) -> Bool.t
 		  val ofString: string -> ?.Host.Address.t Option.t
-		  val scanner: Char.t Seq.t
-			       -> (?.Host.Address.t * Char.t Seq.t) Option.t
+		  val scanner: ?.Host.Address.t Scanner.t
 		  val toString: ?.Host.Address.t -> string
 	       end
 	 end
@@ -1039,7 +1038,7 @@ signature PACKABLE_REAL =
       val rem: (?.t * ?.t) -> ?.t
       val round: ?.t -> Int.t
       val sameSign: (?.t * ?.t) -> Bool.t
-      val scanner: Char.t Seq.t -> (?.t * Char.t Seq.t) Option.t
+      val scanner: ?.t Scanner.t
       val sign: ?.t -> Int.t
       val signBit: ?.t -> Bool.t
       val sin: ?.t -> ?.t
@@ -1080,12 +1079,10 @@ signature PACKABLE_REAL =
 			      digits: Int.t List.t,
 			      exp: Int.t,
 			      sign: Bool.t} Option.t
-	    val scanner: Char.t Seq.t
-			 -> ({class: ?.Class.t,
-			      digits: Int.t List.t,
-			      exp: Int.t,
-			      sign: Bool.t}
-			     * Char.t Seq.t) Option.t
+	    val scanner: {class: ?.Class.t,
+			  digits: Int.t List.t,
+			  exp: Int.t,
+			  sign: Bool.t} Scanner.t
 	    val toString: {class: ?.Class.t,
 			   digits: Int.t List.t,
 			   exp: Int.t,
@@ -1133,7 +1130,7 @@ signature PACKABLE_WORD =
       val ofString: string -> ?.t Option.t
       val ofStringRadix: (string * Radix.t) -> ?.t Option.t
       val orb: (?.t * ?.t) -> ?.t
-      val scanner: Radix.t -> (Char.t Seq.t -> (?.t * Char.t Seq.t) Option.t)
+      val scanner: Radix.t -> ?.t Scanner.t
       val subArr: (Word8.t ArraySlice.base * Int.t * ?.Endian.t) -> ?.t
       val subVec: (Word8.t VectorSlice.base * Int.t * ?.Endian.t) -> ?.t
       val toLarge: ?.t -> Word64.t
@@ -1891,7 +1888,7 @@ signature REAL =
       val rem: (?.t * ?.t) -> ?.t
       val round: ?.t -> Int.t
       val sameSign: (?.t * ?.t) -> Bool.t
-      val scanner: Char.t Seq.t -> (?.t * Char.t Seq.t) Option.t
+      val scanner: ?.t Scanner.t
       val sign: ?.t -> Int.t
       val signBit: ?.t -> Bool.t
       val sin: ?.t -> ?.t
@@ -1928,12 +1925,10 @@ signature REAL =
 			      digits: Int.t List.t,
 			      exp: Int.t,
 			      sign: Bool.t} Option.t
-	    val scanner: Char.t Seq.t
-			 -> ({class: ?.Class.t,
-			      digits: Int.t List.t,
-			      exp: Int.t,
-			      sign: Bool.t}
-			     * Char.t Seq.t) Option.t
+	    val scanner: {class: ?.Class.t,
+			  digits: Int.t List.t,
+			  exp: Int.t,
+			  sign: Bool.t} Scanner.t
 	    val toString: {class: ?.Class.t,
 			   digits: Int.t List.t,
 			   exp: Int.t,
@@ -2168,7 +2163,7 @@ signature TIME =
       val ofNanoseconds: IntInf.t -> ?.t
       val ofSeconds: IntInf.t -> ?.t
       val ofString: string -> ?.t Option.t
-      val scanner: Char.t Seq.t -> (?.t * Char.t Seq.t) Option.t
+      val scanner: ?.t Scanner.t
       val toMicroseconds: ?.t -> IntInf.t
       val toMilliseconds: ?.t -> IntInf.t
       val toNanoseconds: ?.t -> IntInf.t
@@ -2303,7 +2298,7 @@ signature WORD =
       val ofString: string -> ?.t Option.t
       val ofStringRadix: (string * Radix.t) -> ?.t Option.t
       val orb: (?.t * ?.t) -> ?.t
-      val scanner: Radix.t -> (Char.t Seq.t -> (?.t * Char.t Seq.t) Option.t)
+      val scanner: Radix.t -> ?.t Scanner.t
       val toLarge: ?.t -> Word64.t
       val toLargeX: ?.t -> Word64.t
       val toString: ?.t -> string
@@ -2333,7 +2328,7 @@ signature WORD8 =
       val ofString: string -> ?.t Option.t
       val ofStringRadix: (string * Radix.t) -> ?.t Option.t
       val orb: (?.t * ?.t) -> ?.t
-      val scanner: Radix.t -> (Char.t Seq.t -> (?.t * Char.t Seq.t) Option.t)
+      val scanner: Radix.t -> ?.t Scanner.t
       val toChar: ?.t -> Char.t
       val toLarge: ?.t -> Word64.t
       val toLargeX: ?.t -> Word64.t

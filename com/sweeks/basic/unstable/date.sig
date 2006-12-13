@@ -53,7 +53,7 @@ signature DATE = sig
     *)
    val ofTimeLocal: Time.t -> t
    val ofTimeUniv: Time.t -> t
-   val scanner: Char.t Seq.t -> (t * Char.t Seq.t) Option.t
+   val scanner: t Scanner.t
    val second: t -> Int.t
    val toString: t -> String.t
    val toTime: t -> Time.t
