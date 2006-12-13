@@ -1,3 +1,8 @@
+(* Copyright (C) 2006 Stephen Weeks.
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
 signature STATIC_SUM = sig
    
    type ('a1, 'a2, 'b1, 'b2, 'c) u

@@ -1,3 +1,8 @@
+(* Copyright (C) 2006 Stephen Weeks.
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
 $(SML_LIB)/basis/infixes.mlb
 $(SML_LIB)/basis/equal.mlb
 $(SML_LIB)/basis/overloads.mlb
