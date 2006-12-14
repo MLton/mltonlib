@@ -46,6 +46,7 @@ signature EXPORT = sig
    structure String: STRING
    structure Substring: SUBSTRING
    structure SysError: SYS_ERROR
+   structure SysWord: WORD
    structure Time: TIME
    structure Unit: UNIT
    structure Vector: VECTOR

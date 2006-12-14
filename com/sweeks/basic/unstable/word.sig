@@ -60,6 +60,10 @@ signature WORD = sig
     * i mod 0 raises Div.
     * i = j * (i div j) + i mod j.
     *)
+   val numBits: Int.t
+   (**
+    * The number of bits in a value of this word type.
+    *)
    val notb: t -> t
    (**
     * notb w returns the "bitwise not" of w.
@@ -79,6 +83,15 @@ signature WORD = sig
     * orb (w1, w2) returns the "bitwise or" of w1 and w2.
     *)
    val scanner: Radix.t -> t Scanner.t
+   val toInt: t -> Int.t
+   (**
+    * toInt w converts w to an integer, where w is in [0, 2^numBits - 1]
+    *)
+   val toIntX: t -> Int.t
+   (**
+    * toIntX w converts w to an integer, where w is in
+    * [-2^(numBits-1), 2^(numBits-1) - 1]
+    *)
    (**
     * scanner r returns a scanner for words where characters are interepreted
     * according to radix r.

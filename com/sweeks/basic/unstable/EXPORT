@@ -219,6 +219,8 @@ structure Substring: SUBSTRING
 structure SysError: SYS_ERROR
 		    where type Exn.t = SysError.Exn.t
 		    where type t = SysError.t
+structure SysWord: WORD
+		   where type t = Word64.t
 structure Time: TIME
 		where type t = Time.t
 structure Unit:
@@ -1126,6 +1128,7 @@ signature PACKABLE_WORD =
       val div: (?.t * ?.t) -> ?.t
       val mod: (?.t * ?.t) -> ?.t
       val notb: ?.t -> ?.t
+      val numBits: Int.t
       val ofLarge: Word64.t -> ?.t
       val ofString: string -> ?.t Option.t
       val ofStringRadix: (string * Radix.t) -> ?.t Option.t
@@ -1133,6 +1136,8 @@ signature PACKABLE_WORD =
       val scanner: Radix.t -> ?.t Scanner.t
       val subArr: (Word8.t ArraySlice.base * Int.t * ?.Endian.t) -> ?.t
       val subVec: (Word8.t VectorSlice.base * Int.t * ?.Endian.t) -> ?.t
+      val toInt: ?.t -> Int.t
+      val toIntX: ?.t -> Int.t
       val toLarge: ?.t -> Word64.t
       val toLargeX: ?.t -> Word64.t
       val toString: ?.t -> string
@@ -2294,11 +2299,14 @@ signature WORD =
       val div: (?.t * ?.t) -> ?.t
       val mod: (?.t * ?.t) -> ?.t
       val notb: ?.t -> ?.t
+      val numBits: Int.t
       val ofLarge: Word64.t -> ?.t
       val ofString: string -> ?.t Option.t
       val ofStringRadix: (string * Radix.t) -> ?.t Option.t
       val orb: (?.t * ?.t) -> ?.t
       val scanner: Radix.t -> ?.t Scanner.t
+      val toInt: ?.t -> Int.t
+      val toIntX: ?.t -> Int.t
       val toLarge: ?.t -> Word64.t
       val toLargeX: ?.t -> Word64.t
       val toString: ?.t -> string
@@ -2324,12 +2332,15 @@ signature WORD8 =
       val div: (?.t * ?.t) -> ?.t
       val mod: (?.t * ?.t) -> ?.t
       val notb: ?.t -> ?.t
+      val numBits: Int.t
       val ofLarge: Word64.t -> ?.t
       val ofString: string -> ?.t Option.t
       val ofStringRadix: (string * Radix.t) -> ?.t Option.t
       val orb: (?.t * ?.t) -> ?.t
       val scanner: Radix.t -> ?.t Scanner.t
       val toChar: ?.t -> Char.t
+      val toInt: ?.t -> Int.t
+      val toIntX: ?.t -> Int.t
       val toLarge: ?.t -> Word64.t
       val toLargeX: ?.t -> Word64.t
       val toString: ?.t -> string

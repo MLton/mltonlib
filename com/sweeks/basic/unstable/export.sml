@@ -39,6 +39,7 @@ structure Export:>
    where type ('a, 'b) String.unfold = ('a, 'b) String.unfold
    where type ('a, 'b) String.unfoldR = ('a, 'b) String.unfoldR
    where type Substring.t = Substring.t
+   where type SysWord.t = SysWord.t
    where type Time.t = Time.t
    where type Unit.t = Unit.t
    where type 'a Vector.t = 'a Vector.t
@@ -95,6 +96,7 @@ structure Export:>
    structure String = String
    structure Substring = Substring
    structure SysError = SysError
+   structure SysWord = SysWord
    structure Time = Time
    structure Unit = Unit
    structure Vector = Vector

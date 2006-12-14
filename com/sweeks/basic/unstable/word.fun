@@ -9,6 +9,8 @@ functor Word (structure Word: BASIS_WORD): WORD = struct
 
    type t = word
 
+   val numBits = wordSize
+
    val == = op =
 
    val compare = Order.ofBasis o compare
