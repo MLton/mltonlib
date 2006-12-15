@@ -45,6 +45,6 @@ val op :=: = Ref.:=:
 
 (** ==== UnPr ==== *)
 
-val andAlso = UnPr.andAlso
+val op andAlso = UnPr.andAlso
 val negate = UnPr.negate
-val orElse = UnPr.orElse
+val op orElse = UnPr.orElse
