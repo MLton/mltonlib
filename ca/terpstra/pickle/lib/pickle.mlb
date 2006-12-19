@@ -1,0 +1,8 @@
+local
+  $(SML_LIB)/basis/basis.mlb
+in
+  pickle.sig
+  pickle.sml
+  binary.sml
+  text.sml
+end

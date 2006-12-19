@@ -1,0 +1,2 @@
+datatype color = RED | BLACK
+datatype 'a tree = LEAF | NODE of color * 'a tree * 'a * 'a tree

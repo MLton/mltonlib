@@ -1,0 +1,10 @@
+(* use old binding *)
+type pair = string * int
+
+(* flip bindings *)
+type int = string
+and string = int
+
+datatype opt = 
+	  VECTOR of opt * string * int
+	| NADA of opt * pair

@@ -1,0 +1,143 @@
+%%
+
+(* bugs: no functor, structure, or abstype support *)
+
+%term LONGID of string
+    | TYVAR of string
+    | AND | ASTERISK | BAR | COLON | COMMA | DATATYPE | EOF | EQUALOP
+    | EQTYPE | LBRACE | LPAREN | OF | OP | RBRACE | RPAREN | TYPE | WITHTYPE
+
+%nonterm file of toplevel_typ list
+       | node of toplevel_typ
+       | typBind of toplevel_typ
+       | typBind' of inline_typ bind_typ list
+       | typBind'' of inline_typ bind_typ list
+       | tyvars of (tyvar * tag) vector
+       | tyvar_pc of (tyvar * tag) list
+       | datatypeRhs of toplevel_typ
+       | db of data_typ bind_typ
+       | dbs of data_typ bind_typ list
+       | withtypes of inline_typ bind_typ list
+       | constrs of (string * inline_typ option) list
+       | constr of string * inline_typ option
+       | opcon of string
+       | con of string
+       | longid of string
+       | longidnA of string
+       | id of string
+       | idnA of string
+       | tyvar of tyvar
+       | tycon of string
+       | longtycon of string
+       | ty of inline_typ
+       | ty' of inline_typ 
+       | tlabels of (string * inline_typ) list
+       | tlabel of string * inline_typ
+       | ty0_pc of (inline_typ * tag) list
+       | tuple_ty of inline_typ list
+
+%pos unit
+%verbose
+%eop EOF
+%noshift EOF
+%name TML
+%keyword AND DATATYPE EQTYPE OF OP TYPE WITHTYPE
+
+%value LONGID ("bogus")
+%value TYVAR ("'a")
+
+%%
+
+file : 			([])
+     | node file	(node :: file)
+
+node : DATATYPE datatypeRhs	(datatypeRhs)
+     | TYPE typBind		(typBind)
+     | EQTYPE typBind		(typBind)
+
+(* ==================== Type ============ *)
+
+typBind : typBind' ((Vector.fromList [], Vector.fromList typBind'))
+
+typBind' : tyvars tycon EQUALOP ty typBind''
+          ({ name = tycon, reader = "", writer = "", tyvars = tyvars, 
+             typ = ty } :: typBind'')
+
+typBind'' :					([])
+          | AND typBind'			(typBind')
+
+tyvars : 				(Vector.fromList [])
+       | tyvar				(Vector.fromList [(tyvar, "")])
+       | LPAREN tyvar_pc RPAREN 	(Vector.fromList tyvar_pc)
+
+tyvar_pc : tyvar			([(tyvar, "")])
+         | tyvar COMMA tyvar_pc		((tyvar, "") :: tyvar_pc)
+
+(* ==================== DataType ============ *)
+
+datatypeRhs : tyvars tycon EQUALOP DATATYPE longtycon
+              (Vector.fromList [], Vector.fromList 
+                 [{ name = tycon, reader = "", writer = "", tyvars = tyvars,
+                    typ = RECURSIVE (longtycon, 
+                    Vector.map (fn (x, y) => (TYVAR (x, "", ""), y))
+                               tyvars, "")}])
+            | dbs withtypes 
+              ((Vector.fromList dbs, Vector.fromList withtypes))
+
+dbs : db		([db])
+    | db AND dbs	(db :: dbs)
+
+db : tyvars tycon EQUALOP constrs
+     ({ name = tycon, reader = "", writer = "", tyvars = tyvars, 
+        typ = ("", "", Vector.fromList constrs) })
+
+constrs : constr		([constr])
+        | constr BAR constrs	(constr :: constrs)
+
+constr : opcon			(opcon, NONE)
+       | opcon OF ty		(opcon, SOME ty)
+
+opcon : con			(con)
+      | OP con			(con)
+
+withtypes : 			([])
+          | WITHTYPE typBind'	(typBind')
+
+(* ==================== Terminals ============ *)
+
+longidnA : LONGID	(LONGID)
+longid : longidnA	(longidnA)
+         | ASTERISK	("*")
+
+id : longid		(longid)   (* forbid '.' in name !!! *)
+idnA : longidnA		(longidnA) (* forbid '.' in name !!! *)
+
+con : id		(id)
+tycon : idnA		(idnA)
+longtycon : idnA	(idnA)
+
+tyvar : TYVAR		(TYVAR)
+
+(* ==================== Types ================ *)
+
+ty : tuple_ty	(TUPLE (Vector.fromList tuple_ty))
+   | ty'	(ty')
+
+ty' : tyvar				(TYVAR (tyvar, "", ""))
+    | LBRACE tlabels RBRACE		(RECORD (Vector.fromList tlabels))
+    | LBRACE RBRACE			(RECORD (Vector.fromList []))
+    | LPAREN ty0_pc RPAREN longtycon	(RECURSIVE (longtycon, Vector.fromList ty0_pc, ""))
+    | LPAREN ty RPAREN			(ty)
+    | ty' longtycon			(RECURSIVE (longtycon, Vector.fromList [(ty', "")], ""))
+    | longtycon				(RECURSIVE (longtycon, Vector.fromList [], ""))
+
+tlabel : id COLON ty			(id, ty)
+
+tlabels : tlabel COMMA tlabels		(tlabel :: tlabels)
+        | tlabel			([tlabel])
+
+tuple_ty : ty' ASTERISK tuple_ty	(ty' :: tuple_ty)
+         | ty' ASTERISK ty'		([ty'1, ty'2])
+
+ty0_pc : ty COMMA ty			([(ty1, ""), (ty2, "")])
+       | ty COMMA ty0_pc		((ty, "") :: ty0_pc)

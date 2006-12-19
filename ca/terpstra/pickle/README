@@ -1,0 +1,10 @@
+Since MLton has no automatic serialization capability, this attempts to
+build one as a library. The idea was that a protocol could be specified as
+a SML type and the compiled into a serializer for C and SML.
+
+The serializers are built as functors. This way they can be instantiated on
+a binary or text serializer for basic types.
+
+Compile the compiler with:
+	make
+The test directory includes example SML types suitable for compilation

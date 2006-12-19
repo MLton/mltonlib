@@ -1,0 +1,17 @@
+local
+  $(SML_LIB)/basis/basis.mlb
+  $(SML_LIB)/mlyacc-lib/mlyacc-lib.mlb
+in
+  tree.sml
+  ast.sml
+  tml.grm.sig
+  tml.lex.sml
+  tml.grm.sml
+  gen.sml
+  tag.sml
+  type.sml
+  import.sml
+  export.sml
+  method.sml
+  main.sml
+end

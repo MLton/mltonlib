@@ -1,0 +1,7 @@
+(* Note that {} and unit are different because unit can be rebound *)
+datatype d1 = C of { baz : d1 * int } list | D of {} | E of t1
+and d2 = F of d1 | G of d2 | Q of t2
+withtype t1 = string * d2
+and t2 = string * unit
+
+datatype 'a d3 = datatype list

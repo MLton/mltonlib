@@ -1,0 +1,2 @@
+datatype ('a, 'b) union = LEFT of 'a | RIGHT of 'b
+type ('a, 'b) pair = 'a * 'b
