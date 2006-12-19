@@ -1,0 +1,21 @@
+This is just a quick implementation of finite automata.
+
+It includes:
+	a binary tree implementation
+	a "z-tree" which stores intervals instead of point values
+	a regular expression parser
+	methods for converting regular expressions to NFAs to DFAs
+
+It's fairly self-documenting in the file automata.sig.
+
+Included examples are:
+
+1. a program which compiles a regular expression to a minimal DFA
+   represented as a file suitable for consumption by dot.
+
+2. a program comparing two regular expressions to each other.
+   it provides example strings matched by one and/or not the other.
+
+Compile with:
+	mlton compare.mlb
+	mlton todot.mlb
