@@ -1,0 +1,56 @@
+local
+  $(SML_LIB)/basis/basis.mlb
+  $(SML_LIB)/basis/mlton.mlb
+  $(SML_LIB)/mlnlffi-lib/mlnlffi-lib.mlb
+  
+  ann
+    "allowFFI true"
+  in
+    data.sig
+    data.sml
+    
+    state.sig
+    state.sml
+    thread.sig
+    thread.sml
+    
+    timeout.sig
+    timeout.sml
+    ioevent.sig
+    ioevent.sml
+    
+    scheduler.sig
+    epoll.sig
+    edge.fun
+    lpoll.sig
+    level.fun
+
+    kevent/kevent.mlb
+    kqueue.sml
+
+(*  epoll/epoll.mlb
+    epoll.sml
+*)
+    socket.sml
+  end
+in
+  signature STATE
+  signature THREAD
+  signature TIMEOUT
+  signature IOEVENT
+  signature SCHEDULER
+  
+  structure State
+  structure Thread
+  structure Timeout
+  structure IoEvent
+  structure Scheduler
+  
+  (* override basis definitions with ours -- we have hooks *)
+  structure Socket
+  structure GenericSock
+  structure INetSock
+  structure UnixSock
+  
+  open.sml
+end

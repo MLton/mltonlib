@@ -1,0 +1,16 @@
+This is a simple work-alike of state-threads.sf.net for Standard ML.
+It helps in building event driven state machines with non-concurrent threads.
+
+For an example, see test.sml
+
+To use on osx:
+	make kevent/kevent.mlb
+	mlton test.mlb
+
+To use on linux:
+	edit st.mlb to use epoll.mlb instead of kevent.mlb
+	make epoll/epoll.mlb
+	mlton test.mlb
+
+The test program downloads two webpages from google concurrently, while
+answering TCP connections on port 12467 and printing a heart beat.
