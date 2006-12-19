@@ -1,0 +1,44 @@
+This is an incomplete library for number theory.
+
+What there is:
+	small-size galois fields
+	mersenne fields
+	polynomials with Karatsuba (no FFT)
+	permutations
+	generic methods (gcd, discrete logarithm, ...)
+	a reasonably fast integer factorization algorithm
+
+Basically, it's a framework in which I dumped any algorithms or mathematical
+structures I needed as I needed them.
+
+Using it is pretty nice, since you can bind any structure to an operation.
+Generally, one combines functors to create the desired mathematical object.
+
+Some objects already exist (Z = integers, Galois8 = GF(8))
+Some need to be created, eg: ComplexOfField(FieldOfReal(LargeReal))
+
+Structures contain their mathematical operations and substructures.
+The structure Z includes substructures Z.Addition (an abelian group) and 
+Z.Multiplication (an abelian monoid). These include relevant operations.
+
+Once a structure has been created, it can be bound to an operation.
+For example:
+	structure Binding = AbelianGroupAddPercent(Z.Addition)
+	open Binding
+will bind =%, +%, -%, ~%, and ++% operations for manipulating Z elements.
+
+To bind the entire structure of Z, one can use:
+	structure Binding = EuclideanDomainDollar(Z)
+	open Binding
+This binds operations: =$, !=$, *$, **$, /$, %$, //$, +$, -$, ~$
+
+There are also some generic algorithms, for example:
+	structure G = GCD(Z)
+This gives you a GCD method that works over integers.
+
+Another example:
+	structure P = PolynomialOverField(ComplexOfField(FieldOfReal(LargeReal)))
+	structure B = Polynomial(P)
+	open B
+Here, the operations with % on the end operate on complex values, while $
+operates on polynomials over the complex numbers.

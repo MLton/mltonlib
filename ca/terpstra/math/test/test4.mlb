@@ -1,0 +1,12 @@
+ann
+  "warnUnused true"
+  "warnMatch true"
+  "sequenceUnit true"
+in
+  local
+    $(MLTON_ROOT)/basis/basis.mlb
+    ../math.mlb
+  in
+    test4.sml
+  end
+end

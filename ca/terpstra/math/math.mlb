@@ -1,0 +1,44 @@
+ann
+  "deadCode true"
+  "sequenceNonUnit warn"
+in
+  local
+    $(MLTON_ROOT)/basis/mlton.mlb
+    $(MLTON_ROOT)/basis/basis.mlb
+  in
+    (* base types *)
+    ops.sig
+    ops.sml
+    groups.sig
+    groups.fun
+    rings.sig
+    rings.fun
+    algebra.sig
+    algebra.fun
+    
+    polynomial.fun
+    
+    (* generic algorithms need for construction *)
+    gcd.fun
+    
+    (* concrete constructions *)
+    order.sml
+    z.fun
+    z.sml
+    r.fun
+    r.sml
+    c.fun
+    c.sml
+    q.fun
+    q.sml
+    mersenne.fun
+    mersenne.sml
+    galois.fun
+    galois.sml
+    permutation.sml
+    
+    (* other algorithms *)
+    factor.sml
+    log.fun
+  end
+end
