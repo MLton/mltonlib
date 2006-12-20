@@ -28,4 +28,5 @@ functor MkMonoArrayExt (structure MonoVector : MONO_VECTOR
    val toVector = vector
    val isoVector = (toVector, fromVector)
    val isoPoly = (toPoly, fromPoly)
+   fun map f a = tabulate (length a, fn i => f (sub (a, i)))
 end

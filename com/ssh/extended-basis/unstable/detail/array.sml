@@ -14,4 +14,5 @@ structure Array : ARRAY = struct
    val toVector = vector
    fun fromVector v = tabulate (Vector.length v, fn i => Vector.sub (v, i))
    val isoVector = (toVector, fromVector)
+   fun map f a = tabulate (length a, fn i => f (sub (a, i)))
 end

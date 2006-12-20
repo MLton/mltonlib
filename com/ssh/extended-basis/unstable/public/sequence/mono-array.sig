@@ -24,6 +24,9 @@ signature MONO_ARRAY = sig
     * bi+1) = f (i, bi)}.
     *)
 
+   val map : elem UnOp.t -> t UnOp.t
+   (** {map f} is equivalent to {fromVector o MonoVector.map f o toVector}. *)
+
    (** == Conversions == *)
 
    val fromPoly : elem Array.t -> t
