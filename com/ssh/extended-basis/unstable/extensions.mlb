@@ -68,7 +68,11 @@ in
          basis Fix = bas public/generic/fix.sig detail/fix.sml end
          basis UnPr = bas public/fn/un-pr.sig detail/un-pr.sml end
          basis Order = bas public/data/order.sig detail/order.sml end
-         basis BinPr = bas public/fn/bin-pr.sig detail/bin-pr.sml end
+         basis BinPr = let
+            open Sq UnPr
+         in
+            bas public/fn/bin-pr.sig detail/bin-pr.sml end
+         end
          basis Cmp = let
             open Fn Order Sq
          in

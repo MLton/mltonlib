@@ -6,8 +6,11 @@
 
 (** Utilities for dealing with (unary) predicates. *)
 signature UN_PR = sig
-   type 'a t = 'a -> bool
+   type 'a t = 'a -> Bool.t
    (** Type of (unary) predicates (e.g. {null, isSome, ...}). *)
+
+   val map : ('a -> 'b) -> 'b t -> 'a t
+   (** Change the domain of a predicate. *)
 
    val andAlso : 'a t BinOp.t
    (** Conjunction of predicates ({(p andAlso q) x = p x andalso q y}). *)

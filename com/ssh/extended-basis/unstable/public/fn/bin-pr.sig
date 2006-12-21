@@ -8,4 +8,7 @@
 signature BIN_PR = sig
    type 'a t = 'a Sq.t UnPr.t
    (** Type of binary predicates or relations (e.g. {<, <=, >=, >, ...}). *)
+
+   val map : ('a -> 'b) -> 'b t -> 'a t
+   (** Change the domain of a binary predicate. *)
 end

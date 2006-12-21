@@ -6,4 +6,5 @@
 
 structure BinPr :> BIN_PR = struct
    open BinPr
+   fun map f = UnPr.map (Sq.map f)
 end
