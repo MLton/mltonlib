@@ -81,8 +81,8 @@ signature BUFFER = sig
 
    val pushBuffer : ('a t * 'a t) Effect.t
    (**
-    * Adds the elements of the buffer to the buffer.  {pushVectorSlice (b,
-    * b')} is equivalent to {pushList (b, toList b')}.
+    * Adds the elements of the buffer to the buffer.  {pushBuffer (b, b')}
+    * is equivalent to {pushList (b, toList b')}.
     *)
 
    val pushList : ('a t * 'a List.t) Effect.t
