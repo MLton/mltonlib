@@ -11,7 +11,7 @@ signature ARRAY = sig
    type 'a t = 'a array
    (** Convenience alias. *)
 
-   val duplicate : 'a t -> 'a t
+   val duplicate : 'a t UnOp.t
    (**
     * Makes a fresh duplicate of the given array.  {duplicate a} is
     * equivalent to {tabulate (length a, fn i => sub (a, i))}.
