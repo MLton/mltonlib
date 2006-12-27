@@ -25,6 +25,7 @@ is
    ../../public/fn/cmp.sig
    ../../public/fn/effect.sig
    ../../public/fn/fn.sig
+   ../../public/fn/shift-op.sig
    ../../public/fn/thunk.sig
    ../../public/fn/un-op.sig
    ../../public/fn/un-pr.sig

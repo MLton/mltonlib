@@ -201,6 +201,7 @@ in
          in
             bas public/lazy/promise.sig detail/promise.sml end
          end
+         basis ShiftOp = bas public/fn/shift-op.sig end
 
          open BinOp BinPr Bool Buffer
          open Cmp
@@ -212,7 +213,7 @@ in
          open Option Order
          open Products Promise
          open Reader Ref
-         open Scalars Seqs Sq Sum
+         open Scalars Seqs ShiftOp Sq Sum
          open Thunk Tie
          open Unit Univ UnOp UnPr
          open With Writer
