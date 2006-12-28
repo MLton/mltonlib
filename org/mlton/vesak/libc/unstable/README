@@ -1,0 +1,61 @@
+LibC MLNLFFI Interface
+----------------------
+
+   This library provides a MLNLFFI interface to (some portions of) the C
+   standard library (libc).
+
+
+Info
+----
+
+   License:         MLton license (a BSD-style license)
+   Portability:     portable
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.karvonen@cs.helsinki.fi>
+
+
+About Library Organization
+--------------------------
+
+   Makefile
+
+      This is a GNU makefile for building the library.  It is designed to
+      allow a single source tree to be built on multiple platforms.  Run
+      the command
+
+         make
+
+      to see a list of supported targets.
+
+   libc-nlffi-$(TARGET_ARCH)-$(TARGET_OS).a
+
+      This library contains the C compiled part of the libc interface.
+      You need to link your program against this library.  The variables
+      TARGET_ARCH and TARGET_OS refer to the corresponding variables as
+      defined by the compiler.  For example, with the mlton compiler
+      running the command
+
+         mlton -show-path-map true | grep TARGET
+
+      shows the variables.
+
+   public/
+
+      This directory contains the public header files used as source files
+      to mlnlffigen.
+
+   libc.mlb
+
+      This the MLB-file for the SML part of the libc interface.
+
+   detail/
+
+      This directory contains the implementation details of the library.
+
+
+About Motivation and Scope
+--------------------------
+
+   The main motivation of this library is to make it easier to implement
+   bindings to C libraries.  This library should eventually include all
+   parts of libc that make sense from that perspective.
