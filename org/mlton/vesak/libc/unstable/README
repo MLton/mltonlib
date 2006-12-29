@@ -35,7 +35,7 @@ About Library Organization
       defined by the compiler.  For example, with the mlton compiler
       running the command
 
-         mlton -show-path-map true | grep TARGET
+         mlton -show path-map | grep TARGET
 
       shows the variables.
 
@@ -46,7 +46,7 @@ About Library Organization
 
    libc.mlb
 
-      This the MLB-file for the SML part of the libc interface.
+      This is the MLB-file for the SML part of the libc interface.
 
    detail/
 
@@ -56,6 +56,6 @@ About Library Organization
 About Motivation and Scope
 --------------------------
 
-   The main motivation of this library is to make it easier to implement
-   bindings to C libraries.  This library should eventually include all
-   parts of libc that make sense from that perspective.
+   The main motivation behind this library is to make it easier to
+   implement bindings to C libraries.  This library should eventually
+   include all parts of libc that make sense from that perspective.
