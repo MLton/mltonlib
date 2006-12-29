@@ -3,10 +3,8 @@
 # This code is released under the MLton license, a BSD-style license.
 # See the LICENSE file or http://mlton.org/License for details.
 
-target_arch := $(shell mlton -show-path-map true | \
-                       awk '/^TARGET_ARCH/ {print $$2}')
-target_os   := $(shell mlton -show-path-map true | \
-                       awk '/^TARGET_OS/ {print $$2}')
+target_arch := $(shell mlton -show path-map | awk '/^TARGET_ARCH/ {print $$2}')
+target_os   := $(shell mlton -show path-map | awk '/^TARGET_OS/ {print $$2}')
 target_id   := $(target_arch)-$(target_os)
 
 lib_file    := libc-nlffi-$(target_id).a
