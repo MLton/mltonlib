@@ -4,12 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  */
 
-#define STATIC_ASSERT(c)                                        \
-extern void static_assert(int static_assert[(c) ? 1 : -1])
+#define STATIC_ASSERT(c)                        \
+extern int static_assert[(c) ? 1 : -1]
 
 #define ASSERT_EXISTS(name, type)                                       \
-extern int exists_##name(type* assert_exists);                          \
-extern void exists_aux_##name(int assert_exists[sizeof(exists_##name(&name))]);
+extern type* assert_exists_##name;                                      \
+extern int assert_exists[1+0*sizeof(assert_exists_##name = &name)];
 
 #define CONSTANT(name, type)                    \
 STATIC_ASSERT(sizeof(type) == sizeof(name));    \
