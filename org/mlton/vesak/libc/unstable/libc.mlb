@@ -4,4 +4,5 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-generated/$(TARGET_ARCH)-$(TARGET_OS)/libc.mlb
+generated/$(TARGET_ARCH)-$(TARGET_OS)/config/lib.mlb
+generated/$(TARGET_ARCH)-$(TARGET_OS)/std/lib.mlb

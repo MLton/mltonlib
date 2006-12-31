@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /************************************************************************/
 
@@ -48,18 +49,18 @@ static const char *
 choose_integer_type(const size_t size, const integer_kind kind) {
   switch (kind) {
   case signed_integer:
-    if (sizeof(signed char) == size) return "signed char";
+    if (sizeof(signed char) == size) return "char";
     if (sizeof(short) == size) return "short";
     if (sizeof(int) == size) return "int";
     if (sizeof(long) == size) return "long";
     if (sizeof(long long) == size) return "long long";
     break;
   case unsigned_integer:
-    if (sizeof(unsigned char) == size) return "unsigned char";
-    if (sizeof(unsigned short) == size) return "unsigned short";
-    if (sizeof(unsigned int) == size) return "unsigned int";
-    if (sizeof(unsigned long) == size) return "unsigned long";
-    if (sizeof(unsigned long long) == size) return "unsigned long long";
+    if (sizeof(unsigned char) == size) return "char";
+    if (sizeof(unsigned short) == size) return "short";
+    if (sizeof(unsigned int) == size) return "int";
+    if (sizeof(unsigned long) == size) return "long";
+    if (sizeof(unsigned long long) == size) return "long long";
     break;
   }
   fail("Couldn't find a %s type of %zd bytes.",
@@ -71,10 +72,7 @@ choose_integer_type(const size_t size, const integer_kind kind) {
 
 static void
 print_header(void) {
-  printf("#ifndef CONFIG_H\n"
-         "#define CONFIG_H\n"
-         "\n"
-         "/* THIS FILE IS GENERATED.  DO NOT EDIT! */\n");
+  printf("/* THIS FILE IS GENERATED.  DO NOT EDIT! */\n");
 }
 
 static void
@@ -89,13 +87,14 @@ static void
 print_integer_type(const size_t size,
                    const integer_kind kind,
                    const char *name) {
-  printf("typedef %s %s;\n", choose_integer_type(size, kind), name);
+  printf("typedef %8s %-12s %s;\n",
+         kind == signed_integer ? "signed" : "unsigned",
+         choose_integer_type(size, kind),
+         name);
 }
 
 static void
 print_footer(void) {
-  printf("\n"
-         "#endif\n");
 }
 
 /************************************************************************/
@@ -150,6 +149,11 @@ main(int argc, char *argv[]) {
   INTEGER_TYPE(uintptr_t);
   INTEGER_TYPE(intmax_t);
   INTEGER_TYPE(uintmax_t);
+
+  print_separator("time.h");
+
+  INTEGER_TYPE(clock_t);
+  INTEGER_TYPE(time_t);
 
   print_separator("wchar.h");
 

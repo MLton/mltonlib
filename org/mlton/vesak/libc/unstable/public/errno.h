@@ -4,5 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  */
 
-#define CONSTANT(type, name) const type name##_ = name;
-#define CONST_FN(type, name) type name##_(void) {return name;}
+CONSTANT(EDOM   , int)
+CONSTANT(EILSEQ , int)
+CONSTANT(ERANGE , int)
+
+PSEUDO_VARIABLE(errno   , int)
