@@ -1,0 +1,24 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+(*
+ * MLB file for building tests.
+ *)
+
+local
+   unit-test.mlb (* This should always be the first. *)
+
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+   lib.mlb
+
+   misc-test.sml
+   prettier-test.sml
+   promise-test.sml
+   qc-test-example.sml
+   show-test.sml
+   sorted-list-test.sml
+in
+end
