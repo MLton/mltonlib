@@ -1,0 +1,92 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+(*
+ * MLB file for misc utilities.
+ *)
+
+$(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+
+ann
+   "forceUsed"
+   "sequenceNonUnit warn"
+   "warnUnused true"
+in
+   (* base *)
+   infixes.sml
+   basic.sml
+   dbg.sml
+
+   (* misc *)
+   misc.sml
+
+   bit-flags.sml
+
+   (* variable argument fold *)
+   fold.sml
+   fold01n.sml
+   fold-pair.sml
+
+   fru.sml
+
+   sorted-list.sml
+
+   node.sml
+
+   queue.sig
+   queue.sml
+
+   word-table.sig
+   word-table.sml
+
+   cache.sig
+   local
+      $(SML_LIB)/mlnlffi-lib/mlnlffi-lib.mlb
+   in
+      cache.sml
+   end
+
+   (* SML *)
+   sml-syntax.sml
+
+   (* pretty printing *)
+   prettier.sml
+
+   (* random generators *)
+   rng.sig
+   random-gen.sig
+   mk-random-gen.fun
+   ranqd1-gen.sml
+   random-dev.sig
+   local
+      $(MLTON_ROOT)/basis/mlton.mlb
+   in
+      random-dev-mlton.sml
+   end
+
+   (* type-indexed stuff *)
+   structural-type.sig
+   structural-type-pair.fun
+   type-support.sml
+   type.sig
+   type-pair.fun
+   structural-type-to-type.fun
+   type-util.sml
+   lift.sml
+
+   (* structural type-indexed values *)
+   dummy.sml
+   type-info.sml
+   arbitrary.sml
+   compare.sml
+   eq.sml
+
+   (* nominal type-indexed values *)
+   show.sml
+
+   (* combined type-indexed values *)
+   type.sml
+end
