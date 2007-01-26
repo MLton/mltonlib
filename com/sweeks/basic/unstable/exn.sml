@@ -7,18 +7,29 @@ structure Exn: EXN = struct
 
    type t = Exn.t
 
-   local
-      datatype 'a z = Ok of 'a | Raise of t
-   in
-      val try: (Unit.t -> 'a) * ('a -> 'b) * (t -> 'b) -> 'b =
-         fn (t, k, h) =>
-         case Ok (t ()) handle e => Raise e of
-            Ok x => k x
-          | Raise e => h e
-   end
+   datatype 'a z = Ok of 'a | Raise of t
 
-   fun finally (thunk, cleanup: Unit.t -> Unit.t) =
-      try (thunk, fn a => (cleanup (); a), fn e => (cleanup (); raise e))
+   val run: (Unit.t -> 'a) -> 'a z =
+      fn t => Ok (t ()) handle e => Raise e
+
+   val eval: 'a z -> 'a =
+      fn z =>
+      case z of
+         Ok x => x
+       | Raise e => raise e
+
+   val try: (Unit.t -> 'a) * ('a -> 'b) * (t -> 'b) -> 'b =
+      fn (t, k, h) =>
+      case run t of
+         Ok x => k x
+       | Raise e => h e
+
+   fun finally (t, cleanup: Unit.t -> Unit.t) = let
+      val z = run t
+      val () = cleanup ()
+   in
+      eval z
+   end
 
 end
 
