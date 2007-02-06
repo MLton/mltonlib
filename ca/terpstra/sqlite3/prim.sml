@@ -1,4 +1,4 @@
-structure Prim : PRIM =
+structure Prim :> PRIM =
    struct
       type db = MLton.Pointer.t
       type query = MLton.Pointer.t

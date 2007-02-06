@@ -1,4 +1,4 @@
-functor PrimDebug(P : PRIM) : PRIM =
+functor PrimDebug(P : PRIM) :> PRIM =
    struct
       open P
       

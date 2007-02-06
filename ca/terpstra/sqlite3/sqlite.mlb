@@ -8,8 +8,12 @@ local
    in
       prim.sml
    end
+(* debug.sml *) (* wraps all the primitive methods to check execution *)
+   
+   fold.sig
    fold.sml
-(* debug.sml *)
+   template.sml
 in
+   sql.sig
    sql.sml
 end
