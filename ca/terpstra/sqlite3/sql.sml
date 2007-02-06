@@ -1,4 +1,4 @@
-structure SQL : SQL =
+structure SQL :> SQL =
    struct
       type db = Prim.db
       type ('a, 'b) query = Prim.query * ('a -> 'b)
