@@ -32,6 +32,7 @@ is
    ../../public/generic/emb.sig
    ../../public/generic/fix.sig
    ../../public/generic/iso.sig
+   ../../public/io/text-io.sig
    ../../public/numeric/int-inf.sig
    ../../public/numeric/integer.sig
    ../../public/numeric/real.sig

@@ -202,6 +202,7 @@ in
             bas public/lazy/promise.sig detail/promise.sml end
          end
          basis ShiftOp = bas public/fn/shift-op.sig end
+         basis TextIO = bas public/io/text-io.sig detail/text-io.sml end
 
          open BinOp BinPr Bool Buffer
          open Cmp
@@ -214,7 +215,7 @@ in
          open Products Promise
          open Reader Ref
          open Scalars Seqs ShiftOp Sq Sum
-         open Thunk Tie
+         open TextIO Thunk Tie
          open Unit Univ UnOp UnPr
          open With Writer
       in

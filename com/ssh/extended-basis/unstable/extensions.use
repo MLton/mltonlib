@@ -89,6 +89,7 @@ in
         "detail/"^compiler^"/texts.sml",
         "public/lazy/promise.sig", "detail/promise.sml",
         "public/fn/shift-op.sig",
+        "public/io/text-io.sig", "detail/text-io.sml",
         "detail/"^compiler^"/forget.use",
         "public/export/"^compiler^".sml",
         "public/export/common.sml",

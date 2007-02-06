@@ -43,6 +43,10 @@ val isNone = Option.isNone
 
 val op :=: = Ref.:=:
 
+(** ==== TextIO ==== *)
+
+val println = TextIO.println
+
 (** ==== UnPr ==== *)
 
 val op andAlso = UnPr.andAlso
