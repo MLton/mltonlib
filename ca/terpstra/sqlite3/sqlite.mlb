@@ -9,6 +9,6 @@ local
       prim.sml
    end
    fold.sml
-   sql.sml
 in
+   sql.sml
 end

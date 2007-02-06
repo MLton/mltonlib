@@ -47,6 +47,9 @@ structure SQL =
          Foldr.foldr (([], outputEnds, inputEnds), 
                       fn (ql, oF, iF) => iF ((oF, db, concat (q::ql)), 1, fn _ => ()))
       
+      (* terminate an execution with this: *)
+      val $ = $
+      
       (* typecast a single column and set it up as an argument *)
       fun oFetch m s (q, i, f) = s (q, i+1, f (m (q, i)))
       fun oMap f = Foldr.step1 (fn (q, (ql, oF, iF)) => (q :: ql, oFetch f oF, iF))
