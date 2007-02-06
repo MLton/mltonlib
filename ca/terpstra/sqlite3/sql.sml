@@ -15,13 +15,32 @@ structure SQL =
             val q = Prim.prepare (db, q)
             val () = b q
             
-            fun exec NONE = (Prim.finalize q; NONE)
-              | exec (SOME f) =
-                   if Prim.step q 
-                   then SOME (oF (q, 0, f)) 
-                   else (Prim.finalize q; NONE)
+            fun cancel () = 
+              Prim.finalize q
+            
+            fun step f =
+               if Prim.step q 
+               then SOME (oF (q, 0, f)) 
+               else (Prim.finalize q; NONE)
+            
+            fun app f =
+               if Prim.step q
+               then (oF (q, 0, f); app f)
+               else Prim.finalize q
+            
+            fun map l f =
+               if Prim.step q
+               then map (oF (q, 0, f) :: l) f
+               else (Prim.finalize q; Vector.fromList (List.rev l))
+            
+            fun meta () = {
+               names = Prim.names q,
+               databases = Prim.databases q,
+               decltypes = Prim.decltypes q,
+               tables = Prim.tables q,
+               origins = Prim.origins q }
          in
-            exec
+            { step = step, app = app, map = map [], cancel = cancel, meta = meta }
          end
       
       fun execute db q =
@@ -65,13 +84,12 @@ structure SQL =
       fun i4 f (a, b, c, d) = f a b c d ()
       fun i5 f (a, b, c, d, e) = f a b c d e ()
       
-      fun ox g m () = g (SOME m)
-      fun o0 f x = ox (f x) (fn () => ())
-      fun o1 f x = ox (f x) (fn a => fn () => (a))
-      fun o2 f x = ox (f x) (fn a => fn b => fn () => (a, b))
-      fun o3 f x = ox (f x) (fn a => fn b => fn c => fn () => (a, b, c))
-      fun o4 f x = ox (f x) (fn a => fn b => fn c => fn d => fn () => (a, b, c, d))
-      fun o5 f x = ox (f x) (fn a => fn b => fn c => fn d => fn e => fn () => (a, b, c, d, e))
+      fun o0 f = f (fn () => ())
+      fun o1 f = f (fn a => fn () => (a))
+      fun o2 f = f (fn a => fn b => fn () => (a, b))
+      fun o3 f = f (fn a => fn b => fn c => fn () => (a, b, c))
+      fun o4 f = f (fn a => fn b => fn c => fn d => fn () => (a, b, c, d))
+      fun o5 f = f (fn a => fn b => fn c => fn d => fn e => fn () => (a, b, c, d, e))
    end
 (*
 open SQL
