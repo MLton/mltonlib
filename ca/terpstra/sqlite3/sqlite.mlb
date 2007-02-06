@@ -1,0 +1,12 @@
+local
+   $(SML_LIB)/basis/basis.mlb
+   $(SML_LIB)/basis/mlton.mlb
+   
+   prim.sig
+   ann
+      "allowFFI true"
+   in
+      prim.sml
+   end
+in
+end
