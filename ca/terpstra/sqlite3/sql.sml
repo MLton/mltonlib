@@ -1,6 +1,8 @@
 structure SQL =
    struct
       type db = Prim.db
+      type ('a, 'b) query = Prim.query * ('a -> 'b)
+      type column = Prim.column
       
       exception Retry = Prim.Retry
       exception Abort = Prim.Abort
@@ -9,43 +11,21 @@ structure SQL =
       val openDB  = Prim.openDB
       val closeDB = Prim.closeDB
       
-      fun outputEnds (_, _, f) = f ()
-      fun inputEnds ((oF, db, q), _, b) () =
+      fun outputEnds (_, _, r) = r
+      fun inputEnds ((oF, db, q), _, b) =
          let
             val q = Prim.prepare (db, q)
             val () = b q
             
-            fun cancel () = 
-              Prim.finalize q
-            
-            fun step f =
-               if Prim.step q 
-               then SOME (oF (q, 0, f)) 
-               else (Prim.finalize q; NONE)
-            
-            fun app f =
-               if Prim.step q
-               then (oF (q, 0, f); app f)
-               else Prim.finalize q
-            
-            fun map l f =
-               if Prim.step q
-               then map (oF (q, 0, f) :: l) f
-               else (Prim.finalize q; Vector.fromList (List.rev l))
-            
-            fun meta () = {
-               names = Prim.names q,
-               databases = Prim.databases q,
-               decltypes = Prim.decltypes q,
-               tables = Prim.tables q,
-               origins = Prim.origins q }
+            fun exec f = oF (q, 0, f)
          in
-            { step = step, app = app, map = map [], cancel = cancel, meta = meta }
+            (q, exec)
          end
       
-      fun execute db q =
+      fun query q =
          Foldr.foldr (([], outputEnds, inputEnds), 
-                      fn (ql, oF, iF) => iF ((oF, db, concat (q::ql)), 1, fn _ => ()))
+                      fn (ql, oF, iF) => fn db =>
+                      iF ((oF, db, concat (q::ql)), 1, fn _ => ()))
       
       (* terminate an execution with this: *)
       val $ = $
@@ -80,23 +60,31 @@ structure SQL =
       fun iS z = iMap Prim.bindS z
       fun iX z = iMap Prim.bindX z
       
-      fun i0 f () = f ()
-      fun i1 f (a) = f a ()
-      fun i2 f (a, b) = f a b ()
-      fun i3 f (a, b, c) = f a b c ()
-      fun i4 f (a, b, c, d) = f a b c d ()
-      fun i5 f (a, b, c, d, e) = f a b c d e ()
+      val tuple0 = ()
+      fun tuple1 a = a
+      fun tuple2 a b = (a, b)
+      fun tuple3 a b c = (a, b, c)
+      fun tuple4 a b c d = (a, b, c, d)
+      fun tuple5 a b c d e = (a, b, c, d, e)
+      fun tuple6 a b c d e f = (a, b, c, d, e, f)
+      fun tuple7 a b c d e f g = (a, b, c, d, e, f, g)
+      fun tuple8 a b c d e f g h = (a, b, c, d, e, f, g, h)
       
-      fun o0 f = f (fn () => ())
-      fun o1 f = f (fn a => fn () => (a))
-      fun o2 f = f (fn a => fn b => fn () => (a, b))
-      fun o3 f = f (fn a => fn b => fn c => fn () => (a, b, c))
-      fun o4 f = f (fn a => fn b => fn c => fn d => fn () => (a, b, c, d))
-      fun o5 f = f (fn a => fn b => fn c => fn d => fn e => fn () => (a, b, c, d, e))
+      fun close (q, _) = Prim.finalize q
+      fun meta  (q, _) = Prim.meta q
+      
+      fun step f (q, exec) =
+         if Prim.step q 
+         then SOME (exec f)
+         else (Prim.reset q; NONE)
+      
+      fun map f (q, exec) =
+         let
+            fun helper l =
+               if Prim.step q
+               then helper (exec f :: l)
+               else (Prim.reset q; Vector.fromList (List.rev l))
+         in
+            helper []
+         end
    end
-(*
-open SQL
-val db = Prim.openDB "test.db"
-val Q : real * string * int -> unit -> (string * string) option =
-   o2 (i3 (execute db "select (a"oS", b"oS") from table where x="iR" and y="iS" and z="iI";" $))
-*)

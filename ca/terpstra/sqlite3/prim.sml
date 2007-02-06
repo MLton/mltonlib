@@ -17,7 +17,7 @@ structure Prim : PRIM =
       val Pfinalize = _import "sqlite3_finalize" : MLton.Pointer.t -> int;
       val Pprepare  = _import "sqlite3_prepare_v2" : MLton.Pointer.t * string * int * MLton.Pointer.t ref * MLton.Pointer.t ref -> int;
       val Pstep     = _import "sqlite3_step" : MLton.Pointer.t -> int;
-(*    val Preset    = _import "sqlite3_reset" : MLton.Pointer.t -> int; *)
+      val Preset    = _import "sqlite3_reset" : MLton.Pointer.t -> int;
       
       val Pbind_blob   = _import "sqlite3_bind_blob"   : MLton.Pointer.t * int * Word8Vector.vector * int * word -> int;
       val Pbind_double = _import "sqlite3_bind_double" : MLton.Pointer.t * int * real -> int;
@@ -52,7 +52,7 @@ structure Prim : PRIM =
       
       (* expiry should just raise an exception... *)
       
-      (* we don't support extended result codes; that would break datatypes *)
+      (* we don't support extended result codes; that would break the case statement *)
       
       (* the exec & get_table methods are better reimplemented in SML *)
       
@@ -129,6 +129,7 @@ structure Prim : PRIM =
          code (Pdb_handle q, r)
       
       fun finalize q = wrap (q, Pfinalize q)
+      fun reset q = wrap (q, Preset q)
       fun step q = 
          case (Pstep q) of
             100 => true  (* #define SQLITE_ROW         100  /* sqlite_step() has another row ready */ *)
@@ -168,6 +169,7 @@ structure Prim : PRIM =
       fun fetchR (q, i) = Pcolumn_double (q, i)
       fun fetchI (q, i) = Pcolumn_int (q, i)
       fun fetchZ (q, i) = Pcolumn_int64 (q, i)
+      fun fetchN (q, i) = ()
       fun fetchS (q, i) = valOf (cstr (Pcolumn_text (q, i)))
       
       fun fetchX (q, i) =
@@ -179,10 +181,29 @@ structure Prim : PRIM =
           | 5 => NULL
           | _ => raise Fail "Invalid storage type"
       
-      fun fetch (q, f) = Vector.tabulate (cols q, fn i => cstr (f (q, i)))
-      fun databases q = fetch (q, Pcolumn_database_name)
-      fun decltypes q = fetch (q, Pcolumn_decltype)
-      fun tables    q = fetch (q, Pcolumn_table_name)
-      fun origins   q = fetch (q, Pcolumn_origin_name)
-      fun names     q = Vector.tabulate (cols q, fn i => valOf (cstr (Pcolumn_name (q, i))))
+      type column = { name: string }
+(*                    origin: { table:  string,
+                                db:     string,
+                                decl:   string,
+                                schema: string } 
+                              option }
+*)
+      fun fetch (q, i) = 
+         let
+            fun get f = valOf (cstr (f (q, i)))
+            val name = get Pcolumn_name
+         in
+            { name = name }
+(* usually not compiled into sqlite3:
+            case cstr (Pcolumn_decltype (q, i)) of
+               NONE => { name = name, origin = NONE }
+             | SOME decl =>
+              { name = name,
+                origin = SOME { table  = get Pcolumn_table_name,
+                                db     = get Pcolumn_database_name,
+                                decl   = decl,
+                                schema = get Pcolumn_origin_name } }
+*)
+         end
+      fun meta q = Vector.tabulate (cols q, fn i => fetch (q, i))
    end

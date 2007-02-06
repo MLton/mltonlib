@@ -7,14 +7,16 @@ signature PRIM =
       exception Abort of string (* transaction aborted *)
       exception Fail  of string (* database corrupt; close it *)
       
+      (* a side-benefit of this as a string is that it forces sqlite3 to be linked *)
       val version: string
       
-      (* All of these methods can raise an exception *)
+      (* All of these methods can raise an exception: *)
       
       val openDB: string -> db
       val closeDB: db -> unit
       
       val prepare:  db * string -> query
+      val reset:    query -> unit
       val finalize: query -> unit
       val step:     query -> bool
       
@@ -29,6 +31,7 @@ signature PRIM =
       val bindR: query * int * real -> unit
       val bindI: query * int * int -> unit
       val bindZ: query * int * Int64.int -> unit
+      val bindN: query * int -> unit
       val bindS: query * int * string -> unit
       val bindX: query * int * storage -> unit
       
@@ -37,12 +40,20 @@ signature PRIM =
       val fetchR: query * int -> real
       val fetchI: query * int -> int
       val fetchZ: query * int -> Int64.int
+      val fetchN: query * int -> unit
       val fetchS: query * int -> string
       val fetchX: query * int -> storage
       
-      val databases: query -> string option vector
-      val decltypes: query -> string option vector
-      val tables:    query -> string option vector
-      val origins:   query -> string option vector
-      val names:     query -> string vector
+      (* Every output column has a name.
+       * Depending on compile options of sqlite3, you might have more meta-data.
+       * We comment out the sections that must be enabled at sqlite3 compile-time.
+       *)
+      type column = { name: string }
+      (*
+                      origin: { table:  string,
+                                db:     string,
+                                decl:   string,
+                                schema: string }
+                              option } *)
+      val meta: query -> column vector
    end
