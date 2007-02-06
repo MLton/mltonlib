@@ -129,7 +129,11 @@ structure Prim : PRIM =
          code (Pdb_handle q, r)
       
       fun finalize q = wrap (q, Pfinalize q)
-      fun step q = wrap (q, Pstep q)
+      fun step q = 
+         case (Pstep q) of
+            100 => true  (* #define SQLITE_ROW         100  /* sqlite_step() has another row ready */ *)
+          | 101 => false (* #define SQLITE_DONE        101  /* sqlite_step() has finished executing */ *)
+          | r => (wrap (q, r); raise Fail "unreachable")
       
       datatype storage = INTEGER of Int64.int
                        | REAL of real

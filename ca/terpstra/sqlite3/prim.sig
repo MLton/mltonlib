@@ -16,7 +16,7 @@ signature PRIM =
       
       val prepare:  db * string -> query
       val finalize: query -> unit
-      val step:     query -> unit
+      val step:     query -> bool
       
       datatype storage = INTEGER of Int64.int
                        | REAL of real
