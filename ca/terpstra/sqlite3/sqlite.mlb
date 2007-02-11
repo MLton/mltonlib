@@ -12,8 +12,12 @@ local
    
    fold.sig
    fold.sml
-   template.sml
 in
+   pair.sml
    sql.sig
-   sql.sml
+   local
+     template.sml
+   in
+     sql.sml
+   end
 end

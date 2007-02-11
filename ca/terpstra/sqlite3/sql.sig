@@ -1,7 +1,7 @@
 signature SQL =
    sig
       type db
-      type ('a, 'b) query
+      type 'a query
       type column = { name: string }
       
       exception Retry of string
@@ -11,11 +11,16 @@ signature SQL =
       val openDB: string -> db
       val closeDB: db -> unit
       
-      val close: ('a, 'b) query -> unit
-      val meta:  ('a, 'b) query -> column vector
+      val close: 'a query -> unit
+      val meta:  'a query -> column vector
       
-      val step: 'a -> ('a, 'b) query -> 'b option
-      val map:  'a -> ('a, 'b) query -> 'b vector
+      val step: 'a query -> 'a option
+      val map:  ('a -> 'b) -> 'a query -> 'b vector
+      val app:  ('a -> unit) -> 'a query -> unit
+      
+      (* convenience functions *)
+      val pull: 'a query -> 'a vector
+      val exec: unit query -> unit
       
       datatype storage = INTEGER of Int64.int
                        | REAL of real
@@ -28,39 +33,47 @@ signature SQL =
        * local
        *   open SQL.Template
        * in
-       *   val T1 : SQL.db -> int -> string -> (string -> real -> out, out) query
-       *          = query "select (a, b) from table where x="iI" and y="iS";" oS oR $
+       *   val T1 = query "select (a, b) from table 1where x="iI" and y="iS";" oS oR $
+       *   val T2 = query "insert into table2 values (4, 6);" $
        * end
+       * ...
+       * val Q1 = T1 (db & 6 & "sdfs")
+       * val Q2 = T2 db
+       * 
+       * val () = SQL.app (fn (x & y) => ...) Q1
+       * val () = SQL.exec Q2
        *)
       structure Template :
          sig
-            type ('o, 'of, 'i, 'r) acc
+            type ('i, 'o, 'x, 'y) acc
+            type ('v, 'i, 'o, 'x, 'y, 'a, 'b, 'c) output = (('i, 'o, 'v, 'x) acc, ('i, 'x, 'y, ('x, 'y) pair) acc, 'a, 'b, 'c) Fold.step0
+            type ('v, 'i, 'o, 'x, 'y, 'a, 'b, 'c) input = (string, ('i, 'o, 'x, 'y) acc, (('i, 'v) pair, 'o, 'x, 'y) acc, 'a, 'b, 'c) Fold.step1
             
-            val query: string -> (('r,  'of, ('of, 'r) query, 'r) acc, ('of, 'of, 'i, 'r) acc, db -> 'i, 'y, 'z) Foldr.t
+            val query: string -> ((db, unit, 'a, 'a) acc, ('i, 'o, 'x, 'y) acc, 'i -> 'o query, 'z) Fold.t
             val $ : 'a * ('a -> 'b) -> 'b
             
-            (* Convert all the columns to the desired type in a vector *)
-            val oAB: (('o, 'of, 'i, 'r) acc, (Word8Vector.vector vector -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oAR: (('o, 'of, 'i, 'r) acc, (real               vector -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oAI: (('o, 'of, 'i, 'r) acc, (int                vector -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oAZ: (('o, 'of, 'i, 'r) acc, (Int64.int          vector -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oAS: (('o, 'of, 'i, 'r) acc, (string             vector -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oAX: (('o, 'of, 'i, 'r) acc, (storage            vector -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            
             (* Convert the next column to the desired type *)
-            val oB: (('o, 'of, 'i, 'r) acc, (Word8Vector.vector -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oR: (('o, 'of, 'i, 'r) acc, (real               -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oI: (('o, 'of, 'i, 'r) acc, (int                -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oZ: (('o, 'of, 'i, 'r) acc, (Int64.int          -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oS: (('o, 'of, 'i, 'r) acc, (string             -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
-            val oX: (('o, 'of, 'i, 'r) acc, (storage            -> 'o, 'of, 'i, 'r) acc, 'x, 'y, 'z) Foldr.step0
+            val oB: (Word8Vector.vector, 'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oR: (real,               'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oI: (int,                'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oZ: (Int64.int,          'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oS: (string,             'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oX: (storage,            'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            
+            (* Convert all the columns to the desired type in a vector *)
+            val oAB: (Word8Vector.vector vector, 'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oAR: (real               vector, 'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oAI: (int                vector, 'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oAZ: (Int64.int          vector, 'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oAS: (string             vector, 'i, 'o, 'x, 'y, 'a, 'b, 'c) output
+            val oAX: (storage            vector, 'i, 'o, 'x, 'y, 'a, 'b, 'c) output
             
             (* Use a variable of the named type in the SQL statement *)
-            val iB: (string, ('o, 'of, 'i, 'r) acc, ('o, 'of, Word8Vector.vector -> 'i, 'r) acc, 'x, 'y, 'z) Foldr.step1
-            val iR: (string, ('o, 'of, 'i, 'r) acc, ('o, 'of, real               -> 'i, 'r) acc, 'x, 'y, 'z) Foldr.step1
-            val iI: (string, ('o, 'of, 'i, 'r) acc, ('o, 'of, int                -> 'i, 'r) acc, 'x, 'y, 'z) Foldr.step1
-            val iZ: (string, ('o, 'of, 'i, 'r) acc, ('o, 'of, Int64.int          -> 'i, 'r) acc, 'x, 'y, 'z) Foldr.step1
-            val iS: (string, ('o, 'of, 'i, 'r) acc, ('o, 'of, string             -> 'i, 'r) acc, 'x, 'y, 'z) Foldr.step1
-            val iX: (string, ('o, 'of, 'i, 'r) acc, ('o, 'of, storage            -> 'i, 'r) acc, 'x, 'y, 'z) Foldr.step1
+            val iB: (Word8Vector.vector, 'i, 'o, 'x, 'y, 'a, 'b, 'c) input
+            val iR: (real,               'i, 'o, 'x, 'y, 'a, 'b, 'c) input
+            val iI: (int,                'i, 'o, 'x, 'y, 'a, 'b, 'c) input
+            val iZ: (Int64.int,          'i, 'o, 'x, 'y, 'a, 'b, 'c) input
+            val iS: (string,             'i, 'o, 'x, 'y, 'a, 'b, 'c) input
+            val iX: (storage,            'i, 'o, 'x, 'y, 'a, 'b, 'c) input
          end
    end
