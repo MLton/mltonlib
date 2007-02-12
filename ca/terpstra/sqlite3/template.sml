@@ -1,27 +1,42 @@
 structure Template =
    struct
+      (* Cry ... *)
       type 'a oF = Prim.query -> 'a
       type ('b, 'c) oN = Prim.query * (unit -> 'b) -> 'c
-      type 'd iF = 'd * string -> Prim.query * int
-      type ('i, 'o, 'x, 'y) acc = string list * 'o oF * ('x, 'y) oN * int * 'i iF
-      type ('v, 'i, 'o, 'x, 'y, 'a, 'b, 'c) output = (('i, 'o, 'v, 'x) acc, ('i, 'x, 'y, ('x, 'y) pair) acc, 'a, 'b, 'c) Fold.step0
-      type ('v, 'i, 'o, 'x, 'y, 'a, 'b, 'c) input = (string, ('i, 'o, 'x, 'y) acc, (('i, 'v) pair, 'o, 'x, 'y) acc, 'a, 'b, 'c) Fold.step1
+      type 'd iF = Prim.query * 'd -> unit
+      type ('e, 'f) iN = Prim.query * 'e -> int * 'f
+      type ('i, 'o, 'w, 'x, 'y, 'z) acc = string list * 'o oF * ('w, 'x) oN * int * 'i iF * ('y, 'z) iN
+      type ('v, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output = 
+           (('i, 'o, 'v, 'p,            'a, 'b) acc, 
+            ('i, 'p, 'q, ('p, 'q) pair, 'a, 'b) acc, 
+            'x, 'y, 'z) Fold.step0
+      type ('v, 'i, 'o, 'j, 'k, 'a, 'b, 'x, 'y, 'z) input = 
+           (string, ('i, 'o, 'a, 'b, 'j, 'v) acc, 
+                    ('j, 'o, 'a, 'b, ('j, 'k) pair, 'k) acc, 
+                    'x, 'y, 'z) Fold.step1
       
       fun oF0 _ = ()
       fun oN0 (q, n) = n ()
       val oI0 = 0
-      fun iF0 (db, qs) = (Prim.prepare (db, qs), 1)
+      fun iF0 (q, ()) = ()
+      fun iN0 (q, x) = (1, x)
       
-      fun query qs = Fold.fold (([qs], oF0, oN0, oI0, iF0),
-                                fn (ql, oF, _, _, iF) => 
-                                let val qs = concat (rev ql)
-                                in fn arg => 
-                                   case iF (arg, qs) of (q, _) => (q, oF)
-                                end)
+      fun query db qs = Fold.fold (([qs], oF0, oN0, oI0, iF0, iN0),
+                                   fn (ql, oF, _, oI, iF, _) => 
+                                   let val qs = concat (rev ql)
+                                       val q = Prim.prepare (db, qs)
+                                   in  if Prim.cols q < oI
+                                       then (Prim.finalize q;
+                                             raise Fail "insufficient output columns")
+                                       else (q, iF, oF)
+                                   end)
+      (* terminate an expression with this: *)
+      val $ = $
       
-      fun iFx f iF (a & x, qs) = case iF (a, qs) of (q, i) => (f (q, i, x); (q, i+1))
-      fun iMap f = Fold.step1 (fn (qs, (ql, oF, oN, oI, iF)) => 
-                                  (qs :: "?" :: ql, oF, oN, oI, iFx f iF))
+      fun iFx f iN (q, a) = case iN (q, a) of (i, x) => f (q, i, x)
+      fun iNx f iN (q, a & y) = case iN (q, a) of (i, x) => (f (q, i, x); (i+1, y))
+      fun iMap f = Fold.step1 (fn (qs, (ql, oF, oN, oI, iF, iN)) => 
+                                  (qs :: "?" :: ql, oF, oN, oI, iFx f iN, iNx f iN))
       fun iB z = iMap Prim.bindB z
       fun iR z = iMap Prim.bindR z
       fun iI z = iMap Prim.bindI z
@@ -31,8 +46,8 @@ structure Template =
       
       fun oFx f (oN, oI) q = oN (q, fn () => f (q, oI))
       fun oNx f (oN, oI) (q, n) = oN (q, fn () => f (q, oI)) & n ()
-      fun oMap f = Fold.step0 (fn (ql, oF, oN, oI, iF) => 
-                                  (ql, oFx f (oN, oI), oNx f (oN, oI), oI+1, iF))
+      fun oMap f = Fold.step0 (fn (ql, oF, oN, oI, iF, iN) => 
+                                  (ql, oFx f (oN, oI), oNx f (oN, oI), oI+1, iF, iN))
       fun oB z = oMap Prim.fetchB z
       fun oR z = oMap Prim.fetchR z
       fun oI z = oMap Prim.fetchI z
@@ -43,15 +58,12 @@ structure Template =
       fun fetchA (q, m) = Vector.tabulate (Prim.cols q, fn i => m (q, i))
       fun oFAx f oN q = oN (q, fn () => fetchA (q, f))
       fun oNAx f oN (q, n) = oN (q, fn () => fetchA (q, f)) & n ()
-      fun oMapA f = Fold.step0 (fn (ql, oF, oN, oI, iF) => 
-                                   (ql, oFAx f oN, oNAx f oN, oI, iF))
+      fun oMapA f = Fold.step0 (fn (ql, oF, oN, oI, iF, iN) => 
+                                   (ql, oFAx f oN, oNAx f oN, oI, iF, iN))
       fun oAB z = oMapA Prim.fetchB z
       fun oAR z = oMapA Prim.fetchR z
       fun oAI z = oMapA Prim.fetchI z
       fun oAZ z = oMapA Prim.fetchZ z
       fun oAS z = oMapA Prim.fetchS z
       fun oAX z = oMapA Prim.fetchX z
-      
-      (* terminate an execution with this: *)
-      val $ = $
    end      

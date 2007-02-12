@@ -16,9 +16,10 @@ signature PRIM =
       val closeDB: db -> unit
       
       val prepare:  db * string -> query
-      val reset:    query -> unit
       val finalize: query -> unit
+      val reset:    query -> unit
       val step:     query -> bool
+      val clearbindings: query -> unit
       
       datatype storage = INTEGER of Int64.int
                        | REAL of real

@@ -18,6 +18,7 @@ structure Prim :> PRIM =
       val Pprepare  = _import "sqlite3_prepare_v2" : MLton.Pointer.t * string * int * MLton.Pointer.t ref * MLton.Pointer.t ref -> int;
       val Pstep     = _import "sqlite3_step" : MLton.Pointer.t -> int;
       val Preset    = _import "sqlite3_reset" : MLton.Pointer.t -> int;
+      val Pclearbindings = _import "sqlite3_clear_bindings" : MLton.Pointer.t -> int;
       
       val Pbind_blob   = _import "sqlite3_bind_blob"   : MLton.Pointer.t * int * Word8Vector.vector * int * word -> int;
       val Pbind_double = _import "sqlite3_bind_double" : MLton.Pointer.t * int * real -> int;
@@ -135,6 +136,7 @@ structure Prim :> PRIM =
             100 => true  (* #define SQLITE_ROW         100  /* sqlite_step() has another row ready */ *)
           | 101 => false (* #define SQLITE_DONE        101  /* sqlite_step() has finished executing */ *)
           | r => (wrap (q, r); raise Fail "unreachable")
+      fun clearbindings q = wrap (q, Pclearbindings q)
       
       datatype storage = INTEGER of Int64.int
                        | REAL of real

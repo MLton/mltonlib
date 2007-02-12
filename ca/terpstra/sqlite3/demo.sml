@@ -1,4 +1,4 @@
-open SQL.Template
+val () = print ("SQLite version: " ^ SQL.version ^ "\n")
 
 fun die x = (
    print ("Caught exception: " ^ x ^ "\n");
@@ -7,25 +7,19 @@ fun die x = (
 val (dbname, query) = case CommandLine.arguments () of
      [x, y] => (x, y)
    | _ => die "Expecting: <database name> <query>\n"
+val arg = valOf (Int.fromString query)
+val db = SQL.openDB dbname handle Fail x => die x
 
 local
   open SQL.Template
 in
-  (* query templates I might execute *)
-  val T1 = query "select x, y from peanuts\n\
-                 \where y="iI" or x="iS";" oS oI $
+  val Q1 = query db "select x, y from peanuts\n\
+                    \where y="iI" or x="iS";" oS oI $
+           handle Fail x => die x
 end
 
-fun dump (q, a) = (
-    Vector.app (fn x => print (#name x ^ " ")) (SQL.meta q);
-    print "\n";
-    Vector.app (fn (s & i) => print (s ^ " " ^ Int.toString i ^ "\n")) a
-    )
+fun dump (s & i) = print (s ^ " " ^ Int.toString i ^ "\n")
+val a  = SQL.app dump Q1 (arg & "hi") handle Fail x => die x
 
-val db = SQL.openDB dbname handle Fail x => die x
-val Q1 = T1 (db & valOf (Int.fromString query) & "hi") handle Fail x => die x
-val a  = SQL.pull Q1 handle Fail x => die x
-val () = dump (Q1, a)
 val () = SQL.close Q1
-
 val () = SQL.closeDB db
