@@ -9,7 +9,7 @@ signature SQL =
       
       exception Retry of string
       exception Abort of string
-      exception Fail  of string
+      exception Error of string
       
       (* The version of SQLite3 bound *)
       val version: string

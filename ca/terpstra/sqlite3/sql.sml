@@ -7,7 +7,7 @@ structure SQL :> SQL =
       
       exception Retry = Prim.Retry
       exception Abort = Prim.Abort
-      exception Fail  = Prim.Fail
+      exception Error = Prim.Error
       
       structure Template = Template
       

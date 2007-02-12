@@ -5,7 +5,7 @@ signature PRIM =
       
       exception Retry of string (* retriable error; busy/locked/etc *)
       exception Abort of string (* transaction aborted *)
-      exception Fail  of string (* database corrupt; close it *)
+      exception Error of string (* database corrupt; close it *)
       
       (* a side-benefit of this as a string is that it forces sqlite3 to be linked *)
       val version: string

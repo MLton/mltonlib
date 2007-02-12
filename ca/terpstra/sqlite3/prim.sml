@@ -5,7 +5,7 @@ structure Prim :> PRIM =
       
       exception Retry of string (* retriable error; busy/locked/etc *)
       exception Abort of string (* transaction aborted *)
-      exception Fail  of string (* database corrupt; close it *)
+      exception Error of string (* database corrupt; close it *)
      
       val PopenDB = _import "sqlite3_open"   : string * MLton.Pointer.t ref -> int;
       val PcloseDB= _import "sqlite3_close"  : MLton.Pointer.t -> int;
@@ -78,30 +78,30 @@ structure Prim :> PRIM =
       
       fun why db = valOf (cstr (Perrmsg db))
       fun code (db,  0) = ()                   (* #define SQLITE_OK           0   /* Successful result */ *)
-        | code (db,  1) = raise Fail  (why db) (* #define SQLITE_ERROR        1   /* SQL error or missing database */ *)
-        | code (db,  2) = raise Fail  (why db) (* #define SQLITE_INTERNAL     2   /* An internal logic error in SQLite */ *)
-        | code (db,  3) = raise Fail  (why db) (* #define SQLITE_PERM         3   /* Access permission denied */ *)
+        | code (db,  1) = raise Error (why db) (* #define SQLITE_ERROR        1   /* SQL error or missing database */ *)
+        | code (db,  2) = raise Error (why db) (* #define SQLITE_INTERNAL     2   /* An internal logic error in SQLite */ *)
+        | code (db,  3) = raise Error (why db) (* #define SQLITE_PERM         3   /* Access permission denied */ *)
         | code (db,  4) = raise Abort (why db) (* #define SQLITE_ABORT        4   /* Callback routine requested an abort */ *)
         | code (db,  5) = raise Retry (why db) (* #define SQLITE_BUSY         5   /* The database file is locked */ *)
         | code (db,  6) = raise Retry (why db) (* #define SQLITE_LOCKED       6   /* A table in the database is locked */ *)
         | code (db,  7) = raise Abort (why db) (* #define SQLITE_NOMEM        7   /* A malloc() failed */ *)
         | code (db,  8) = raise Abort (why db) (* #define SQLITE_READONLY     8   /* Attempt to write a readonly database */ *)
         | code (db,  9) = raise Retry (why db) (* #define SQLITE_INTERRUPT    9   /* Operation terminated by sqlite_interrupt() */ *)
-        | code (db, 10) = raise Fail  (why db) (* #define SQLITE_IOERR       10   /* Some kind of disk I/O error occurred */ *)
-        | code (db, 11) = raise Fail  (why db) (* #define SQLITE_CORRUPT     11   /* The database disk image is malformed */ *)
-        | code (db, 12) = raise Fail  (why db) (* #define SQLITE_NOTFOUND    12   /* (Internal Only) Table or record not found */ *)
+        | code (db, 10) = raise Error (why db) (* #define SQLITE_IOERR       10   /* Some kind of disk I/O error occurred */ *)
+        | code (db, 11) = raise Error (why db) (* #define SQLITE_CORRUPT     11   /* The database disk image is malformed */ *)
+        | code (db, 12) = raise Error (why db) (* #define SQLITE_NOTFOUND    12   /* (Internal Only) Table or record not found */ *)
         | code (db, 13) = raise Abort (why db) (* #define SQLITE_FULL        13   /* Insertion failed because database is full */ *)
-        | code (db, 14) = raise Fail  (why db) (* #define SQLITE_CANTOPEN    14   /* Unable to open the database file */ *)
-        | code (db, 15) = raise Fail  (why db) (* #define SQLITE_PROTOCOL    15   /* Database lock protocol error */ *)
-        | code (db, 16) = raise Fail  (why db) (* #define SQLITE_EMPTY       16   /* (Internal Only) Database table is empty */ *)
+        | code (db, 14) = raise Error (why db) (* #define SQLITE_CANTOPEN    14   /* Unable to open the database file */ *)
+        | code (db, 15) = raise Error (why db) (* #define SQLITE_PROTOCOL    15   /* Database lock protocol error */ *)
+        | code (db, 16) = raise Error (why db) (* #define SQLITE_EMPTY       16   /* (Internal Only) Database table is empty */ *)
         | code (db, 17) = raise Retry (why db) (* #define SQLITE_SCHEMA      17   /* The database schema changed */ *)
         | code (db, 18) = raise Abort (why db) (* #define SQLITE_TOOBIG      18   /* Too much data for one row of a table */ *)
         | code (db, 19) = raise Abort (why db) (* #define SQLITE_CONSTRAINT  19   /* Abort due to constraint violation */ *)
         | code (db, 20) = raise Abort (why db) (* #define SQLITE_MISMATCH    20   /* Data type mismatch */ *)
-        | code (db, 21) = raise Fail  (why db) (* #define SQLITE_MISUSE      21   /* Library used incorrectly */ *)
-        | code (db, 22) = raise Fail  (why db) (* #define SQLITE_NOLFS       22   /* Uses OS features not supported on host */ *)
+        | code (db, 21) = raise Error (why db) (* #define SQLITE_MISUSE      21   /* Library used incorrectly */ *)
+        | code (db, 22) = raise Error (why db) (* #define SQLITE_NOLFS       22   /* Uses OS features not supported on host */ *)
         | code (db, 23) = raise Abort (why db) (* #define SQLITE_AUTH        23   /* Authorization denied */ *)
-        | code (db, _)  = raise Fail "unknown error code"
+        | code (db, _)  = raise Error"unknown error code"
       
       fun openDB filename =
          let
@@ -110,7 +110,7 @@ structure Prim :> PRIM =
             val db = !dbp
          in
             if r = 0 then db else
-            raise Fail (why db before ignore (PcloseDB db))
+            raise Error (why db before ignore (PcloseDB db))
          end
       
       fun closeDB db = code (db, PcloseDB db)
@@ -135,7 +135,7 @@ structure Prim :> PRIM =
          case (Pstep q) of
             100 => true  (* #define SQLITE_ROW         100  /* sqlite_step() has another row ready */ *)
           | 101 => false (* #define SQLITE_DONE        101  /* sqlite_step() has finished executing */ *)
-          | r => (wrap (q, r); raise Fail "unreachable")
+          | r => (wrap (q, r); raise Error "unreachable")
       fun clearbindings q = wrap (q, Pclearbindings q)
       
       datatype storage = INTEGER of Int64.int
@@ -181,7 +181,7 @@ structure Prim :> PRIM =
           | 3 => STRING (fetchS (q, i))
           | 4 => BLOB (fetchB (q, i))
           | 5 => NULL
-          | _ => raise Fail "Invalid storage type"
+          | _ => raise Error "Invalid storage type"
       
       type column = { name: string }
 (*                    origin: { table:  string,
