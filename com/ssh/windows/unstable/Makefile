@@ -19,8 +19,6 @@ lib-h-files := $(wildcard $(lib-dir)/*.h)
 
 lib-file := libwin-$(target-id).lib
 
-at :=
-
 .PHONY : all clean help
 
 help :
@@ -32,24 +30,24 @@ help :
 all : $(lib-file) $(gen-dir)/nlffi/lib.mlb
 
 clean :
-	$(at)rm -rf $(bin-dir) $(gen-dir)/nlffi $(lib-file)
+	rm -rf $(bin-dir) $(gen-dir)/nlffi $(lib-file)
 
 $(lib-file) : $(lib-o-files)
-	$(at)ar cr $@ $^
+	ar cr $@ $^
 
 $(gen-dir)/nlffi/lib.mlb : $(ffi-h-files)
-	$(at)mkdir -p $(@D)
-	$(at)mlnlffigen -dir $(@D)       \
-	                -mlbfile $(@F)   \
-	                -linkage static  \
-	                $^
+	mkdir -p $(@D)
+	mlnlffigen -dir $(@D)       \
+	           -mlbfile $(@F)   \
+	           -linkage static  \
+	           $^
 
 $(bin-dir)/%.o : $(lib-dir)/%.c $(lib-h-files) $(ffi-h-files)
-	$(at)mkdir -p $(@D)
-	$(at)gcc -Wall     \
-	         -Werror   \
-	         -pedantic \
-	         -std=c99  \
-	         -c        \
-	         -o $@     \
-	         $<
+	mkdir -p $(@D)
+	gcc -Wall     \
+	    -Werror   \
+	    -pedantic \
+	    -std=c99  \
+	    -c        \
+	    -o $@     \
+	    $<
