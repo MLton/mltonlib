@@ -6,8 +6,6 @@
 
 (* Implementation of Windows utilities. *)
 structure Windows :> WINDOWS = struct
-   exception Error of {function : String.t, error : Word32.t}
-
    val op >>& = With.>>&
 
    local
@@ -18,22 +16,16 @@ structure Windows :> WINDOWS = struct
       val errorMoreData    = `G_win_ERROR_MORE_DATA.obj'
    end
 
-   fun errorToString error =
-       With.around (fn () => F_win_FormatErrorLocalAlloc.f' error)
-                   (ignore o F_win_LocalFree.f' o C.Ptr.inject')
-                   ZString.toML'
-
-   val () =
-       Exn.addMessager
-          (fn Error {function, error} =>
-              SOME (concat ["Win.Error: ", function, " failed: ",
-                            errorToString error])
-            | _ => NONE)
-
    val getLastError = F_win_GetLastError.f
 
    fun raiseError function error =
-       raise Error {function = function, error = error}
+       raise OS.SysErr
+                (concat
+                    [function, ": ",
+                     With.around (fn () => F_win_FormatErrorLocalAlloc.f' error)
+                                 (ignore o F_win_LocalFree.f' o C.Ptr.inject')
+                                 ZString.toML'],
+                 NONE)
 
    fun raiseOnError function error = let
       val error = Word.fromInt error

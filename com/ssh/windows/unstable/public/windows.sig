@@ -12,8 +12,6 @@
  *   http://mlton.org/basis/windows.html .
  *)
 signature WINDOWS = sig
-   exception Error of {function : String.t, error : Word32.t}
-
    structure Key : sig
       include BIT_FLAGS
 
