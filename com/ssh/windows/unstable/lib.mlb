@@ -1,0 +1,30 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+(*
+ * In order to use this MLB file, the MLTON_LIB path variable must be
+ * added to the path map.
+ *)
+
+local
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+   $(MLTON_LIB)/com/ssh/misc-util/unstable/lib.mlb
+
+   $(SML_LIB)/mlnlffi-lib/mlnlffi-lib.mlb
+   generated/$(TARGET_ARCH)-$(TARGET_OS)/nlffi/lib.mlb
+in
+   ann
+      "forceUsed"
+      "warnUnused true"
+   in
+      local
+         public/windows.sig
+         detail/windows.sml
+      in
+         public/export.sml
+      end
+   end
+end

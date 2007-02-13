@@ -1,0 +1,69 @@
+Windows structure
+-----------------
+
+   This library implements a Windows structure in the spirit of the
+   Windows structure specified in the Standard ML Basis Library [1].
+
+
+Info
+----
+
+   License:         MLton license (a BSD-style license)
+   Portability:     Windows specific, some MLton extensions may be used
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.karvonen@cs.helsinki.fi>
+
+
+About Library Organization
+--------------------------
+
+   public/
+
+      This directory contains the documented signature definitions (*.sig)
+      and listings of all top-level bindings exported by this library
+      (export*.sml).  The contents of this directory should be sufficient
+      to understand how to use the functionality provided by this library.
+
+   libwin-$(TARGET_ARCH)-$(TARGET_OS).*
+
+      This statically linked library needs to be linked to your
+      application in order to use the Windows structure.
+
+   Makefile
+
+      This is for building the statically linked library and NLFFI
+      bindings that are part of this library.  Run
+
+         make
+
+      in the directory of the Makefile for further instructions.
+
+   lib.mlb
+
+      This build file defines the Windows library.  See the file for
+      further instructions.
+
+   detail/
+
+      This directory contains the implementation details of the library.
+
+
+About Motivation and Scope
+--------------------------
+
+   The main motivation for this library is the need to access certain
+   Windows specific functionality.  Eventually this library should include
+   all of the functionality specified in the Standard ML Basis Library [1]
+   as well any additional functionality that is needed.  If you need to
+   access some specific functionality that isn't provided, please send a
+   request, preferably with a patch, to the MLton developers or users
+   list.
+
+
+References
+----------
+
+  [1] The Standard ML Basis Library.
+      Emden R. Gansner and John H. Reppy.
+      Cambridge University Press, 2004.
+      ISBN 0521794781.
