@@ -19,18 +19,26 @@ lib-h-files := $(wildcard $(lib-dir)/*.h)
 
 lib-file := libwin-$(target-id).lib
 
-.PHONY : all clean help
+.PHONY : all clean help check
 
 help :
 	@echo "Targets:"
 	@echo "    all      Builds the static link library and NLFFI files"
 	@echo "    clean    Removes generated files"
 	@echo "    help     Prints this message"
+	@echo "    check    Type check the SML code"
+
+mlb-path-map : Makefile
+	echo 'MLTON_LIB $(shell cd ../../../.. && pwd)' > $@
+	echo 'SML_COMPILER mlton' >> $@
 
 all : $(lib-file) $(gen-dir)/nlffi/lib.mlb
 
 clean :
-	rm -rf $(bin-dir) $(gen-dir)/nlffi $(lib-file)
+	rm -rf $(bin-dir) $(gen-dir)/nlffi $(lib-file) mlb-path-map
+
+check : $(gen-dir)/nlffi/lib.mlb mlb-path-map
+	mlton -stop tc -mlb-path-map mlb-path-map lib.mlb
 
 $(lib-file) : $(lib-o-files)
 	ar cr $@ $^
