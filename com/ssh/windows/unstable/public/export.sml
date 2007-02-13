@@ -4,6 +4,10 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(** == Exported signatures == *)
+
 signature WINDOWS = WINDOWS
+
+(** == Exported structures == *)
 
 structure Windows : WINDOWS = Windows
