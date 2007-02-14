@@ -9,6 +9,7 @@ structure SQL :> SQL =
       exception Error = Prim.Error
       
       structure Query = Query
+      structure Function = Function
       
       val version = Prim.version
       

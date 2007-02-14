@@ -17,6 +17,7 @@ in
    sql.sig
    local
      query.sml
+     function.sml
    in
      sql.sml
    end

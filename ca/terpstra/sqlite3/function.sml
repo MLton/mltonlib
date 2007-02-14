@@ -1,0 +1,3 @@
+structure Function =
+   struct
+   end
