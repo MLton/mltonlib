@@ -1,56 +1,82 @@
 structure Prim :> PRIM =
    struct
-      type db = MLton.Pointer.t
-      type query = MLton.Pointer.t
+      structure DB :> PTR = Ptr
+      structure Query :> PTR = Ptr
+      structure Context :> PTR = Ptr
+      structure Value :> PTR = Ptr
+      structure FnPtr :> PTR = Ptr
+      structure CStr :> CSTR = CStr
+      structure Blob :> BLOB = Blob
       
       exception Retry of string (* retriable error; busy/locked/etc *)
       exception Abort of string (* transaction aborted *)
       exception Error of string (* database corrupt; close it *)
      
-      val PopenDB = _import "sqlite3_open"   : string * MLton.Pointer.t ref -> int;
-      val PcloseDB= _import "sqlite3_close"  : MLton.Pointer.t -> int;
-      val Pfree   = _import "sqlite3_free"   : MLton.Pointer.t -> unit;
-      val Perrmsg = _import "sqlite3_errmsg" : MLton.Pointer.t -> MLton.Pointer.t;
-(*    val Perrcode= _import "sqlite3_errcode": MLton.Pointer.t -> int; *)
-      val Pstrlen = _import "strlen"         : MLton.Pointer.t -> int;
+      val PopenDB = _import "sqlite3_open"   : CStr.t * DB.t ref -> int;
+      val PcloseDB= _import "sqlite3_close"  : DB.t -> int;
+      val Pfree   = _import "sqlite3_free"   : CStr.t -> unit;
+      val Perrmsg = _import "sqlite3_errmsg" : DB.t -> CStr.out;
+(*    val Perrcode= _import "sqlite3_errcode": DB.t -> int; *)
       
-      val Pfinalize = _import "sqlite3_finalize" : MLton.Pointer.t -> int;
-      val Pprepare  = _import "sqlite3_prepare_v2" : MLton.Pointer.t * string * int * MLton.Pointer.t ref * MLton.Pointer.t ref -> int;
-      val Pstep     = _import "sqlite3_step" : MLton.Pointer.t -> int;
-      val Preset    = _import "sqlite3_reset" : MLton.Pointer.t -> int;
-      val Pclearbindings = _import "sqlite3_clear_bindings" : MLton.Pointer.t -> int;
+      val Pfinalize = _import "sqlite3_finalize" : Query.t -> int;
+      val Pprepare  = _import "sqlite3_prepare_v2" : DB.t * CStr.t * int * Query.t ref * MLton.Pointer.t ref -> int;
+      val Pstep     = _import "sqlite3_step" : Query.t -> int;
+      val Preset    = _import "sqlite3_reset" : Query.t -> int;
+      val Pclearbindings = _import "sqlite3_clear_bindings" : Query.t -> int;
       
-      val Pbind_blob   = _import "sqlite3_bind_blob"   : MLton.Pointer.t * int * Word8Vector.vector * int * word -> int;
-      val Pbind_double = _import "sqlite3_bind_double" : MLton.Pointer.t * int * real -> int;
-      val Pbind_int    = _import "sqlite3_bind_int"    : MLton.Pointer.t * int * int -> int;
-      val Pbind_int64  = _import "sqlite3_bind_int64"  : MLton.Pointer.t * int * Int64.int -> int;
-      val Pbind_null   = _import "sqlite3_bind_null"   : MLton.Pointer.t * int -> int;
-      val Pbind_text   = _import "sqlite3_bind_text"   : MLton.Pointer.t * int * string * int * word -> int;
-(*    val Pbind_text16 = _import "sqlite3_bind_text16" : MLton.Pointer.t * int * WideString.string * int * word -> int; *)
-      val Pbind_parameter_count = _import "sqlite3_bind_parameter_count" : MLton.Pointer.t -> int;
+      val Pbind_blob   = _import "sqlite3_bind_blob"   : Query.t * int * Blob.t * int * word -> int;
+      val Pbind_double = _import "sqlite3_bind_double" : Query.t * int * real -> int;
+      val Pbind_int    = _import "sqlite3_bind_int"    : Query.t * int * int -> int;
+      val Pbind_int64  = _import "sqlite3_bind_int64"  : Query.t * int * Int64.int -> int;
+      val Pbind_null   = _import "sqlite3_bind_null"   : Query.t * int -> int;
+      val Pbind_text   = _import "sqlite3_bind_text"   : Query.t * int * CStr.t * int * word -> int;
+(*    val Pbind_text16 = _import "sqlite3_bind_text16" : Query.t * int * WideString.string * int * word -> int; *)
+      val Pbind_parameter_count = _import "sqlite3_bind_parameter_count" : Query.t -> int;
       val PTRANSIENT = Word.~ 0w0
       
-      val Pcolumn_blob   = _import "sqlite3_column_blob"   : MLton.Pointer.t * int -> MLton.Pointer.t;
-      val Pcolumn_double = _import "sqlite3_column_double" : MLton.Pointer.t * int -> real;
-      val Pcolumn_int    = _import "sqlite3_column_int"    : MLton.Pointer.t * int -> int;
-      val Pcolumn_int64  = _import "sqlite3_column_int64"  : MLton.Pointer.t * int -> Int64.int;
-      val Pcolumn_text   = _import "sqlite3_column_text"   : MLton.Pointer.t * int -> MLton.Pointer.t;
-(*    val Pcolumn_text16 = _import "sqlite3_column_text64" : MLton.Pointer.t * int -> MLton.Pointer.t; *)
-      val Pcolumn_bytes  = _import "sqlite3_column_bytes"  : MLton.Pointer.t * int -> int;
-      val Pcolumn_type   = _import "sqlite3_column_type"   : MLton.Pointer.t * int -> int;
-      val Pcolumn_count  = _import "sqlite3_column_count"  : MLton.Pointer.t -> int;
+      val Pcolumn_blob   = _import "sqlite3_column_blob"   : Query.t * int -> Blob.out;
+      val Pcolumn_double = _import "sqlite3_column_double" : Query.t * int -> real;
+      val Pcolumn_int    = _import "sqlite3_column_int"    : Query.t * int -> int;
+      val Pcolumn_int64  = _import "sqlite3_column_int64"  : Query.t * int -> Int64.int;
+      val Pcolumn_text   = _import "sqlite3_column_text"   : Query.t * int -> CStr.out;
+(*    val Pcolumn_text16 = _import "sqlite3_column_text16" : Query.t * int -> MLton.Pointer.t; *)
+      val Pcolumn_bytes  = _import "sqlite3_column_bytes"  : Query.t * int -> int;
+      val Pcolumn_type   = _import "sqlite3_column_type"   : Query.t * int -> int;
+      val Pcolumn_count  = _import "sqlite3_column_count"  : Query.t -> int;
       
       (* used to satifsy meta-information queries *)
-      val Pcolumn_database_name = _import "sqlite3_column_database_name" : MLton.Pointer.t * int -> MLton.Pointer.t;
-      val Pcolumn_decltype      = _import "sqlite3_column_decltype"      : MLton.Pointer.t * int -> MLton.Pointer.t;
-      val Pcolumn_name          = _import "sqlite3_column_name"          : MLton.Pointer.t * int -> MLton.Pointer.t;
-      val Pcolumn_origin_name   = _import "sqlite3_column_origin_name"   : MLton.Pointer.t * int -> MLton.Pointer.t;
-      val Pcolumn_table_name    = _import "sqlite3_column_table_name"    : MLton.Pointer.t * int -> MLton.Pointer.t;
+      val Pcolumn_database_name = _import "sqlite3_column_database_name" : Query.t * int -> CStr.out;
+      val Pcolumn_decltype      = _import "sqlite3_column_decltype"      : Query.t * int -> CStr.out;
+      val Pcolumn_name          = _import "sqlite3_column_name"          : Query.t * int -> CStr.out;
+      val Pcolumn_origin_name   = _import "sqlite3_column_origin_name"   : Query.t * int -> CStr.out;
+      val Pcolumn_table_name    = _import "sqlite3_column_table_name"    : Query.t * int -> CStr.out;
       
-      (* we don't support any of the hooks, or user completion stuff yet *)
+      val Pdb_handle = _import "sqlite3_db_handle" : Query.t -> DB.t;
+      val Pquery_string = _import "sqlite3_query_string" : Query.t -> CStr.out;
       
-      val Pdb_handle = _import "sqlite3_db_handle" : MLton.Pointer.t -> MLton.Pointer.t;
-      val Pquery_string = _import "sqlite3_query_string" : MLton.Pointer.t -> MLton.Pointer.t;
+      (* bind a user function *)
+      val Pcreate_function = _import "sqlite3_create_function" : DB.t * CStr.t * int * int * word * FnPtr.t * FnPtr.t * FnPtr.t -> int;
+      val Puser_data = _import "sqlite3_user_data" : Context.t -> word;
+      
+      (* fetch user function values *)
+      val Pvalue_blob   = _import "sqlite3_value_blob"   : Value.t -> Blob.out;
+      val Pvalue_double = _import "sqlite3_value_double" : Value.t -> real;
+      val Pvalue_int    = _import "sqlite3_value_int"    : Value.t -> int;
+      val Pvalue_int64  = _import "sqlite3_value_int64"  : Value.t -> Int64.int;
+      val Pvalue_text   = _import "sqlite3_value_text"   : Value.t -> CStr.out;
+(*    val Pvalue_text16 = _import "sqlite3_value_text16" : Value.t -> MLton.Pointer.t; *)
+      val Pvalue_bytes  = _import "sqlite3_value_bytes"  : Value.t -> int;
+      val Pvalue_type   = _import "sqlite3_value_type"   : Value.t -> int;
+      
+      (* set user return values *)
+      val Presult_blob   = _import "sqlite3_result_blob"   : Context.t * Blob.t * int * word -> unit;
+      val Presult_double = _import "sqlite3_result_double" : Context.t * real -> unit;
+      val Presult_int    = _import "sqlite3_result_int"    : Context.t * int -> unit;
+      val Presult_int64  = _import "sqlite3_result_int64"  : Context.t * Int64.int -> unit;
+      val Presult_null   = _import "sqlite3_result_null"   : Context.t -> unit;
+      val Presult_text   = _import "sqlite3_result_text"   : Context.t * CStr.t * int * word -> unit;
+(*    val Presult_text16 = _import "sqlite3_result_text16" : Context.t * WideString.string * int * word -> unit; *)
+      val Presult_error  = _import "sqlite3_result_error"  : Context.t * CStr.t * int -> unit;
       
       (* expiry should just raise an exception... *)
       
@@ -62,7 +88,7 @@ structure Prim :> PRIM =
       
       (* interrupt would require callback hooks during progress; we have none *)
       
-      val Plibversion = _import "sqlite3_libversion" : unit -> MLton.Pointer.t;
+      val Plibversion = _import "sqlite3_libversion" : unit -> CStr.out;
       
       (* we don't need silly printf; this is SML! *)
       
@@ -70,14 +96,9 @@ structure Prim :> PRIM =
       
       (* ---------------------------------------------------------------------------- *)
       
-      fun cchr ptr i = (Char.chr o Word8.toInt o MLton.Pointer.getWord8) (ptr, i)
-      fun cstr ptr = 
-         if ptr = MLton.Pointer.null then NONE else
-         SOME (CharVector.tabulate (Pstrlen ptr, cchr ptr))
+      val version = CStr.toString (Plibversion ())
       
-      val version = valOf (cstr (Plibversion ()))
-      
-      fun why db = valOf (cstr (Perrmsg db))
+      fun why db = valOf (CStr.toStringOpt (Perrmsg db))
       fun code (db,  0) = ()                   (* #define SQLITE_OK           0   /* Successful result */ *)
         | code (db,  1) = raise Error (why db) (* #define SQLITE_ERROR        1   /* SQL error or missing database */ *)
         | code (db,  2) = raise Error (why db) (* #define SQLITE_INTERNAL     2   /* An internal logic error in SQLite */ *)
@@ -106,8 +127,8 @@ structure Prim :> PRIM =
       
       fun openDB filename =
          let
-            val dbp = ref MLton.Pointer.null
-            val r = PopenDB (filename, dbp)
+            val dbp = ref DB.null
+            val r = PopenDB (CStr.fromString filename, dbp)
             val db = !dbp
          in
             if r = 0 then db else
@@ -119,10 +140,10 @@ structure Prim :> PRIM =
       fun prepare (db, qs) =
          let
             val l = String.size qs
-            val q = ref MLton.Pointer.null
+            val q = ref Query.null
             val t = ref MLton.Pointer.null (* we can't use this... GC could happen *)
          in
-            code (db, Pprepare (db, qs, l, q, t));
+            code (db, Pprepare (db, CStr.fromString qs, l, q, t));
             !q
          end
       
@@ -139,7 +160,7 @@ structure Prim :> PRIM =
           | r => (wrap (q, r); raise Error "unreachable")
       fun clearbindings q = wrap (q, Pclearbindings q)
       
-      fun query_string q = valOf (cstr (Pquery_string q))
+      fun query_string q = valOf (CStr.toStringOpt (Pquery_string q))
       
       datatype storage = INTEGER of Int64.int
                        | REAL of real
@@ -149,12 +170,12 @@ structure Prim :> PRIM =
       
       fun bindings q = Pbind_parameter_count q
       
-      fun bindB (q, i, b) = wrap (q, Pbind_blob (q, i, b, Word8Vector.length b, PTRANSIENT))
+      fun bindB (q, i, b) = wrap (q, Pbind_blob (q, i, Blob.fromVector b, Word8Vector.length b, PTRANSIENT))
       fun bindR (q, i, d) = wrap (q, Pbind_double (q, i, d))
       fun bindI (q, i, z) = wrap (q, Pbind_int (q, i, z))
       fun bindZ (q, i, z) = wrap (q, Pbind_int64 (q, i, z))
       fun bindN (q, i) = wrap (q, Pbind_null (q, i))
-      fun bindS (q, i, s) = wrap (q, Pbind_text (q, i, s, String.size s, PTRANSIENT))
+      fun bindS (q, i, s) = wrap (q, Pbind_text (q, i, CStr.fromString s, String.size s, PTRANSIENT))
       
       fun bindX (q, i, INTEGER z) = bindZ (q, i, z)
         | bindX (q, i, REAL r) = bindR (q, i, r)
@@ -164,18 +185,15 @@ structure Prim :> PRIM =
       
       fun cols q = Pcolumn_count q
       
-      fun fetchB (q, i) =
-         let
-            val l = Pcolumn_bytes (q, i)
-            val p = Pcolumn_blob (q, i)
-         in
-            Word8Vector.tabulate (l, fn i => MLton.Pointer.getWord8 (p, i))
-         end
+      
+      fun fetchB (q, i) = Blob.toVector (Pcolumn_blob (q, i),
+                                         Pcolumn_bytes (q, i))
       fun fetchR (q, i) = Pcolumn_double (q, i)
       fun fetchI (q, i) = Pcolumn_int (q, i)
       fun fetchZ (q, i) = Pcolumn_int64 (q, i)
       fun fetchN (q, i) = ()
-      fun fetchS (q, i) = valOf (cstr (Pcolumn_text (q, i)))
+      fun fetchS (q, i) = CStr.toStringLen (Pcolumn_text (q, i), 
+                                            Pcolumn_bytes (q, i))
       
       fun fetchX (q, i) =
          case Pcolumn_type (q, i) of
@@ -193,14 +211,14 @@ structure Prim :> PRIM =
                                 schema: string } 
                               option }
 *)
-      fun fetch (q, i) = 
+      fun fetchMeta (q, i) = 
          let
-            fun get f = valOf (cstr (f (q, i)))
+            fun get f = CStr.toString (f (q, i))
             val name = get Pcolumn_name
          in
             { name = name }
 (* usually not compiled into sqlite3:
-            case cstr (Pcolumn_decltype (q, i)) of
+            case CStr.toStringOpt (Pcolumn_decltype (q, i)) of
                NONE => { name = name, origin = NONE }
              | SOME decl =>
               { name = name,
@@ -210,5 +228,44 @@ structure Prim :> PRIM =
                                 schema = get Pcolumn_origin_name } }
 *)
          end
-      fun meta q = Vector.tabulate (cols q, fn i => fetch (q, i))
+      fun meta q = Vector.tabulate (cols q, fn i => fetchMeta (q, i))
+      
+      fun valueB v = Blob.toVector (Pvalue_blob v, Pvalue_bytes v)
+      fun valueR v = Pvalue_double v
+      fun valueI v = Pvalue_int v
+      fun valueZ v = Pvalue_int64 v
+      fun valueN v = ()
+      fun valueS v = CStr.toStringLen (Pvalue_text v, Pvalue_bytes v)
+      
+      fun valueX v =
+         case Pvalue_type v of
+            1 => INTEGER (valueZ v)
+          | 2 => REAL (valueR v)
+          | 3 => STRING (valueS v)
+          | 4 => BLOB (valueB v)
+          | 5 => NULL
+          | _ => raise Error "Invalid storage type"
+      
+      fun resultB (c, b) = Presult_blob (c, Blob.fromVector b, Word8Vector.length b, PTRANSIENT)
+      fun resultR (c, d) = Presult_double (c, d)
+      fun resultI (c, z) = Presult_int (c, z)
+      fun resultZ (c, z) = Presult_int64 (c, z)
+      fun resultN c = Presult_null c
+      fun resultS (c, s) = Presult_text (c, CStr.fromString s, String.size s, PTRANSIENT)
+      
+      fun resultX (c, INTEGER z) = resultZ (c, z)
+        | resultX (c, REAL r) = resultR (c, r)
+        | resultX (c, STRING s) = resultS (c, s)
+        | resultX (c, BLOB b) = resultB (c, b)
+        | resultX (c, NULL) = resultN c
+      
+      fun createFunction (db, name, NONE) = 
+             code (db, Pcreate_function (db, CStr.fromString name, 0, 1, 0w0,
+                                         FnPtr.null, FnPtr.null, FnPtr.null))
+        | createFunction (db, name, SOME f) = ()
+      
+      type db = DB.t
+      type query = Query.t
+      type value = Value.t
+      type context = Context.t
    end

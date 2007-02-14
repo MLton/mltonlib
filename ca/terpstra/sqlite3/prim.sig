@@ -2,6 +2,8 @@ signature PRIM =
    sig
       type db
       type query
+      type value
+      type context
       
       exception Retry of string (* retriable error; busy/locked/etc *)
       exception Abort of string (* transaction aborted *)
@@ -59,4 +61,28 @@ signature PRIM =
                                 schema: string }
                               option } *)
       val meta: query -> column vector
+      
+      (* User defined methods *)
+      val valueB: value -> Word8Vector.vector
+      val valueR: value -> real
+      val valueI: value -> int
+      val valueZ: value -> Int64.int
+      val valueN: value -> unit
+      val valueS: value -> string
+      val valueX: value -> storage
+      
+      val resultB: context * Word8Vector.vector -> unit
+      val resultR: context * real -> unit
+      val resultI: context * int -> unit
+      val resultZ: context * Int64.int -> unit
+      val resultN: context -> unit
+      val resultS: context * string -> unit
+      val resultX: context * storage -> unit
+      
+      val createFunction: db * string * (context * value vector -> unit) option -> unit
+(*
+      val createCollation: db * string * (string * string -> order) option -> unit
+      val createAggregate: db * string * ((context * value vector -> unit) *
+                                          (context -> unit)) option -> unit
+*)
    end
