@@ -1,4 +1,4 @@
-structure Template =
+structure Query =
    struct
       (* Cry ... *)
       type 'a oF = Prim.query -> 'a
@@ -15,23 +15,34 @@ structure Template =
                     ('j, 'o, 'a, 'b, ('j, 'k) pair, 'k) acc, 
                     'x, 'y, 'z) Fold.step1
       
+(*
+      type ('i, 'o) t = { Word8Vector.vector,
+                          pool: Prim.query list ref,
+                          used: int ref,
+                          iF:   Prim.query * 'i -> unit,
+                          oF:   Prim.query -> 'o }
+*)
+      type ('i, 'o) t = Prim.query * (Prim.query * 'i -> unit) * (Prim.query -> 'o)      
+      
       fun oF0 _ = ()
       fun oN0 (q, n) = n ()
       val oI0 = 0
       fun iF0 (q, ()) = ()
       fun iN0 (q, x) = (1, x)
       
-      fun query db qs = Fold.fold (([qs], oF0, oN0, oI0, iF0, iN0),
-                                   fn (ql, oF, _, oI, iF, _) => 
-                                   let val qs = concat (rev ql)
-                                       val q = Prim.prepare (db, qs)
-                                   in  if Prim.cols q < oI
-                                       then (Prim.finalize q;
-                                             raise Fail "insufficient output columns")
-                                       else (q, iF, oF)
-                                   end)
+      fun prepare db qs = Fold.fold (([qs], oF0, oN0, oI0, iF0, iN0),
+                                     fn (ql, oF, _, oI, iF, _) => 
+                                     let val qs = concat (rev ql)
+                                         val q = Prim.prepare (db, qs)
+                                     in  if Prim.cols q < oI
+                                         then (Prim.finalize q;
+                                               raise Fail "insufficient output columns")
+                                         else (q, iF, oF)
+                                     end)
       (* terminate an expression with this: *)
       val $ = $
+      
+      fun close (q, _, _) = Prim.finalize q
       
       fun iFx f iN (q, a) = case iN (q, a) of (i, x) => f (q, i, x)
       fun iNx f iN (q, a & y) = case iN (q, a) of (i, x) => (f (q, i, x); (i+1, y))

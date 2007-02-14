@@ -1,6 +1,5 @@
 structure SQL :> SQL =
    struct
-      type ('i, 'o) query = Prim.query * (Prim.query * 'i -> unit) * (Prim.query -> 'o)
       type column = Prim.column
       type db = Prim.db
       datatype storage = datatype Prim.storage
@@ -9,17 +8,18 @@ structure SQL :> SQL =
       exception Abort = Prim.Abort
       exception Error = Prim.Error
       
-      structure Template = Template
+      structure Query = Query
       
       val version = Prim.version
       
-      fun close (q, _, _) = Prim.finalize q
       fun columns (q, _, _) = Prim.meta q
       
       val openDB  = Prim.openDB
       val closeDB = Prim.closeDB
       
-      fun iter (q, iF, oF) i =
+      datatype 'v stop = STOP | CONTINUE of 'v
+      
+      fun iterStop (q, iF, oF) i =
          let
             val () = iF (q, i)
             val ok = ref true
@@ -29,12 +29,11 @@ structure SQL :> SQL =
                Prim.clearbindings q;
                ok := false)
          in
-            fn () =>
-               if not (!ok) then NONE else
-               if Prim.step q then SOME (oF q) else (stop (); NONE)
+            fn STOP => (stop (); NONE)
+             | (CONTINUE ()) =>
+                  if not (!ok) then NONE else
+                  if Prim.step q then SOME (oF q) else (stop (); NONE)
          end
-      
-      datatype 'v stop = STOP | CONTINUE of 'v
       
       fun mapStop f (q, iF, oF) i =
          let
@@ -75,18 +74,31 @@ structure SQL :> SQL =
       
       fun map f = mapStop (CONTINUE o f)
       fun app f = appStop (CONTINUE o f)
+      fun iter q i =
+         let
+            val step = iterStop q i
+         in
+            fn () => step (CONTINUE ())
+         end
       
       fun table q = map (fn x  => x)  q
       fun exec  q = app (fn () => ()) q
       
       local
-         open Template
+         open Query
       in
-         fun simple (db, qs) =
+         fun simpleTable (db, qs) =
             let
-               val Q = query db qs oAS $
+               val Q = prepare db qs oAS $
             in
                table Q () before close Q
+            end
+         
+         fun simpleExec (db, qs) =
+            let
+               val Q = prepare db qs $
+            in
+               exec Q () before close Q
             end
       end
    end

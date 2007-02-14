@@ -16,7 +16,7 @@ in
    pair.sml
    sql.sig
    local
-     template.sml
+     query.sml
    in
      sql.sml
    end

@@ -50,6 +50,7 @@ structure Prim :> PRIM =
       (* we don't support any of the hooks, or user completion stuff yet *)
       
       val Pdb_handle = _import "sqlite3_db_handle" : MLton.Pointer.t -> MLton.Pointer.t;
+      val Pquery_string = _import "sqlite3_query_string" : MLton.Pointer.t -> MLton.Pointer.t;
       
       (* expiry should just raise an exception... *)
       
@@ -137,6 +138,8 @@ structure Prim :> PRIM =
           | 101 => false (* #define SQLITE_DONE        101  /* sqlite_step() has finished executing */ *)
           | r => (wrap (q, r); raise Error "unreachable")
       fun clearbindings q = wrap (q, Pclearbindings q)
+      
+      fun query_string q = valOf (cstr (Pquery_string q))
       
       datatype storage = INTEGER of Int64.int
                        | REAL of real
