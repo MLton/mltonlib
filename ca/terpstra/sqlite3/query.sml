@@ -15,14 +15,48 @@ structure Query =
                     ('j, 'o, 'a, 'b, ('j, 'k) pair, 'k) acc, 
                     'x, 'y, 'z) Fold.step1
       
-(*
-      type ('i, 'o) t = { Word8Vector.vector,
-                          pool: Prim.query list ref,
-                          used: int ref,
-                          iF:   Prim.query * 'i -> unit,
-                          oF:   Prim.query -> 'o }
-*)
-      type ('i, 'o) t = Prim.query * (Prim.query * 'i -> unit) * (Prim.query -> 'o)      
+      (* We need to be able to create new queries for recursive usage.
+       * Each prepared statement has only a single VM, so we need a factory
+       * to support reentrant processing. The used counter records how many
+       * outstanding queries there are (-1 means closed). The pool saves
+       * previously allocated prepared statements for quick re-use.
+       *)
+      type ('i, 'o) t = { db:    Prim.db,
+                          query: string,
+                          pool:  Prim.query list ref,
+                          used:  int ref,
+                          iF:    Prim.query * 'i -> unit,
+                          oF:    Prim.query -> 'o }
+      
+      fun peek { db, query, pool, used, iF, oF } =
+          case !pool of
+             x :: r => x
+           | [] => 
+                let
+                   val pq = Prim.prepare (db, query)
+                   val () = pool := pq :: !pool
+                in
+                   pq
+                end
+      
+      fun alloc ({ db, query, pool, used, iF, oF }, i) =
+         let
+            val () = if !used = ~1 then raise Prim.Error "Query.t is closed" else ()
+            val pq = case !pool of
+                        [] => Prim.prepare (db, query)
+                      | x :: r => (pool := r; x)
+            val () = used := !used + 1
+            val () = iF (pq, i)
+         in
+            (pq, oF)
+         end
+      
+      fun release ({ db, query, pool, used, iF, oF }, pq) = (
+         if !used = 0 then raise Prim.Error "wrapper bug: too many released statements" else
+         Prim.reset pq;
+         Prim.clearbindings pq;
+         used := !used - 1;
+         pool := pq :: !pool)
       
       fun oF0 _ = ()
       fun oN0 (q, n) = n ()
@@ -36,13 +70,20 @@ structure Query =
                                          val q = Prim.prepare (db, qs)
                                      in  if Prim.cols q < oI
                                          then (Prim.finalize q;
-                                               raise Fail "insufficient output columns")
-                                         else (q, iF, oF)
+                                               raise Prim.Error "insufficient output columns")
+                                         else { db = db, 
+                                                query = qs, 
+                                                pool = ref [q], 
+                                                used = ref 0, 
+                                                iF = iF, 
+                                                oF = oF }
                                      end)
       (* terminate an expression with this: *)
       val $ = $
       
-      fun close (q, _, _) = Prim.finalize q
+      fun close { db, query, pool, used, iF, oF } =
+         if !used = 0 then raise Prim.Error "Query is being processed; cannot close" else
+         (List.app Prim.finalize (!pool); pool := [] ; used := ~1)
       
       fun iFx f iN (q, a) = case iN (q, a) of (i, x) => f (q, i, x)
       fun iNx f iN (q, a & y) = case iN (q, a) of (i, x) => (f (q, i, x); (i+1, y))

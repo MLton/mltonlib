@@ -12,41 +12,37 @@ structure SQL :> SQL =
       
       val version = Prim.version
       
-      fun columns (q, _, _) = Prim.meta q
+      fun columns q = Prim.meta (Query.peek q)
       
       val openDB  = Prim.openDB
       val closeDB = Prim.closeDB
       
       datatype 'v stop = STOP | CONTINUE of 'v
       
-      fun iterStop (q, iF, oF) i =
+      fun iterStop q i =
          let
-            val () = iF (q, i)
             val ok = ref true
-            
+            val (pq, oF) = Query.alloc (q, i)
             fun stop () = (
-               Prim.reset q;
-               Prim.clearbindings q;
+               Query.release (q, pq);
                ok := false)
          in
             fn STOP => (stop (); NONE)
              | (CONTINUE ()) =>
                   if not (!ok) then NONE else
-                  if Prim.step q then SOME (oF q) else (stop (); NONE)
+                  if Prim.step pq then SOME (oF pq) else (stop (); NONE)
          end
       
-      fun mapStop f (q, iF, oF) i =
+      fun mapStop f q i =
          let
-            val () = iF (q, i)
-            
+            val (pq, oF) = Query.alloc (q, i)
             fun stop l = (
-               Prim.reset q;
-               Prim.clearbindings q;
+               Query.release (q, pq);
                Vector.fromList (List.rev l))
             
             fun helper l =
-               if Prim.step q
-               then case f (oF q) of
+               if Prim.step pq
+               then case f (oF pq) of
                        STOP => stop l
                      | CONTINUE r => helper (r :: l)
                else stop l
@@ -54,17 +50,14 @@ structure SQL :> SQL =
             helper []
          end
       
-      fun appStop f (q, iF, oF) i =
+      fun appStop f q i =
          let
-            val () = iF (q, i)
-            
-            fun stop () = (
-               Prim.reset q;
-               Prim.clearbindings q)
+            val (pq, oF) = Query.alloc (q, i)
+            fun stop () = Query.release (q, pq)
             
             fun helper () =
-               if Prim.step q
-               then case f (oF q) of
+               if Prim.step pq
+               then case f (oF pq) of
                        STOP => stop ()
                      | CONTINUE () => helper ()
                else stop ()
