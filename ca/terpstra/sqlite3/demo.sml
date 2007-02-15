@@ -12,12 +12,13 @@ val db = SQL.openDB dbname handle SQL.Error x => die x
 local
   open SQL.Function
 in
-  val M1 : t = fnS iS iS $ (fn (a & b) => a ^ b)
-  val () = SQL.registerFunction (db, "wes", M1)
-  val M2 : t = fnR iAS $ (fn v => (Vector.app (fn s => print (s ^ "\n")) v; 0.0))
-  val () = SQL.registerFunction (db, "debug", M2)
+  fun concat (a & b) = a ^ b
+  fun debug v = Vector.app (fn s => print (s ^ "\n")) v
   fun glom (s & i) = if i = 0 then raise SQL.Error "bad integer" else s ^ Int.toString i
-  val () = SQL.registerFunction (db, "glom", fnS iS iI $ glom)
+  val () = SQL.registerFunction  (db, "wes", fnS iS iS $ concat)
+  val () = SQL.registerFunction  (db, "debug", fnN iAS $ debug)
+  val () = SQL.registerFunction  (db, "glom", fnS iS iI $ glom)
+  val () = SQL.registerCollation (db, "sless", String.compare)
 end
 
 local
@@ -31,10 +32,11 @@ in
 end
 
 fun dumpP (s & i) = print (s ^ " " ^ Int.toString i ^ "\n")
-fun dumpV v = Vector.app (fn s => print (s ^ "\n")) v
-val () = SQL.app dumpP Q1 (4 & "hi") handle SQL.Error x => die x
-val () = SQL.app dumpV Q2 () handle SQL.Error x => die x
+fun dumpV v = (Vector.app (fn s => print (s ^ " ")) v; print "\n")
 
-val () = SQL.Query.close Q1 handle SQL.Error x => die x
-val () = SQL.Query.close Q2 handle SQL.Error x => die x
-val () = SQL.closeDB db handle SQL.Error x => die x
+val () = SQL.app dumpP Q1 (4 & "hi") handle SQL.Error x => die x
+val () = SQL.app dumpV Q2 ()         handle SQL.Error x => die x
+
+val () = SQL.Query.close Q1          handle SQL.Error x => die x
+val () = SQL.Query.close Q2          handle SQL.Error x => die x
+val () = SQL.closeDB db              handle SQL.Error x => die x
