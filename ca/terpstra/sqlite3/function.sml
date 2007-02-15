@@ -2,14 +2,17 @@ structure Function =
    struct
       type t = (Prim.context * Prim.value vector -> unit) * int
       
-      type 'a oF = Prim.value vector -> 'a
-      type ('b, 'c) oN = Prim.value vector * (unit -> 'b) -> 'c
-      type ('a, 'b, 'c) acc = int * 'a oF * ('b, 'c) oN
+      type 'a iF = Prim.value vector -> 'a
+      type ('b, 'c) iN = Prim.value vector * (unit -> 'b) -> 'c
+      type ('a, 'b, 'c) acc = int * 'a iF * ('b, 'c) iN
       
       type ('v, 'a, 'b, 'c, 'd, 'e, 'f) input = 
           (('a, 'v, 'b) acc, ('b, 'c, ('b, 'c) pair) acc, 'd, 'e, 'f) Fold.step0
       type ('v, 'a, 'b, 'c, 'd, 'e) fnX = 
           ((unit, 'a, 'a) acc, ('b, 'c, 'd) acc, ('b -> 'v) -> t, 'e) Fold.t 
+      type ('v, 'a, 'b, 'c) inputA = 
+          ((unit, unit, unit) acc, ('v vector, unit, unit) acc, 'a, 'b, 'c) Fold.step0
+            
       
       val iI0 = 0
       fun iF0 _ = ()
@@ -24,6 +27,7 @@ structure Function =
       fun fnZ z = fnMap Prim.resultZ z
       fun fnS z = fnMap Prim.resultS z
       fun fnX z = fnMap Prim.resultX z
+      fun fnN z = fnMap Prim.resultN z
       
       (* terminate an expression with this: *)
       val $ = $
@@ -38,4 +42,14 @@ structure Function =
       fun iZ z = iMap Prim.valueZ z
       fun iS z = iMap Prim.valueS z
       fun iX z = iMap Prim.valueX z
+      
+      fun iAFx f v = Vector.map f v
+      fun iANx iF (v, n) = case iF v of () => () (* plug the type *)
+      fun iAMap f = Fold.step0 (fn (_, iF, _) => (~1, iAFx f, iANx iF))
+      fun iAB z = iAMap Prim.valueB z
+      fun iAR z = iAMap Prim.valueR z
+      fun iAI z = iAMap Prim.valueI z
+      fun iAZ z = iAMap Prim.valueZ z
+      fun iAS z = iAMap Prim.valueS z
+      fun iAX z = iAMap Prim.valueX z
    end

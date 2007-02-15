@@ -175,14 +175,14 @@ structure Prim :> PRIM =
       fun bindR (q, i, d) = wrap (q, Pbind_double (q, i, d))
       fun bindI (q, i, z) = wrap (q, Pbind_int (q, i, z))
       fun bindZ (q, i, z) = wrap (q, Pbind_int64 (q, i, z))
-      fun bindN (q, i) = wrap (q, Pbind_null (q, i))
+      fun bindN (q, i,()) = wrap (q, Pbind_null (q, i))
       fun bindS (q, i, s) = wrap (q, Pbind_text (q, i, CStr.fromString s, String.size s, PTRANSIENT))
       
       fun bindX (q, i, INTEGER z) = bindZ (q, i, z)
         | bindX (q, i, REAL r) = bindR (q, i, r)
         | bindX (q, i, STRING s) = bindS (q, i, s)
         | bindX (q, i, BLOB b) = bindB (q, i, b)
-        | bindX (q, i, NULL) = bindN (q, i)
+        | bindX (q, i, NULL) = bindN (q, i, ())
       
       fun cols q = Pcolumn_count q
       
@@ -251,14 +251,14 @@ structure Prim :> PRIM =
       fun resultR (c, d) = Presult_double (c, d)
       fun resultI (c, z) = Presult_int (c, z)
       fun resultZ (c, z) = Presult_int64 (c, z)
-      fun resultN c = Presult_null c
+      fun resultN (c,()) = Presult_null c
       fun resultS (c, s) = Presult_text (c, CStr.fromString s, String.size s, PTRANSIENT)
       
       fun resultX (c, INTEGER z) = resultZ (c, z)
         | resultX (c, REAL r) = resultR (c, r)
         | resultX (c, STRING s) = resultS (c, s)
         | resultX (c, BLOB b) = resultB (c, b)
-        | resultX (c, NULL) = resultN c
+        | resultX (c, NULL) = resultN (c, ())
       
       type callback = Context.t * Value.t vector -> unit
       

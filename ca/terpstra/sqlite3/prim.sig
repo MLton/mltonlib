@@ -36,7 +36,7 @@ signature PRIM =
       val bindR: query * int * real -> unit
       val bindI: query * int * int -> unit
       val bindZ: query * int * Int64.int -> unit
-      val bindN: query * int -> unit
+      val bindN: query * int * unit -> unit
       val bindS: query * int * string -> unit
       val bindX: query * int * storage -> unit
       
@@ -75,7 +75,7 @@ signature PRIM =
       val resultR: context * real -> unit
       val resultI: context * int -> unit
       val resultZ: context * Int64.int -> unit
-      val resultN: context -> unit
+      val resultN: context * unit -> unit
       val resultS: context * string -> unit
       val resultX: context * storage -> unit
       

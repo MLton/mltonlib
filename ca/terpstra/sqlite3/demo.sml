@@ -14,6 +14,10 @@ local
 in
   val M1 : t = fnS iS iS $ (fn (a & b) => a ^ b)
   val () = SQL.registerFunction (db, "wes", M1)
+  val M2 : t = fnR iAS $ (fn v => (Vector.app (fn s => print (s ^ "\n")) v; 0.0))
+  val () = SQL.registerFunction (db, "debug", M2)
+  fun glom (s & i) = s ^ Int.toString i
+  val () = SQL.registerFunction (db, "glom", fnS iS iI $ glom)
 end
 
 local

@@ -126,6 +126,8 @@ signature SQL =
                (('a, 'v, 'b) acc, ('b, 'c, ('b, 'c) pair) acc, 'd, 'e, 'f) Fold.step0
             type ('v, 'a, 'b, 'c, 'd, 'e) fnX = 
                ((unit, 'a, 'a) acc, ('b, 'c, 'd) acc, ('b -> 'v) -> t, 'e) Fold.t 
+            type ('v, 'a, 'b, 'c) inputA = 
+               ((unit, unit, unit) acc, ('v vector, unit, unit) acc, 'a, 'b, 'c) Fold.step0
             
             (* Return types of the function *)
             val fnB: (Word8Vector.vector, 'a, 'b, 'c, 'd, 'e) fnX
@@ -134,6 +136,7 @@ signature SQL =
             val fnZ: (Int64.int,          'a, 'b, 'c, 'd, 'e) fnX
             val fnS: (string,             'a, 'b, 'c, 'd, 'e) fnX
             val fnX: (storage,            'a, 'b, 'c, 'd, 'e) fnX
+            val fnN: (unit,               'a, 'b, 'c, 'd, 'e) fnX
             
             val $ : 'a * ('a -> 'b) -> 'b
             
@@ -145,10 +148,13 @@ signature SQL =
             val iS: (string,             'a, 'b, 'c, 'd, 'e, 'f) input
             val iX: (storage,            'a, 'b, 'c, 'd, 'e, 'f) input
             
-(*
             (* Variadic functions *)
-            val iAB: ...
-*)      
+            val iAB: (Word8Vector.vector, 'a, 'b, 'c) inputA
+            val iAR: (real,               'a, 'b, 'c) inputA
+            val iAI: (int,                'a, 'b, 'c) inputA
+            val iAZ: (Int64.int,          'a, 'b, 'c) inputA
+            val iAS: (string,             'a, 'b, 'c) inputA
+            val iAX: (storage,            'a, 'b, 'c) inputA
          end
       
       val registerFunction:  db * string * Function.t -> unit
