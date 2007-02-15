@@ -5,9 +5,6 @@
  *)
 
 (*
- * Copyright (c) 2006 SSH Communications Security, Helsinki, Finland
- *               All rights reserved.
- *
  * Unit tests for the {Promise} module.
  *)
 
