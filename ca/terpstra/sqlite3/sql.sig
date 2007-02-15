@@ -152,7 +152,5 @@ signature SQL =
          end
       
       val registerFunction:  db * string * Function.t -> unit
-(*
       val registerCollation: db * string * (string * string -> order) -> unit
-*)
    end

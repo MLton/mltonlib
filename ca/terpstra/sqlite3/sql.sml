@@ -97,4 +97,5 @@ structure SQL :> SQL =
       end
       
       fun registerFunction (db, s, (f, i)) = Prim.createFunction (db, s, f, i)
+      val registerCollation = Prim.createCollation
    end

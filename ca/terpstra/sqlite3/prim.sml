@@ -56,6 +56,7 @@ structure Prim :> PRIM =
       
       (* bind a user function *)
       val Pcreate_function = _import "sqlite3_create_function" : DB.t * CStr.t * int * int * word * FnPtr.t * FnPtr.t * FnPtr.t -> int;
+      val Pcreate_collation = _import "sqlite3_create_collation" : DB.t * CStr.t * int * word * FnPtr.t -> int;
       val Puser_data = _import "sqlite3_user_data" : Context.t -> word;
       
       (* fetch user function values *)
@@ -262,15 +263,14 @@ structure Prim :> PRIM =
       type callback = Context.t * Value.t vector -> unit
       
       (* !!! Space leak !!! *)
-      val cfns = Buffer.empty ()
-      
+      val fnt = Buffer.empty ()
       fun fnCallback (context, numargs, args) =
          let
-            val cfn = Buffer.sub (cfns, Word.toInt (Puser_data context))
+            val f = Buffer.sub (fnt, Word.toInt (Puser_data context))
             fun get i = Value.fromPtr (MLton.Pointer.getPointer (args, i))
             val args = Vector.tabulate (numargs, get)
          in
-            cfn (context, args)
+            f (context, args)
          end
       val () = _export "mlton_sqlite3_ufnhook" : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
                   fnCallback
@@ -283,8 +283,26 @@ structure Prim :> PRIM =
 *)
       fun createFunction (db, name, f, n) =
              code (db, Pcreate_function (db, CStr.fromString name, n, 1, 
-                                         Word.fromInt (Buffer.push (cfns, f)),
+                                         Word.fromInt (Buffer.push (fnt, f)),
                                          fnCallbackPtr, FnPtr.null, FnPtr.null))
+
+      val colt = Buffer.empty ()
+      fun colCallback (uarg, s1l, s1p, s2l, s2p) =
+         let
+            val col = Buffer.sub (colt, Word.toInt uarg)
+         in
+            case col (CStr.toStringLen (s1p, s1l), CStr.toStringLen (s2p, s2l)) of
+               LESS => ~1
+             | EQUAL => 0
+             | GREATER => 1
+         end
+      val () = _export "mlton_sqlite3_colhook" : (word * int * CStr.out * int * CStr.out -> int) -> unit;
+                  colCallback
+      val colCallbackPtr = _address "mlton_sqlite3_colhook" : FnPtr.t;
+      fun createCollation (db, name, f) =
+             code (db, Pcreate_collation (db, CStr.fromString name, 1,
+                                          Word.fromInt (Buffer.push (colt, f)),
+                                          colCallbackPtr))
       
       type db = DB.t
       type query = Query.t
