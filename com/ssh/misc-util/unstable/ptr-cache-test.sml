@@ -30,6 +30,14 @@ in
                            ; eq (3, use c k3)
                            ; notFound (fn () => get c k3)
                            ; eq (0, size c))
+                   val k1 = put c 1
+                   val k0 = put c 0
+                   val () = (eq (2, size c)
+                           ; eq (1, get c k1)
+                           ; eq (0, get c k0)
+                           ; rem c k0
+                           ; rem c k1
+                           ; eq (0, size c))
                 in
                    ()
                 end))
