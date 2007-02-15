@@ -35,8 +35,9 @@ test : test.mlb mlb-path-map
 	mlton -mlb-path-map mlb-path-map     \
 	      -prefer-abs-paths true         \
 	      -show-def-use $@.def-use       \
-	      -output $@                     \
+	      -const 'Exn.keepHistory true'  \
 	      -link-opt -ldl                 \
+	      -output $@                     \
 	      $<
 
 ##########################################################################

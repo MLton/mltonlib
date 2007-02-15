@@ -21,15 +21,15 @@ structure CeeCache :> CACHE where type Key.t = C.voidptr = struct
    datatype 'a t =
       IN of {size : Int.t Ref.t,
              table : {key : Key.t, value : 'a} Option.t Array.t Ref.t}
-   fun get s (IN r) = ! (s r)
+   fun g s (IN r) = ! (s r)
    fun set s (IN r) v = s r := v
 
    exception NotFound
 
-   fun size c = get #size c
+   fun size c = g#size c
 
-   fun sub c i = valOf (Array.sub (get#table c, i))
-   fun update c (i, v) = Array.update (get#table c, i, v)
+   fun sub c i = valOf (Array.sub (g#table c, i))
+   fun update c (i, v) = Array.update (g#table c, i, v)
 
    fun new () = IN {size = ref 0, table = ref (Array.tabulate (0, undefined))}
 

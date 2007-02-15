@@ -6,31 +6,33 @@
 
 val () = let
    open Type UnitTest
-   val verifyNotFound =
-       verifyFailsWith (fn CeeCache.NotFound => true | _ => false)
+   val notFound = verifyFailsWith (fn CeeCache.NotFound => true | _ => false)
+   fun eq (e, a) = verifyEq int {actual = a, expect = e}
 in
    unitTests
       (title "CeeCache")
+
       (test (fn () => let
                    open CeeCache
                    val c = new ()
-                   val () = verifyTrue (0 = size c)
+                   val () = eq (1, size c)
                    val k5 = put c 5
-                   val () = verifyTrue (1 = size c)
+                   val () = eq (1, size c)
                    val k2 = put c 2
-                   val () = verifyTrue (2 = size c)
-                   val () = verifyTrue (5 = use c k5)
-                   val () = verifyNotFound (fn () => get c k5)
-                   val () = verifyTrue (1 = size c)
+                   val () = (eq (2, size c)
+                           ; eq (5, use c k5)
+                           ; notFound (fn () => get c k5)
+                           ; eq (1, size c))
                    val k3 = put c 3
-                   val () = verifyTrue (2 = use c k2)
-                   val () = verifyNotFound (fn () => use c k2)
-                   val () = verifyTrue (1 = size c)
-                   val () = verifyTrue (3 = use c k3)
-                   val () = verifyNotFound (fn () => get c k3)
-                   val () = verifyTrue (0 = size c)
+                   val () = (eq (2, use c k2)
+                           ; notFound (fn () => use c k2)
+                           ; eq (1, size c)
+                           ; eq (3, use c k3)
+                           ; notFound (fn () => get c k3)
+                           ; eq (0, size c))
                 in
                    ()
                 end))
+
       $
 end
