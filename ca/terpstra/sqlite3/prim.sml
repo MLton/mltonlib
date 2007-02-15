@@ -271,8 +271,7 @@ structure Prim :> PRIM =
             val args = Vector.tabulate (numargs, get)
             fun error s = Presult_error (context, CStr.fromString s, String.size s)
          in
-            error ("zomg the pain!")
-(*            f (context, args) *)
+            f (context, args)
             handle Error x => error ("fatal: " ^ x)
             handle Retry x => error ("retry: " ^ x)
             handle Abort x => error ("abort: " ^ x)
