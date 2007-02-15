@@ -79,7 +79,7 @@ signature PRIM =
       val resultS: context * string -> unit
       val resultX: context * storage -> unit
       
-      val createFunction: db * string * (context * value vector -> unit) option -> unit
+      val createFunction: db * string * (context * value vector -> unit) * int -> unit
 (*
       val createCollation: db * string * (string * string -> order) option -> unit
       val createAggregate: db * string * ((context * value vector -> unit) *

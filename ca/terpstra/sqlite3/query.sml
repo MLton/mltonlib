@@ -82,8 +82,9 @@ structure Query =
       val $ = $
       
       fun close { db, query, pool, used, iF, oF } =
-         if !used = 0 then raise Prim.Error "Query is being processed; cannot close" else
-         (List.app Prim.finalize (!pool); pool := [] ; used := ~1)
+         if !used = 0 
+         then (List.app Prim.finalize (!pool); pool := [] ; used := ~1)
+         else raise Prim.Error "Query is being processed; cannot close"
       
       fun iFx f iN (q, a) = case iN (q, a) of (i, x) => f (q, i, x)
       fun iNx f iN (q, a & y) = case iN (q, a) of (i, x) => (f (q, i, x); (i+1, y))

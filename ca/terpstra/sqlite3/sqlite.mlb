@@ -2,6 +2,8 @@ local
    $(SML_LIB)/basis/basis.mlb
    $(SML_LIB)/basis/mlton.mlb
    
+   buffer.sig
+   buffer.sml
    prim.sig
    ann
       "allowFFI true"

@@ -259,10 +259,32 @@ structure Prim :> PRIM =
         | resultX (c, BLOB b) = resultB (c, b)
         | resultX (c, NULL) = resultN c
       
-      fun createFunction (db, name, NONE) = 
+      type callback = Context.t * Value.t vector -> unit
+      
+      (* !!! Space leak !!! *)
+      val cfns = Buffer.empty ()
+      
+      fun fnCallback (context, numargs, args) =
+         let
+            val cfn = Buffer.sub (cfns, Word.toInt (Puser_data context))
+            fun get i = Value.fromPtr (MLton.Pointer.getPointer (args, i))
+            val args = Vector.tabulate (numargs, get)
+         in
+            cfn (context, args)
+         end
+      val () = _export "mlton_sqlite3_ufnhook" : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
+                  fnCallback
+      val fnCallbackPtr = _address "mlton_sqlite3_ufnhook" : FnPtr.t;
+      
+(*
+      fun createFunction (db, name, NONE, _) = 
              code (db, Pcreate_function (db, CStr.fromString name, 0, 1, 0w0,
                                          FnPtr.null, FnPtr.null, FnPtr.null))
-        | createFunction (db, name, SOME f) = ()
+*)
+      fun createFunction (db, name, f, n) =
+             code (db, Pcreate_function (db, CStr.fromString name, n, 1, 
+                                         Word.fromInt (Buffer.push (cfns, f)),
+                                         fnCallbackPtr, FnPtr.null, FnPtr.null))
       
       type db = DB.t
       type query = Query.t

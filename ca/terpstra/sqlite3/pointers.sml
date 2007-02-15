@@ -2,11 +2,13 @@ signature PTR =
    sig
       type t
       val null: t
+      val fromPtr: MLton.Pointer.t -> t
    end
 structure Ptr =
    struct
       type t = MLton.Pointer.t
       val null = MLton.Pointer.null
+      fun fromPtr x = x
    end
 signature CSTR =
    sig

@@ -95,4 +95,6 @@ structure SQL :> SQL =
                exec Q () before close Q
             end
       end
+      
+      fun registerFunction (db, s, (f, i)) = Prim.createFunction (db, s, f, i)
    end

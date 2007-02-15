@@ -116,34 +116,43 @@ signature SQL =
        *   val g = fnX $ fn () => SQL.NULL
        * end
        *)
-(*
       structure Function:
          sig
             type t
             
+            (* don't look at this: *)
+            type ('a, 'b, 'c) acc
+            type ('v, 'a, 'b, 'c, 'd, 'e, 'f) input = 
+               (('a, 'v, 'b) acc, ('b, 'c, ('b, 'c) pair) acc, 'd, 'e, 'f) Fold.step0
+            type ('v, 'a, 'b, 'c, 'd, 'e) fnX = 
+               ((unit, 'a, 'a) acc, ('b, 'c, 'd) acc, ('b -> 'v) -> t, 'e) Fold.t 
+            
             (* Return types of the function *)
-            val fnB: (Word8Vector.vector, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val fnR: (real,               'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val fnI: (int,                'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val fnZ: (Int64.int,          'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val fnS: (string,             'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val fnX: (storage,            'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
+            val fnB: (Word8Vector.vector, 'a, 'b, 'c, 'd, 'e) fnX
+            val fnR: (real,               'a, 'b, 'c, 'd, 'e) fnX
+            val fnI: (int,                'a, 'b, 'c, 'd, 'e) fnX
+            val fnZ: (Int64.int,          'a, 'b, 'c, 'd, 'e) fnX
+            val fnS: (string,             'a, 'b, 'c, 'd, 'e) fnX
+            val fnX: (storage,            'a, 'b, 'c, 'd, 'e) fnX
             
             val $ : 'a * ('a -> 'b) -> 'b
             
             (* Input parameters to the function *)
-            val iB: (Word8Vector.vector, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val iR: (real,               'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val iI: (int,                'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val iZ: (Int64.int,          'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val iS: (string,             'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
-            val iX: (storage,            'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
+            val iB: (Word8Vector.vector, 'a, 'b, 'c, 'd, 'e, 'f) input
+            val iR: (real,               'a, 'b, 'c, 'd, 'e, 'f) input
+            val iI: (int,                'a, 'b, 'c, 'd, 'e, 'f) input
+            val iZ: (Int64.int,          'a, 'b, 'c, 'd, 'e, 'f) input
+            val iS: (string,             'a, 'b, 'c, 'd, 'e, 'f) input
+            val iX: (storage,            'a, 'b, 'c, 'd, 'e, 'f) input
             
+(*
             (* Variadic functions *)
             val iAB: ...
+*)      
          end
       
-      val registerFunction:  string * Function.t option -> unit
-      val registerCollation: string * (string * string -> order) option -> unit
+      val registerFunction:  db * string * Function.t -> unit
+(*
+      val registerCollation: db * string * (string * string -> order) -> unit
 *)
    end
