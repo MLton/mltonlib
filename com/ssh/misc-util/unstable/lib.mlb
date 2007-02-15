@@ -47,6 +47,7 @@ in
       $(SML_LIB)/mlnlffi-lib/mlnlffi-lib.mlb
    in
       cache.sml
+      cee-cache.sml
    end
 
    (* SML *)
