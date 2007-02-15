@@ -16,7 +16,7 @@ in
   val () = SQL.registerFunction (db, "wes", M1)
   val M2 : t = fnR iAS $ (fn v => (Vector.app (fn s => print (s ^ "\n")) v; 0.0))
   val () = SQL.registerFunction (db, "debug", M2)
-  fun glom (s & i) = s ^ Int.toString i
+  fun glom (s & i) = if i = 0 then raise SQL.Error "bad integer" else s ^ Int.toString i
   val () = SQL.registerFunction (db, "glom", fnS iS iI $ glom)
 end
 

@@ -124,7 +124,7 @@ structure Prim :> PRIM =
         | code (db, 21) = raise Error (why db) (* #define SQLITE_MISUSE      21   /* Library used incorrectly */ *)
         | code (db, 22) = raise Error (why db) (* #define SQLITE_NOLFS       22   /* Uses OS features not supported on host */ *)
         | code (db, 23) = raise Abort (why db) (* #define SQLITE_AUTH        23   /* Authorization denied */ *)
-        | code (db, _)  = raise Error"unknown error code"
+        | code (db, _)  = raise Error "SQLite returned an unknown error code"
       
       fun openDB filename =
          let
@@ -158,7 +158,7 @@ structure Prim :> PRIM =
          case (Pstep q) of
             100 => true  (* #define SQLITE_ROW         100  /* sqlite_step() has another row ready */ *)
           | 101 => false (* #define SQLITE_DONE        101  /* sqlite_step() has finished executing */ *)
-          | r => (wrap (q, r); raise Error "unreachable")
+          | r => (wrap (q, r); raise Error "unreachable; step wrapper should raise")
       fun clearbindings q = wrap (q, Pclearbindings q)
       
       fun query_string q = valOf (CStr.toStringOpt (Pquery_string q))
@@ -203,7 +203,7 @@ structure Prim :> PRIM =
           | 3 => STRING (fetchS (q, i))
           | 4 => BLOB (fetchB (q, i))
           | 5 => NULL
-          | _ => raise Error "Invalid storage type"
+          | _ => raise Error "SQLite handed SML an invalid storage type"
       
       type column = { name: string }
 (*                    origin: { table:  string,
@@ -245,7 +245,7 @@ structure Prim :> PRIM =
           | 3 => STRING (valueS v)
           | 4 => BLOB (valueB v)
           | 5 => NULL
-          | _ => raise Error "Invalid storage type"
+          | _ => raise Error "SQLite handed SML an invalid storage type"
       
       fun resultB (c, b) = Presult_blob (c, Blob.fromVector b, Word8Vector.length b, PTRANSIENT)
       fun resultR (c, d) = Presult_double (c, d)
@@ -269,8 +269,14 @@ structure Prim :> PRIM =
             val f = Buffer.sub (fnt, Word.toInt (Puser_data context))
             fun get i = Value.fromPtr (MLton.Pointer.getPointer (args, i))
             val args = Vector.tabulate (numargs, get)
+            fun error s = Presult_error (context, CStr.fromString s, String.size s)
          in
-            f (context, args)
+            error ("zomg the pain!")
+(*            f (context, args) *)
+            handle Error x => error ("fatal: " ^ x)
+            handle Retry x => error ("retry: " ^ x)
+            handle Abort x => error ("abort: " ^ x)
+            handle _ => error "unknown SML exception raised"
          end
       val () = _export "mlton_sqlite3_ufnhook" : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
                   fnCallback
@@ -291,10 +297,16 @@ structure Prim :> PRIM =
          let
             val col = Buffer.sub (colt, Word.toInt uarg)
          in
-            case col (CStr.toStringLen (s1p, s1l), CStr.toStringLen (s2p, s2l)) of
-               LESS => ~1
-             | EQUAL => 0
-             | GREATER => 1
+            (case col (CStr.toStringLen (s1p, s1l), CStr.toStringLen (s2p, s2l)) of
+                LESS => ~1
+              | EQUAL => 0
+              | GREATER => 1)
+            (* don't propogate an exception up as it will segfault.
+             * do complain somehow that this is bad!
+             *)
+            handle _ => (TextIO.output (TextIO.stdErr, 
+                                        "SML exception raised during collation! bad!");
+                         0)
          end
       val () = _export "mlton_sqlite3_colhook" : (word * int * CStr.out * int * CStr.out -> int) -> unit;
                   colCallback
