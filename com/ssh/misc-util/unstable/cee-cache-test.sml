@@ -15,7 +15,7 @@ in
       (test (fn () => let
                    open CeeCache
                    val c = new ()
-                   val () = eq (1, size c)
+                   val () = eq (0, size c)
                    val k5 = put c 5
                    val () = eq (1, size c)
                    val k2 = put c 2
