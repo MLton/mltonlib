@@ -14,10 +14,10 @@ local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    lib.mlb
 
-   cee-cache-test.sml
    misc-test.sml
    prettier-test.sml
    promise-test.sml
+   ptr-cache-test.sml
    qc-test-example.sml
    show-test.sml
    sorted-list-test.sml

@@ -42,12 +42,15 @@ in
    word-table.sig
    word-table.sml
 
+   int-obj.sig
+
    cache.sig
    local
       $(SML_LIB)/mlnlffi-lib/mlnlffi-lib.mlb
    in
       cache.sml
-      cee-cache.sml
+      mk-int-obj-cache.fun
+      ptr-cache.sml
    end
 
    (* SML *)

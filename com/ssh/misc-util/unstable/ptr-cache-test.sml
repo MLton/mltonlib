@@ -6,14 +6,14 @@
 
 val () = let
    open Type UnitTest
-   val notFound = verifyFailsWith (fn CeeCache.NotFound => true | _ => false)
+   val notFound = verifyFailsWith (fn PtrCache.NotFound => true | _ => false)
    fun eq (e, a) = verifyEq int {actual = a, expect = e}
 in
    unitTests
-      (title "CeeCache")
+      (title "PtrCache")
 
       (test (fn () => let
-                   open CeeCache
+                   open PtrCache
                    val c = new ()
                    val () = eq (0, size c)
                    val k5 = put c 5
