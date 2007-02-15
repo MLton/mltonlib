@@ -6,7 +6,7 @@
 
 val () = let
    open Type UnitTest
-   val notFound = verifyFailsWith (fn PtrCache.NotFound => true | _ => false)
+   fun notFound ? = verifyFailsWith (fn PtrCache.NotFound => true | _ => false) ?
    fun eq (e, a) = verifyEq int {actual = a, expect = e}
 in
    unitTests
@@ -17,7 +17,10 @@ in
                    val c = new ()
                    val () = eq (0, size c)
                    val k5 = put c 5
-                   val () = eq (1, size c)
+                   val () = (eq (1, size c)
+                           ; notFound (fn () => putWith c (failing NotFound))
+                           ; eq (1, size c)
+                           ; eq (5, get c k5))
                    val k2 = put c 2
                    val () = (eq (2, size c)
                            ; eq (5, use c k5)
