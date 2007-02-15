@@ -3,19 +3,30 @@ signature SQL =
       type db
       type column = { name: string }
       
-      (* For unconverted type values *)
+      exception Retry of string
+      exception Abort of string
+      exception Error of string
+      
+      (* For access to the raw untyped entries in SQLite3: *)
       datatype storage = INTEGER of Int64.int
                        | REAL of real
                        | STRING of string
                        | BLOB of Word8Vector.vector
                        | NULL
       
+      (* The version of SQLite3 bound *)
+      val version: string
+      
+      (* Open and close databases -- all queries must be closed *)
+      val openDB: string -> db
+      val closeDB: db -> unit
+      
       (* You should ignore the type information here. It's confusing & useless.
        * Use this structure as follows:
        * local
        *   open SQL.Query
        * in
-       *   val Q1 = prepare db "select (a, b) from table 1where x="iI" and y="iS";" oS oR $
+       *   val Q1 = prepare db "select (a, b) from table where x="iI" and y="iS";" oS oR $
        *   val Q2 = prepare db "insert into table2 values (4, 6);" $
        * end
        * ...
@@ -44,7 +55,7 @@ signature SQL =
                                           ('i, 'o) t, 'g) Fold.t
             val $ : 'a * ('a -> 'b) -> 'b
             
-            (* For every 'query' you must eventually run this: *)
+            (* For every 'prepare' you must eventually run this: *)
             val close: ('i, 'o) t -> unit
             
             (* Convert the next column to the desired type *)
@@ -72,26 +83,15 @@ signature SQL =
             val iX: (storage,            'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
          end
       
-      exception Retry of string
-      exception Abort of string
-      exception Error of string
-      
-      (* The version of SQLite3 bound *)
-      val version: string
-      
-      (* Open and close databases -- all queries must be closed *)
-      val openDB: string -> db
-      val closeDB: db -> unit
-      
       (* Meta-data about the columns in the output *)
       val columns: ('i, 'o) Query.t -> column vector
-      
-      (* Transform a query into an iterator *)
-      val iter: ('i, 'o) Query.t -> 'i -> unit -> 'o option
       
       (* Run a function on each output row from a query *)
       val map: ('o -> 'v) -> ('i, 'o) Query.t -> 'i -> 'v vector
       val app: ('o -> unit) -> ('i, 'o) Query.t -> 'i -> unit
+      
+      (* Transform a query into an iterator *)
+      val iter: ('i, 'o) Query.t -> 'i -> unit -> 'o option
       
       (* Run a function on each output row, allowing premature completion *)
       datatype 'v stop = STOP | CONTINUE of 'v
@@ -107,13 +107,17 @@ signature SQL =
       val simpleTable: db * string -> string vector vector
       val simpleExec: db * string -> unit
       
-      (* This is used to create special user functions.
-       * Examples:
+      (* This is used to create user functions available to SQL.
+       * Example usage:
        * local
        *   open SQL.Function
+       *   fun concat (a & b) = a ^ b
+       *   fun pi () = 3.14159
+       *   fun dump v = Vector.app (fn s => print (s ^ "\n")) v
        * in
-       *   val f = fnS iI iR $ fn (i & r) => (Int.toString i ^ Real.toString r)
-       *   val g = fnX $ fn () => SQL.NULL
+       *   val () = SQL.registerFunction (db, "concat", fnS iS iS $ concat)
+       *   val () = SQL.registerFunction (db, "pi", fnR $ pi)
+       *   val () = SQL.registerFunction (db, "dump", fnN iAS $ dump)
        * end
        *)
       structure Function:
