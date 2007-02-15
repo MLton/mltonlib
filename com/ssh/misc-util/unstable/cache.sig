@@ -5,9 +5,9 @@
  *)
 
 (**
- * Signature for an imperative polymorphic cache for storing values.  A cache
- * differs from an ordinary imperative polymorphic map in that a cache
- * automatically generates keys for values.
+ * Signature for an imperative polymorphic cache for storing values.  A
+ * cache differs from an ordinary imperative polymorphic map in that a
+ * cache automatically generates keys for values.
  *)
 signature CACHE = sig
    type 'a t
@@ -17,7 +17,11 @@ signature CACHE = sig
    end
 
    exception NotFound
-   (** Raised by {get}, {use}, and {rem} in case a key is not found. *)
+   (**
+    * Raised by {get}, {use}, and {rem} in case a key is not found from
+    * the cache.  An attempt to use invalid or removed keys is considered
+    * an error.
+    *)
 
    val new : Unit.t -> 'a t
    (** Creates a new (empty) cache. *)
@@ -29,11 +33,11 @@ signature CACHE = sig
    (**
     * Puts a key dependent value into cache and returns the key and
     * value.  If the construction of the value raises an exception, the
-    * state of the cache does not change observably.
+    * state of the cache will not change observably.
     *)
 
    val put : 'a t -> 'a -> Key.t
-   (** Puts a value into cache and return the key for the value. *)
+   (** Puts a value into cache and returns the key for the value. *)
 
    val get : 'a t -> Key.t -> 'a
    (** Returns the value corresponding to the key. *)
