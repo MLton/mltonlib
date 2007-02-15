@@ -26,11 +26,9 @@ mlb-path-map : Makefile
 	echo 'SML_COMPILER mlton' >> $@
 
 test : test.mlb mlb-path-map
-	mlton -stop f -mlb-path-map mlb-path-map $<        \
-	  | sed $$'s#\r##g'                                \
-	  | awk 'BEGIN    { line = "$@ :" }                \
-	                  { print line " \\" ; line=$$1 }  \
-	         END      { print line }'                  \
+	mlton -stop f -mlb-path-map mlb-path-map $<          \
+	  | sed $$'s#\r##g'                                  \
+	  | awk 'BEGIN { printf "$@ :" } { printf " " $$1 }' \
 	  > $@.dep
 	mlton -mlb-path-map mlb-path-map     \
 	      -prefer-abs-paths true         \
