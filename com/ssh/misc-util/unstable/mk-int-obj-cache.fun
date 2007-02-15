@@ -18,6 +18,7 @@ functor MkIntObjCache (Key : INT_OBJ) :> CACHE
    exception NotFound
 
    fun size c = gt#size c
+   fun cap c = Array.length (gt#table c)
 
    fun sub c i = valOf (Array.sub (gt#table c, i))
    fun update c (i, v) = Array.update (gt#table c, i, v)
@@ -29,18 +30,11 @@ functor MkIntObjCache (Key : INT_OBJ) :> CACHE
                    (newCap,
                     fn i => if i < !size then Array.sub (!table, i) else NONE)
 
-   fun maybeAdjustCap c reqCap = let
-      val curCap = Array.length (gt#table c)
-   in
-      if curCap   < reqCap then realloc c (Int.max (reqCap, curCap*2+1)) else
-      if reqCap*4 < curCap then realloc c (curCap div 2)                 else ()
-   end
-
    fun putWith c k2v = let
       val n = size c
       val k = Key.new n
    in
-      (maybeAdjustCap c (n+1)
+      (if cap c = n then realloc c (n*2+1) else ()
      ; let val v = k2v k
        in st#size c (n+1)
         ; update c (n, SOME {key = k, value = v})
@@ -70,7 +64,7 @@ functor MkIntObjCache (Key : INT_OBJ) :> CACHE
     ; Key.set (#key r) i
     ; update c (n, NONE)
     ; st#size c n
-    ; maybeAdjustCap c n
+    ; if n*4 < cap c then realloc c (cap c div 2) else ()
    end
    fun use c k = get c k before rem c k
 end
