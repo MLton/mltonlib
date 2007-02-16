@@ -145,8 +145,8 @@ structure Windows :> WINDOWS = struct
       fun createKeyEx (h, n, m) =
           (withZs n >>& withPtr >>& withDword)
              (fn n' & hkResult & dwDisposition =>
-                 ((raiseOnError
-                      (fn () => F"Reg.createKeyEx"[A ptr h, A str n, A sw m]))
+                 (raiseOnError
+                     (fn () => F"Reg.createKeyEx"[A ptr h, A str n, A sw m])
                      (F_win_RegCreateKeyEx.f'
                          (h, n', 0w0, C.Ptr.null', 0w0,
                           SysWord.toWord m, C.Ptr.null',
@@ -159,15 +159,15 @@ structure Windows :> WINDOWS = struct
       fun deleteKey (h, n) =
           (withZs n)
              (fn n' =>
-                 (raiseOnError
-                     (fn () => F"Reg.deleteKey"[A ptr h, A str n]))
+                 raiseOnError
+                    (fn () => F"Reg.deleteKey"[A ptr h, A str n])
                     (F_win_RegDeleteKey.f' (h, n')))
 
       fun deleteValue (h, n) =
           (withZs n)
              (fn n' =>
-                 (raiseOnError
-                     (fn () => F"Reg.deleteValue"[A ptr h, A str n]))
+                 raiseOnError
+                    (fn () => F"Reg.deleteValue"[A ptr h, A str n])
                     (F_win_RegDeleteValue.f' (h, n')))
 
       local
@@ -202,8 +202,8 @@ structure Windows :> WINDOWS = struct
       fun openKeyEx (h, n, m) =
           (withZs n >>& withPtr)
              (fn n' & hkResult =>
-                 ((raiseOnError
-                      (fn () => F"Reg.openKeyEx"[A ptr h, A str n, A sw m]))
+                 (raiseOnError
+                     (fn () => F"Reg.openKeyEx"[A ptr h, A str n, A sw m])
                      (F_win_RegOpenKeyEx.f'
                          (h, n', 0w0, SysWord.toWord m,
                           C.Ptr.|&! hkResult))
@@ -280,9 +280,9 @@ structure Windows :> WINDOWS = struct
                    (Word8Vector.appi
                        (fn (i, x) =>
                            C.Set.uchar' (C.Ptr.sub' C.S.uchar (buf, i), x)) data
-                  ; (raiseOnError
-                        (fn () => F"Reg.setValueEx"[A ptr h, A str n,
-                                                    Prettier.txt "<value>"]))
+                  ; raiseOnError
+                       (fn () => F"Reg.setValueEx"[A ptr h, A str n,
+                                                   Prettier.txt "<value>"])
                        (F_win_RegSetValueEx.f'
                            (h, n', 0w0, ty, C.Ptr.ro' buf, size))))
          end
@@ -296,9 +296,9 @@ structure Windows :> WINDOWS = struct
                  pass ()
          val auditFailure = `G_win_EVENTLOG_AUDIT_FAILURE.obj'
          val auditSuccess = `G_win_EVENTLOG_AUDIT_SUCCESS.obj'
-         val error = `G_win_EVENTLOG_ERROR_TYPE.obj'
-         val information = `G_win_EVENTLOG_INFORMATION_TYPE.obj'
-         val warning = `G_win_EVENTLOG_WARNING_TYPE.obj'
+         val error        = `G_win_EVENTLOG_ERROR_TYPE.obj'
+         val information  = `G_win_EVENTLOG_INFORMATION_TYPE.obj'
+         val warning      = `G_win_EVENTLOG_WARNING_TYPE.obj'
       end
    end
 
@@ -310,9 +310,9 @@ structure Windows :> WINDOWS = struct
       fun getFileName m = let
          val m' = getOpt (m, null)
       in
-         (onError0ElseTruncatedSize
-             (fn () => F"Module.getFileName"[A (opt ptr) m])
-             0w255)
+         onError0ElseTruncatedSize
+            (fn () => F"Module.getFileName"[A (opt ptr) m])
+            0w255
             (fn (b, s) => F_win_GetModuleFileName.f' (m', b, s))
       end
    end
@@ -321,8 +321,8 @@ structure Windows :> WINDOWS = struct
       fun getShortName p =
           (withZs p)
              (fn p' =>
-                 (onError0ElseRequiredSize
-                     (fn () => F"Path.getShortName"[A str p]))
+                 onError0ElseRequiredSize
+                    (fn () => F"Path.getShortName"[A str p])
                     (fn (b, s) => F_win_GetShortPathName.f' (p', b, s)))
    end
 end
