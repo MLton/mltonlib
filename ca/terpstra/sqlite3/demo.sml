@@ -15,10 +15,14 @@ in
   fun concat (a & b) = a ^ b
   fun debug v = Vector.app (fn s => print (s ^ "\n")) v
   fun glom (s & i) = if i = 0 then raise SQL.Error "bad integer" else s ^ Int.toString i
+  val sum2 = { init = fn () => 0, 
+               step = fn (i, (j & k)) => i+j+k, 
+               finish = fn x => x }
   val () = SQL.registerFunction  (db, "wes", fnS iS iS $ concat)
   val () = SQL.registerFunction  (db, "debug", fnN iAS $ debug)
   val () = SQL.registerFunction  (db, "glom", fnS iS iI $ glom)
   val () = SQL.registerCollation (db, "sless", String.compare)
+  val () = SQL.registerAggregate (db, "sum2", aggrI iI iI $ sum2)
 end
 
 local

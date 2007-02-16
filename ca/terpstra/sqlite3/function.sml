@@ -1,18 +1,27 @@
 structure Function =
    struct
-      type t = (Prim.context * Prim.value vector -> unit) * int
+      type scalar = (Prim.context * Prim.value vector -> unit) * int
+      type aggregate = Prim.aggregate * int
+      
+      type ('a, 'b, 'c) folder = {
+         init: unit -> 'a,
+         step: 'a * 'b -> 'a,
+         finish: 'a -> 'c
+      }
       
       type 'a iF = Prim.value vector -> 'a
       type ('b, 'c) iN = Prim.value vector * (unit -> 'b) -> 'c
       type ('a, 'b, 'c) acc = int * 'a iF * ('b, 'c) iN
       
+      type ('v, 'a, 'b, 'c, 'd, 'e) fnX = 
+          ((unit, 'a, 'a) acc, ('b, 'c, 'd) acc, ('b -> 'v) -> scalar, 'e) Fold.t 
+      type ('v, 'a, 'b, 'c, 'd, 'e, 'f) aggrX = 
+          ((unit, 'a, 'a) acc, ('b, 'c, 'd) acc, ('f, 'b, 'v) folder -> aggregate, 'e) Fold.t
+      
       type ('v, 'a, 'b, 'c, 'd, 'e, 'f) input = 
           (('a, 'v, 'b) acc, ('b, 'c, ('b, 'c) pair) acc, 'd, 'e, 'f) Fold.step0
-      type ('v, 'a, 'b, 'c, 'd, 'e) fnX = 
-          ((unit, 'a, 'a) acc, ('b, 'c, 'd) acc, ('b -> 'v) -> t, 'e) Fold.t 
       type ('v, 'a, 'b, 'c) inputA = 
           ((unit, unit, unit) acc, ('v vector, unit, unit) acc, 'a, 'b, 'c) Fold.step0
-            
       
       val iI0 = 0
       fun iF0 _ = ()
@@ -28,6 +37,31 @@ structure Function =
       fun fnS z = fnMap Prim.resultS z
       fun fnX z = fnMap Prim.resultX z
       fun fnN z = fnMap Prim.resultN z
+      
+      fun aggrMap r = Fold.fold ((iI0, iF0, iN0),
+                               fn (iI, iF, _) => fn { init, step, finish } =>
+                               let
+                                  fun finish1 c = r (c, finish (init ()))
+                                  fun step1 x =
+                                     let
+                                        val acc = ref (init ())
+                                        fun stepX (_, v) = 
+                                           (acc := step (!acc, iF v); 
+                                            Prim.AGGREGATE (stepX, finishX))
+                                        and finishX c = r (c, finish (!acc))
+                                      in
+                                        stepX x
+                                      end
+                               in
+                                  (Prim.AGGREGATE (step1, finish1), iI)
+                               end)
+      fun aggrB z = aggrMap Prim.resultB z
+      fun aggrR z = aggrMap Prim.resultR z
+      fun aggrI z = aggrMap Prim.resultI z
+      fun aggrZ z = aggrMap Prim.resultZ z
+      fun aggrS z = aggrMap Prim.resultS z
+      fun aggrX z = aggrMap Prim.resultX z
+      fun aggrN z = aggrMap Prim.resultN z
       
       (* terminate an expression with this: *)
       val $ = $

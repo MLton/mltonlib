@@ -114,22 +114,36 @@ signature SQL =
        *   fun concat (a & b) = a ^ b
        *   fun pi () = 3.14159
        *   fun dump v = Vector.app (fn s => print (s ^ "\n")) v
+       *
+       *   val sum2 = { init = fn () => 0, 
+       *                step = fn (i, (j & k)) => i+j+k, 
+       *                finish = fn x => x }
        * in
        *   val () = SQL.registerFunction (db, "concat", fnS iS iS $ concat)
        *   val () = SQL.registerFunction (db, "pi", fnR $ pi)
        *   val () = SQL.registerFunction (db, "dump", fnN iAS $ dump)
+       *   val () = SQL.registerAggregate (db, "sum2", aggrI iI iI $ sum2)
        * end
        *)
       structure Function:
          sig
-            type t
+            type scalar
+            type aggregate
+            
+            type ('a, 'b, 'c) folder = {
+               init: unit -> 'a,
+               step: 'a * 'b -> 'a,
+               finish: 'a -> 'c
+            }
             
             (* don't look at this: *)
             type ('a, 'b, 'c) acc
+            type ('v, 'a, 'b, 'c, 'd, 'e) fnX = 
+               ((unit, 'a, 'a) acc, ('b, 'c, 'd) acc, ('b -> 'v) -> scalar, 'e) Fold.t 
+            type ('v, 'a, 'b, 'c, 'd, 'e, 'f) aggrX = 
+               ((unit, 'a, 'a) acc, ('b, 'c, 'd) acc, ('f, 'b, 'v) folder -> aggregate, 'e) Fold.t 
             type ('v, 'a, 'b, 'c, 'd, 'e, 'f) input = 
                (('a, 'v, 'b) acc, ('b, 'c, ('b, 'c) pair) acc, 'd, 'e, 'f) Fold.step0
-            type ('v, 'a, 'b, 'c, 'd, 'e) fnX = 
-               ((unit, 'a, 'a) acc, ('b, 'c, 'd) acc, ('b -> 'v) -> t, 'e) Fold.t 
             type ('v, 'a, 'b, 'c) inputA = 
                ((unit, unit, unit) acc, ('v vector, unit, unit) acc, 'a, 'b, 'c) Fold.step0
             
@@ -141,6 +155,15 @@ signature SQL =
             val fnS: (string,             'a, 'b, 'c, 'd, 'e) fnX
             val fnX: (storage,            'a, 'b, 'c, 'd, 'e) fnX
             val fnN: (unit,               'a, 'b, 'c, 'd, 'e) fnX
+            
+            (* Return types of the aggregate *)
+            val aggrB: (Word8Vector.vector, 'a, 'b, 'c, 'd, 'e, 'f) aggrX
+            val aggrR: (real,               'a, 'b, 'c, 'd, 'e, 'f) aggrX
+            val aggrI: (int,                'a, 'b, 'c, 'd, 'e, 'f) aggrX
+            val aggrZ: (Int64.int,          'a, 'b, 'c, 'd, 'e, 'f) aggrX
+            val aggrS: (string,             'a, 'b, 'c, 'd, 'e, 'f) aggrX
+            val aggrX: (storage,            'a, 'b, 'c, 'd, 'e, 'f) aggrX
+            val aggrN: (unit,               'a, 'b, 'c, 'd, 'e, 'f) aggrX
             
             val $ : 'a * ('a -> 'b) -> 'b
             
@@ -161,6 +184,8 @@ signature SQL =
             val iAX: (storage,            'a, 'b, 'c) inputA
          end
       
-      val registerFunction:  db * string * Function.t -> unit
+      (* SQL.Error exceptions in callbacks are propogated ok. Others not. *)
+      val registerFunction:  db * string * Function.scalar -> unit
+      val registerAggregate: db * string * Function.aggregate -> unit
       val registerCollation: db * string * (string * string -> order) -> unit
    end

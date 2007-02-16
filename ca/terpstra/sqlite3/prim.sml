@@ -291,8 +291,8 @@ structure Prim :> PRIM =
       
       (************************************************* Aggregate functions *)
       datatype aggregate = 
-         AGGR of (Context.t * Value.t vector -> aggregate) * 
-                 (Context.t -> unit)
+         AGGREGATE of (Context.t * Value.t vector -> aggregate) * 
+                      (Context.t -> unit)
       val aginit = Buffer.empty ()
       val agstep = Buffer.empty ()
       fun fetchAggr context =
@@ -318,7 +318,7 @@ structure Prim :> PRIM =
             fun get i = Value.fromPtr (MLton.Pointer.getPointer (args, i))
             val args = Vector.tabulate (numargs, get)
             fun error s = Presult_error (context, CStr.fromString s, String.size s)
-            val AGGR (step, _) = Buffer.sub (agstep, ids)
+            val AGGREGATE (step, _) = Buffer.sub (agstep, ids)
          in
             Buffer.update (agstep, ids, step (context, args))
             handle Error x => error ("fatal: " ^ x)
@@ -330,7 +330,7 @@ structure Prim :> PRIM =
          let
             val ids = fetchAggr context
             fun error s = Presult_error (context, CStr.fromString s, String.size s)
-            val AGGR (_, final) = Buffer.sub (agstep, ids)
+            val AGGREGATE (_, final) = Buffer.sub (agstep, ids)
          in
             final context
             handle Error x => error ("fatal: " ^ x)

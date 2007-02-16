@@ -80,7 +80,7 @@ signature PRIM =
       val resultX: context * storage -> unit
       
       datatype aggregate = 
-         AGGR of (context * value vector -> aggregate) * (context -> unit)
+         AGGREGATE of (context * value vector -> aggregate) * (context -> unit)
       val createFunction:  db * string * (context * value vector -> unit) * int -> unit
       val createCollation: db * string * (string * string -> order) -> unit
       val createAggregate: db * string * aggregate * int -> unit
