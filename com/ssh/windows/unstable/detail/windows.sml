@@ -4,6 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(* XXX pretty print the arguments to functions in error messages *)
+
 (* Implementation of Windows utilities. *)
 structure Windows :> WINDOWS = struct
    val op >>& = With.>>&
@@ -115,6 +117,8 @@ structure Windows :> WINDOWS = struct
       datatype create_result
         = CREATED_NEW_KEY of hkey
         | OPENED_EXISTING_KEY of hkey
+
+      val keyOf = fn CREATED_NEW_KEY k => k | OPENED_EXISTING_KEY k => k
 
       fun createKeyEx (hKey, subKey, samDesired) =
           (withZs subKey >>& withPtr >>& withDword)
@@ -251,6 +255,19 @@ structure Windows :> WINDOWS = struct
                        (F_win_RegSetValueEx.f'
                            (hKey, valueName, 0w0, ty, C.Ptr.ro' buf, size))))
          end
+      end
+   end
+
+   structure EventLog = struct
+      structure Type = struct
+         open BitFlags
+         val ` = SysWord.fromInt o MLRep.Short.Unsigned.toIntX o C.Get.ushort' o
+                 pass ()
+         val auditFailure = `G_win_EVENTLOG_AUDIT_FAILURE.obj'
+         val auditSuccess = `G_win_EVENTLOG_AUDIT_SUCCESS.obj'
+         val error = `G_win_EVENTLOG_ERROR_TYPE.obj'
+         val information = `G_win_EVENTLOG_INFORMATION_TYPE.obj'
+         val warning = `G_win_EVENTLOG_WARNING_TYPE.obj'
       end
    end
 

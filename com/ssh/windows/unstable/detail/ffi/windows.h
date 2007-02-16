@@ -28,6 +28,7 @@
 /************************************************************************/
 
 WIN_TYPEDEF(BYTE, unsigned char);
+WIN_TYPEDEF(WORD, unsigned short);
 WIN_TYPEDEF(DWORD, unsigned long);
 WIN_TYPEDEF(LONG, long);
 
@@ -123,6 +124,14 @@ WIN_FUNCTION(RegQueryValueEx, LONG, 6,
              (HKEY, LPCTSTR, LPDWORD, LPDWORD, LPBYTE, LPDWORD));
 WIN_FUNCTION(RegSetValueEx, LONG, 6,
              (HKEY, LPCTSTR, DWORD, DWORD, const BYTE *, DWORD));
+
+/************************************************************************/
+
+WIN_CONST(EVENTLOG_ERROR_TYPE, WORD);
+WIN_CONST(EVENTLOG_AUDIT_FAILURE, WORD);
+WIN_CONST(EVENTLOG_AUDIT_SUCCESS, WORD);
+WIN_CONST(EVENTLOG_INFORMATION_TYPE, WORD);
+WIN_CONST(EVENTLOG_WARNING_TYPE, WORD);
 
 /************************************************************************/
 

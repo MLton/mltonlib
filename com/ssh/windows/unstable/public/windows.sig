@@ -14,7 +14,6 @@
 signature WINDOWS = sig
    structure Key : sig
       include BIT_FLAGS
-
       val allAccess : flags
       val createLink : flags
       val createSubKey : flags
@@ -29,7 +28,6 @@ signature WINDOWS = sig
 
    structure Reg : sig
       eqtype hkey
-
       val classesRoot : hkey
       val currentConfig : hkey
       val currentUser : hkey
@@ -41,6 +39,8 @@ signature WINDOWS = sig
       datatype create_result
         = CREATED_NEW_KEY of hkey
         | OPENED_EXISTING_KEY of hkey
+      val keyOf : create_result -> hkey
+
       val closeKey : hkey Effect.t
       val createKeyEx : hkey * String.t * Key.flags -> create_result
       val deleteKey : (hkey * String.t) Effect.t
@@ -58,6 +58,17 @@ signature WINDOWS = sig
         | SZ of String.t
       val queryValueEx : hkey * String.t -> value Option.t
       val setValueEx : (hkey * String.t * value) Effect.t
+   end
+
+   structure EventLog : sig
+      structure Type : sig
+         include BIT_FLAGS
+         val auditFailure : flags
+         val auditSuccess : flags
+         val error : flags
+         val information : flags
+         val warning : flags
+      end
    end
 
    structure Module : sig
