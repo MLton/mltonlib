@@ -130,6 +130,7 @@ signature SQL =
             type scalar
             type aggregate
             
+            (* The value 'a can safely contain mutable fields *)
             type ('a, 'b, 'c) folder = {
                init: unit -> 'a,
                step: 'a * 'b -> 'a,
