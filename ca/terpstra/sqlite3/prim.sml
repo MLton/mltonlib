@@ -58,6 +58,7 @@ structure Prim :> PRIM =
       val Pcreate_function = _import "sqlite3_create_function" : DB.t * CStr.t * int * int * word * FnPtr.t * FnPtr.t * FnPtr.t -> int;
       val Pcreate_collation = _import "sqlite3_create_collation" : DB.t * CStr.t * int * word * FnPtr.t -> int;
       val Puser_data = _import "sqlite3_user_data" : Context.t -> word;
+      val Paggregate_context = _import "sqlite3_aggregate_context" : Context.t * int -> MLton.Pointer.t;
       
       (* fetch user function values *)
       val Pvalue_blob   = _import "sqlite3_value_blob"   : Value.t -> Blob.out;
@@ -262,7 +263,9 @@ structure Prim :> PRIM =
       
       type callback = Context.t * Value.t vector -> unit
       
-      (* !!! Space leak !!! *)
+      (* !!! somehow record the ids to free in the db handle? *)
+      
+      (************************************************* Scalar functions *)
       val fnt = Buffer.empty ()
       fun fnCallback (context, numargs, args) =
          let
@@ -281,16 +284,74 @@ structure Prim :> PRIM =
                   fnCallback
       val fnCallbackPtr = _address "mlton_sqlite3_ufnhook" : FnPtr.t;
       
-(*
-      fun createFunction (db, name, NONE, _) = 
-             code (db, Pcreate_function (db, CStr.fromString name, 0, 1, 0w0,
-                                         FnPtr.null, FnPtr.null, FnPtr.null))
-*)
       fun createFunction (db, name, f, n) =
              code (db, Pcreate_function (db, CStr.fromString name, n, 1, 
                                          Word.fromInt (Buffer.push (fnt, f)),
                                          fnCallbackPtr, FnPtr.null, FnPtr.null))
+      
+      (************************************************* Aggregate functions *)
+      datatype aggregate = 
+         AGGR of (Context.t * Value.t vector -> aggregate) * 
+                 (Context.t -> unit)
+      val aginit = Buffer.empty ()
+      val agstep = Buffer.empty ()
+      fun fetchAggr context =
+         let
+            val magic = 0wxa72b (* new records are zero, we mark them magic *)
+            val ptr = Paggregate_context (context, 8)
+         in
+            if MLton.Pointer.getWord32 (ptr, 0) = magic
+            then Word32.toInt (MLton.Pointer.getWord32 (ptr, 1)) else
+            let 
+               val idi = Word.toInt (Puser_data context)
+               val aggr = Buffer.sub (aginit, idi)
+               val ids = Buffer.push (agstep, aggr)
+               val () = MLton.Pointer.setWord32 (ptr, 0, magic)
+               val () = MLton.Pointer.setWord32 (ptr, 1, Word32.fromInt ids)
+            in
+               ids
+            end
+         end
+      fun agStepCallback (context, numargs, args) =
+         let
+            val ids = fetchAggr context
+            fun get i = Value.fromPtr (MLton.Pointer.getPointer (args, i))
+            val args = Vector.tabulate (numargs, get)
+            fun error s = Presult_error (context, CStr.fromString s, String.size s)
+            val AGGR (step, _) = Buffer.sub (agstep, ids)
+         in
+            Buffer.update (agstep, ids, step (context, args))
+            handle Error x => error ("fatal: " ^ x)
+            handle Retry x => error ("retry: " ^ x)
+            handle Abort x => error ("abort: " ^ x)
+            handle _ => error "unknown SML exception raised"
+         end
+      fun agFinalCallback context =
+         let
+            val ids = fetchAggr context
+            fun error s = Presult_error (context, CStr.fromString s, String.size s)
+            val AGGR (_, final) = Buffer.sub (agstep, ids)
+         in
+            final context
+            handle Error x => error ("fatal: " ^ x)
+            handle Retry x => error ("retry: " ^ x)
+            handle Abort x => error ("abort: " ^ x)
+            handle _ => error "unknown SML exception raised";
+            Buffer.free (agstep, ids)
+         end
+      val () = _export "mlton_sqlite3_uagstep" : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
+                  agStepCallback
+      val () = _export "mlton_sqlite3_uagfinal" : (Context.t -> unit) -> unit;
+                  agFinalCallback
+      val agStepCallbackPtr = _address "mlton_sqlite3_uagstep" : FnPtr.t;
+      val agFinalCallbackPtr = _address "mlton_sqlite3_uagfinal" : FnPtr.t;
+      
+      fun createAggregate (db, name, aggr, n) =
+             code (db, Pcreate_function (db, CStr.fromString name, n, 1, 
+                                         Word.fromInt (Buffer.push (aginit, aggr)),
+                                         FnPtr.null, agStepCallbackPtr, agFinalCallbackPtr))
 
+      (************************************************* Collation functions *)
       val colt = Buffer.empty ()
       fun colCallback (uarg, s1l, s1p, s2l, s2p) =
          let

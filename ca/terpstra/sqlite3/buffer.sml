@@ -15,4 +15,8 @@ structure Buffer :> BUFFER =
          Array.update (!a, !s, SOME v);
          !s before s := !s + 1
          )
+      
+      fun update ((a, _), i, v) = Array.update (!a, i, SOME v)
+      
+      fun free ((a, _), i) = () (* !!! fixme !!! *)
    end
