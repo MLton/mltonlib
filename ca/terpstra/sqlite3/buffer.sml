@@ -23,7 +23,7 @@ structure Buffer :> BUFFER =
          let
             val oldlen = Array.length (!buf)
             val newlen = oldlen  * 2
-            fun get i = if i = oldlen then FREE ~1 else
+            fun get i = if i = oldlen then FREE (IntX.fromInt (!free)) else
                         if i > oldlen then FREE (IntX.fromInt (i-1)) else
                         Array.sub (!buf, i)
             val () = buf := Array.tabulate (newlen, get)
@@ -37,7 +37,7 @@ structure Buffer :> BUFFER =
             FULL _ => raise Fail "Buggy free list in Buffer.push"
           | FREE n => (
                Array.update (!buf, !free, FULL v);
-               !free before free := IntX.toInt n + 1))
+               !free before free := IntX.toInt n))
       
       fun free ({ buf, free }, i) = (
 (*
