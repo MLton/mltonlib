@@ -290,11 +290,11 @@ structure Prim :> PRIM =
                                          fnCallbackPtr, FnPtr.null, FnPtr.null))
       
       (************************************************* Aggregate functions *)
-      datatype aggregate = 
-         AGGREGATE of (Context.t * Value.t vector -> aggregate) * 
-                      (Context.t -> unit)
-      val aginit = Buffer.empty ()
-      val agstep = Buffer.empty ()
+      type aggregate = {
+         step: Context.t * Value.t vector -> unit,
+         final: Context.t -> unit }
+      val aggen = Buffer.empty ()
+      val agtbl = Buffer.empty ()
       fun fetchAggr context =
          let
             val magic = 0wxa72b (* new records are zero, we mark them magic *)
@@ -303,24 +303,24 @@ structure Prim :> PRIM =
             if MLton.Pointer.getWord32 (ptr, 0) = magic
             then Word32.toInt (MLton.Pointer.getWord32 (ptr, 1)) else
             let 
-               val idi = Word.toInt (Puser_data context)
-               val aggr = Buffer.sub (aginit, idi)
-               val ids = Buffer.push (agstep, aggr)
+               val ig = Word.toInt (Puser_data context)
+               val ag = Buffer.sub (aggen, ig) ()
+               val it = Buffer.push (agtbl, ag)
                val () = MLton.Pointer.setWord32 (ptr, 0, magic)
-               val () = MLton.Pointer.setWord32 (ptr, 1, Word32.fromInt ids)
+               val () = MLton.Pointer.setWord32 (ptr, 1, Word32.fromInt it)
             in
-               ids
+               it
             end
          end
       fun agStepCallback (context, numargs, args) =
          let
-            val ids = fetchAggr context
+            val it = fetchAggr context
             fun get i = Value.fromPtr (MLton.Pointer.getPointer (args, i))
             val args = Vector.tabulate (numargs, get)
             fun error s = Presult_error (context, CStr.fromString s, String.size s)
-            val AGGREGATE (step, _) = Buffer.sub (agstep, ids)
+            val { step, final=_ } = Buffer.sub (agtbl, it)
          in
-            Buffer.update (agstep, ids, step (context, args))
+            step (context, args)
             handle Error x => error ("fatal: " ^ x)
             handle Retry x => error ("retry: " ^ x)
             handle Abort x => error ("abort: " ^ x)
@@ -328,16 +328,16 @@ structure Prim :> PRIM =
          end
       fun agFinalCallback context =
          let
-            val ids = fetchAggr context
+            val it = fetchAggr context
             fun error s = Presult_error (context, CStr.fromString s, String.size s)
-            val AGGREGATE (_, final) = Buffer.sub (agstep, ids)
+            val { step=_, final } = Buffer.sub (agtbl, it)
          in
             final context
             handle Error x => error ("fatal: " ^ x)
             handle Retry x => error ("retry: " ^ x)
             handle Abort x => error ("abort: " ^ x)
             handle _ => error "unknown SML exception raised";
-            Buffer.free (agstep, ids)
+            Buffer.free (agtbl, it)
          end
       val () = _export "mlton_sqlite3_uagstep" : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
                   agStepCallback
@@ -346,9 +346,9 @@ structure Prim :> PRIM =
       val agStepCallbackPtr = _address "mlton_sqlite3_uagstep" : FnPtr.t;
       val agFinalCallbackPtr = _address "mlton_sqlite3_uagfinal" : FnPtr.t;
       
-      fun createAggregate (db, name, aggr, n) =
+      fun createAggregate (db, name, gen, n) =
              code (db, Pcreate_function (db, CStr.fromString name, n, 1, 
-                                         Word.fromInt (Buffer.push (aginit, aggr)),
+                                         Word.fromInt (Buffer.push (aggen, gen)),
                                          FnPtr.null, agStepCallbackPtr, agFinalCallbackPtr))
 
       (************************************************* Collation functions *)

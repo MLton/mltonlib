@@ -1,7 +1,7 @@
 structure Function =
    struct
       type scalar = (Prim.context * Prim.value vector -> unit) * int
-      type aggregate = Prim.aggregate * int
+      type aggregate = (unit -> Prim.aggregate) * int
       
       type ('a, 'b, 'c) folder = {
          init: unit -> 'a,
@@ -39,22 +39,17 @@ structure Function =
       fun fnN z = fnMap Prim.resultN z
       
       fun aggrMap r = Fold.fold ((iI0, iF0, iN0),
-                               fn (iI, iF, _) => fn { init, step, finish } =>
-                               let
-                                  fun finish1 c = r (c, finish (init ()))
-                                  fun step1 x =
-                                     let
-                                        val acc = ref (init ())
-                                        fun stepX (_, v) = 
-                                           (acc := step (!acc, iF v); 
-                                            Prim.AGGREGATE (stepX, finishX))
-                                        and finishX c = r (c, finish (!acc))
-                                      in
-                                        stepX x
-                                      end
-                               in
-                                  (Prim.AGGREGATE (step1, finish1), iI)
-                               end)
+                               fn (iI, iF, _) => 
+                               fn { init, step, finish } =>
+                               (fn () =>
+                                let
+                                   val a = ref (init ())
+                                   fun finalX c = r (c, finish (!a))
+                                   fun stepX (_, v) = a := step (!a, iF v)
+                                in
+                                   { step = stepX, final = finalX }
+                                end, 
+                                iI))
       fun aggrB z = aggrMap Prim.resultB z
       fun aggrR z = aggrMap Prim.resultR z
       fun aggrI z = aggrMap Prim.resultI z
