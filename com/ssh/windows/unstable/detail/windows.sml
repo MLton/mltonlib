@@ -4,10 +4,30 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(* XXX pretty print the arguments to functions in error messages *)
+(* XXX make pretty printing of args in error messages a compile time option *)
 
 (* Implementation of Windows utilities. *)
 structure Windows :> WINDOWS = struct
+   local
+      open Type Prettier
+   in
+      fun F name args =
+          pretty NONE
+                 ((group o nest 2)
+                     (txt "Windows." <^> txt name <$>
+                      (parens o group o nest 1 o fillSep o punctuate comma)
+                      args))
+      val A = layout
+      val str = string
+      val ptr = iso word32
+                    let open MLRep.Long.Unsigned
+                    in (C.Cvt.ml_ulong o C.U.p2i, C.U.i2p o C.Cvt.c_ulong)
+                    end
+      val opt = option
+      val int = int
+      val sw = word64
+   end
+
    val op >>& = With.>>&
 
    local
@@ -20,23 +40,23 @@ structure Windows :> WINDOWS = struct
 
    val getLastError = F_win_GetLastError.f
 
-   fun raiseError function error =
+   fun raiseError call error =
        raise OS.SysErr
                 (concat
-                    [function, ": ",
+                    [call (), ": ",
                      With.around (fn () => F_win_FormatErrorLocalAlloc.f' error)
                                  (ignore o F_win_LocalFree.f' o C.Ptr.inject')
                                  ZString.toML'],
                  NONE)
 
-   fun raiseOnError function error = let
+   fun raiseOnError call error = let
       val error = Word.fromInt error
    in
-      if error = errorSuccess then () else raiseError function error
+      if error = errorSuccess then () else raiseError call error
    end
 
-   fun raiseLastError function =
-       raiseError function (getLastError ())
+   fun raiseLastError call =
+       raiseError call (getLastError ())
 
    fun withAlloc alloc = With.around alloc C.free'
    fun withNew size = With.around (fn () => C.new' size) C.discard'
@@ -54,27 +74,27 @@ structure Windows :> WINDOWS = struct
       loop size
    end
 
-   fun onError0ElseTruncatedSize function size f =
+   fun onError0ElseTruncatedSize call size f =
        (withDoublingBuf size)
           (fn (buf, size) => let
                  val result = f (buf, size)
               in
-                 if 0w0 = result then raiseLastError function
+                 if 0w0 = result then raiseLastError call
                  else if size = result then raise InsufficientBuffer
                  else ZString.toML' buf
               end)
 
-   fun onError0ElseRequiredSize function f = let
+   fun onError0ElseRequiredSize call f = let
       val size = f (C.Ptr.null', 0w0)
    in
       if 0w0 = size
-      then raiseLastError function
+      then raiseLastError call
       else (withBuf size)
               (fn buf => let
                      val result = f (buf, size)
                   in
                      if 0w0 = result
-                     then raiseLastError function
+                     then raiseLastError call
                      else ZString.toML' buf
                   end)
    end
@@ -112,7 +132,9 @@ structure Windows :> WINDOWS = struct
          val users           = `G_win_HKEY_USERS.obj'
       end
 
-      val closeKey = raiseOnError "RegCloseKey" o F_win_RegCloseKey.f'
+      fun closeKey h =
+          raiseOnError (fn () => F"Reg.closeKey"[A ptr h])
+                       (F_win_RegCloseKey.f' h)
 
       datatype create_result
         = CREATED_NEW_KEY of hkey
@@ -120,33 +142,36 @@ structure Windows :> WINDOWS = struct
 
       val keyOf = fn CREATED_NEW_KEY k => k | OPENED_EXISTING_KEY k => k
 
-      fun createKeyEx (hKey, subKey, samDesired) =
-          (withZs subKey >>& withPtr >>& withDword)
-             (fn subKey & hkResult & dwDisposition =>
-                 ((raiseOnError "RegCreateKeyEx")
+      fun createKeyEx (h, n, m) =
+          (withZs n >>& withPtr >>& withDword)
+             (fn n' & hkResult & dwDisposition =>
+                 ((raiseOnError
+                      (fn () => F"Reg.createKeyEx"[A ptr h, A str n, A sw m]))
                      (F_win_RegCreateKeyEx.f'
-                         (hKey, subKey, 0w0, C.Ptr.null', 0w0,
-                          SysWord.toWord samDesired, C.Ptr.null',
+                         (h, n', 0w0, C.Ptr.null', 0w0,
+                          SysWord.toWord m, C.Ptr.null',
                           C.Ptr.|&! hkResult, C.Ptr.|&! dwDisposition))
                 ; (if C.Get.ulong' dwDisposition =
                       C.Get.ulong' (G_win_REG_CREATED_NEW_KEY.obj' ())
                    then CREATED_NEW_KEY
                    else OPENED_EXISTING_KEY) (C.Get.voidptr' hkResult)))
 
-      fun deleteKey (hKey, subKey) =
-          (withZs subKey)
-             (fn subKey =>
-                 (raiseOnError "RegDeleteKey")
-                    (F_win_RegDeleteKey.f' (hKey, subKey)))
+      fun deleteKey (h, n) =
+          (withZs n)
+             (fn n' =>
+                 (raiseOnError
+                     (fn () => F"Reg.deleteKey"[A ptr h, A str n]))
+                    (F_win_RegDeleteKey.f' (h, n')))
 
-      fun deleteValue (hKey, valueName) =
-          (withZs valueName)
-             (fn valueName =>
-                 (raiseOnError "RegDeleteValue")
-                    (F_win_RegDeleteValue.f' (hKey, valueName)))
+      fun deleteValue (h, n) =
+          (withZs n)
+             (fn n' =>
+                 (raiseOnError
+                     (fn () => F"Reg.deleteValue"[A ptr h, A str n]))
+                    (F_win_RegDeleteValue.f' (h, n')))
 
       local
-         fun mk function f (hKey, i) =
+         fun mk name f (h, i) =
              if i < 0
              then raise Subscript
              else (withDword >>& withDoublingBuf 0w255)
@@ -154,7 +179,7 @@ structure Windows :> WINDOWS = struct
                             val () = C.Set.ulong' (dwSize, size)
                             val error =
                                 Word.fromInt
-                                   (f (hKey, Word.fromInt i, buf,
+                                   (f (h, Word.fromInt i, buf,
                                        C.Ptr.|&! dwSize, C.Ptr.null',
                                        C.Ptr.null', C.Ptr.null', C.Ptr.null'))
                          in
@@ -165,19 +190,22 @@ structure Windows :> WINDOWS = struct
                             else if error = errorSuccess then
                                SOME (ZString.toML' buf)
                             else
-                               raiseError function error
+                               raiseError
+                                  (fn () => F name [A ptr h, A int i])
+                                  error
                          end)
       in
-         val enumKeyEx = mk "RegEnumKeyEx" F_win_RegEnumKeyEx.f'
-         val enumValueEx = mk "RegEnumValue" F_win_RegEnumValue.f'
+         val enumKeyEx = mk "Reg.enumKeyEx" F_win_RegEnumKeyEx.f'
+         val enumValueEx = mk "Reg.enumValueEx" F_win_RegEnumValue.f'
       end
 
-      fun openKeyEx (hKey, subKey, samDesired) =
-          (withZs subKey >>& withPtr)
-             (fn subKey & hkResult =>
-                 ((raiseOnError "RegOpenKeyEx")
+      fun openKeyEx (h, n, m) =
+          (withZs n >>& withPtr)
+             (fn n' & hkResult =>
+                 ((raiseOnError
+                      (fn () => F"Reg.openKeyEx"[A ptr h, A str n, A sw m]))
                      (F_win_RegOpenKeyEx.f'
-                         (hKey, subKey, 0w0, SysWord.toWord samDesired,
+                         (h, n', 0w0, SysWord.toWord m,
                           C.Ptr.|&! hkResult))
                 ; C.Get.voidptr' hkResult))
 
@@ -224,36 +252,39 @@ structure Windows :> WINDOWS = struct
            | QWORD x => (qword, Word64.toLittleBytes x)
            | SZ x => (sz, Byte.stringToBytes (x ^ "\000"))
       in
-         fun queryValueEx (hKey, valueName) =
-             (withZs valueName >>& withDword >>& withDword)
-                (fn valueName & dwType & dwSize => let
+         fun queryValueEx (h, n) =
+             (withZs n >>& withDword >>& withDword)
+                (fn n' & dwType & dwSize => let
                        fun f buf =
                            F_win_RegQueryValueEx.f'
-                              (hKey, valueName, C.Ptr.null', C.Ptr.|&! dwType,
+                              (h, n', C.Ptr.null', C.Ptr.|&! dwType,
                                buf, C.Ptr.|&! dwSize)
+                       fun call () = F"Reg.queryValueEx"[A ptr h, A str n]
                     in
-                       raiseOnError "RegQueryValueEx" (f C.Ptr.null')
+                       raiseOnError call (f C.Ptr.null')
                      ; (SOME o withBuf (C.Get.ulong' dwSize))
                           (fn buf =>
-                              (raiseOnError "RegQueryValueEx" (f buf)
+                              (raiseOnError call (f buf)
                              ; (fromBin (C.Get.ulong' dwType) o
                                 Word8Vector.tabulate)
                                   (Word.toInt (C.Get.ulong' dwSize),
                                    C.Get.uchar' o buf <\ C.Ptr.sub' C.S.uchar)))
                     end)
 
-         fun setValueEx (hKey, valueName, value) = let
-            val (ty, data) = toBin value
+         fun setValueEx (h, n, v) = let
+            val (ty, data) = toBin v
             val size = Word.fromInt (Word8Vector.length data)
          in
-            (withZs valueName >>& withBuf size)
-               (fn valueName & buf =>
+            (withZs n >>& withBuf size)
+               (fn n' & buf =>
                    (Word8Vector.appi
                        (fn (i, x) =>
                            C.Set.uchar' (C.Ptr.sub' C.S.uchar (buf, i), x)) data
-                  ; (raiseOnError "RegSetValueEx")
+                  ; (raiseOnError
+                        (fn () => F"Reg.setValueEx"[A ptr h, A str n,
+                                                    Prettier.txt "<value>"]))
                        (F_win_RegSetValueEx.f'
-                           (hKey, valueName, 0w0, ty, C.Ptr.ro' buf, size))))
+                           (h, n', 0w0, ty, C.Ptr.ro' buf, size))))
          end
       end
    end
@@ -276,19 +307,22 @@ structure Windows :> WINDOWS = struct
 
       val null = C.Ptr.null'
 
-      fun getFileName moduleOpt = let
-         val module = getOpt (moduleOpt, null)
+      fun getFileName m = let
+         val m' = getOpt (m, null)
       in
-         (onError0ElseTruncatedSize "GetModuleFileName" 0w255)
-            (fn (b, s) => F_win_GetModuleFileName.f' (module, b, s))
+         (onError0ElseTruncatedSize
+             (fn () => F"Module.getFileName"[A (opt ptr) m])
+             0w255)
+            (fn (b, s) => F_win_GetModuleFileName.f' (m', b, s))
       end
    end
 
    structure Path = struct
-      fun getShortName path =
-          (withZs path)
-             (fn path =>
-                 (onError0ElseRequiredSize "GetShortPathName")
-                    (fn (b, s) => F_win_GetShortPathName.f' (path, b, s)))
+      fun getShortName p =
+          (withZs p)
+             (fn p' =>
+                 (onError0ElseRequiredSize
+                     (fn () => F"Path.getShortName"[A str p]))
+                    (fn (b, s) => F_win_GetShortPathName.f' (p', b, s)))
    end
 end
