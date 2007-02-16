@@ -204,20 +204,18 @@ structure Prim :> PRIM =
           | 5 => NULL
           | _ => raise Error "SQLite handed SML an invalid storage type"
       
-      type column = { name: string }
-(*                    origin: { table:  string,
+      type column = { name: string,
+                      origin: { table:  string,
                                 db:     string,
                                 decl:   string,
                                 schema: string } 
                               option }
-*)
+      fun fetchName (q, i) = CStr.toString (Pcolumn_name (q, i))
       fun fetchMeta (q, i) = 
          let
             fun get f = CStr.toString (f (q, i))
             val name = get Pcolumn_name
          in
-            { name = name }
-(* usually not compiled into sqlite3:
             case CStr.toStringOpt (Pcolumn_decltype (q, i)) of
                NONE => { name = name, origin = NONE }
              | SOME decl =>
@@ -226,8 +224,8 @@ structure Prim :> PRIM =
                                 db     = get Pcolumn_database_name,
                                 decl   = decl,
                                 schema = get Pcolumn_origin_name } }
-*)
          end
+      fun columns q = Vector.tabulate (cols q, fn i => fetchName (q, i))
       fun meta q = Vector.tabulate (cols q, fn i => fetchMeta (q, i))
       
       fun valueB v = Blob.toVector (Pvalue_blob v, Pvalue_bytes v)

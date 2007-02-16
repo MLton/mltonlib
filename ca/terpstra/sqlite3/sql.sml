@@ -13,7 +13,8 @@ structure SQL :> SQL =
       
       val version = Prim.version
       
-      fun columns q = Prim.meta (Query.peek q)
+      fun columns q = Prim.columns (Query.peek q)
+      fun columnsMeta q = Prim.meta (Query.peek q)
       
       val openDB  = Prim.openDB
       val closeDB = Prim.closeDB

@@ -1,7 +1,12 @@
 signature SQL =
    sig
       type db
-      type column = { name: string }
+      type column = { name: string,
+                      origin: { table:  string,
+                                db:     string,
+                                decl:   string,
+                                schema: string }
+                              option }
       
       exception Retry of string
       exception Abort of string
@@ -83,8 +88,10 @@ signature SQL =
             val iX: (storage,            'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
          end
       
-      (* Meta-data about the columns in the output *)
-      val columns: ('i, 'o) Query.t -> column vector
+      (* Names of the output columns *)
+      val columns: ('i, 'o) Query.t -> string vector
+      (* Column meta-data requires SQLITE_ENABLE_COLUMN_METADATA compiled *)
+      val columnsMeta: ('i, 'o) Query.t -> column vector
       
       (* Run a function on each output row from a query *)
       val map: ('o -> 'v) -> ('i, 'o) Query.t -> 'i -> 'v vector

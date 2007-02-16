@@ -53,14 +53,14 @@ signature PRIM =
        * Depending on compile options of sqlite3, you might have more meta-data.
        * We comment out the sections that must be enabled at sqlite3 compile-time.
        *)
-      type column = { name: string }
-      (*
+      type column = { name: string,
                       origin: { table:  string,
                                 db:     string,
                                 decl:   string,
                                 schema: string }
-                              option } *)
+                              option }
       val meta: query -> column vector
+      val columns: query -> string vector
       
       (* User defined methods *)
       val valueB: value -> Word8Vector.vector
