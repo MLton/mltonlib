@@ -259,9 +259,12 @@ structure Windows :> WINDOWS = struct
 
       val null = C.Ptr.null'
 
-      fun getFileName module =
-          (onError0ElseTruncatedSize "GetModuleFileName" 0w255)
-             (fn (b, s) => F_win_GetModuleFileName.f' (module, b, s))
+      fun getFileName moduleOpt = let
+         val module = getOpt (moduleOpt, null)
+      in
+         (onError0ElseTruncatedSize "GetModuleFileName" 0w255)
+            (fn (b, s) => F_win_GetModuleFileName.f' (module, b, s))
+      end
    end
 
    structure Path = struct

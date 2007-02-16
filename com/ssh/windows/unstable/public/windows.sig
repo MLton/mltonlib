@@ -62,8 +62,7 @@ signature WINDOWS = sig
 
    structure Module : sig
       type hmodule
-      val null : hmodule
-      val getFileName : hmodule -> String.t
+      val getFileName : hmodule Option.t -> String.t
    end
 
    structure Path : sig
