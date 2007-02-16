@@ -99,4 +99,16 @@ structure SQL :> SQL =
       fun registerFunction  (db, s, (f, i)) = Prim.createFunction (db, s, f, i)
       fun registerAggregate (db, s, (a, i)) = Prim.createAggregate(db, s, a, i)
       val registerCollation = Prim.createCollation
+      
+      structure SQLite = 
+         struct
+            val lastInsertRowId = Prim.lastInsertRowid
+            val changes = Prim.changes
+            val totalChanges = Prim.totalChanges
+            val transactionActive = not o Prim.getAutocommit
+            
+            datatype access = datatype Prim.access
+            datatype request = datatype Prim.request
+            val setAuthorizer = Prim.setAuthorizer
+         end
    end

@@ -183,10 +183,56 @@ signature SQL =
             val iAZ: (Int64.int,          'a, 'b, 'c) inputA
             val iAS: (string,             'a, 'b, 'c) inputA
             val iAX: (storage,            'a, 'b, 'c) inputA
+            
+            (* get/set auxdata? could be useful *)
          end
       
       (* SQL.Error exceptions in callbacks are propogated ok. Others not. *)
       val registerFunction:  db * string * Function.scalar -> unit
       val registerAggregate: db * string * Function.aggregate -> unit
       val registerCollation: db * string * (string * string -> order) -> unit
+      
+      (* SQLite specific methods; see its documentation *)
+      structure SQLite:
+         sig
+            val lastInsertRowId: db -> Int64.int
+            val changes: db -> int
+            val totalChanges: db -> int
+            val transactionActive: db -> bool
+            
+            datatype access = ALLOW | DENY | IGNORE
+            datatype request =
+               CREATE_INDEX of { index: string, table: string, db: string, temporary: bool }
+             | CREATE_TABLE of { table: string, db: string, temporary: bool }
+             | CREATE_TRIGGER of { trigger: string, table: string, db: string, temporary: bool }
+             | CREATE_VIEW of { view: string, db: string, temporary: bool }
+             | DROP_INDEX of { index: string, table: string, db: string, temporary: bool }
+             | DROP_TABLE of { table: string, db: string, temporary: bool }
+             | DROP_TRIGGER of { trigger: string, table: string, db: string, temporary: bool }
+             | DROP_VIEW of { view: string, db: string, temporary: bool }
+             | ALTER_TABLE of { db: string, table: string }
+             | REINDEX of { index: string, db: string }
+             | ANALYZE of { table: string, db: string }
+             | INSERT of { table: string, db: string }
+             | UPDATE of { table: string, column: string, db: string }
+             | DELETE of { table: string, db: string }
+             | TRANSACTION of { operation: string }
+             | SELECT
+             | READ of { table: string, column: string, db: string  }
+             | PRAGMA of { pragma: string, arg: string, db: string option }
+             | ATTACH of { file: string }
+             | DETACH of { db: string }
+             | CREATE_VTABLE of { table: string, module: string, db: string }
+             | DROP_VTABLE of { table: string, module: string, db: string  }
+             | FUNCTION of { function: string }
+            val setAuthorizer: (request -> access) option -> unit
+            
+            (* All of these are omitted from the SML binding: *)
+            (* fun interrupt: db -> unit *) (* too dangerous to expose IMO *)
+            (* trace? who cares -- use debug.sml *)
+            (* update hook? who cares -- use a trigger+callback *)
+            (* commit/rollback hook? who cares, wrap them in SML *)
+            (* SQLite memory/thread management is explicitly NOT exposed *)
+            (* extension support omitted as it is experimental *)
+         end
    end

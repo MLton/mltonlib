@@ -80,21 +80,19 @@ structure Prim :> PRIM =
 (*    val Presult_text16 = _import "sqlite3_result_text16" : Context.t * WideString.string * int * word -> unit; *)
       val Presult_error  = _import "sqlite3_result_error"  : Context.t * CStr.t * int -> unit;
       
-      (* expiry should just raise an exception... *)
-      
       (* we don't support extended result codes; that would break the case statement *)
-      
       (* the exec & get_table methods are better reimplemented in SML *)
-      
-      (* autocommit defaults to on. let's leave it that way! *)
-      
-      (* interrupt would require callback hooks during progress; we have none *)
+      (* we don't need silly printf; this is SML! *)
+      (* interrupt is a dangerous thing to add *)
+      (* omitting all experimental features *)
       
       val Plibversion = _import "sqlite3_libversion" : unit -> CStr.out;
       
-      (* we don't need silly printf; this is SML! *)
-      
-      (* changes and total_changes might be useful to add *)
+      val PlastInsertRowid = _import "sqlite3_last_insert_rowid" : DB.t -> Int64.int;
+      val Pchanges = _import "sqlite3_changes" : DB.t -> int;
+      val PtotalChanges = _import "sqlite3_total_changes" : DB.t -> int;
+      val PgetAutocommit = _import "sqlite3_get_autocommit" : DB.t -> int;
+      val PsetAuthorizer = _import "sqlite3_set_authorizer" : DB.t * FnPtr.t * word -> int;
       
       (* ---------------------------------------------------------------------------- *)
       
@@ -375,6 +373,77 @@ structure Prim :> PRIM =
              code (db, Pcreate_collation (db, CStr.fromString name, 1,
                                           Word.fromInt (Buffer.push (colt, f)),
                                           colCallbackPtr))
+      
+      val lastInsertRowid = PlastInsertRowid
+      val changes = Pchanges
+      val totalChanges = PtotalChanges
+      fun getAutocommit db = PgetAutocommit db <> 0
+      
+      datatype access = ALLOW | DENY | IGNORE
+      datatype request =
+         CREATE_INDEX of { index: string, table: string, db: string, temporary: bool }
+       | CREATE_TABLE of { table: string, db: string, temporary: bool }
+       | CREATE_TRIGGER of { trigger: string, table: string, db: string, temporary: bool }
+       | CREATE_VIEW of { view: string, db: string, temporary: bool }
+       | DROP_INDEX of { index: string, table: string, db: string, temporary: bool }
+       | DROP_TABLE of { table: string, db: string, temporary: bool }
+       | DROP_TRIGGER of { trigger: string, table: string, db: string, temporary: bool }
+       | DROP_VIEW of { view: string, db: string, temporary: bool }
+       | ALTER_TABLE of { db: string, table: string }
+       | REINDEX of { index: string, db: string }
+       | ANALYZE of { table: string, db: string }
+       | INSERT of { table: string, db: string }
+       | UPDATE of { table: string, column: string, db: string }
+       | DELETE of { table: string, db: string }
+       | TRANSACTION of { operation: string }
+       | SELECT
+       | READ of { table: string, column: string, db: string  }
+       | PRAGMA of { pragma: string, arg: string, db: string option }
+       | ATTACH of { file: string }
+       | DETACH of { db: string }
+       | CREATE_VTABLE of { table: string, module: string, db: string }
+       | DROP_VTABLE of { table: string, module: string, db: string  }
+       | FUNCTION of { function: string }
+      
+      fun switchRequest ( 1, a, b, c) = CREATE_INDEX { index = valOf a, table = valOf b, db = valOf c, temporary = false }
+        | switchRequest ( 3, a, b, c) = CREATE_INDEX { index = valOf a, table = valOf b, db = valOf c, temporary = true }
+        | switchRequest ( 2, a, _, c) = CREATE_TABLE { table = valOf a, db = valOf c, temporary = false }
+        | switchRequest ( 4, a, _, c) = CREATE_TABLE { table = valOf a, db = valOf c, temporary = true }
+        | switchRequest ( 7, a, b, c) = CREATE_TRIGGER { trigger = valOf a, table = valOf b, db = valOf c, temporary = false }
+        | switchRequest ( 5, a, b, c) = CREATE_TRIGGER { trigger = valOf a, table = valOf b, db = valOf c, temporary = true }
+        | switchRequest ( 8, a, _, c) = CREATE_VIEW { view = valOf a, db = valOf c, temporary = false }
+        | switchRequest ( 6, a, _, c) = CREATE_VIEW { view = valOf a, db = valOf c, temporary = true }
+        | switchRequest (10, a, b, c) = DROP_INDEX { index = valOf a, table = valOf b, db = valOf c, temporary = false }
+        | switchRequest (12, a, b, c) = DROP_INDEX { index = valOf a, table = valOf b, db = valOf c, temporary = true }
+        | switchRequest (11, a, _, c) = DROP_TABLE { table = valOf a, db = valOf c, temporary = false }
+        | switchRequest (13, a, _, c) = DROP_TABLE { table = valOf a, db = valOf c, temporary = true }
+        | switchRequest (16, a, b, c) = DROP_TRIGGER { trigger = valOf a, table = valOf b, db = valOf c, temporary = false }
+        | switchRequest (14, a, b, c) = DROP_TRIGGER { trigger = valOf a, table = valOf b, db = valOf c, temporary = true }
+        | switchRequest (17, a, _, c) = DROP_VIEW { view = valOf a, db = valOf c, temporary = false }
+        | switchRequest (15, a, _, c) = DROP_VIEW { view = valOf a, db = valOf c, temporary = true }
+        | switchRequest (26, a, b, _) = ALTER_TABLE { db = valOf a, table = valOf b }
+        | switchRequest (27, a, _, c) = REINDEX { index = valOf a, db = valOf c }
+        | switchRequest (28, a, _, c) = ANALYZE { table = valOf a, db = valOf c }
+        | switchRequest (18, a, _, c) = INSERT { table = valOf a, db = valOf c }
+        | switchRequest (23, a, b, c) = UPDATE { table = valOf a, column = valOf b, db = valOf c }
+        | switchRequest ( 9, a, _, c) = DELETE { table = valOf a, db = valOf c }
+        | switchRequest (22, a, _, _) = TRANSACTION { operation = valOf a }
+        | switchRequest (21, _, _, _) = SELECT
+        | switchRequest (20, a, b, c) = READ { table = valOf a, column = valOf b, db = valOf c }
+        | switchRequest (19, a, b, c) = PRAGMA { pragma = valOf a, arg = valOf b, db = c }
+        | switchRequest (24, a, _, _) = ATTACH { file = valOf a }
+        | switchRequest (25, a, _, _) = DETACH { db = valOf a }
+        | switchRequest (29, a, b, c) = CREATE_VTABLE { table = valOf a, module = valOf b, db = valOf c }
+        | switchRequest (30, a, b, c) = DROP_VTABLE { table = valOf a, module = valOf b, db = valOf c }
+        | switchRequest (31, _, b, _) = FUNCTION { function = valOf b }
+        | switchRequest (_, _, _, _) = raise Error "SQLite requested impossible authorization code"
+      fun parseRequest (code, a, b, c, d) =
+         switchRequest (code, CStr.toStringOpt a, 
+                              CStr.toStringOpt b, 
+                              CStr.toStringOpt c)
+         handle Option => raise Error "SQLite did not provided expected authorization paramater"
+      
+      fun setAuthorizer _ = ()
       
       type db = DB.t
       type query = Query.t
