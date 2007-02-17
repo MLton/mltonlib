@@ -1,7 +1,9 @@
 structure SQL :> SQL =
    struct
       type column = Prim.column
-      type db = { ring: Query.pool Ring.t, hooks: Prim.hook list ref }
+      type db = { ring: Query.pool Ring.t, 
+                  hooks: Prim.hook list ref,
+                  auth: Prim.hook option ref }
       datatype storage = datatype Prim.storage
       
       exception Retry = Prim.Retry
@@ -13,7 +15,7 @@ structure SQL :> SQL =
       
       val version = Prim.version
       
-      fun getDB { ring, hooks=_ } = 
+      fun getDB { ring, hooks=_, auth=_ } = 
          case Ring.get ring of { db, query=_, available=_, used } => 
          if !used = ~1 then raise Error "Database closed" else db
       
@@ -22,9 +24,10 @@ structure SQL :> SQL =
                            query = "database",
                            available = ref [],
                            used = ref 0 },
-         hooks = ref [] }
+         hooks = ref [],
+         auth = ref NONE }
       
-      fun closeDB (dbh as { ring, hooks }) = 
+      fun closeDB (dbh as { ring, hooks, auth }) = 
          let
             val db = getDB dbh (* raises if closed *)
             fun notInUse { db=_, query=_, available=_, used } = !used = 0
@@ -44,7 +47,9 @@ structure SQL :> SQL =
                   reraise (!exn); 
                   Prim.closeDB db;
                   List.app Prim.unhook (!hooks);
-                  hooks := [])
+                  hooks := [];
+                  Option.app Prim.unhook (!auth);
+                  auth := NONE)
             else raise Error "Database in use"
          end
       
@@ -131,13 +136,13 @@ structure SQL :> SQL =
             end
       end
       
-      fun registerFunction (db as { ring=_, hooks }, s, (f, i)) = 
+      fun registerFunction (db as { ring=_, hooks, auth=_ }, s, (f, i)) = 
          hooks := Prim.createFunction (getDB db, s, f, i) :: !hooks
          
-      fun registerAggregate (db as { ring=_, hooks }, s, (a, i)) = 
+      fun registerAggregate (db as { ring=_, hooks, auth=_ }, s, (a, i)) = 
          hooks := Prim.createAggregate (getDB db, s, a, i) :: !hooks
       
-      fun registerCollation (db as { ring=_, hooks }, s, c) = 
+      fun registerCollation (db as { ring=_, hooks, auth=_ }, s, c) = 
          hooks := Prim.createCollation (getDB db, s, c) :: !hooks
       
       structure SQLite = 
@@ -147,13 +152,22 @@ structure SQL :> SQL =
             val totalChanges = Prim.totalChanges o getDB
             val transactionActive = not o Prim.getAutocommit o getDB
             
-            fun preparedQueries { ring, hooks=_ } =
+            fun preparedQueries { ring, hooks=_, auth=_ } =
                Ring.fold (fn (_, x) => x + 1) ~1 ring
-            fun registeredFunctions { ring=_, hooks } =
+            fun registeredFunctions { ring=_, hooks, auth=_ } =
                List.length (!hooks)
             
             datatype access = datatype Prim.access
             datatype request = datatype Prim.request
-            fun setAuthorizer (db, f) = Prim.setAuthorizer (getDB db, f)
+            
+            fun setAuthorizer (dbh as { ring=_, hooks=_, auth }, f) = 
+               let
+                  val db = getDB dbh
+                  fun unset h = (Prim.unsetAuthorizer db; Prim.unhook h; auth := NONE)
+                  fun set f = auth := SOME (Prim.setAuthorizer (db, f))
+               in
+                  Option.app unset (!auth);
+                  Option.app set f
+               end
          end
    end

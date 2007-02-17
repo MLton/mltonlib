@@ -86,7 +86,7 @@ structure Query =
               Ring.remove l
               )
       in
-         fun prepare { ring, hooks } qt =
+         fun prepare { ring, hooks=_, auth=_ } qt =
             case Ring.get ring of { db, query=_, available=_, used=_ } =>
             Fold.fold (([qt], oF0, oN0, oI0, iF0, iN0),
                        fn (ql, oF, _, oI, iF, _) => 

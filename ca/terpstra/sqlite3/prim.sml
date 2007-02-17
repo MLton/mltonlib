@@ -259,7 +259,7 @@ structure Prim :> PRIM =
       
       type callback = Context.t * Value.t vector -> unit
       
-      datatype hook = UFN of int | COLL of int | AGGR of int
+      datatype hook = UFN of int | COLL of int | AGGR of int | AUTH of int
       (************************************************* Scalar functions *)
       val fnt = Buffer.empty ()
       fun fnCallback (context, numargs, args) =
@@ -460,11 +460,39 @@ structure Prim :> PRIM =
                               CStr.toStringOpt c)
          handle Option => raise Error "SQLite did not provided expected authorization paramater"
       
-      fun setAuthorizer _ = ()
+      val autht = Buffer.empty ()
+      fun authCallback (uarg, code, a, b, c, d) =
+         let
+            val auth = Buffer.sub (autht, Word.toInt uarg)
+         in
+            (case auth (parseRequest (code, a, b, c, d)) of
+                ALLOW => 0
+              | DENY => 1
+              | IGNORE => 2)
+            (* don't propogate an exception up as it will segfault.
+             * do complain somehow that this is bad!
+             *)
+            handle _ => (TextIO.output (TextIO.stdErr, 
+                                        "SML exception raised during authorization! bad!");
+                         1)
+         end
+      val () = _export "mlton_sqlite3_authhook" : (word * int * CStr.out * CStr.out * CStr.out * CStr.out -> int) -> unit;
+                  authCallback
+      val authCallbackPtr = _address "mlton_sqlite3_authhook" : FnPtr.t;
+      fun unsetAuthorizer db = code (db, PsetAuthorizer (db, FnPtr.null, 0w0))
+      fun setAuthorizer (db, auth) =
+         let
+            val id = Buffer.push (autht, auth)
+            val r = PsetAuthorizer (db, authCallbackPtr, Word.fromInt id)
+         in
+            code (db, r);
+            AUTH id
+         end
       
       fun unhook (UFN  x) = Buffer.free (fnt, x)
         | unhook (COLL x) = Buffer.free (colt, x)
         | unhook (AGGR x) = Buffer.free (aggen, x)
+        | unhook (AUTH x) = Buffer.free (autht, x)
       
       type db = DB.t
       type query = Query.t
