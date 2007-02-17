@@ -43,9 +43,6 @@ structure SQL :> SQL =
             else raise Error "Database in use"
          end
       
-      fun preparedQueries dbl =
-         Ring.fold (fn (_, x) => x + 1) ~1 dbl
-      
       fun columns q = Query.peek (q, Prim.columns)
       fun columnsMeta q = Query.peek (q, Prim.meta)
       
@@ -144,6 +141,9 @@ structure SQL :> SQL =
             val changes = Prim.changes o getDB
             val totalChanges = Prim.totalChanges o getDB
             val transactionActive = not o Prim.getAutocommit o getDB
+            
+            fun preparedQueries dbl =
+               Ring.fold (fn (_, x) => x + 1) ~1 dbl
             
             datatype access = datatype Prim.access
             datatype request = datatype Prim.request

@@ -26,9 +26,6 @@ signature SQL =
       val openDB: string -> db
       val closeDB: db -> unit
       
-      (* How many prepared queries are there *)
-      val preparedQueries: db -> int
-      
       (* You should ignore the type information here. It's confusing & useless.
        * Use this structure as follows:
        * local
@@ -204,6 +201,9 @@ signature SQL =
             val changes: db -> int
             val totalChanges: db -> int
             val transactionActive: db -> bool
+            
+            (* Number of prepared queries not yet garbage collected *)
+            val preparedQueries: db -> int
             
             datatype access = ALLOW | DENY | IGNORE
             datatype request =
