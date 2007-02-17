@@ -2,7 +2,14 @@ functor PrimDebug(P : PRIM) :> PRIM =
    struct
       open P
       
-      fun wrap (f, s) x = (print (s ^ "\n"); f x)
+      fun catch f x = 
+         f x
+         handle Error x => (print ("raised Error: " ^ x ^ "\n"); raise Error x)
+              | Retry x => (print ("raised Retry: " ^ x ^ "\n"); raise Retry x)
+              | Abort x => (print ("raised Abort: " ^ x ^ "\n"); raise Abort x)
+              | z => (print "raised Something.\n"; raise z)
+         
+      fun wrap (f, s) x = (print (s ^ "\n"); catch f x)
       
       fun openDB f = wrap (P.openDB,  "openDB: " ^ f) f
       val closeDB  = wrap (P.closeDB, "closeDB")
@@ -15,13 +22,13 @@ functor PrimDebug(P : PRIM) :> PRIM =
       
       fun bindings q = 
         let val () = print "bindings: "
-            val r = P.bindings q
+            val r = catch P.bindings q
             val () = print (Int.toString r ^ "\n")
         in r end
       
       fun bindWrap (s, p, f) (q, i, x) = (
          print (s ^ " " ^ Int.toString i ^ ": " ^ f x ^ "\n"); 
-         p (q, i, x))
+         catch p (q, i, x))
       val bindB = bindWrap ("bindB", P.bindB, Int.toString o Word8Vector.length)
       val bindR = bindWrap ("bindR", P.bindR, Real.toString)
       val bindI = bindWrap ("bindI", P.bindI, Int.toString)
@@ -36,13 +43,13 @@ functor PrimDebug(P : PRIM) :> PRIM =
       
       fun cols q = 
         let val () = print "cols: "
-            val r = P.cols q
+            val r = catch P.cols q
             val () = print (Int.toString r ^ "\n")
         in r end
         
       fun fetchWrap (s, p, f) (q, i) = 
          let val () = print (s ^ " " ^ Int.toString i ^ ": ")
-             val r = p (q, i)
+             val r = catch p (q, i)
              val () = print (f r ^ "\n")
          in r end
       val fetchB = fetchWrap ("fetchB", P.fetchB, Int.toString o Word8Vector.length)
@@ -63,7 +70,7 @@ functor PrimDebug(P : PRIM) :> PRIM =
       
       fun resultWrap (s, p, f) (c, x) = (
          print (s ^ ": " ^ f x ^ "\n"); 
-         p (c, x))
+         catch p (c, x))
       val resultB = resultWrap ("resultB", P.resultB, Int.toString o Word8Vector.length)
       val resultR = resultWrap ("resultR", P.resultR, Real.toString)
       val resultI = resultWrap ("resultI", P.resultI, Int.toString)
@@ -78,7 +85,7 @@ functor PrimDebug(P : PRIM) :> PRIM =
       
       fun valueWrap (s, p, f) v = 
          let val () = print (s ^ ": ")
-             val r = p v
+             val r = catch p v
              val () = print (f r ^ "\n")
          in r end
       val valueB = valueWrap ("valueB", P.valueB, Int.toString o Word8Vector.length)
@@ -96,27 +103,27 @@ functor PrimDebug(P : PRIM) :> PRIM =
       
       fun createFunction (db, s, f, n) = (
          print ("createFunction: " ^ s ^ " with " ^ Int.toString n ^ " args.\n");
-         P.createFunction (db, s, fn x => (print (s ^ " invoked\n"); f x), n))
+         catch P.createFunction (db, s, fn x => (print (s ^ " invoked\n"); catch f x), n))
       
       fun createCollation (db, s, f) = (
          print ("createCollation: " ^ s ^ ".\n");
-         P.createCollation (db, s, fn x => (print (s ^ " invoked\n"); f x)))
+         catch P.createCollation (db, s, fn x => (print (s ^ " invoked\n"); catch f x)))
       
       fun doit s f () =
          let
             val () = print (s ^ "-gen invoked.\n")
-            val { step=Pstep, final=Pfinal } = f ()
+            val { step=Pstep, final=Pfinal } = catch f ()
             fun step (c, v) = (print (s ^ "-step invoked with " ^ 
                                       Int.toString (Vector.length v) ^ "args.\n");
-                               Pstep (c, v))
-            fun final c = (print (s ^ "-final invoked.\n"); Pfinal c)
+                               catch Pstep (c, v))
+            fun final c = (print (s ^ "-final invoked.\n"); catch Pfinal c)
          in
             { step = step, final = final }
          end
       
       fun createAggregate (db, s, f, n) = (
          print ("createAggregate: " ^ s ^ " with " ^ Int.toString n ^ " args.\n");
-         P.createAggregate (db, s, doit s f, n))
+         catch P.createAggregate (db, s, doit s f, n))
       
       val lastInsertRowid = wrap (P.lastInsertRowid, "lastInsertRowid")
       val changes = wrap (P.changes, "changes")
@@ -125,6 +132,9 @@ functor PrimDebug(P : PRIM) :> PRIM =
       
       (* be more clever *)
       val setAuthorizer = wrap (P.setAuthorizer, "setAuthorizer")
+      val unsetAuthorizer = wrap (P.unsetAuthorizer, "unsetAuthorizer")
+      
+      val unhook = wrap (P.unhook, "unhook")
    end
 
 structure Prim = PrimDebug(Prim)
