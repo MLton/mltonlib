@@ -34,9 +34,9 @@ structure Function =
       fun fnR z = fnMap Prim.resultR z
       fun fnI z = fnMap Prim.resultI z
       fun fnZ z = fnMap Prim.resultZ z
+      fun fnN z = fnMap Prim.resultN z
       fun fnS z = fnMap Prim.resultS z
       fun fnX z = fnMap Prim.resultX z
-      fun fnN z = fnMap Prim.resultN z
       
       fun aggrMap r = Fold.fold ((iI0, iF0, iN0),
                                fn (iI, iF, _) => 
@@ -54,31 +54,33 @@ structure Function =
       fun aggrR z = aggrMap Prim.resultR z
       fun aggrI z = aggrMap Prim.resultI z
       fun aggrZ z = aggrMap Prim.resultZ z
+      fun aggrN z = aggrMap Prim.resultN z
       fun aggrS z = aggrMap Prim.resultS z
       fun aggrX z = aggrMap Prim.resultX z
-      fun aggrN z = aggrMap Prim.resultN z
       
       (* terminate an expression with this: *)
       val $ = $
       
       fun iFx f (iN, iI) v = iN (v, fn () => f (Vector.sub (v, iI)))
       fun iNx f (iN, iI) (v, n) = iN (v, fn () => f (Vector.sub (v, iI))) & n ()
-      fun iMap f = Fold.step0 (fn (iI, iF, iN) => 
+      fun iMap f = Fold.step0 (fn (iI, _, iN) => 
                                   (iI+1, iFx f (iN, iI), iNx f (iN, iI)))
       fun iB z = iMap Prim.valueB z
       fun iR z = iMap Prim.valueR z
       fun iI z = iMap Prim.valueI z
       fun iZ z = iMap Prim.valueZ z
+      fun iN z = iMap Prim.valueN z
       fun iS z = iMap Prim.valueS z
       fun iX z = iMap Prim.valueX z
       
       fun iAFx f v = Vector.map f v
-      fun iANx iF (v, n) = case iF v of () => () (* plug the type *)
+      fun iANx iF (v, _) = case iF v of () => () (* plug the type *)
       fun iAMap f = Fold.step0 (fn (_, iF, _) => (~1, iAFx f, iANx iF))
       fun iAB z = iAMap Prim.valueB z
       fun iAR z = iAMap Prim.valueR z
       fun iAI z = iAMap Prim.valueI z
       fun iAZ z = iAMap Prim.valueZ z
+      fun iAN z = iAMap Prim.valueN z
       fun iAS z = iAMap Prim.valueS z
       fun iAX z = iAMap Prim.valueX z
    end

@@ -40,7 +40,7 @@ structure Ring :> RING =
          end
       val remove = fn x => MLton.Thread.atomically (fn () => remove x)
          
-      fun fold f a0 (self as LINK { prev=_, next, value }) =
+      fun fold f a0 (LINK { prev=_, next, value }) =
          let
             fun loop (l, a) =
                case valOf (!l) of LINK { prev=_, next=nl, value=x } =>
@@ -54,8 +54,9 @@ structure Ring :> RING =
       
       fun app f = fold (fn (l, ()) => f l) ()
       
-      fun get (self as LINK { prev=_, next=_, value }) = value
+      fun get (LINK { prev=_, next=_, value }) = value
       
+(*
       fun test (self as LINK { prev, next, value }) =
          let
             val LINK { prev=_, next=pn, value=_ } = valOf (!prev)
@@ -63,6 +64,7 @@ structure Ring :> RING =
          in
            valOf (!pn) = self andalso valOf (!sp) = self andalso pn <> sp
          end
+*)
    end
 (*
 fun check l = List.foldl (fn (l, a) => Ring.test l andalso a) true l

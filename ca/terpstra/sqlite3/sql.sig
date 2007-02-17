@@ -63,6 +63,7 @@ signature SQL =
             val oR: (real,               'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             val oI: (int,                'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             val oZ: (Int64.int,          'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
+            val oN: (unit,               'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             val oS: (string,             'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             val oX: (storage,            'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             
@@ -71,6 +72,7 @@ signature SQL =
             val oAR: (real               vector, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             val oAI: (int                vector, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             val oAZ: (Int64.int          vector, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
+            val oAN: (unit               vector, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             val oAS: (string             vector, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             val oAX: (storage            vector, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output
             
@@ -79,6 +81,7 @@ signature SQL =
             val iR: (real,               'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
             val iI: (int,                'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
             val iZ: (Int64.int,          'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
+            val iN: (unit,               'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
             val iS: (string,             'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
             val iX: (storage,            'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) input
          end
@@ -155,18 +158,18 @@ signature SQL =
             val fnR: (real,               'a, 'b, 'c, 'd, 'e) fnX
             val fnI: (int,                'a, 'b, 'c, 'd, 'e) fnX
             val fnZ: (Int64.int,          'a, 'b, 'c, 'd, 'e) fnX
+            val fnN: (unit,               'a, 'b, 'c, 'd, 'e) fnX
             val fnS: (string,             'a, 'b, 'c, 'd, 'e) fnX
             val fnX: (storage,            'a, 'b, 'c, 'd, 'e) fnX
-            val fnN: (unit,               'a, 'b, 'c, 'd, 'e) fnX
             
             (* Return types of the aggregate *)
             val aggrB: (Word8Vector.vector, 'a, 'b, 'c, 'd, 'e, 'f) aggrX
             val aggrR: (real,               'a, 'b, 'c, 'd, 'e, 'f) aggrX
             val aggrI: (int,                'a, 'b, 'c, 'd, 'e, 'f) aggrX
             val aggrZ: (Int64.int,          'a, 'b, 'c, 'd, 'e, 'f) aggrX
+            val aggrN: (unit,               'a, 'b, 'c, 'd, 'e, 'f) aggrX
             val aggrS: (string,             'a, 'b, 'c, 'd, 'e, 'f) aggrX
             val aggrX: (storage,            'a, 'b, 'c, 'd, 'e, 'f) aggrX
-            val aggrN: (unit,               'a, 'b, 'c, 'd, 'e, 'f) aggrX
             
             val $ : 'a * ('a -> 'b) -> 'b
             
@@ -175,6 +178,7 @@ signature SQL =
             val iR: (real,               'a, 'b, 'c, 'd, 'e, 'f) input
             val iI: (int,                'a, 'b, 'c, 'd, 'e, 'f) input
             val iZ: (Int64.int,          'a, 'b, 'c, 'd, 'e, 'f) input
+            val iN: (unit,               'a, 'b, 'c, 'd, 'e, 'f) input
             val iS: (string,             'a, 'b, 'c, 'd, 'e, 'f) input
             val iX: (storage,            'a, 'b, 'c, 'd, 'e, 'f) input
             
@@ -183,6 +187,7 @@ signature SQL =
             val iAR: (real,               'a, 'b, 'c) inputA
             val iAI: (int,                'a, 'b, 'c) inputA
             val iAZ: (Int64.int,          'a, 'b, 'c) inputA
+            val iAN: (unit,               'a, 'b, 'c) inputA
             val iAS: (string,             'a, 'b, 'c) inputA
             val iAX: (storage,            'a, 'b, 'c) inputA
             

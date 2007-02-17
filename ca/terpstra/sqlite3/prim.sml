@@ -14,8 +14,8 @@ structure Prim :> PRIM =
      
       val PopenDB = _import "sqlite3_open"   : CStr.t * DB.t ref -> int;
       val PcloseDB= _import "sqlite3_close"  : DB.t -> int;
-      val Pfree   = _import "sqlite3_free"   : CStr.t -> unit;
       val Perrmsg = _import "sqlite3_errmsg" : DB.t -> CStr.out;
+(*    val Pfree   = _import "sqlite3_free"   : CStr.t -> unit; *)
 (*    val Perrcode= _import "sqlite3_errcode": DB.t -> int; *)
       
       val Pfinalize = _import "sqlite3_finalize" : Query.t -> int;
@@ -99,7 +99,7 @@ structure Prim :> PRIM =
       val version = CStr.toString (Plibversion ())
       
       fun why db = valOf (CStr.toStringOpt (Perrmsg db))
-      fun code (db,  0) = ()                   (* #define SQLITE_OK           0   /* Successful result */ *)
+      fun code (_,   0) = ()                   (* #define SQLITE_OK           0   /* Successful result */ *)
         | code (db,  1) = raise Error (why db) (* #define SQLITE_ERROR        1   /* SQL error or missing database */ *)
         | code (db,  2) = raise Error (why db) (* #define SQLITE_INTERNAL     2   /* An internal logic error in SQLite */ *)
         | code (db,  3) = raise Error (why db) (* #define SQLITE_PERM         3   /* Access permission denied */ *)
@@ -123,7 +123,7 @@ structure Prim :> PRIM =
         | code (db, 21) = raise Error (why db) (* #define SQLITE_MISUSE      21   /* Library used incorrectly */ *)
         | code (db, 22) = raise Error (why db) (* #define SQLITE_NOLFS       22   /* Uses OS features not supported on host */ *)
         | code (db, 23) = raise Abort (why db) (* #define SQLITE_AUTH        23   /* Authorization denied */ *)
-        | code (db, _)  = raise Error "SQLite returned an unknown error code"
+        | code _  = raise Error "SQLite returned an unknown error code"
       
       fun openDB filename =
          let
@@ -191,7 +191,7 @@ structure Prim :> PRIM =
       fun fetchR (q, i) = Pcolumn_double (q, i)
       fun fetchI (q, i) = Pcolumn_int (q, i)
       fun fetchZ (q, i) = Pcolumn_int64 (q, i)
-      fun fetchN (q, i) = ()
+      fun fetchN (_, _) = ()
       fun fetchS (q, i) = CStr.toStringLen (Pcolumn_text (q, i), 
                                             Pcolumn_bytes (q, i))
       
@@ -232,7 +232,7 @@ structure Prim :> PRIM =
       fun valueR v = Pvalue_double v
       fun valueI v = Pvalue_int v
       fun valueZ v = Pvalue_int64 v
-      fun valueN v = ()
+      fun valueN _ = ()
       fun valueS v = CStr.toStringLen (Pvalue_text v, Pvalue_bytes v)
       
       fun valueX v =
@@ -257,11 +257,9 @@ structure Prim :> PRIM =
         | resultX (c, BLOB b) = resultB (c, b)
         | resultX (c, NULL) = resultN (c, ())
       
-      type callback = Context.t * Value.t vector -> unit
-      
       datatype hook = UFN of int | COLL of int | AGGR of int | AUTH of int
       (************************************************* Scalar functions *)
-      val fnt = Buffer.empty ()
+      val fnt : (Context.t * Value.t vector -> unit) Buffer.t = Buffer.empty ()
       fun fnCallback (context, numargs, args) =
          let
             val f = Buffer.sub (fnt, Word.toInt (Puser_data context))
@@ -294,8 +292,8 @@ structure Prim :> PRIM =
       type aggregate = {
          step: Context.t * Value.t vector -> unit,
          final: Context.t -> unit }
-      val aggen = Buffer.empty ()
-      val agtbl = Buffer.empty ()
+      val aggen : (unit -> aggregate) Buffer.t = Buffer.empty ()
+      val agtbl : aggregate Buffer.t = Buffer.empty ()
       fun fetchAggr context =
          let
             val magic = 0wxa72b (* new records are zero, we mark them magic *)
@@ -359,7 +357,7 @@ structure Prim :> PRIM =
          end
          
       (************************************************* Collation functions *)
-      val colt = Buffer.empty ()
+      val colt : (string * string -> order) Buffer.t = Buffer.empty ()
       fun colCallback (uarg, s1l, s1p, s2l, s2p) =
          let
             val col = Buffer.sub (colt, Word.toInt uarg)
@@ -454,13 +452,13 @@ structure Prim :> PRIM =
         | switchRequest (30, a, b, c) = DROP_VTABLE { table = valOf a, module = valOf b, db = valOf c }
         | switchRequest (31, _, b, _) = FUNCTION { function = valOf b }
         | switchRequest (_, _, _, _) = raise Error "SQLite requested impossible authorization code"
-      fun parseRequest (code, a, b, c, d) =
+      fun parseRequest (code, a, b, c, d) = (* !!! expose trigged? => d !!! *)
          switchRequest (code, CStr.toStringOpt a, 
                               CStr.toStringOpt b, 
                               CStr.toStringOpt c)
          handle Option => raise Error "SQLite did not provided expected authorization paramater"
       
-      val autht = Buffer.empty ()
+      val autht : (request -> access) Buffer.t = Buffer.empty ()
       fun authCallback (uarg, code, a, b, c, d) =
          let
             val auth = Buffer.sub (autht, Word.toInt uarg)
