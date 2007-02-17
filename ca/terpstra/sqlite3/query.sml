@@ -1,12 +1,13 @@
-
 structure Query =
    struct
       (* Cry ... *)
       type 'a oF = Prim.query -> 'a
       type ('b, 'c) oN = Prim.query * (unit -> 'b) -> 'c
       type 'd iF = Prim.query * 'd -> unit
-      type ('e, 'f) iN = Prim.query * 'e -> int * 'f
-      type ('i, 'o, 'w, 'x, 'y, 'z) acc = string list * 'o oF * ('w, 'x) oN * int * 'i iF * ('y, 'z) iN
+      type ('e, 'f) iN = Prim.query * 'e -> 'f
+      type ('i, 'o, 'w, 'x, 'y, 'z) acc = 
+         string list * 'o oF * ('w, 'x) oN * int * 'i iF * ('y, 'z) iN * int
+      
       type ('v, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output = 
            (('i, 'o, 'v, 'p,            'a, 'b) acc, 
             ('i, 'p, 'q, ('p, 'q) pair, 'a, 'b) acc, 
@@ -74,7 +75,8 @@ structure Query =
       fun oN0 (_, n) = n ()
       val oI0 = 0
       fun iF0 (_, ()) = ()
-      fun iN0 (_, x) = (1, x)
+      fun iN0 (_, x) = x
+      val iI0 = 1
       
       local
          fun error s = 
@@ -96,8 +98,8 @@ structure Query =
       in
          fun prepare { ring, hooks=_, auth=_ } qt =
             case Ring.get ring of { db, query=_, available=_, used=_ } =>
-            Fold.fold (([qt], oF0, oN0, oI0, iF0, iN0),
-                       fn (ql, oF, _, oI, iF, _) => 
+            Fold.fold (([qt], oF0, oN0, oI0, iF0, iN0, iI0),
+                       fn (ql, oF, _, oI, iF, _, iI) => 
                        let
                            val qs = concat (rev ql)
                            val q = Prim.prepare (db, qs)
@@ -106,6 +108,11 @@ structure Query =
                            then (Prim.finalize q;
                                  raise Prim.Error "Insufficient output columns\
                                                   \ to satisfy prototype")
+                           else
+                           if Prim.bindings q + 1 <> iI
+                           then (Prim.finalize q;
+                                 raise Prim.Error "Too many query parameters\
+                                                  \ for specified prototype")
                            else
                            let
                               val pool = MLton.Finalizable.new (
@@ -124,10 +131,11 @@ structure Query =
       (* terminate an expression with this: *)
       val $ = $
       
-      fun iFx f iN (q, a) = case iN (q, a) of (i, x) => f (q, i, x)
-      fun iNx f iN (q, a & y) = case iN (q, a) of (i, x) => (f (q, i, x); (i+1, y))
-      fun iMap f = Fold.step1 (fn (qs, (ql, oF, oN, oI, _, iN)) => 
-                                  (qs :: "?" :: ql, oF, oN, oI, iFx f iN, iNx f iN))
+      fun iFx f (iN, iI) (q, a) = f (q, iI, iN (q, a))
+      fun iNx f (iN, iI) (q, a & y) = (f (q, iI, iN (q, a)); y)
+      fun iMap f = Fold.step1 (fn (qs, (ql, oF, oN, oI, _, iN, iI)) => 
+                                  (qs :: "?" :: ql, oF, oN, oI, 
+                                   iFx f (iN, iI), iNx f (iN, iI), iI + 1))
       fun iB z = iMap Prim.bindB z
       fun iR z = iMap Prim.bindR z
       fun iI z = iMap Prim.bindI z
@@ -138,8 +146,9 @@ structure Query =
       
       fun oFx f (oN, oI) q = oN (q, fn () => f (q, oI))
       fun oNx f (oN, oI) (q, n) = oN (q, fn () => f (q, oI)) & n ()
-      fun oMap f = Fold.step0 (fn (ql, _, oN, oI, iF, iN) => 
-                                  (ql, oFx f (oN, oI), oNx f (oN, oI), oI+1, iF, iN))
+      fun oMap f = Fold.step0 (fn (ql, _, oN, oI, iF, iN, iI) => 
+                                  (ql, oFx f (oN, oI), oNx f (oN, oI), oI+1, 
+                                   iF, iN, iI))
       fun oB z = oMap Prim.fetchB z
       fun oR z = oMap Prim.fetchR z
       fun oI z = oMap Prim.fetchI z
@@ -151,8 +160,9 @@ structure Query =
       fun fetchA (q, m) = Vector.tabulate (Prim.cols q, fn i => m (q, i))
       fun oFAx f oN q = oN (q, fn () => fetchA (q, f))
       fun oNAx f oN (q, n) = oN (q, fn () => fetchA (q, f)) & n ()
-      fun oMapA f = Fold.step0 (fn (ql, _, oN, oI, iF, iN) => 
-                                   (ql, oFAx f oN, oNAx f oN, oI, iF, iN))
+      fun oMapA f = Fold.step0 (fn (ql, _, oN, oI, iF, iN, iI) => 
+                                   (ql, oFAx f oN, oNAx f oN, oI, 
+                                    iF, iN, iI))
       fun oAB z = oMapA Prim.fetchB z
       fun oAR z = oMapA Prim.fetchR z
       fun oAI z = oMapA Prim.fetchI z
