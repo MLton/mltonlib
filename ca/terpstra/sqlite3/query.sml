@@ -131,8 +131,9 @@ structure Query =
       (* terminate an expression with this: *)
       val $ = $
       
+      (* the ignore is just to silence a warning. it really will be a unit *)
       fun iFx f (iN, iI) (q, a) = f (q, iI, iN (q, a))
-      fun iNx f (iN, iI) (q, a & y) = (f (q, iI, iN (q, a)); y)
+      fun iNx f (iN, iI) (q, a & y) = (ignore (f (q, iI, iN (q, a))); y)
       fun iMap f = Fold.step1 (fn (qs, (ql, oF, oN, oI, _, iN, iI)) => 
                                   (qs :: "?" :: ql, oF, oN, oI, 
                                    iFx f (iN, iI), iNx f (iN, iI), iI + 1))
