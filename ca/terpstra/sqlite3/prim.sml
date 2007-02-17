@@ -258,6 +258,13 @@ structure Prim :> PRIM =
         | resultX (c, NULL) = resultN (c, ())
       
       datatype hook = UFN of int | COLL of int | AGGR of int | AUTH of int
+      fun catch error f x =
+         f x
+         handle Error x => error ("Exception Error \"" ^ x ^ "\" escaped callback.")
+              | Retry x => error ("Exception Retry \"" ^ x ^ "\" escaped callback.")
+              | Abort x => error ("Exception Abort \"" ^ x ^ "\" escaped callback.")
+              | _ => error ("SML Exception escaped callback.")
+      
       (************************************************* Scalar functions *)
       val fnt : (Context.t * Value.t vector -> unit) Buffer.t = Buffer.empty ()
       fun fnCallback (context, numargs, args) =
@@ -267,11 +274,7 @@ structure Prim :> PRIM =
             val args = Vector.tabulate (numargs, get)
             fun error s = Presult_error (context, CStr.fromString s, String.size s)
          in
-            f (context, args)
-            handle Error x => error ("fatal: " ^ x)
-            handle Retry x => error ("retry: " ^ x)
-            handle Abort x => error ("abort: " ^ x)
-            handle _ => error "unknown SML exception raised"
+            catch error f (context, args)
          end
       val () = _export "mlton_sqlite3_ufnhook" : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
                   fnCallback
@@ -319,11 +322,7 @@ structure Prim :> PRIM =
             fun error s = Presult_error (context, CStr.fromString s, String.size s)
             val { step, final=_ } = Buffer.sub (agtbl, it)
          in
-            step (context, args)
-            handle Error x => error ("fatal: " ^ x)
-            handle Retry x => error ("retry: " ^ x)
-            handle Abort x => error ("abort: " ^ x)
-            handle _ => error "unknown SML exception raised"
+            catch error step (context, args)
          end
       fun agFinalCallback context =
          let
@@ -331,11 +330,7 @@ structure Prim :> PRIM =
             fun error s = Presult_error (context, CStr.fromString s, String.size s)
             val { step=_, final } = Buffer.sub (agtbl, it)
          in
-            final context
-            handle Error x => error ("fatal: " ^ x)
-            handle Retry x => error ("retry: " ^ x)
-            handle Abort x => error ("abort: " ^ x)
-            handle _ => error "unknown SML exception raised";
+            catch error final context;
             Buffer.free (agtbl, it)
          end
       val () = _export "mlton_sqlite3_uagstep" : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
@@ -361,17 +356,19 @@ structure Prim :> PRIM =
       fun colCallback (uarg, s1l, s1p, s2l, s2p) =
          let
             val col = Buffer.sub (colt, Word.toInt uarg)
+            (* don't propogate an exception up as it will segfault.
+             * do complain that this is bad!
+             *)
+            fun error s = (
+               TextIO.output (TextIO.stdErr,
+                              s ^ " -- forbidden! Collations cannot tell SQLite.\n");
+               EQUAL)
          in
-            (case col (CStr.toStringLen (s1p, s1l), CStr.toStringLen (s2p, s2l)) of
+            case catch error col (CStr.toStringLen (s1p, s1l), 
+                                  CStr.toStringLen (s2p, s2l)) of
                 LESS => ~1
               | EQUAL => 0
-              | GREATER => 1)
-            (* don't propogate an exception up as it will segfault.
-             * do complain somehow that this is bad!
-             *)
-            handle _ => (TextIO.output (TextIO.stdErr, 
-                                        "SML exception raised during collation! bad!");
-                         0)
+              | GREATER => 1
          end
       val () = _export "mlton_sqlite3_colhook" : (word * int * CStr.out * int * CStr.out -> int) -> unit;
                   colCallback
@@ -462,17 +459,18 @@ structure Prim :> PRIM =
       fun authCallback (uarg, code, a, b, c, d) =
          let
             val auth = Buffer.sub (autht, Word.toInt uarg)
+            (* don't propogate an exception up as it will segfault.
+             * do complain that this is bad!
+             *)
+            fun error s = (
+               TextIO.output (TextIO.stdErr,
+                              s ^ " -- forbidden! Authorizers cannot tell SQLite.\n");
+               DENY)
          in
-            (case auth (parseRequest (code, a, b, c, d)) of
+            case catch error auth (parseRequest (code, a, b, c, d)) of
                 ALLOW => 0
               | DENY => 1
-              | IGNORE => 2)
-            (* don't propogate an exception up as it will segfault.
-             * do complain somehow that this is bad!
-             *)
-            handle _ => (TextIO.output (TextIO.stdErr, 
-                                        "SML exception raised during authorization! bad!");
-                         1)
+              | IGNORE => 2
          end
       val () = _export "mlton_sqlite3_authhook" : (word * int * CStr.out * CStr.out * CStr.out * CStr.out -> int) -> unit;
                   authCallback
