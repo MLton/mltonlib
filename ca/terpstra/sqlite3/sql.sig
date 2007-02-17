@@ -232,7 +232,7 @@ signature SQL =
              | CREATE_VTABLE of { table: string, module: string, db: string }
              | DROP_VTABLE of { table: string, module: string, db: string  }
              | FUNCTION of { function: string }
-            val setAuthorizer: (request -> access) option -> unit
+            val setAuthorizer: db * (request -> access) option -> unit
             
             (* All of these are omitted from the SML binding: *)
             (* fun interrupt: db -> unit *) (* too dangerous to expose IMO *)

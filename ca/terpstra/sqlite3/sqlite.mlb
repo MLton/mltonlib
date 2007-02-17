@@ -19,6 +19,8 @@ in
    pair.sml
    sql.sig
    local
+     ring.sig
+     ring.sml
      query.sml
      function.sml
    in

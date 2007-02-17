@@ -1,7 +1,7 @@
 structure SQL :> SQL =
    struct
       type column = Prim.column
-      type db = Prim.db
+      type db = Query.pool Ring.t
       datatype storage = datatype Prim.storage
       
       exception Retry = Prim.Retry
@@ -16,8 +16,17 @@ structure SQL :> SQL =
       fun columns q = Prim.columns (Query.peek q)
       fun columnsMeta q = Prim.meta (Query.peek q)
       
-      val openDB  = Prim.openDB
-      val closeDB = Prim.closeDB
+      fun getDB dbl = 
+         case Ring.get dbl of { db, query=_, available=_, used=_ } => 
+         db
+      
+      fun openDB file = 
+         Ring.new { db = Prim.openDB file,
+                    query = "database",
+                    available = ref [],
+                    used = ref 0 }
+      
+      val closeDB = Prim.closeDB o getDB
       
       datatype 'v stop = STOP | CONTINUE of 'v
       
@@ -97,19 +106,24 @@ structure SQL :> SQL =
             end
       end
       
-      fun registerFunction  (db, s, (f, i)) = Prim.createFunction (db, s, f, i)
-      fun registerAggregate (db, s, (a, i)) = Prim.createAggregate(db, s, a, i)
-      val registerCollation = Prim.createCollation
+      fun registerFunction (db, s, (f, i)) = 
+         Prim.createFunction (getDB db, s, f, i)
+         
+      fun registerAggregate (db, s, (a, i)) = 
+         Prim.createAggregate (getDB db, s, a, i)
+      
+      fun registerCollation (db, s, c) = 
+         Prim.createCollation (getDB db, s, c)
       
       structure SQLite = 
          struct
-            val lastInsertRowId = Prim.lastInsertRowid
-            val changes = Prim.changes
-            val totalChanges = Prim.totalChanges
-            val transactionActive = not o Prim.getAutocommit
+            val lastInsertRowId = Prim.lastInsertRowid o getDB
+            val changes = Prim.changes o getDB
+            val totalChanges = Prim.totalChanges o getDB
+            val transactionActive = not o Prim.getAutocommit o getDB
             
             datatype access = datatype Prim.access
             datatype request = datatype Prim.request
-            val setAuthorizer = Prim.setAuthorizer
+            fun setAuthorizer (db, f) = Prim.setAuthorizer (getDB db, f)
          end
    end

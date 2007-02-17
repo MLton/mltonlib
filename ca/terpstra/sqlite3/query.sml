@@ -21,42 +21,58 @@ structure Query =
        * outstanding queries there are (-1 means closed). The pool saves
        * previously allocated prepared statements for quick re-use.
        *)
-      type ('i, 'o) t = { db:    Prim.db,
-                          query: string,
-                          pool:  Prim.query list ref,
-                          used:  int ref,
+      
+      type pool = { db:         Prim.db,
+                    query:      string,
+                    available:  Prim.query list ref,
+                    used:       int ref }
+      
+      type ('i, 'o) t = { pool:  pool Ring.t,
                           iF:    Prim.query * 'i -> unit,
                           oF:    Prim.query -> 'o }
       
-      fun peek { db, query, pool, used, iF, oF } =
-          case !pool of
+      fun peek { pool, iF=_, oF=_ } =
+         case Ring.get pool of { db, query, available, used } =>
+         if !used = ~1 then raise Prim.Error "Query.t is closed" else
+          case !available of
              x :: r => x
            | [] => 
                 let
                    val pq = Prim.prepare (db, query)
-                   val () = pool := pq :: !pool
+                   val () = available := pq :: !available
                 in
                    pq
                 end
       
-      fun alloc ({ db, query, pool, used, iF, oF }, i) =
+      fun alloc ({ pool, iF, oF}, i) =
+         case Ring.get pool of { db, query, available, used } =>
+         if !used = ~1 then raise Prim.Error "Query.t is closed" else
          let
-            val () = if !used = ~1 then raise Prim.Error "Query.t is closed" else ()
-            val pq = case !pool of
+            val pq = case !available of
                         [] => Prim.prepare (db, query)
-                      | x :: r => (pool := r; x)
+                      | x :: r => (available := r; x)
             val () = used := !used + 1
             val () = iF (pq, i)
          in
             (pq, oF)
          end
       
-      fun release ({ db, query, pool, used, iF, oF }, pq) = (
+      fun release ({ pool, iF=_, oF=_ }, pq) =
+         case Ring.get pool of { db=_, query=_, available, used } => (
          if !used = 0 then raise Prim.Error "wrapper bug: too many released statements" else
          Prim.reset pq;
          Prim.clearbindings pq;
          used := !used - 1;
-         pool := pq :: !pool)
+         available := pq :: !available)
+      
+      (* We will rewrite this to closeAll soon *)
+      fun close { pool, iF=_, oF=_ } =
+         case Ring.get pool of { db=_, query=_, available, used } =>
+         if !used = 0
+         then (List.app Prim.finalize (!available); 
+               available := [];
+               used := ~1)
+         else raise Prim.Error "Query is being processed; cannot close"
       
       fun oF0 _ = ()
       fun oN0 (q, n) = n ()
@@ -64,27 +80,28 @@ structure Query =
       fun iF0 (q, ()) = ()
       fun iN0 (q, x) = (1, x)
       
-      fun prepare db qs = Fold.fold (([qs], oF0, oN0, oI0, iF0, iN0),
-                                     fn (ql, oF, _, oI, iF, _) => 
-                                     let val qs = concat (rev ql)
-                                         val q = Prim.prepare (db, qs)
-                                     in  if Prim.cols q < oI
-                                         then (Prim.finalize q;
-                                               raise Prim.Error "insufficient output columns")
-                                         else { db = db, 
-                                                query = qs, 
-                                                pool = ref [q], 
-                                                used = ref 0, 
-                                                iF = iF, 
-                                                oF = oF }
-                                     end)
+      fun prepare dbl qt =
+         case Ring.get dbl of { db, query=_, available=_, used=_ } =>
+         Fold.fold (([qt], oF0, oN0, oI0, iF0, iN0),
+                    fn (ql, oF, _, oI, iF, _) => 
+                    let
+                        val qs = concat (rev ql)
+                        val q = Prim.prepare (db, qs)
+                    in 
+                        if Prim.cols q < oI
+                        then (Prim.finalize q;
+                              raise Prim.Error "insufficient output columns \
+                                               \to satisfy prototype")
+                        else { pool = Ring.add ({ db = db, 
+                                                  query = qs, 
+                                                  available = ref [q], 
+                                                  used = ref 0 }, dbl), 
+                               iF = iF, 
+                               oF = oF }
+                    end)
+      
       (* terminate an expression with this: *)
       val $ = $
-      
-      fun close { db, query, pool, used, iF, oF } =
-         if !used = 0 
-         then (List.app Prim.finalize (!pool); pool := [] ; used := ~1)
-         else raise Prim.Error "Query is being processed; cannot close"
       
       fun iFx f iN (q, a) = case iN (q, a) of (i, x) => f (q, i, x)
       fun iNx f iN (q, a & y) = case iN (q, a) of (i, x) => (f (q, i, x); (i+1, y))
