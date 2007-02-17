@@ -189,7 +189,10 @@ signature SQL =
             (* get/set auxdata? could be useful *)
          end
       
-      (* SQL.Error exceptions in callbacks are propogated ok. Others not. *)
+      (* SQL.Error exceptions in callbacks are propogated ok. Others not.
+       * If you want to change the method later, do it inside your function.
+       * Once registered, a function stays bound until closeDB.
+       *)
       val registerFunction:  db * string * Function.scalar -> unit
       val registerAggregate: db * string * Function.aggregate -> unit
       val registerCollation: db * string * (string * string -> order) -> unit
@@ -204,6 +207,7 @@ signature SQL =
             
             (* Number of prepared queries not yet garbage collected *)
             val preparedQueries: db -> int
+            val registeredFunctions: db -> int
             
             datatype access = ALLOW | DENY | IGNORE
             datatype request =

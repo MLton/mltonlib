@@ -1,7 +1,7 @@
 structure SQL :> SQL =
    struct
       type column = Prim.column
-      type db = Query.pool Ring.t
+      type db = { ring: Query.pool Ring.t, hooks: Prim.hook list ref }
       datatype storage = datatype Prim.storage
       
       exception Retry = Prim.Retry
@@ -13,19 +13,20 @@ structure SQL :> SQL =
       
       val version = Prim.version
       
-      fun getDB dbl = 
-         case Ring.get dbl of { db, query=_, available=_, used } => 
+      fun getDB { ring, hooks=_ } = 
+         case Ring.get ring of { db, query=_, available=_, used } => 
          if !used = ~1 then raise Error "Database closed" else db
       
-      fun openDB file = 
-         Ring.new { db = Prim.openDB file,
-                    query = "database",
-                    available = ref [],
-                    used = ref 0 }
+      fun openDB file = {
+         ring = Ring.new { db = Prim.openDB file,
+                           query = "database",
+                           available = ref [],
+                           used = ref 0 },
+         hooks = ref [] }
       
-      fun closeDB dbl = 
+      fun closeDB (dbh as { ring, hooks }) = 
          let
-            val db = getDB dbl (* raises if closed *)
+            val db = getDB dbh (* raises if closed *)
             fun notInUse { db=_, query=_, available=_, used } = !used = 0
             
             val exn = ref NONE
@@ -38,8 +39,12 @@ structure SQL :> SQL =
                available := [];
                used := ~1)
          in
-            if Ring.fold (fn (l, a) => notInUse l andalso a) true dbl
-            then (Ring.app close dbl; reraise (!exn); Prim.closeDB db)
+            if Ring.fold (fn (l, a) => notInUse l andalso a) true ring
+            then (Ring.app close ring; 
+                  reraise (!exn); 
+                  Prim.closeDB db;
+                  List.app Prim.unhook (!hooks);
+                  hooks := [])
             else raise Error "Database in use"
          end
       
@@ -126,14 +131,14 @@ structure SQL :> SQL =
             end
       end
       
-      fun registerFunction (db, s, (f, i)) = 
-         Prim.createFunction (getDB db, s, f, i)
+      fun registerFunction (db as { ring=_, hooks }, s, (f, i)) = 
+         hooks := Prim.createFunction (getDB db, s, f, i) :: !hooks
          
-      fun registerAggregate (db, s, (a, i)) = 
-         Prim.createAggregate (getDB db, s, a, i)
+      fun registerAggregate (db as { ring=_, hooks }, s, (a, i)) = 
+         hooks := Prim.createAggregate (getDB db, s, a, i) :: !hooks
       
-      fun registerCollation (db, s, c) = 
-         Prim.createCollation (getDB db, s, c)
+      fun registerCollation (db as { ring=_, hooks }, s, c) = 
+         hooks := Prim.createCollation (getDB db, s, c) :: !hooks
       
       structure SQLite = 
          struct
@@ -142,8 +147,10 @@ structure SQL :> SQL =
             val totalChanges = Prim.totalChanges o getDB
             val transactionActive = not o Prim.getAutocommit o getDB
             
-            fun preparedQueries dbl =
-               Ring.fold (fn (_, x) => x + 1) ~1 dbl
+            fun preparedQueries { ring, hooks=_ } =
+               Ring.fold (fn (_, x) => x + 1) ~1 ring
+            fun registeredFunctions { ring=_, hooks } =
+               List.length (!hooks)
             
             datatype access = datatype Prim.access
             datatype request = datatype Prim.request

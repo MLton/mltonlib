@@ -79,9 +79,10 @@ signature PRIM =
       
       type aggregate = { step:  context * value vector -> unit,
                          final: context -> unit }
-      val createFunction:  db * string * (context * value vector -> unit) * int -> unit
-      val createCollation: db * string * (string * string -> order) -> unit
-      val createAggregate: db * string * (unit -> aggregate) * int -> unit
+      type hook
+      val createFunction:  db * string * (context * value vector -> unit) * int -> hook
+      val createCollation: db * string * (string * string -> order) -> hook
+      val createAggregate: db * string * (unit -> aggregate) * int -> hook
       
       val lastInsertRowid: db -> Int64.int
       val changes: db -> int
@@ -114,4 +115,7 @@ signature PRIM =
        | DROP_VTABLE of { table: string, module: string, db: string  }
        | FUNCTION of { function: string }
       val setAuthorizer: db * (request -> access) option -> unit
+      
+      (* Only do this after closing the database or unbinding the fn *)
+      val unhook: hook -> unit
    end

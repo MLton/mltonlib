@@ -42,7 +42,7 @@ structure Buffer :> BUFFER =
       fun free ({ buf, free }, i) = (
 (*
          case Array.sub (!buf, i) of
-            FREE _ => raise "Free of unused space in Buffer.free"
+            FREE _ => raise Fail "Free of unused space in Buffer.free"
           | FULL _ =>
 *)
          Array.update (!buf, i, FREE (IntX.fromInt (!free)));

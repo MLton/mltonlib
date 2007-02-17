@@ -259,8 +259,7 @@ structure Prim :> PRIM =
       
       type callback = Context.t * Value.t vector -> unit
       
-      (* !!! somehow record the ids to free in the db handle? *)
-      
+      datatype hook = UFN of int | COLL of int | AGGR of int
       (************************************************* Scalar functions *)
       val fnt = Buffer.empty ()
       fun fnCallback (context, numargs, args) =
@@ -281,9 +280,15 @@ structure Prim :> PRIM =
       val fnCallbackPtr = _address "mlton_sqlite3_ufnhook" : FnPtr.t;
       
       fun createFunction (db, name, f, n) =
-             code (db, Pcreate_function (db, CStr.fromString name, n, 1, 
-                                         Word.fromInt (Buffer.push (fnt, f)),
-                                         fnCallbackPtr, FnPtr.null, FnPtr.null))
+         let
+            val id = Buffer.push (fnt, f)
+            val r = Pcreate_function (
+                       db, CStr.fromString name, n, 1, Word.fromInt id,
+                       fnCallbackPtr, FnPtr.null, FnPtr.null)
+         in
+            code (db, r); 
+            UFN id
+         end
       
       (************************************************* Aggregate functions *)
       type aggregate = {
@@ -343,10 +348,16 @@ structure Prim :> PRIM =
       val agFinalCallbackPtr = _address "mlton_sqlite3_uagfinal" : FnPtr.t;
       
       fun createAggregate (db, name, gen, n) =
-             code (db, Pcreate_function (db, CStr.fromString name, n, 1, 
-                                         Word.fromInt (Buffer.push (aggen, gen)),
-                                         FnPtr.null, agStepCallbackPtr, agFinalCallbackPtr))
-
+         let
+            val id = Buffer.push (aggen, gen)
+            val r = Pcreate_function (
+                       db, CStr.fromString name, n, 1, Word.fromInt id,
+                       FnPtr.null, agStepCallbackPtr, agFinalCallbackPtr)
+         in
+             code (db, r); 
+             AGGR id
+         end
+         
       (************************************************* Collation functions *)
       val colt = Buffer.empty ()
       fun colCallback (uarg, s1l, s1p, s2l, s2p) =
@@ -368,9 +379,17 @@ structure Prim :> PRIM =
                   colCallback
       val colCallbackPtr = _address "mlton_sqlite3_colhook" : FnPtr.t;
       fun createCollation (db, name, f) =
-             code (db, Pcreate_collation (db, CStr.fromString name, 1,
-                                          Word.fromInt (Buffer.push (colt, f)),
-                                          colCallbackPtr))
+         let
+            val id = Buffer.push (colt, f)
+            val r = Pcreate_collation (
+                       db, CStr.fromString name, 1, Word.fromInt id,
+                       colCallbackPtr)
+         in
+            code (db, r);
+            COLL id
+         end
+      
+      (************************************************* End of user functions *)
       
       val lastInsertRowid = PlastInsertRowid
       val changes = Pchanges
@@ -442,6 +461,10 @@ structure Prim :> PRIM =
          handle Option => raise Error "SQLite did not provided expected authorization paramater"
       
       fun setAuthorizer _ = ()
+      
+      fun unhook (UFN  x) = Buffer.free (fnt, x)
+        | unhook (COLL x) = Buffer.free (colt, x)
+        | unhook (AGGR x) = Buffer.free (aggen, x)
       
       type db = DB.t
       type query = Query.t

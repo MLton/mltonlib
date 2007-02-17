@@ -86,8 +86,8 @@ structure Query =
               Ring.remove l
               )
       in
-         fun prepare dbl qt =
-            case Ring.get dbl of { db, query=_, available=_, used=_ } =>
+         fun prepare { ring, hooks } qt =
+            case Ring.get ring of { db, query=_, available=_, used=_ } =>
             Fold.fold (([qt], oF0, oN0, oI0, iF0, iN0),
                        fn (ql, oF, _, oI, iF, _) => 
                        let
@@ -104,7 +104,7 @@ structure Query =
                                             Ring.add ({ db = db, 
                                                         query = qs, 
                                                         available = ref [q], 
-                                                        used = ref 0 }, dbl))
+                                                        used = ref 0 }, ring))
                               val out = { pool = pool, iF = iF, oF = oF }
                            in
                               MLton.Finalizable.addFinalizer (pool, close);
