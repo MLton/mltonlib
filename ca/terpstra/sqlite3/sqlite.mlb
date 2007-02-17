@@ -11,7 +11,7 @@ local
       pointers.sml
       prim.sml
    end
-(* debug.sml *) (* wraps all the primitive methods to check execution *)
+   (* debug.sml *) (* wraps all the primitive methods to check execution *)
    
    fold.sig
    fold.sml

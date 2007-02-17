@@ -23,8 +23,6 @@ signature PRIM =
       val step:     query -> bool
       val clearbindings: query -> unit
       
-      val query_string: query -> string
-      
       datatype storage = INTEGER of Int64.int
                        | REAL of real
                        | STRING of string

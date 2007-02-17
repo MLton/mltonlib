@@ -13,12 +13,9 @@ structure SQL :> SQL =
       
       val version = Prim.version
       
-      fun columns q = Prim.columns (Query.peek q)
-      fun columnsMeta q = Prim.meta (Query.peek q)
-      
       fun getDB dbl = 
-         case Ring.get dbl of { db, query=_, available=_, used=_ } => 
-         db
+         case Ring.get dbl of { db, query=_, available=_, used } => 
+         if !used = ~1 then raise Error "Database closed" else db
       
       fun openDB file = 
          Ring.new { db = Prim.openDB file,
@@ -26,7 +23,31 @@ structure SQL :> SQL =
                     available = ref [],
                     used = ref 0 }
       
-      val closeDB = Prim.closeDB o getDB
+      fun closeDB dbl = 
+         let
+            val db = getDB dbl (* raises if closed *)
+            fun notInUse { db=_, query=_, available=_, used } = !used = 0
+            
+            val exn = ref NONE
+            fun reraise NONE = ()
+              | reraise (SOME x) = raise x
+            
+            fun forceClose q = Prim.finalize q handle x => exn := SOME x
+            fun close { db=_, query=_, available, used } = (
+               List.app forceClose (!available);
+               available := [];
+               used := ~1)
+         in
+            if Ring.fold (fn (l, a) => notInUse l andalso a) true dbl
+            then (Ring.app close dbl; reraise (!exn); Prim.closeDB db)
+            else raise Error "Database in use"
+         end
+      
+      fun preparedQueries dbl =
+         Ring.fold (fn (_, x) => x + 1) ~1 dbl
+      
+      fun columns q = Query.peek (q, Prim.columns)
+      fun columnsMeta q = Query.peek (q, Prim.meta)
       
       datatype 'v stop = STOP | CONTINUE of 'v
       
@@ -36,12 +57,14 @@ structure SQL :> SQL =
             val (pq, oF) = Query.alloc (q, i)
             fun stop () = (
                Query.release (q, pq);
-               ok := false)
+               ok := false;
+               NONE)
          in
-            fn STOP => (stop (); NONE)
+            fn STOP => 
+                  if not (!ok) then NONE else stop ()
              | (CONTINUE ()) =>
                   if not (!ok) then NONE else
-                  if Prim.step pq then SOME (oF pq) else (stop (); NONE)
+                  if Prim.step pq then SOME (oF pq) else stop ()
          end
       
       fun mapStop f q i =
@@ -95,14 +118,14 @@ structure SQL :> SQL =
             let
                val Q = prepare db qs oAS $
             in
-               table Q () before close Q
+               table Q ()
             end
          
          fun simpleExec (db, qs) =
             let
                val Q = prepare db qs $
             in
-               exec Q () before close Q
+               exec Q ()
             end
       end
       

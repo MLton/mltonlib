@@ -22,9 +22,12 @@ signature SQL =
       (* The version of SQLite3 bound *)
       val version: string
       
-      (* Open and close databases -- all queries must be closed *)
+      (* Open and close databases *)
       val openDB: string -> db
       val closeDB: db -> unit
+      
+      (* How many prepared queries are there *)
+      val preparedQueries: db -> int
       
       (* You should ignore the type information here. It's confusing & useless.
        * Use this structure as follows:
@@ -37,8 +40,6 @@ signature SQL =
        * ...
        * val () = SQL.app (fn (x & y) => ...) Q1 (1 & "arg2")
        * val () = SQL.exec Q2 ()
-       * val () = SQL.Query.close Q1
-       * val () = SQL.Query.close Q2
        *)
       structure Query :
          sig
@@ -59,9 +60,6 @@ signature SQL =
                                           ('i,   'o,   'c, 'd, 'e, 'f) acc, 
                                           ('i, 'o) t, 'g) Fold.t
             val $ : 'a * ('a -> 'b) -> 'b
-            
-            (* For every 'prepare' you must eventually run this: *)
-            val close: ('i, 'o) t -> unit
             
             (* Convert the next column to the desired type *)
             val oB: (Word8Vector.vector, 'i, 'o, 'p, 'q, 'a, 'b, 'x, 'y, 'z) output

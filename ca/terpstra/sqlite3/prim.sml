@@ -52,7 +52,7 @@ structure Prim :> PRIM =
       val Pcolumn_table_name    = _import "sqlite3_column_table_name"    : Query.t * int -> CStr.out;
       
       val Pdb_handle = _import "sqlite3_db_handle" : Query.t -> DB.t;
-      val Pquery_string = _import "sqlite3_query_string" : Query.t -> CStr.out;
+(*    val Pquery_string = _import "sqlite3_query_string" : Query.t -> CStr.out; *)
       
       (* bind a user function *)
       val Pcreate_function = _import "sqlite3_create_function" : DB.t * CStr.t * int * int * word * FnPtr.t * FnPtr.t * FnPtr.t -> int;
@@ -160,7 +160,7 @@ structure Prim :> PRIM =
           | r => (wrap (q, r); raise Error "unreachable; step wrapper should raise")
       fun clearbindings q = wrap (q, Pclearbindings q)
       
-      fun query_string q = valOf (CStr.toStringOpt (Pquery_string q))
+(*    fun query_string q = valOf (CStr.toStringOpt (Pquery_string q)) *)
       
       datatype storage = INTEGER of Int64.int
                        | REAL of real

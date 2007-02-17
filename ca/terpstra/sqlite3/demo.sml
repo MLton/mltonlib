@@ -41,6 +41,8 @@ fun dumpV v = (Vector.app (fn s => print (s ^ " ")) v; print "\n")
 val () = SQL.app dumpP Q1 (4 & "hi") handle SQL.Error x => die x
 val () = SQL.app dumpV Q2 ()         handle SQL.Error x => die x
 
-val () = SQL.Query.close Q1          handle SQL.Error x => die x
-val () = SQL.Query.close Q2          handle SQL.Error x => die x
+val () = print ("Prepared queries: " ^ Int.toString (SQL.preparedQueries db) ^ "\n")
+val () = MLton.GC.collect ()
+val () = print ("Prepared queries: " ^ Int.toString (SQL.preparedQueries db) ^ "\n")
+
 val () = SQL.closeDB db              handle SQL.Error x => die x

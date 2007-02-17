@@ -18,7 +18,7 @@ structure Query =
       (* We need to be able to create new queries for recursive usage.
        * Each prepared statement has only a single VM, so we need a factory
        * to support reentrant processing. The used counter records how many
-       * outstanding queries there are (-1 means closed). The pool saves
+       * outstanding queries there are (~1 means DB closed). The pool saves
        * previously allocated prepared statements for quick re-use.
        *)
       
@@ -27,26 +27,29 @@ structure Query =
                     available:  Prim.query list ref,
                     used:       int ref }
       
-      type ('i, 'o) t = { pool:  pool Ring.t,
+      type ('i, 'o) t = { pool:  pool Ring.t MLton.Finalizable.t,
                           iF:    Prim.query * 'i -> unit,
                           oF:    Prim.query -> 'o }
       
-      fun peek { pool, iF=_, oF=_ } =
-         case Ring.get pool of { db, query, available, used } =>
-         if !used = ~1 then raise Prim.Error "Query.t is closed" else
-          case !available of
-             x :: r => x
-           | [] => 
-                let
-                   val pq = Prim.prepare (db, query)
-                   val () = available := pq :: !available
-                in
-                   pq
-                end
+      fun accessPool (pool, f) =
+         MLton.Finalizable.withValue (pool, fn x => f (Ring.get x))
+      
+      fun peek ({ pool, iF=_, oF=_ }, f) =
+         accessPool (pool, fn { db, query, available, used } =>
+         if !used = ~1 then raise Prim.Error "Database closed" else
+         case !available of
+            x :: r => f x
+          | [] => 
+               let
+                  val pq = Prim.prepare (db, query)
+                  val () = available := pq :: !available
+               in
+                  f pq
+               end)
       
       fun alloc ({ pool, iF, oF}, i) =
-         case Ring.get pool of { db, query, available, used } =>
-         if !used = ~1 then raise Prim.Error "Query.t is closed" else
+         accessPool (pool, fn { db, query, available, used } =>
+         if !used = ~1 then raise Prim.Error "Database closed" else
          let
             val pq = case !available of
                         [] => Prim.prepare (db, query)
@@ -55,24 +58,16 @@ structure Query =
             val () = iF (pq, i)
          in
             (pq, oF)
-         end
+         end)
       
       fun release ({ pool, iF=_, oF=_ }, pq) =
-         case Ring.get pool of { db=_, query=_, available, used } => (
-         if !used = 0 then raise Prim.Error "wrapper bug: too many released statements" else
-         Prim.reset pq;
-         Prim.clearbindings pq;
-         used := !used - 1;
-         available := pq :: !available)
-      
-      (* We will rewrite this to closeAll soon *)
-      fun close { pool, iF=_, oF=_ } =
-         case Ring.get pool of { db=_, query=_, available, used } =>
-         if !used = 0
-         then (List.app Prim.finalize (!available); 
-               available := [];
-               used := ~1)
-         else raise Prim.Error "Query is being processed; cannot close"
+         accessPool (pool, fn {db=_, query=_, available, used } =>
+         if !used = ~1 then raise Prim.Error "SQLite wrapper bug: cannot release closed query" else
+         if !used = 0 then raise Prim.Error "SQLite wrapper bug: too many releases" else
+         ( Prim.reset pq;
+           Prim.clearbindings pq;
+           used := !used - 1;
+           available := pq :: !available))
       
       fun oF0 _ = ()
       fun oN0 (q, n) = n ()
@@ -80,25 +75,43 @@ structure Query =
       fun iF0 (q, ()) = ()
       fun iN0 (q, x) = (1, x)
       
-      fun prepare dbl qt =
-         case Ring.get dbl of { db, query=_, available=_, used=_ } =>
-         Fold.fold (([qt], oF0, oN0, oI0, iF0, iN0),
-                    fn (ql, oF, _, oI, iF, _) => 
-                    let
-                        val qs = concat (rev ql)
-                        val q = Prim.prepare (db, qs)
-                    in 
-                        if Prim.cols q < oI
-                        then (Prim.finalize q;
-                              raise Prim.Error "insufficient output columns \
-                                               \to satisfy prototype")
-                        else { pool = Ring.add ({ db = db, 
-                                                  query = qs, 
-                                                  available = ref [q], 
-                                                  used = ref 0 }, dbl), 
-                               iF = iF, 
-                               oF = oF }
-                    end)
+      local
+         fun forceClose q = Prim.finalize q handle _ => ()
+         fun close l =
+            case Ring.get l of { db=_, query=_, available, used } =>
+            if !used <> 0 then raise Prim.Error "SQLite wrapper bug: finalizing in-use query" else
+            ( List.app forceClose (!available);
+              available := [];
+              used := ~1;
+              Ring.remove l
+              )
+      in
+         fun prepare dbl qt =
+            case Ring.get dbl of { db, query=_, available=_, used=_ } =>
+            Fold.fold (([qt], oF0, oN0, oI0, iF0, iN0),
+                       fn (ql, oF, _, oI, iF, _) => 
+                       let
+                           val qs = concat (rev ql)
+                           val q = Prim.prepare (db, qs)
+                       in 
+                           if Prim.cols q < oI
+                           then (Prim.finalize q;
+                                 raise Prim.Error "insufficient output columns\
+                                                  \ to satisfy prototype")
+                           else
+                           let
+                              val pool = MLton.Finalizable.new (
+                                            Ring.add ({ db = db, 
+                                                        query = qs, 
+                                                        available = ref [q], 
+                                                        used = ref 0 }, dbl))
+                              val out = { pool = pool, iF = iF, oF = oF }
+                           in
+                              MLton.Finalizable.addFinalizer (pool, close);
+                              out
+                           end
+                       end)
+         end
       
       (* terminate an expression with this: *)
       val $ = $

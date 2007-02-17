@@ -49,6 +49,8 @@ structure Ring :> RING =
             loop (next, f (value, a0))
          end
       
+      fun app f = fold (fn (l, ()) => f l) ()
+      
       fun get (self as LINK { prev=_, next=_, value }) = value
       
       fun test (self as LINK { prev, next, value }) =

@@ -1,3 +1,4 @@
 $(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/mlton.mlb
 sqlite.mlb
 demo.sml
