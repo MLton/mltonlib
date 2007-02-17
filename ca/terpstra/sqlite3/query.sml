@@ -77,7 +77,14 @@ structure Query =
       fun iN0 (_, x) = (1, x)
       
       local
-         fun forceClose q = Prim.finalize q handle _ => ()
+         fun error s = 
+            TextIO.output (TextIO.stdErr, "Finalization exception " ^ s ^ "\n")
+         fun forceClose q = 
+            Prim.finalize q 
+            handle Prim.Error x => error ("Error: " ^ x)
+                 | Prim.Retry x => error ("Retry: " ^ x)
+                 | Prim.Abort x => error ("Abort: " ^ x)
+                 | _ => error ("unknown SML")
          fun close l =
             case Ring.get l of { db=_, query=_, available, used } =>
             if !used <> 0 then raise Prim.Error "SQLite wrapper bug: finalizing in-use query" else
