@@ -1,4 +1,4 @@
-This directory contains source to code to bind the SQLite3 library to SML.
+This directory contains source code to bind the SQLite3 library to SML.
 
    http://www.sqlite.org/  -- The SQLite project
    http://www.mlton.org/   -- The Standard ML (SML) compiler targeted
