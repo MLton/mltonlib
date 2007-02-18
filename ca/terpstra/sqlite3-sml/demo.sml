@@ -37,12 +37,14 @@ in
 end
 
 (* Create the base table needed for Q1 *)
-val () = SQL.simpleExec (db, "create table peanuts (x text, y integer);")
+val () = SQL.simpleExec (db, "create table if not exists \
+                             \peanuts (x text, y integer);")
 
 (* Create some queries that have input / output parameters *)
 local
   open SQL.Query
 in
+  val Q0 = prepare db "insert into peanuts values ("iS", "iI");" $
   val Q1 = prepare db "select x, y from peanuts\n\
                       \where y="iI" or x="iS";" oS oI $
            handle SQL.Error x => die x
@@ -66,6 +68,12 @@ end
 
 fun dumpP (s & i) = print (s ^ " " ^ Int.toString i ^ "\n")
 fun dumpV v = (Vector.app (fn s => print (s ^ " ")) v; print "\n")
+
+(* Put some entries into the peanut table *)
+val () = SQL.exec Q0 ("hello" & 6)
+val () = SQL.exec Q0 ("hi" & 6)
+val () = SQL.exec Q0 ("boom" & 4)
+val () = SQL.exec Q0 ("smurf" & 2)
 
 (* Run the prepared queries and print the results *)
 val () = SQL.app dumpP Q1 (4 & "hi") handle SQL.Error x => die x
