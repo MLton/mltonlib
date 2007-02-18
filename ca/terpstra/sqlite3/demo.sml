@@ -31,7 +31,7 @@ in
   val sum2 = { init = fn () => 0, 
                step = fn (i, (j & k)) => i + Int64.fromInt j + k, 
                finish = fn x => Int64.toString x }
-  val () = SQL.registerFunction  (db, "wes", fnS iS iS $ concat)
+  val () = SQL.registerFunction  (db, "concat", fnS iS iS $ concat)
   val () = SQL.registerFunction  (db, "debug", fnN iAS $ debug)
   val () = SQL.registerFunction  (db, "glom", fnS iS iI $ glom)
   val () = SQL.registerCollation (db, "sless", String.compare)

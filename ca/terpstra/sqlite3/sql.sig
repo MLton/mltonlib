@@ -48,7 +48,7 @@ signature SQL =
        *   val Q2 = prepare db "insert into table2 values (4, 6);" $
        * end
        * ...
-       * val () = SQL.app (fn (x & y) => ...) Q1 (1 & "arg2")
+       * val () = SQL.app (fn (x & y) => x ^ Real.toString y) Q1 (1 & "arg2")
        * val () = SQL.exec Q2 ()
        *)
       structure Query :

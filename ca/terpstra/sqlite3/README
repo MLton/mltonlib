@@ -1,0 +1,22 @@
+This directory contains source to code to bind the SQLite3 library to SML.
+
+   http://www.sqlite.org/  -- The SQLite project
+   http://www.mlton.org/   -- The Standard ML (SML) compiler targeted
+
+To compile the project, first compile SQLite and install the sqlite3 library
+into the default search path for your system. Also install mlton. Create
+a .mlb file for your project that lists sqlite.mlb, example: demo.mlb.
+
+To compile:
+
+   mlton -link-opt "-lsqlite3" your-project.mlb
+
+The complete interface to the library is covered in sql.sig. See demo.sml
+for example code that creates SQL functions and queries.
+
+Copyright:
+
+The original author of SQLite-SML binding has dedicated the code to the
+public domain. Anyone is free to copy, modify, publish, use, compile, sell,
+or distribute the original code, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any means.
