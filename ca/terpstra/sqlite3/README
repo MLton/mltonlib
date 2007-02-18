@@ -9,12 +9,55 @@ a .mlb file for your project that lists sqlite.mlb, example: demo.mlb.
 
 To compile:
 
-   mlton -link-opt "-lsqlite3" your-project.mlb
+   mlton -link-opt "-lsqlite3" demo.mlb
 
 The complete interface to the library is covered in sql.sig. See demo.sml
 for example code that creates SQL functions and queries.
 
+----------------------------------------------------------------------------
+Interface:
+----------------------------------------------------------------------------
+
+As SML is strongly typed, it is necessary to convert types to/from the
+database. This is done by specifying a prototype with the type information.
+  local open SQL.Query in
+  val Q = prepare db "select * from table where x="iI" and y="iS";" oS oR $
+  end
+The query Q takes two inputs, an integer (iI) and a string (iS). It outputs
+a string (oS) and a real (oR). The '$' function terminates the expression.
+
+To invoke this query, the input/output tuples must use '&' instead of ',':
+  fun print2 (s & r) = print (s ^ Real.toString r ^ "\n")
+  val result = SQL.app print2 Q (5 & "y-arg-value")
+
+When registering a SML function for use from SQL, the prototype must only
+return a single type. This is specified with 'fnX'. For example:
+  local open SQL.Function in
+  fun concat (x & y) = Int.toString x ^ Int.toString y
+  val () = SQL.registerFunction (db, "concat", fnS iI iI $ concat)
+  end
+The string 'fnS iI iI $' indicates that concat takes two integer arguments
+and returns a string. Invocations from SQL will have types converted.
+
+The available types for use in SQLite are BRIZNSX for blob, real, int,
+Int64.int, unit, string, and storage. Storage is a datatype of the others.
+
+----------------------------------------------------------------------------
+Notes:
+----------------------------------------------------------------------------
+
+1. The binding is fully re-entrant. You can execute new queries during the
+   execution of other queries. SQL->SML functions can also issue queries.
+2. The database can only be closed if no queries are executing. Any attempt
+   to execute a query after the database is closed raises an exception.
+3. Variadic functions can use iAS to allow any number of string arguments.
+   This conflicts with the other iS/iZ/etc; accept a vector or a tuple.
+4. Variadic queries are useful when a user enters the query string. Here oAS
+   indicates that all output columns should be put into a string vector.
+
+----------------------------------------------------------------------------
 Copyright:
+----------------------------------------------------------------------------
 
 The original author of SQLite-SML binding has dedicated the code to the
 public domain. Anyone is free to copy, modify, publish, use, compile, sell,
