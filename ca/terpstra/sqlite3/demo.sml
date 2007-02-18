@@ -35,6 +35,7 @@ in
            handle SQL.Error x => die x
 end
 
+(*
 local
    open SQL.SQLite
    fun auth (INSERT { table, db }) = 
@@ -43,6 +44,7 @@ local
 in
    val () = setAuthorizer (db, SOME auth)
 end
+*)
 
 fun dumpP (s & i) = print (s ^ " " ^ Int.toString i ^ "\n")
 fun dumpV v = (Vector.app (fn s => print (s ^ " ")) v; print "\n")
