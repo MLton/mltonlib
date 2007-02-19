@@ -40,7 +40,7 @@ functor MkIntObjCache (Key : INT_OBJ) :> CACHE
         ; update c (n, SOME {key = k, value = v})
         ; (k, v)
        end)
-      handle e => (Key.set k ~1 ; Key.discard k ; raise e)
+      handle e => (Key.discard k ; raise e)
    end
 
    fun put c = #1 o putWith c o const
@@ -59,11 +59,8 @@ functor MkIntObjCache (Key : INT_OBJ) :> CACHE
       val r = sub c n
    in
       if i<0 orelse n<i orelse #key (sub c i) <> k then raise NotFound else ()
-    ; Key.set k ~1 ; Key.discard k
-    ; update c (i, SOME r)
-    ; Key.set (#key r) i
-    ; update c (n, NONE)
-    ; st#size c n
+    ; Key.discard k ; update c (i, SOME r) ; Key.set (#key r) i
+    ; update c (n, NONE) ; st#size c n
     ; if n*4 < cap c then realloc c (cap c div 2) else ()
    end
    fun use c k = get c k before rem c k
