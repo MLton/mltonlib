@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -8,6 +8,7 @@
 
 signature ARRAY = ARRAY
 signature ARRAY_SLICE = ARRAY_SLICE
+signature BIN_FN = BIN_FN
 signature BIN_OP = BIN_OP
 signature BIN_PR = BIN_PR
 signature BOOL = BOOL
@@ -68,6 +69,7 @@ structure Writer : WRITER = Writer
 
 structure Array : ARRAY = Array
 structure ArraySlice : ARRAY_SLICE = ArraySlice
+structure BinFn : BIN_FN = BinFn
 structure BinOp : BIN_OP = BinOp
 structure BinPr : BIN_PR = BinPr
 structure Bool : BOOL = Bool

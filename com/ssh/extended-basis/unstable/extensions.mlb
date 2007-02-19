@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -41,6 +41,11 @@ in
          basis Fn = bas public/fn/fn.sig detail/fn.sml end
          basis Unit = bas public/data/unit.sig end
          basis Sq = bas public/data/sq.sig detail/sq.sml end
+         basis BinFn = let
+            open Fn Sq
+         in
+            bas public/fn/bin-fn.sig detail/bin-fn.sml end
+         end
          basis UnOp = bas public/fn/un-op.sig detail/un-op.sml end
          basis Thunk = let
             open Fn
@@ -60,7 +65,7 @@ in
             end
          end
          basis BinOp = let
-            open Fn Sq
+            open BinFn
          in
             bas public/fn/bin-op.sig detail/bin-op.sml end
          end
@@ -204,7 +209,7 @@ in
          basis ShiftOp = bas public/fn/shift-op.sig end
          basis TextIO = bas public/io/text-io.sig detail/text-io.sml end
 
-         open BinOp BinPr Bool Buffer
+         open BinFn BinOp BinPr Bool Buffer
          open Cmp
          open Effect Emb Exit Exn
          open Fix Fn

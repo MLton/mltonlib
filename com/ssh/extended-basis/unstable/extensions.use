@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -17,6 +17,7 @@ in
         "public/fn/fn.sig", "detail/fn.sml",
         "public/data/unit.sig",
         "public/data/sq.sig", "detail/sq.sml",
+        "public/fn/bin-fn.sig", "detail/bin-fn.sml",
         "public/fn/un-op.sig", "detail/un-op.sml",
         "public/fn/thunk.sig", "detail/thunk.sml",
         "public/data/univ.sig", "detail/univ-common.sml", "detail/univ-exn.sml",

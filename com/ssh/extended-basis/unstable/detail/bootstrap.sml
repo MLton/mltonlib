@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -53,3 +53,4 @@ structure Emb = struct type ('a, 'b) t = ('a -> 'b) * ('b -> 'a Option.t) end
 structure Iso = struct type ('a, 'b) t = ('a -> 'b) * ('b -> 'a) end
 structure With = struct type ('a, 'b) t = ('a -> 'b) -> 'b end
 structure ShiftOp = struct type 'a t = 'a * Word.t -> 'a end
+structure BinFn = struct type ('a, 'b) t = 'a Sq.t -> 'b end
