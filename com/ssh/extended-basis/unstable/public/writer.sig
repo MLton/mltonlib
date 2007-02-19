@@ -6,7 +6,7 @@
 
 (** Utilities for dealing with writers. *)
 signature WRITER = sig
-   type ('a, 'b) t = 'a * 'b -> 'b
+   type ('a, 's) t = 'a * 's -> 's
 
    (** == Functor Interface == *)
 
