@@ -47,6 +47,7 @@ in
    cache.sig
    local
       $(SML_LIB)/mlnlffi-lib/mlnlffi-lib.mlb
+      generated/$(TARGET_ARCH)-$(TARGET_OS)/nlffi/lib.mlb
    in
       cache.sml
       mk-int-obj-cache.fun
