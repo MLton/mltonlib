@@ -11,9 +11,18 @@ target-id   := $(target-arch)-$(target-os)
 
 gen-dir := generated/$(target-id)
 
-ffi-h-files := $(wildcard *.h)
+mlb-path-map := $(gen-dir)/mlb-path-map
 
+ffi-h-files := $(wildcard *.h)
 nlffi-mlb := $(gen-dir)/nlffi/lib.mlb
+
+test-exe := $(gen-dir)/test
+
+ifeq ($(target-os),mingw)
+link-opt :=
+else
+link-opt := -link-opt -ldl
+endif
 
 ##########################################################################
 
@@ -29,10 +38,10 @@ help :
 all : $(nlffi-mlb)
 
 clean :
-	rm -rf mlb-path-map test $(wildcard *.dep) $(gen-dir)
+	rm -rf $(gen-dir)
 
-check : test
-	./test
+check : $(test-exe)
+	./$(test-exe)
 
 ##########################################################################
 
@@ -43,23 +52,24 @@ $(nlffi-mlb) : $(ffi-h-files)
 	           -linkage static  \
 	           $^
 
-mlb-path-map : Makefile
+$(mlb-path-map) : Makefile
+	mkdir -p $(@D)
 	echo 'MLTON_LIB $(shell cd ../../../.. && pwd)' > $@
 	echo 'SML_COMPILER mlton' >> $@
 
-test : test.mlb mlb-path-map $(nlffi-mlb)
-	mlton -stop f -mlb-path-map mlb-path-map $<          \
+$(test-exe) : test.mlb $(mlb-path-map) $(nlffi-mlb)
+	mlton -stop f -mlb-path-map $(mlb-path-map) $<       \
 	  | sed $$'s#\r##g'                                  \
 	  | awk 'BEGIN { printf "$@ :" } { printf " " $$1 }' \
 	  > $@.dep
-	mlton -mlb-path-map mlb-path-map     \
-	      -prefer-abs-paths true         \
-	      -show-def-use $@.def-use       \
-	      -const 'Exn.keepHistory true'  \
-	      -link-opt -ldl                 \
-	      -output $@                     \
+	mlton -mlb-path-map $(mlb-path-map)                  \
+	      -prefer-abs-paths true                         \
+	      -show-def-use $@.du                            \
+	      -const 'Exn.keepHistory true'                  \
+	      $(link-opt)                                    \
+	      -output $@                                     \
 	      $<
 
 ##########################################################################
 
-include $(wildcard *.dep)
+include $(wildcard $(gen-dir)/*.dep)
