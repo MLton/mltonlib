@@ -79,6 +79,7 @@ structure Windows :> WINDOWS_EX = struct
    fun withDword f = withNew C.S.ulong f
    fun withLong f = withNew C.S.slong f
    fun withZs mlStr = withAlloc (fn () => ZString.dupML' mlStr)
+   val withOptZs = fn NONE => pass C.Ptr.null' | SOME s => withZs s
    fun withBuf size = withAlloc (fn () => C.alloc' C.S.uchar size)
 
    exception InsufficientBuffer
@@ -396,18 +397,14 @@ structure Windows :> WINDOWS_EX = struct
    structure Semaphore = struct
       type t = C.voidptr
 
-      fun create {init, max, name} = let
-         fun f name' =
-             raiseLastErrorOnNull
-                (fn () => F"Semaphore.create"
-                           [A int init, A int max, A (opt str) name])
-                F_win_CreateSemaphore.f'
-                (C.Ptr.null', init, max, name')
-      in
-         case name of
-            NONE => f C.Ptr.null'
-          | SOME n => withZs n f
-      end
+      fun create {init, max, name} =
+          (withOptZs name)
+             (fn name' =>
+                 raiseLastErrorOnNull
+                    (fn () => F"Semaphore.create"
+                               [A int init, A int max, A (opt str) name])
+                    F_win_CreateSemaphore.f'
+                    (C.Ptr.null', init, max, name'))
 
       val close = ignore o F_win_CloseHandle.f'
 
@@ -424,7 +421,14 @@ structure Windows :> WINDOWS_EX = struct
 
    structure Mutex = struct
       type t = C.voidptr
-      val create = undefined
+      fun create {name, own} =
+          (withOptZs name)
+             (fn name' =>
+                 raiseLastErrorOnNull
+                    (fn () => F"Mutex.create"[A (opt str) name, A bool own])
+                    F_win_CreateMutex.f'
+                    (C.Ptr.null', if own then 1 else 0, name'))
+
       val close = ignore o F_win_CloseHandle.f'
       val toWait = id
    end
