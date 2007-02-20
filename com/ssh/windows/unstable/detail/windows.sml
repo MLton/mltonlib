@@ -19,12 +19,14 @@ structure Windows :> WINDOWS_EX = struct
                       args))
       val A = layout
       val str = string
+      val lst = list
       val ptr = iso word32
                     let open MLRep.Long.Unsigned
                     in (C.Cvt.ml_ulong o C.U.p2i, C.U.i2p o C.Cvt.c_ulong)
                     end
       val opt = option
       val int = int
+      val dbl = real
       val sw = word64
    end
 
@@ -58,10 +60,23 @@ structure Windows :> WINDOWS_EX = struct
    fun raiseLastError call =
        raiseError call (getLastError ())
 
+   fun raiseLastErrorOnNull call f x = let
+      val result = f x
+   in
+      if C.Ptr.isNull' result then raiseLastError call else result
+   end
+
+   fun raiseLastErrorOnFalse call f x = let
+      val result = f x
+   in
+      if 0 = result then raiseLastError call else ()
+   end
+
    fun withAlloc alloc = With.around alloc C.free'
    fun withNew size = With.around (fn () => C.new' size) C.discard'
    fun withPtr f = withNew C.S.voidptr f
    fun withDword f = withNew C.S.ulong f
+   fun withLong f = withNew C.S.slong f
    fun withZs mlStr = withAlloc (fn () => ZString.dupML' mlStr)
    fun withBuf size = withAlloc (fn () => C.alloc' C.S.uchar size)
 
@@ -332,32 +347,94 @@ structure Windows :> WINDOWS_EX = struct
         | OBJECT of 'a
         | TIMEOUT
 
-      val any = undefined
-      val all = undefined
+      local
+         fun `x = C.Get.ulong' (x ())
+      in
+         val object    = `G_win_WAIT_OBJECT_0.obj'
+         val abandoned = `G_win_WAIT_ABANDONED_0.obj'
+         val timeout   = `G_win_WAIT_TIMEOUT.obj'
+         val failed    = `G_win_WAIT_FAILED.obj'
+         val infinite  = `G_win_INFINITE.obj'
+      end
+
+      fun wait name all ws t = let
+         val n = Word.fromInt (length ws)
+         val s = C.S.voidptr
+      in
+         (withAlloc (fn () => C.alloc' s n))
+            (fn hs =>
+                (List.appi (fn (i, (w, _)) =>
+                               C.Set.voidptr' (C.Ptr.sub' s (hs, i), w)) ws
+               ; let val res =
+                         F_win_WaitForMultipleObjects.f'
+                            (n, C.Ptr.ro' hs, if all then 1 else 0,
+                             if Real.== (t, Real.posInf)
+                             then infinite
+                             else Word.fromInt (Real.round (t * 1000.0)))
+                     fun get off = #2 (List.sub (ws, Word.toIntX (n - off)))
+                 in
+                    if res = timeout then
+                       TIMEOUT
+                    else if object <= res andalso res < object+n then
+                       OBJECT (get object)
+                    else if abandoned <= res andalso res < abandoned+n then
+                       ABANDONED (get abandoned)
+                    else if res = failed then
+                       raiseLastError
+                          (fn () => F name [A (lst ptr) (map #1 ws), A dbl t])
+                    else
+                       raise Fail "Unsupported WaitForMultipleObjects\
+                                  \ functionality"
+                 end))
+      end
+
+      fun any ? = wait "Wait.any" false ?
+      fun all ? = wait "Wait.all" true ?
    end
 
    structure Semaphore = struct
       type t = C.voidptr
-      val create = undefined
-      val close = undefined
-      val release = undefined
-      val toWait = undefined
+
+      fun create {init, max, name} = let
+         fun f name' =
+             raiseLastErrorOnNull
+                (fn () => F"Semaphore.create"
+                           [A int init, A int max, A (opt str) name])
+                F_win_CreateSemaphore.f'
+                (C.Ptr.null', init, max, name')
+      in
+         case name of
+            NONE => f C.Ptr.null'
+          | SOME n => withZs n f
+      end
+
+      val close = ignore o F_win_CloseHandle.f'
+
+      fun release (s, n) =
+          withLong
+             (fn result =>
+                 (raiseLastErrorOnFalse
+                     (fn () => F"Semaphore.release"[A ptr s, A int n])
+                     F_win_ReleaseSemaphore.f' (s, n, C.Ptr.|&! result)
+                ; C.Get.slong' result))
+
+      val toWait = id
    end
 
    structure Mutex = struct
       type t = C.voidptr
       val create = undefined
-      val close = undefined
-      val toWait = undefined
+      val close = ignore o F_win_CloseHandle.f'
+      val toWait = id
    end
 
    structure Timer = struct
       type t = C.voidptr
       val create = undefined
-      val close = undefined
+      val close = ignore o F_win_CloseHandle.f'
       val set = undefined
       val cancel = undefined
-      val toWait = undefined
+      val toWait = id
    end
 
    structure FileChange = struct
@@ -375,7 +452,7 @@ structure Windows :> WINDOWS_EX = struct
       type t = C.voidptr
       val first = undefined
       val next = undefined
-      val close = undefined
-      val toWait = undefined
+      val close = ignore o F_win_FindCloseChangeNotification.f'
+      val toWait = id
    end
 end
