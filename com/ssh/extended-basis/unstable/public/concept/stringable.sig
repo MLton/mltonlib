@@ -6,7 +6,9 @@
 
 (**
  * Stringables can be embedded into strings.  The string representation is
- * usually human readable.
+ * usually human readable and corresponds to SML syntax and conventions.
+ *
+ * See also: {CSTRINGABLE}
  *)
 signature STRINGABLE = sig
    type stringable
