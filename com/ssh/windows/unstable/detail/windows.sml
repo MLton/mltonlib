@@ -371,7 +371,7 @@ structure Windows :> WINDOWS_EX = struct
                              if Real.== (t, Real.posInf)
                              then infinite
                              else Word.fromInt (Real.round (t * 1000.0)))
-                     fun get off = #2 (List.sub (ws, Word.toIntX (n - off)))
+                     fun get off = #2 (List.sub (ws, Word.toIntX (res - off)))
                  in
                     if res = timeout then
                        TIMEOUT
