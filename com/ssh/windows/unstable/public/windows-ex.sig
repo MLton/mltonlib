@@ -33,17 +33,13 @@ signature WINDOWS_EX = sig
    structure Wait : sig
       type t
 
-      type 'a waitable
-
       datatype 'a result
         = ABANDONED of 'a
         | OBJECT of 'a
         | TIMEOUT
 
-      val prepare : (t * 'a) List.t -> 'a waitable
-
-      val any : 'a waitable * Real.t -> 'a result
-      val all : 'a waitable * Real.t -> 'a result
+      val any : (t * 'a) List.t -> Real.t -> 'a result
+      val all : (t * 'a) List.t -> Real.t -> 'a result
    end
 
    structure Semaphore : sig

@@ -327,14 +327,10 @@ structure Windows :> WINDOWS_EX = struct
    structure Wait = struct
       type t = C.voidptr
 
-      type 'a waitable = Unit.t
-
       datatype 'a result
         = ABANDONED of 'a
         | OBJECT of 'a
         | TIMEOUT
-
-      val prepare = undefined
 
       val any = undefined
       val all = undefined
