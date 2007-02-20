@@ -25,7 +25,7 @@ lib-h-files := $(wildcard $(lib-dir)/*.h)
 
 lib-file := libwin-$(target-id).lib
 
-def-use-file := lib.$(target-id).du
+def-use-file := $(gen-dir)/lib.du
 
 ##########################################################################
 
