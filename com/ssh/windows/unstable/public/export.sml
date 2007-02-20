@@ -6,8 +6,9 @@
 
 (** == Exported signatures == *)
 
-signature WINDOWS = WINDOWS
+signature WINDOWS    = WINDOWS
+signature WINDOWS_EX = WINDOWS_EX
 
 (** == Exported structures == *)
 
-structure Windows : WINDOWS = Windows
+structure Windows : WINDOWS_EX = Windows

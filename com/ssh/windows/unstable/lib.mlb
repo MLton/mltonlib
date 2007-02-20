@@ -22,6 +22,7 @@ in
    in
       local
          public/windows.sig
+         public/windows-ex.sig
          detail/windows.sml
       in
          public/export.sml

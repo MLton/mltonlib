@@ -91,7 +91,18 @@ APPLY(FIRST,                                    \
 
 /************************************************************************/
 
-LPTSTR win_FormatErrorLocalAlloc(DWORD error)
+BOOL
+win_SetWaitableTimer(HANDLE handle, LONGLONG dueTime, LONG period, BOOL resume)
+{
+  LARGE_INTEGER liDueTime;
+  liDueTime.QuadPart = dueTime;
+  return SetWaitableTimer(handle, &liDueTime, period, NULL, NULL, resume);
+}
+
+/************************************************************************/
+
+LPTSTR
+win_FormatErrorLocalAlloc(DWORD error)
 {
   LPTSTR msg = NULL;
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |

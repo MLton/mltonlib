@@ -7,9 +7,9 @@
 (**
  * Signature for Windows utilities.
  *
- * Parts of this signature follow the SML Basis Library specification:
- *
- *   http://mlton.org/basis/windows.html .
+ * Aside from a few minor extensions, this signature specifies a subset of
+ * the [http://mlton.org/basis/windows.html Windows structure] in the
+ * Standard ML Basis Library.
  *)
 signature WINDOWS = sig
    structure Key : sig
@@ -58,25 +58,5 @@ signature WINDOWS = sig
         | SZ of String.t
       val queryValueEx : hkey * String.t -> value Option.t
       val setValueEx : (hkey * String.t * value) Effect.t
-   end
-
-   structure EventLog : sig
-      structure Type : sig
-         include BIT_FLAGS
-         val auditFailure : flags
-         val auditSuccess : flags
-         val error : flags
-         val information : flags
-         val warning : flags
-      end
-   end
-
-   structure Module : sig
-      type hmodule
-      val getFileName : hmodule Option.t -> String.t
-   end
-
-   structure Path : sig
-      val getShortName : String.t UnOp.t
    end
 end

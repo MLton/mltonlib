@@ -7,7 +7,7 @@
 (* XXX make pretty printing of args in error messages a compile time option *)
 
 (* Implementation of Windows utilities. *)
-structure Windows :> WINDOWS = struct
+structure Windows :> WINDOWS_EX = struct
    local
       open Type Prettier
    in
@@ -303,12 +303,10 @@ structure Windows :> WINDOWS = struct
    end
 
    structure Module = struct
-      type hmodule = C.voidptr
-
-      val null = C.Ptr.null'
+      type t = C.voidptr
 
       fun getFileName m = let
-         val m' = getOpt (m, null)
+         val m' = getOpt (m, C.Ptr.null')
       in
          onError0ElseTruncatedSize
             (fn () => F"Module.getFileName"[A (opt ptr) m])
@@ -324,5 +322,64 @@ structure Windows :> WINDOWS = struct
                  onError0ElseRequiredSize
                     (fn () => F"Path.getShortName"[A str p])
                     (fn (b, s) => F_win_GetShortPathName.f' (p', b, s)))
+   end
+
+   structure Wait = struct
+      type t = C.voidptr
+
+      type 'a waitable = Unit.t
+
+      datatype 'a result
+        = ABANDONED of 'a
+        | OBJECT of 'a
+        | TIMEOUT
+
+      val prepare = undefined
+
+      val any = undefined
+      val all = undefined
+   end
+
+   structure Semaphore = struct
+      type t = C.voidptr
+      val create = undefined
+      val close = undefined
+      val release = undefined
+      val toWait = undefined
+   end
+
+   structure Mutex = struct
+      type t = C.voidptr
+      val create = undefined
+      val close = undefined
+      val toWait = undefined
+   end
+
+   structure Timer = struct
+      type t = C.voidptr
+      val create = undefined
+      val close = undefined
+      val set = undefined
+      val cancel = undefined
+      val toWait = undefined
+   end
+
+   structure FileChange = struct
+      structure Filter = struct
+         open BitFlags
+         fun `x = SysWord.fromWord (C.Get.ulong' (x ()))
+         val attributes = `G_win_FILE_NOTIFY_CHANGE_ATTRIBUTES.obj'
+         val dirName    = `G_win_FILE_NOTIFY_CHANGE_DIR_NAME.obj'
+         val fileName   = `G_win_FILE_NOTIFY_CHANGE_FILE_NAME.obj'
+         val lastWrite  = `G_win_FILE_NOTIFY_CHANGE_LAST_WRITE.obj'
+         val security   = `G_win_FILE_NOTIFY_CHANGE_SECURITY.obj'
+         val size       = `G_win_FILE_NOTIFY_CHANGE_SIZE.obj'
+      end
+
+      type t = C.voidptr
+      val first = undefined
+      val next = undefined
+      val close = undefined
+      val toWait = undefined
    end
 end

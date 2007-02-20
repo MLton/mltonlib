@@ -27,13 +27,18 @@
 
 /************************************************************************/
 
+WIN_TYPEDEF(LPVOID, void *);
+
+WIN_TYPEDEF(BOOL, int);
 WIN_TYPEDEF(BYTE, unsigned char);
 WIN_TYPEDEF(WORD, unsigned short);
 WIN_TYPEDEF(DWORD, unsigned long);
 WIN_TYPEDEF(LONG, long);
+WIN_TYPEDEF(LONGLONG, long long);
 
 WIN_TYPEDEF(LPBYTE, BYTE *);
 WIN_TYPEDEF(LPDWORD, DWORD *);
+WIN_TYPEDEF(LPLONG, LONG *);
 
 WIN_TYPEDEF(LPCTSTR, const char *);
 WIN_TYPEDEF(LPTSTR, char *);
@@ -132,6 +137,61 @@ WIN_CONST(EVENTLOG_AUDIT_FAILURE, WORD);
 WIN_CONST(EVENTLOG_AUDIT_SUCCESS, WORD);
 WIN_CONST(EVENTLOG_INFORMATION_TYPE, WORD);
 WIN_CONST(EVENTLOG_WARNING_TYPE, WORD);
+
+/************************************************************************/
+
+WIN_TYPEDEF(HANDLE, void *);
+
+WIN_FUNCTION(CloseHandle, BOOL, 1, (HANDLE));
+
+/************************************************************************/
+
+WIN_CONST(WAIT_OBJECT_0, DWORD);
+WIN_CONST(WAIT_ABANDONED_0, DWORD);
+WIN_CONST(WAIT_IO_COMPLETION, DWORD);
+WIN_CONST(WAIT_TIMEOUT, DWORD);
+WIN_CONST(WAIT_FAILED, DWORD);
+
+WIN_FUNCTION(WaitForMultipleObjectsEx, DWORD, 5,
+             (DWORD, const HANDLE *, BOOL, DWORD, BOOL));
+WIN_FUNCTION(WaitForMultipleObjects, DWORD, 4,
+             (DWORD, const HANDLE *, BOOL, DWORD));
+
+/************************************************************************/
+
+WIN_FUNCTION(CreateSemaphore, HANDLE, 4,
+             (LPSECURITY_ATTRIBUTES, LONG, LONG, LPCTSTR));
+WIN_FUNCTION(ReleaseSemaphore, BOOL, 3, (HANDLE, LONG, LPLONG));
+
+/************************************************************************/
+
+WIN_FUNCTION(CreateMutex, HANDLE, 3, (LPSECURITY_ATTRIBUTES, BOOL, LPCTSTR));
+WIN_FUNCTION(ReleaseMutex, BOOL, 1, (HANDLE));
+
+/************************************************************************/
+
+WIN_FUNCTION(CreateWaitableTimer, HANDLE, 3,
+             (LPSECURITY_ATTRIBUTES, BOOL, LPCTSTR));
+WIN_FUNCTION(CancelWaitableTimer, BOOL, 1, (HANDLE));
+
+BOOL win_SetWaitableTimer(HANDLE, LONGLONG, LONG, BOOL);
+
+/************************************************************************/
+
+WIN_CONST(FILE_NOTIFY_CHANGE_ATTRIBUTES, DWORD);
+WIN_CONST(FILE_NOTIFY_CHANGE_DIR_NAME, DWORD);
+WIN_CONST(FILE_NOTIFY_CHANGE_FILE_NAME, DWORD);
+WIN_CONST(FILE_NOTIFY_CHANGE_LAST_WRITE, DWORD);
+WIN_CONST(FILE_NOTIFY_CHANGE_SECURITY, DWORD);
+WIN_CONST(FILE_NOTIFY_CHANGE_SIZE, DWORD);
+
+WIN_FUNCTION(FindFirstChangeNotification, HANDLE, 3, (LPCTSTR, BOOL, DWORD));
+WIN_FUNCTION(FindCloseChangeNotification, BOOL, 1, (HANDLE));
+WIN_FUNCTION(FindNextChangeNotification, BOOL, 1, (HANDLE));
+
+/************************************************************************/
+
+WIN_FUNCTION(GetCurrentProcessId, DWORD, 0, (void));
 
 /************************************************************************/
 
