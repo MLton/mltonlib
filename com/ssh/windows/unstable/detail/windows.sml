@@ -28,6 +28,7 @@ structure Windows :> WINDOWS_EX = struct
       val int = int
       val dbl = real
       val sw = word64
+      val bool = bool
    end
 
    val op >>& = With.>>&
@@ -450,8 +451,17 @@ structure Windows :> WINDOWS_EX = struct
       end
 
       type t = C.voidptr
-      val first = undefined
-      val next = undefined
+      fun first (n, b, f) =
+          (withZs n)
+             (fn n' =>
+                 raiseLastErrorOnNull
+                    (fn () => F"FileChange.first"[A str n, A bool b, A sw f])
+                    F_win_FindFirstChangeNotification.f'
+                    (n', if b then 1 else 0, SysWord.toWord f))
+      fun next h =
+          raiseLastErrorOnFalse
+             (fn () => F"FileChange.next"[A ptr h])
+             F_win_FindNextChangeNotification.f' h
       val close = ignore o F_win_FindCloseChangeNotification.f'
       val toWait = id
    end
