@@ -103,10 +103,10 @@ structure Query =
          fun close l =
             case Ring.get l of { db=_, query=_, available, used } =>
             if !used <> 0 then raise Prim.Error "SQLite wrapper bug: finalizing in-use query" else
-            ( List.app forceClose (!available);
+            ( Ring.remove l;
+              List.app forceClose (!available);
               available := [];
-              used := ~1;
-              Ring.remove l
+              used := ~1
               )
       in
          fun prepare { ring, hooks=_, auth=_ } qt =
@@ -128,15 +128,15 @@ structure Query =
                                                   \ for specified prototype")
                            else
                            let
-                              val pool = MLton.Finalizable.new (
-                                            Ring.add ({ db = db, 
-                                                        query = qs, 
-                                                        available = ref [q], 
-                                                        used = ref 0 }, ring))
-                              val out = { pool = pool, iF = iF, oF = oF }
+                              val atom = MLton.Thread.atomically
+                              val new = MLton.Finalizable.new
+                              val i = { db = db, query = qs, 
+                                        available = ref [q], used = ref 0 }
+                              fun closeA pool = atom (fn () => close pool)
+                              val pool = atom (fn () => new (Ring.add (i, ring)))
                            in
-                              MLton.Finalizable.addFinalizer (pool, close);
-                              out
+                              MLton.Finalizable.addFinalizer (pool, closeA);
+                              { pool = pool, iF = iF, oF = oF }
                            end
                        end)
          end

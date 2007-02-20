@@ -38,7 +38,6 @@ structure Ring :> RING =
          in
             self
          end
-      val add = fn x => MLton.Thread.atomically (fn () => add x)
       
       fun remove (self as LINK { prev, next, value=_ }) =
          let
@@ -51,7 +50,6 @@ structure Ring :> RING =
          in
             ()
          end
-      val remove = fn x => MLton.Thread.atomically (fn () => remove x)
          
       fun fold f a0 (LINK { prev=_, next, value }) =
          let
@@ -62,8 +60,6 @@ structure Ring :> RING =
          in
             loop (next, f (value, a0))
          end
-      val fold = fn x => fn y => fn z => 
-                 MLton.Thread.atomically (fn () => fold x y z)
       
       fun app f = fold (fn (l, ()) => f l) ()
       

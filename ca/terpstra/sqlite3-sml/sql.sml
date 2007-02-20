@@ -34,7 +34,7 @@ structure SQL :> SQL =
       
       fun openDB file = {
          ring = Ring.new { db = Prim.openDB file,
-                           query = "database",
+                           query = "database", 
                            available = ref [],
                            used = ref 0 },
          hooks = ref [],
@@ -54,16 +54,19 @@ structure SQL :> SQL =
                List.app forceClose (!available);
                available := [];
                used := ~1)
+            
+            fun main () =
+               if Ring.fold (fn (l, a) => notInUse l andalso a) true ring
+               then (Ring.app close ring; 
+                     reraise (!exn); 
+                     Prim.closeDB db;
+                     List.app Prim.unhook (!hooks);
+                     hooks := [];
+                     Option.app Prim.unhook (!auth);
+                     auth := NONE)
+               else raise Error "Database in use"
          in
-            if Ring.fold (fn (l, a) => notInUse l andalso a) true ring
-            then (Ring.app close ring; 
-                  reraise (!exn); 
-                  Prim.closeDB db;
-                  List.app Prim.unhook (!hooks);
-                  hooks := [];
-                  Option.app Prim.unhook (!auth);
-                  auth := NONE)
-            else raise Error "Database in use"
+            MLton.Thread.atomically (fn () => main ())
          end
       
       fun columns q = Query.peek (q, Prim.columns)
@@ -166,7 +169,8 @@ structure SQL :> SQL =
             val transactionActive = not o Prim.getAutocommit o getDB
             
             fun preparedQueries { ring, hooks=_, auth=_ } =
-               Ring.fold (fn (_, x) => x + 1) ~1 ring
+               MLton.Thread.atomically
+                  (fn () => Ring.fold (fn (_, x) => x + 1) ~1 ring)
             fun registeredFunctions { ring=_, hooks, auth=_ } =
                List.length (!hooks)
             
