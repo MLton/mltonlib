@@ -36,42 +36,44 @@ structure Windows :> WINDOWS_EX = struct
    local
       fun `x = C.Get.ulong' (x ())
    in
-      val errorSuccess     = `G_win_ERROR_SUCCESS.obj'
-      val errorNoMoreItems = `G_win_ERROR_NO_MORE_ITEMS.obj'
-      val errorMoreData    = `G_win_ERROR_MORE_DATA.obj'
+      val success     = `G_win_ERROR_SUCCESS.obj'
+      val noMoreItems = `G_win_ERROR_NO_MORE_ITEMS.obj'
+      val moreData    = `G_win_ERROR_MORE_DATA.obj'
    end
 
    val getLastError = F_win_GetLastError.f
 
-   fun raiseError call error =
+   fun raiseError call e =
        raise OS.SysErr
                 (concat
                     [call (), ": ",
-                     With.around (fn () => F_win_FormatErrorLocalAlloc.f' error)
+                     With.around (fn () => F_win_FormatErrorLocalAlloc.f' e)
                                  (ignore o F_win_LocalFree.f' o C.Ptr.inject')
                                  ZString.toML'],
                  NONE)
 
-   fun raiseOnError call error = let
-      val error = Word.fromInt error
+   fun raiseOnError call f x = let
+      val e = Word.fromInt (f x)
    in
-      if error = errorSuccess then () else raiseError call error
+      if e = success then () else raiseError call e
    end
 
    fun raiseLastError call =
        raiseError call (getLastError ())
 
-   fun raiseLastErrorOnNull call f x = let
-      val result = f x
+   fun raiseOn isFailure toResult call f x = let
+      val r = f x
    in
-      if C.Ptr.isNull' result then raiseLastError call else result
+      if isFailure r then raiseLastError call else toResult r
    end
 
-   fun raiseLastErrorOnFalse call f x = let
-      val result = f x
-   in
-      if 0 = result then raiseLastError call else ()
-   end
+   val null = C.Ptr.null'
+   val toCBool = fn true => 1 | false => 0
+
+   fun raiseOnNull ? = raiseOn C.Ptr.isNull' id ?
+   fun raiseOnFalse ? = raiseOn (0 <\ op =) ignore ?
+
+   fun ptrToBool name f h = raiseOnFalse (fn () => F name [A ptr h]) f h
 
    fun withAlloc alloc = With.around alloc C.free'
    fun withNew size = With.around (fn () => C.new' size) C.discard'
@@ -79,7 +81,7 @@ structure Windows :> WINDOWS_EX = struct
    fun withDword f = withNew C.S.ulong f
    fun withLong f = withNew C.S.slong f
    fun withZs mlStr = withAlloc (fn () => ZString.dupML' mlStr)
-   val withOptZs = fn NONE => pass C.Ptr.null' | SOME s => withZs s
+   val withOptZs = fn NONE => pass null | SOME s => withZs s
    fun withBuf size = withAlloc (fn () => C.alloc' C.S.uchar size)
 
    exception InsufficientBuffer
@@ -91,47 +93,41 @@ structure Windows :> WINDOWS_EX = struct
       loop size
    end
 
-   fun onError0ElseTruncatedSize call size f =
-       (withDoublingBuf size)
-          (fn (buf, size) => let
-                 val result = f (buf, size)
+   fun onError0ElseTruncatedSize call s f =
+       (withDoublingBuf s)
+          (fn (b, s) => let
+                 val r = f (b, s)
               in
-                 if 0w0 = result then raiseLastError call
-                 else if size = result then raise InsufficientBuffer
-                 else ZString.toML' buf
+                 if 0w0 = r then raiseLastError call
+                 else if s = r then raise InsufficientBuffer
+                 else ZString.toML' b
               end)
 
    fun onError0ElseRequiredSize call f = let
-      val size = f (C.Ptr.null', 0w0)
+      val s = f (null, 0w0)
    in
-      if 0w0 = size
-      then raiseLastError call
-      else (withBuf size)
-              (fn buf => let
-                     val result = f (buf, size)
-                  in
-                     if 0w0 = result
-                     then raiseLastError call
-                     else ZString.toML' buf
-                  end)
+      if 0w0 = s then raiseLastError call else
+      (withBuf s)
+         (fn b => let
+                val r = f (b, s)
+             in
+                if 0w0 = r then raiseLastError call else ZString.toML' b
+             end)
    end
 
    structure Key = struct
       open BitFlags
-      local
-         fun `x = SysWord.fromWord (C.Get.ulong' (x ()))
-      in
-         val allAccess        = `G_win_KEY_ALL_ACCESS.obj'
-         val createLink       = `G_win_KEY_CREATE_LINK.obj'
-         val createSubKey     = `G_win_KEY_CREATE_SUB_KEY.obj'
-         val enumerateSubKeys = `G_win_KEY_ENUMERATE_SUB_KEYS.obj'
-         val execute          = `G_win_KEY_EXECUTE.obj'
-         val notify           = `G_win_KEY_NOTIFY.obj'
-         val queryValue       = `G_win_KEY_QUERY_VALUE.obj'
-         val read             = `G_win_KEY_READ.obj'
-         val setValue         = `G_win_KEY_SET_VALUE.obj'
-         val write            = `G_win_KEY_WRITE.obj'
-      end
+      fun `x = SysWord.fromWord (C.Get.ulong' (x ()))
+      val allAccess        = `G_win_KEY_ALL_ACCESS.obj'
+      val createLink       = `G_win_KEY_CREATE_LINK.obj'
+      val createSubKey     = `G_win_KEY_CREATE_SUB_KEY.obj'
+      val enumerateSubKeys = `G_win_KEY_ENUMERATE_SUB_KEYS.obj'
+      val execute          = `G_win_KEY_EXECUTE.obj'
+      val notify           = `G_win_KEY_NOTIFY.obj'
+      val queryValue       = `G_win_KEY_QUERY_VALUE.obj'
+      val read             = `G_win_KEY_READ.obj'
+      val setValue         = `G_win_KEY_SET_VALUE.obj'
+      val write            = `G_win_KEY_WRITE.obj'
    end
 
    structure Reg = struct
@@ -151,7 +147,7 @@ structure Windows :> WINDOWS_EX = struct
 
       fun closeKey h =
           raiseOnError (fn () => F"Reg.closeKey"[A ptr h])
-                       (F_win_RegCloseKey.f' h)
+                       F_win_RegCloseKey.f' h
 
       datatype create_result
         = CREATED_NEW_KEY of hkey
@@ -164,10 +160,9 @@ structure Windows :> WINDOWS_EX = struct
              (fn n' & hkResult & dwDisposition =>
                  (raiseOnError
                      (fn () => F"Reg.createKeyEx"[A ptr h, A str n, A sw m])
-                     (F_win_RegCreateKeyEx.f'
-                         (h, n', 0w0, C.Ptr.null', 0w0,
-                          SysWord.toWord m, C.Ptr.null',
-                          C.Ptr.|&! hkResult, C.Ptr.|&! dwDisposition))
+                     F_win_RegCreateKeyEx.f'
+                     (h, n', 0w0, null, 0w0, SysWord.toWord m, null,
+                      C.Ptr.|&! hkResult, C.Ptr.|&! dwDisposition)
                 ; (if C.Get.ulong' dwDisposition =
                       C.Get.ulong' (G_win_REG_CREATED_NEW_KEY.obj' ())
                    then CREATED_NEW_KEY
@@ -178,39 +173,30 @@ structure Windows :> WINDOWS_EX = struct
              (fn n' =>
                  raiseOnError
                     (fn () => F"Reg.deleteKey"[A ptr h, A str n])
-                    (F_win_RegDeleteKey.f' (h, n')))
+                    F_win_RegDeleteKey.f' (h, n'))
 
       fun deleteValue (h, n) =
           (withZs n)
              (fn n' =>
                  raiseOnError
                     (fn () => F"Reg.deleteValue"[A ptr h, A str n])
-                    (F_win_RegDeleteValue.f' (h, n')))
+                    F_win_RegDeleteValue.f' (h, n'))
 
       local
          fun mk name f (h, i) =
-             if i < 0
-             then raise Subscript
-             else (withDword >>& withDoublingBuf 0w255)
-                     (fn dwSize & (buf, size) => let
-                            val () = C.Set.ulong' (dwSize, size)
-                            val error =
-                                Word.fromInt
-                                   (f (h, Word.fromInt i, buf,
-                                       C.Ptr.|&! dwSize, C.Ptr.null',
-                                       C.Ptr.null', C.Ptr.null', C.Ptr.null'))
-                         in
-                            if error = errorMoreData then
-                               raise InsufficientBuffer
-                            else if error = errorNoMoreItems then
-                               NONE
-                            else if error = errorSuccess then
-                               SOME (ZString.toML' buf)
-                            else
-                               raiseError
-                                  (fn () => F name [A ptr h, A int i])
-                                  error
-                         end)
+             if i < 0 then raise Subscript else
+             (withDword >>& withDoublingBuf 0w255)
+                (fn s & (b, l) => let
+                       val () = C.Set.ulong' (s, l)
+                       val e = Word.fromInt
+                                  (f (h, Word.fromInt i, b, C.Ptr.|&! s, null,
+                                      null, null, null))
+                    in
+                       if      e = moreData    then raise InsufficientBuffer
+                       else if e = noMoreItems then NONE
+                       else if e = success     then SOME (ZString.toML' b)
+                       else raiseError (fn () => F name [A ptr h, A int i]) e
+                    end)
       in
          val enumKeyEx = mk "Reg.enumKeyEx" F_win_RegEnumKeyEx.f'
          val enumValueEx = mk "Reg.enumValueEx" F_win_RegEnumValue.f'
@@ -218,13 +204,12 @@ structure Windows :> WINDOWS_EX = struct
 
       fun openKeyEx (h, n, m) =
           (withZs n >>& withPtr)
-             (fn n' & hkResult =>
+             (fn n' & r =>
                  (raiseOnError
                      (fn () => F"Reg.openKeyEx"[A ptr h, A str n, A sw m])
-                     (F_win_RegOpenKeyEx.f'
-                         (h, n', 0w0, SysWord.toWord m,
-                          C.Ptr.|&! hkResult))
-                ; C.Get.voidptr' hkResult))
+                     F_win_RegOpenKeyEx.f'
+                     (h, n', 0w0, SysWord.toWord m, C.Ptr.|&! r)
+                ; C.Get.voidptr' r))
 
       datatype value
         = BINARY of Word8Vector.t
@@ -271,37 +256,36 @@ structure Windows :> WINDOWS_EX = struct
       in
          fun queryValueEx (h, n) =
              (withZs n >>& withDword >>& withDword)
-                (fn n' & dwType & dwSize => let
-                       fun f buf =
-                           F_win_RegQueryValueEx.f'
-                              (h, n', C.Ptr.null', C.Ptr.|&! dwType,
-                               buf, C.Ptr.|&! dwSize)
-                       fun call () = F"Reg.queryValueEx"[A ptr h, A str n]
+                (fn n' & t & s => let
+                       fun f b =
+                           raiseOnError
+                              (fn () => F"Reg.queryValueEx"[A ptr h, A str n])
+                              F_win_RegQueryValueEx.f'
+                              (h, n', null, C.Ptr.|&! t, b, C.Ptr.|&! s)
                     in
-                       raiseOnError call (f C.Ptr.null')
-                     ; (SOME o withBuf (C.Get.ulong' dwSize))
-                          (fn buf =>
-                              (raiseOnError call (f buf)
-                             ; (fromBin (C.Get.ulong' dwType) o
-                                Word8Vector.tabulate)
-                                  (Word.toInt (C.Get.ulong' dwSize),
-                                   C.Get.uchar' o buf <\ C.Ptr.sub' C.S.uchar)))
+                       f null
+                     ; (SOME o withBuf (C.Get.ulong' s))
+                          (fn b =>
+                              (f b
+                             ; (fromBin (C.Get.ulong' t) o Word8Vector.tabulate)
+                                  (Word.toInt (C.Get.ulong' s),
+                                   C.Get.uchar' o b <\ C.Ptr.sub' C.S.uchar)))
                     end)
 
          fun setValueEx (h, n, v) = let
-            val (ty, data) = toBin v
-            val size = Word.fromInt (Word8Vector.length data)
+            val (t, d) = toBin v
+            val s = Word.fromInt (Word8Vector.length d)
          in
-            (withZs n >>& withBuf size)
-               (fn n' & buf =>
+            (withZs n >>& withBuf s)
+               (fn n' & b =>
                    (Word8Vector.appi
                        (fn (i, x) =>
-                           C.Set.uchar' (C.Ptr.sub' C.S.uchar (buf, i), x)) data
+                           C.Set.uchar' (C.Ptr.sub' C.S.uchar (b, i), x))
+                       d
                   ; raiseOnError
                        (fn () => F"Reg.setValueEx"[A ptr h, A str n,
                                                    Prettier.txt "<value>"])
-                       (F_win_RegSetValueEx.f'
-                           (h, n', 0w0, ty, C.Ptr.ro' buf, size))))
+                       F_win_RegSetValueEx.f' (h, n', 0w0, t, C.Ptr.ro' b, s)))
          end
       end
    end
@@ -323,11 +307,10 @@ structure Windows :> WINDOWS_EX = struct
       type t = C.voidptr
 
       fun getFileName m = let
-         val m' = getOpt (m, C.Ptr.null')
+         val m' = getOpt (m, null)
       in
          onError0ElseTruncatedSize
-            (fn () => F"Module.getFileName"[A (opt ptr) m])
-            0w255
+            (fn () => F"Module.getFileName"[A (opt ptr) m]) 0w255
             (fn (b, s) => F_win_GetModuleFileName.f' (m', b, s))
       end
    end
@@ -369,9 +352,8 @@ structure Windows :> WINDOWS_EX = struct
                                C.Set.voidptr' (C.Ptr.sub' s (hs, i), w)) ws
                ; let val res =
                          F_win_WaitForMultipleObjects.f'
-                            (n, C.Ptr.ro' hs, if all then 1 else 0,
-                             if Real.== (t, Real.posInf)
-                             then infinite
+                            (n, C.Ptr.ro' hs, toCBool all,
+                             if Real.== (t, Real.posInf) then infinite
                              else Word.fromInt (Real.round (t * 1000.0)))
                      fun get off = #2 (List.sub (ws, Word.toIntX (res - off)))
                  in
@@ -396,26 +378,21 @@ structure Windows :> WINDOWS_EX = struct
 
    structure Semaphore = struct
       type t = C.voidptr
-
       fun create {init, max, name} =
           (withOptZs name)
              (fn name' =>
-                 raiseLastErrorOnNull
+                 raiseOnNull
                     (fn () => F"Semaphore.create"
                                [A int init, A int max, A (opt str) name])
-                    F_win_CreateSemaphore.f'
-                    (C.Ptr.null', init, max, name'))
-
-      val close = ignore o F_win_CloseHandle.f'
-
+                    F_win_CreateSemaphore.f' (null, init, max, name'))
+      val close = ptrToBool "Semaphore.close" F_win_CloseHandle.f'
       fun release (s, n) =
           withLong
              (fn result =>
-                 (raiseLastErrorOnFalse
+                 (raiseOnFalse
                      (fn () => F"Semaphore.release"[A ptr s, A int n])
                      F_win_ReleaseSemaphore.f' (s, n, C.Ptr.|&! result)
                 ; C.Get.slong' result))
-
       val toWait = id
    end
 
@@ -424,21 +401,24 @@ structure Windows :> WINDOWS_EX = struct
       fun create {name, own} =
           (withOptZs name)
              (fn name' =>
-                 raiseLastErrorOnNull
+                 raiseOnNull
                     (fn () => F"Mutex.create"[A (opt str) name, A bool own])
-                    F_win_CreateMutex.f'
-                    (C.Ptr.null', if own then 1 else 0, name'))
-
-      val close = ignore o F_win_CloseHandle.f'
+                    F_win_CreateMutex.f' (null, toCBool own, name'))
+      val close = ptrToBool "Mutex.close" F_win_CloseHandle.f'
       val toWait = id
    end
 
    structure Timer = struct
       type t = C.voidptr
-      val create = undefined
-      val close = ignore o F_win_CloseHandle.f'
+      fun create {manual, name} =
+          (withOptZs name)
+             (fn n' =>
+                 raiseOnNull
+                    (fn () => F"Timer.create"[A bool manual, A (opt str) name])
+                    F_win_CreateWaitableTimer.f' (null, toCBool manual, n'))
+      val close = ptrToBool "Timer.close" F_win_CloseHandle.f'
       val set = undefined
-      val cancel = undefined
+      val cancel = ptrToBool "Timer.cancel" F_win_CancelWaitableTimer.f'
       val toWait = id
    end
 
@@ -458,15 +438,12 @@ structure Windows :> WINDOWS_EX = struct
       fun first (n, b, f) =
           (withZs n)
              (fn n' =>
-                 raiseLastErrorOnNull
+                 raiseOnNull
                     (fn () => F"FileChange.first"[A str n, A bool b, A sw f])
                     F_win_FindFirstChangeNotification.f'
-                    (n', if b then 1 else 0, SysWord.toWord f))
-      fun next h =
-          raiseLastErrorOnFalse
-             (fn () => F"FileChange.next"[A ptr h])
-             F_win_FindNextChangeNotification.f' h
-      val close = ignore o F_win_FindCloseChangeNotification.f'
+                    (n', toCBool b, SysWord.toWord f))
+      val next = ptrToBool "FileChange.next" F_win_FindNextChangeNotification.f'
+      val close = ptrToBool "FileChange.close" F_win_FindCloseChangeNotification.f'
       val toWait = id
    end
 end
