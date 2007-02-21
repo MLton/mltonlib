@@ -201,6 +201,27 @@ WIN_FUNCTION(GetCurrentProcessId, DWORD, 0, (void))
 
 /************************************************************************/
 
+WIN_TYPEDEF(HWND, void *)
+
+WIN_CONST(SW_FORCEMINIMIZE, int)
+WIN_CONST(SW_HIDE, int)
+WIN_CONST(SW_MAXIMIZE, int)
+WIN_CONST(SW_MINIMIZE, int)
+WIN_CONST(SW_RESTORE, int)
+WIN_CONST(SW_SHOW, int)
+WIN_CONST(SW_SHOWDEFAULT, int)
+WIN_CONST(SW_SHOWMAXIMIZED, int)
+WIN_CONST(SW_SHOWMINIMIZED, int)
+WIN_CONST(SW_SHOWMINNOACTIVE, int)
+WIN_CONST(SW_SHOWNA, int)
+WIN_CONST(SW_SHOWNOACTIVATE, int)
+WIN_CONST(SW_SHOWNORMAL, int)
+
+WIN_FUNCTION(ShowWindow, BOOL, 2, (HWND, int))
+WIN_FUNCTION(FindWindow, HWND, 2, (LPCTSTR, LPCTSTR))
+
+/************************************************************************/
+
 C_CODE(LPTSTR win_FormatErrorLocalAlloc(DWORD error))
 
 #endif

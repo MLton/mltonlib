@@ -83,4 +83,29 @@ signature WINDOWS_EX = sig
       val close : t Effect.t
       val toWait : t -> Wait.t
    end
+
+   structure Window : sig
+      type t
+
+      val find : {class : String.t Option.t, window : String.t  Option.t} -> t
+
+      structure SW : sig
+         type t
+         val forceminimize : t
+         val hide : t
+         val maximize : t
+         val minimize : t
+         val restore : t
+         val show : t
+         val showdefault : t
+         val showmaximized : t
+         val showminimized : t
+         val showminnoactive : t
+         val showna : t
+         val shownoactivate : t
+         val shownormal : t
+      end
+
+      val show : t * SW.t -> Bool.t
+   end
 end

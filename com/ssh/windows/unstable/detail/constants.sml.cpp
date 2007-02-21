@@ -15,6 +15,7 @@ structure Windows = struct
 
 #define WIN_CONST(name, type) val wc_##name = wt_##type <name>
 
+fun wt_int    x : Int32.t   = Word32.toIntX x
 fun wt_DWORD  x : Word32.t  = x
 fun wt_WORD   x : Word16.t  = x
 fun wt_REGSAM x : Word32.t  = x

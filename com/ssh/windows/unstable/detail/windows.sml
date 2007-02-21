@@ -430,4 +430,36 @@ structure Windows :> WINDOWS_EX = struct
       val close = ptrToBool "FileChange.close" F_win_FindCloseChangeNotification.f'
       val toWait = id
    end
+
+   structure Window = struct
+      type t = C.voidptr
+
+      fun find {class, window} =
+          (withOptZs class >>& withOptZs window)
+             (fn c & w =>
+                 raiseOnNull
+                    (fn () => F"Window.find"
+                               [A (opt str) class, A (opt str) window])
+                    F_win_FindWindow.f'
+                    (c, w))
+
+      structure SW = struct
+         type t = Int.t
+         val forceminimize = wc_SW_FORCEMINIMIZE
+         val hide = wc_SW_HIDE
+         val maximize = wc_SW_MAXIMIZE
+         val minimize = wc_SW_MINIMIZE
+         val restore = wc_SW_RESTORE
+         val show = wc_SW_SHOW
+         val showdefault = wc_SW_SHOWDEFAULT
+         val showmaximized = wc_SW_SHOWMAXIMIZED
+         val showminimized = wc_SW_SHOWMINIMIZED
+         val showminnoactive = wc_SW_SHOWMINNOACTIVE
+         val showna = wc_SW_SHOWNA
+         val shownoactivate = wc_SW_SHOWNOACTIVATE
+         val shownormal = wc_SW_SHOWNORMAL
+      end
+
+      fun show (w, c) = 0 <> F_win_ShowWindow.f' (w, c)
+   end
 end
