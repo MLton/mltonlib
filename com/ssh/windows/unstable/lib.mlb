@@ -15,6 +15,12 @@ local
 
    $(SML_LIB)/mlnlffi-lib/mlnlffi-lib.mlb
    generated/$(TARGET_ARCH)-$(TARGET_OS)/nlffi/lib.mlb
+   local
+      $(SML_LIB)/basis/mlton.mlb
+      $(SML_LIB)/mlnlffi-lib/internals/c-int.mlb
+   in
+      generated/$(TARGET_ARCH)-$(TARGET_OS)/constants.sml
+   end
 in
    ann
       "forceUsed"

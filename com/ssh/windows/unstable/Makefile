@@ -27,6 +27,9 @@ lib-file := libwin-$(target-id).lib
 
 def-use-file := $(gen-dir)/lib.du
 
+constants-sml := $(gen-dir)/constants.sml
+constants-cpp := detail/constants.sml.cpp
+
 ##########################################################################
 
 .PHONY : all clean help check
@@ -38,12 +41,12 @@ help :
 	@echo "    clean    Removes generated files"
 	@echo "    help     Prints this message"
 
-all : $(lib-file) $(nlffi-mlb)
+all : $(lib-file) $(nlffi-mlb) $(constants-sml)
 
 clean :
-	rm -rf $(bin-dir) $(gen-dir) $(lib-file) $(def-use-file)
+	rm -rf $(bin-dir) $(gen-dir) $(lib-file)
 
-check : $(nlffi-mlb) $(mlb-path-map)
+check : $(nlffi-mlb) $(mlb-path-map) $(constants-sml)
 	mlton -stop tc                      \
 	      -mlb-path-map $(mlb-path-map) \
 	      -prefer-abs-paths true        \
@@ -51,6 +54,18 @@ check : $(nlffi-mlb) $(mlb-path-map)
 	      lib.mlb
 
 ##########################################################################
+
+$(constants-sml) : $(constants-cpp) $(ffi-h-files) Makefile
+	mkdir -p $(@D)
+	cat $< | cpp -E -P                                 \
+	       | awk '/(* begin *)/, /(* end *)/'          \
+	       | sed -e 's#< *(\?#<#g' -e 's#)\? *>#>#g'   \
+	             -e 's#<(.*)#<#g'                      \
+	             -e 's#\([0-9]\)[lL]>#\1>#g'           \
+	             -e 's#<0[xX]#<x#g'                    \
+	             -e 's#<#<0w#g'                        \
+	             -e 's#<\(.*\)>#\1#g'                  \
+	       > $@
 
 $(mlb-path-map) : Makefile
 	echo 'MLTON_LIB $(shell cd ../../../.. && pwd)' > $@

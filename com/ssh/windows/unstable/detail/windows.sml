@@ -8,6 +8,8 @@
 
 (* Implementation of Windows utilities. *)
 structure Windows :> WINDOWS_EX = struct
+   open Windows
+
    local
       open Type Prettier
    in
@@ -33,13 +35,9 @@ structure Windows :> WINDOWS_EX = struct
 
    val op >>& = With.>>&
 
-   local
-      fun `x = C.Get.ulong' (x ())
-   in
-      val success     = `G_win_ERROR_SUCCESS.obj'
-      val noMoreItems = `G_win_ERROR_NO_MORE_ITEMS.obj'
-      val moreData    = `G_win_ERROR_MORE_DATA.obj'
-   end
+   val success     = wc_ERROR_SUCCESS
+   val noMoreItems = wc_ERROR_NO_MORE_ITEMS
+   val moreData    = wc_ERROR_MORE_DATA
 
    val getLastError = F_win_GetLastError.f
 
@@ -117,33 +115,29 @@ structure Windows :> WINDOWS_EX = struct
 
    structure Key = struct
       open BitFlags
-      fun `x = SysWord.fromWord (C.Get.ulong' (x ()))
-      val allAccess        = `G_win_KEY_ALL_ACCESS.obj'
-      val createLink       = `G_win_KEY_CREATE_LINK.obj'
-      val createSubKey     = `G_win_KEY_CREATE_SUB_KEY.obj'
-      val enumerateSubKeys = `G_win_KEY_ENUMERATE_SUB_KEYS.obj'
-      val execute          = `G_win_KEY_EXECUTE.obj'
-      val notify           = `G_win_KEY_NOTIFY.obj'
-      val queryValue       = `G_win_KEY_QUERY_VALUE.obj'
-      val read             = `G_win_KEY_READ.obj'
-      val setValue         = `G_win_KEY_SET_VALUE.obj'
-      val write            = `G_win_KEY_WRITE.obj'
+      val ` = SysWord.fromWord
+      val allAccess        = `wc_KEY_ALL_ACCESS
+      val createLink       = `wc_KEY_CREATE_LINK
+      val createSubKey     = `wc_KEY_CREATE_SUB_KEY
+      val enumerateSubKeys = `wc_KEY_ENUMERATE_SUB_KEYS
+      val execute          = `wc_KEY_EXECUTE
+      val notify           = `wc_KEY_NOTIFY
+      val queryValue       = `wc_KEY_QUERY_VALUE
+      val read             = `wc_KEY_READ
+      val setValue         = `wc_KEY_SET_VALUE
+      val write            = `wc_KEY_WRITE
    end
 
    structure Reg = struct
       type hkey = C.voidptr
 
-      local
-         fun `x = C.Get.voidptr' (x ())
-      in
-         val classesRoot     = `G_win_HKEY_CLASSES_ROOT.obj'
-         val currentConfig   = `G_win_HKEY_CURRENT_CONFIG.obj'
-         val currentUser     = `G_win_HKEY_CURRENT_USER.obj'
-         val dynData         = `G_win_HKEY_DYN_DATA.obj'
-         val localMachine    = `G_win_HKEY_LOCAL_MACHINE.obj'
-         val performanceData = `G_win_HKEY_PERFORMANCE_DATA.obj'
-         val users           = `G_win_HKEY_USERS.obj'
-      end
+      val classesRoot     = wc_HKEY_CLASSES_ROOT
+      val currentConfig   = wc_HKEY_CURRENT_CONFIG
+      val currentUser     = wc_HKEY_CURRENT_USER
+      val dynData         = wc_HKEY_DYN_DATA
+      val localMachine    = wc_HKEY_LOCAL_MACHINE
+      val performanceData = wc_HKEY_PERFORMANCE_DATA
+      val users           = wc_HKEY_USERS
 
       fun closeKey h =
           raiseOnError (fn () => F"Reg.closeKey"[A ptr h])
@@ -163,8 +157,7 @@ structure Windows :> WINDOWS_EX = struct
                      F_win_RegCreateKeyEx.f'
                      (h, n', 0w0, null, 0w0, SysWord.toWord m, null,
                       C.Ptr.|&! hkResult, C.Ptr.|&! dwDisposition)
-                ; (if C.Get.ulong' dwDisposition =
-                      C.Get.ulong' (G_win_REG_CREATED_NEW_KEY.obj' ())
+                ; (if C.Get.ulong' dwDisposition = wc_REG_CREATED_NEW_KEY
                    then CREATED_NEW_KEY
                    else OPENED_EXISTING_KEY) (C.Get.voidptr' hkResult)))
 
@@ -220,16 +213,12 @@ structure Windows :> WINDOWS_EX = struct
         | SZ of String.t
 
       local
-         local
-            fun `x = C.Get.ulong' (x ())
-         in
-            val binary   = `G_win_REG_BINARY.obj'
-            val dword    = `G_win_REG_DWORD.obj'
-            val expandSz = `G_win_REG_EXPAND_SZ.obj'
-            val multiSz  = `G_win_REG_MULTI_SZ.obj'
-            val qword    = `G_win_REG_QWORD.obj'
-            val sz       = `G_win_REG_SZ.obj'
-         end
+         val binary   = wc_REG_BINARY
+         val dword    = wc_REG_DWORD
+         val expandSz = wc_REG_EXPAND_SZ
+         val multiSz  = wc_REG_MULTI_SZ
+         val qword    = wc_REG_QWORD
+         val sz       = wc_REG_SZ
 
          val toMultiSz = String.tokens (#"\000" <\ op =) o Byte.bytesToString
          val toSz = hd o toMultiSz
@@ -293,13 +282,12 @@ structure Windows :> WINDOWS_EX = struct
    structure EventLog = struct
       structure Type = struct
          open BitFlags
-         val ` = SysWord.fromInt o MLRep.Short.Unsigned.toIntX o C.Get.ushort' o
-                 pass ()
-         val auditFailure = `G_win_EVENTLOG_AUDIT_FAILURE.obj'
-         val auditSuccess = `G_win_EVENTLOG_AUDIT_SUCCESS.obj'
-         val error        = `G_win_EVENTLOG_ERROR_TYPE.obj'
-         val information  = `G_win_EVENTLOG_INFORMATION_TYPE.obj'
-         val warning      = `G_win_EVENTLOG_WARNING_TYPE.obj'
+         val ` = SysWord.fromInt o Word16.toIntX
+         val auditFailure = `wc_EVENTLOG_AUDIT_FAILURE
+         val auditSuccess = `wc_EVENTLOG_AUDIT_SUCCESS
+         val error        = `wc_EVENTLOG_ERROR_TYPE
+         val information  = `wc_EVENTLOG_INFORMATION_TYPE
+         val warning      = `wc_EVENTLOG_WARNING_TYPE
       end
    end
 
@@ -332,15 +320,11 @@ structure Windows :> WINDOWS_EX = struct
         | OBJECT of 'a
         | TIMEOUT
 
-      local
-         fun `x = C.Get.ulong' (x ())
-      in
-         val object    = `G_win_WAIT_OBJECT_0.obj'
-         val abandoned = `G_win_WAIT_ABANDONED_0.obj'
-         val timeout   = `G_win_WAIT_TIMEOUT.obj'
-         val failed    = `G_win_WAIT_FAILED.obj'
-         val infinite  = `G_win_INFINITE.obj'
-      end
+      val object    = wc_WAIT_OBJECT_0
+      val abandoned = wc_WAIT_ABANDONED_0
+      val timeout   = wc_WAIT_TIMEOUT
+      val failed    = wc_WAIT_FAILED
+      val infinite  = wc_INFINITE
 
       fun wait name all ws t = let
          val n = Word.fromInt (length ws)
@@ -425,13 +409,13 @@ structure Windows :> WINDOWS_EX = struct
    structure FileChange = struct
       structure Filter = struct
          open BitFlags
-         fun `x = SysWord.fromWord (C.Get.ulong' (x ()))
-         val attributes = `G_win_FILE_NOTIFY_CHANGE_ATTRIBUTES.obj'
-         val dirName    = `G_win_FILE_NOTIFY_CHANGE_DIR_NAME.obj'
-         val fileName   = `G_win_FILE_NOTIFY_CHANGE_FILE_NAME.obj'
-         val lastWrite  = `G_win_FILE_NOTIFY_CHANGE_LAST_WRITE.obj'
-         val security   = `G_win_FILE_NOTIFY_CHANGE_SECURITY.obj'
-         val size       = `G_win_FILE_NOTIFY_CHANGE_SIZE.obj'
+         val ` = SysWord.fromWord
+         val attributes = `wc_FILE_NOTIFY_CHANGE_ATTRIBUTES
+         val dirName    = `wc_FILE_NOTIFY_CHANGE_DIR_NAME
+         val fileName   = `wc_FILE_NOTIFY_CHANGE_FILE_NAME
+         val lastWrite  = `wc_FILE_NOTIFY_CHANGE_LAST_WRITE
+         val security   = `wc_FILE_NOTIFY_CHANGE_SECURITY
+         val size       = `wc_FILE_NOTIFY_CHANGE_SIZE
       end
 
       type t = C.voidptr

@@ -23,20 +23,18 @@ extern type typedef_val_of_assumed_type_##name;                                 
 extern int typedef_chk_a_##name[sizeof(typedef_fn_of_assumed_type_##name        \
                                        (typedef_val_of_actual_type_##name))];   \
 extern int typedef_chk_b_##name[sizeof(typedef_fn_of_actual_type_##name         \
-                                       (typedef_val_of_assumed_type_##name))]
+                                       (typedef_val_of_assumed_type_##name))];
 
 /************************************************************************/
 
-#define WIN_CONST(name, type)                   \
-typedef type type_of_##name;                    \
-const type_of_##name win_##name = name
+#define WIN_CONST(name, type)
 
 /************************************************************************/
 
 #define WIN_FUNCTION(name, result, arity, args)                 \
 result win_##name FORMALS##arity args                           \
 { UNLESS(IS_VOID(result))(return) name ACTUALS##arity args; }   \
-typedef result (type_of_##name) args
+typedef result (type_of_##name) args;
 
 #define UNLESS(c) CONCAT(UNLESS, c)
 #define UNLESS0(x) x
