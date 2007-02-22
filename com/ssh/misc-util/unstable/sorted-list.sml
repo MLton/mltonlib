@@ -21,7 +21,7 @@ structure SortedList :> sig
     *)
 
    val insert : 'a card -> 'a Cmp.t -> 'a -> 'a List.t UnOp.t
-      (** {insert #? cmp x xs = merge #? cmp ([x], xs)} *)
+   (** {insert #? cmp x xs = merge #? cmp ([x], xs)} *)
 
    val isSorted : 'a card -> 'a Cmp.t -> 'a List.t UnPr.t
    (**
