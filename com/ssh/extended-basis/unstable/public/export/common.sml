@@ -10,6 +10,7 @@
 
 signature BITWISE = BITWISE
 signature CSTRINGABLE = CSTRINGABLE
+signature FLAGS = FLAGS
 signature ORDERED = ORDERED
 signature SIGNED = SIGNED
 signature STRINGABLE = STRINGABLE
