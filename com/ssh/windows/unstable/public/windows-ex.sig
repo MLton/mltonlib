@@ -12,7 +12,7 @@ signature WINDOWS_EX = sig
 
    structure EventLog : sig
       structure Type : sig
-         include BIT_FLAGS
+         include FLAGS where type flags_word = Word16.t
          val auditFailure : flags
          val auditSuccess : flags
          val error : flags
@@ -68,7 +68,7 @@ signature WINDOWS_EX = sig
 
    structure FileChange : sig
       structure Filter : sig
-         include BIT_FLAGS
+         include FLAGS where type flags_word = Word32.t
          val fileName : flags
          val dirName : flags
          val attributes : flags

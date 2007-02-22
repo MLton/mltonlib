@@ -13,7 +13,7 @@
  *)
 signature WINDOWS = sig
    structure Key : sig
-      include BIT_FLAGS
+      include FLAGS where type flags_word = Word32.t
       val allAccess : flags
       val createLink : flags
       val createSubKey : flags

@@ -29,7 +29,7 @@ structure Windows :> WINDOWS_EX = struct
       val opt = option
       val int = int
       val dbl = real
-      val sw = word64
+      val w32 = word32
       val bool = bool
    end
 
@@ -114,18 +114,17 @@ structure Windows :> WINDOWS_EX = struct
    end
 
    structure Key = struct
-      open BitFlags
-      val ` = SysWord.fromWord
-      val allAccess        = `wc_KEY_ALL_ACCESS
-      val createLink       = `wc_KEY_CREATE_LINK
-      val createSubKey     = `wc_KEY_CREATE_SUB_KEY
-      val enumerateSubKeys = `wc_KEY_ENUMERATE_SUB_KEYS
-      val execute          = `wc_KEY_EXECUTE
-      val notify           = `wc_KEY_NOTIFY
-      val queryValue       = `wc_KEY_QUERY_VALUE
-      val read             = `wc_KEY_READ
-      val setValue         = `wc_KEY_SET_VALUE
-      val write            = `wc_KEY_WRITE
+      open Word32Flags
+      val allAccess        = wc_KEY_ALL_ACCESS
+      val createLink       = wc_KEY_CREATE_LINK
+      val createSubKey     = wc_KEY_CREATE_SUB_KEY
+      val enumerateSubKeys = wc_KEY_ENUMERATE_SUB_KEYS
+      val execute          = wc_KEY_EXECUTE
+      val notify           = wc_KEY_NOTIFY
+      val queryValue       = wc_KEY_QUERY_VALUE
+      val read             = wc_KEY_READ
+      val setValue         = wc_KEY_SET_VALUE
+      val write            = wc_KEY_WRITE
    end
 
    structure Reg = struct
@@ -153,10 +152,10 @@ structure Windows :> WINDOWS_EX = struct
           (withZs n >>& withPtr >>& withDword)
              (fn n' & hkResult & dwDisposition =>
                  (raiseOnError
-                     (fn () => F"Reg.createKeyEx"[A ptr h, A str n, A sw m])
+                     (fn () => F"Reg.createKeyEx"[A ptr h, A str n, A w32 m])
                      F_win_RegCreateKeyEx.f'
-                     (h, n', 0w0, null, 0w0, SysWord.toWord m, null,
-                      C.Ptr.|&! hkResult, C.Ptr.|&! dwDisposition)
+                     (h, n', 0w0, null, 0w0, m, null, C.Ptr.|&! hkResult,
+                      C.Ptr.|&! dwDisposition)
                 ; (if C.Get.ulong' dwDisposition = wc_REG_CREATED_NEW_KEY
                    then CREATED_NEW_KEY
                    else OPENED_EXISTING_KEY) (C.Get.voidptr' hkResult)))
@@ -199,9 +198,8 @@ structure Windows :> WINDOWS_EX = struct
           (withZs n >>& withPtr)
              (fn n' & r =>
                  (raiseOnError
-                     (fn () => F"Reg.openKeyEx"[A ptr h, A str n, A sw m])
-                     F_win_RegOpenKeyEx.f'
-                     (h, n', 0w0, SysWord.toWord m, C.Ptr.|&! r)
+                     (fn () => F"Reg.openKeyEx"[A ptr h, A str n, A w32 m])
+                     F_win_RegOpenKeyEx.f' (h, n', 0w0, m, C.Ptr.|&! r)
                 ; C.Get.voidptr' r))
 
       datatype value
@@ -281,13 +279,12 @@ structure Windows :> WINDOWS_EX = struct
 
    structure EventLog = struct
       structure Type = struct
-         open BitFlags
-         val ` = SysWord.fromInt o Word16.toIntX
-         val auditFailure = `wc_EVENTLOG_AUDIT_FAILURE
-         val auditSuccess = `wc_EVENTLOG_AUDIT_SUCCESS
-         val error        = `wc_EVENTLOG_ERROR_TYPE
-         val information  = `wc_EVENTLOG_INFORMATION_TYPE
-         val warning      = `wc_EVENTLOG_WARNING_TYPE
+         open Word16Flags
+         val auditFailure = wc_EVENTLOG_AUDIT_FAILURE
+         val auditSuccess = wc_EVENTLOG_AUDIT_SUCCESS
+         val error        = wc_EVENTLOG_ERROR_TYPE
+         val information  = wc_EVENTLOG_INFORMATION_TYPE
+         val warning      = wc_EVENTLOG_WARNING_TYPE
       end
    end
 
@@ -408,14 +405,13 @@ structure Windows :> WINDOWS_EX = struct
 
    structure FileChange = struct
       structure Filter = struct
-         open BitFlags
-         val ` = SysWord.fromWord
-         val attributes = `wc_FILE_NOTIFY_CHANGE_ATTRIBUTES
-         val dirName    = `wc_FILE_NOTIFY_CHANGE_DIR_NAME
-         val fileName   = `wc_FILE_NOTIFY_CHANGE_FILE_NAME
-         val lastWrite  = `wc_FILE_NOTIFY_CHANGE_LAST_WRITE
-         val security   = `wc_FILE_NOTIFY_CHANGE_SECURITY
-         val size       = `wc_FILE_NOTIFY_CHANGE_SIZE
+         open Word32Flags
+         val attributes = wc_FILE_NOTIFY_CHANGE_ATTRIBUTES
+         val dirName    = wc_FILE_NOTIFY_CHANGE_DIR_NAME
+         val fileName   = wc_FILE_NOTIFY_CHANGE_FILE_NAME
+         val lastWrite  = wc_FILE_NOTIFY_CHANGE_LAST_WRITE
+         val security   = wc_FILE_NOTIFY_CHANGE_SECURITY
+         val size       = wc_FILE_NOTIFY_CHANGE_SIZE
       end
 
       type t = C.voidptr
@@ -423,9 +419,9 @@ structure Windows :> WINDOWS_EX = struct
           (withZs n)
              (fn n' =>
                  raiseOnNull
-                    (fn () => F"FileChange.first"[A str n, A bool b, A sw f])
+                    (fn () => F"FileChange.first"[A str n, A bool b, A w32 f])
                     F_win_FindFirstChangeNotification.f'
-                    (n', toCBool b, SysWord.toWord f))
+                    (n', toCBool b, f))
       val next = ptrToBool "FileChange.next" F_win_FindNextChangeNotification.f'
       val close = ptrToBool "FileChange.close" F_win_FindCloseChangeNotification.f'
       val toWait = id
@@ -445,19 +441,19 @@ structure Windows :> WINDOWS_EX = struct
 
       structure SW = struct
          type t = Int.t
-         val forceminimize = wc_SW_FORCEMINIMIZE
-         val hide = wc_SW_HIDE
-         val maximize = wc_SW_MAXIMIZE
-         val minimize = wc_SW_MINIMIZE
-         val restore = wc_SW_RESTORE
-         val show = wc_SW_SHOW
-         val showdefault = wc_SW_SHOWDEFAULT
-         val showmaximized = wc_SW_SHOWMAXIMIZED
-         val showminimized = wc_SW_SHOWMINIMIZED
+         val forceminimize   = wc_SW_FORCEMINIMIZE
+         val hide            = wc_SW_HIDE
+         val maximize        = wc_SW_MAXIMIZE
+         val minimize        = wc_SW_MINIMIZE
+         val restore         = wc_SW_RESTORE
+         val show            = wc_SW_SHOW
+         val showdefault     = wc_SW_SHOWDEFAULT
+         val showmaximized   = wc_SW_SHOWMAXIMIZED
+         val showminimized   = wc_SW_SHOWMINIMIZED
          val showminnoactive = wc_SW_SHOWMINNOACTIVE
-         val showna = wc_SW_SHOWNA
-         val shownoactivate = wc_SW_SHOWNOACTIVATE
-         val shownormal = wc_SW_SHOWNORMAL
+         val showna          = wc_SW_SHOWNA
+         val shownoactivate  = wc_SW_SHOWNOACTIVATE
+         val shownormal      = wc_SW_SHOWNORMAL
       end
 
       fun show (w, c) = 0 <> F_win_ShowWindow.f' (w, c)
