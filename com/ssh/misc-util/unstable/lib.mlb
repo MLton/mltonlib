@@ -23,6 +23,8 @@ in
    (* misc *)
    misc.sml
 
+   query.sml
+
    bit-flags.sml
 
    (* variable argument fold *)
