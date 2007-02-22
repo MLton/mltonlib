@@ -8,6 +8,12 @@ group
    group(funs.cm)
    source(-)
 is
+   ../../public/concept/bitwise.sig
+   ../../public/concept/cstringable.sig
+   ../../public/concept/flags.sig
+   ../../public/concept/ordered.sig
+   ../../public/concept/signed.sig
+   ../../public/concept/stringable.sig
    ../../public/data/bool.sig
    ../../public/data/exn.sig
    ../../public/data/option.sig

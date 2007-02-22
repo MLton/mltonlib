@@ -6,6 +6,16 @@
 
 (** == Implementation independent extensions == *)
 
+(** === Concept Signatures === *)
+
+signature BITWISE = BITWISE
+signature CSTRINGABLE = CSTRINGABLE
+signature ORDERED = ORDERED
+signature SIGNED = SIGNED
+signature STRINGABLE = STRINGABLE
+
+(** === Module Signatures === *)
+
 signature ARRAY = ARRAY
 signature ARRAY_SLICE = ARRAY_SLICE
 signature BIN_FN = BIN_FN
@@ -23,7 +33,6 @@ signature FIX = FIX
 signature FN = FN
 signature INTEGER = INTEGER
 signature INT_INF = INT_INF
-signature ISO = ISO
 signature ISO = ISO
 signature LIST = LIST
 signature MONO_ARRAY = MONO_ARRAY
@@ -57,6 +66,8 @@ signature VECTOR_SLICE = VECTOR_SLICE
 signature WITH = WITH
 signature WORD = WORD
 signature WRITER = WRITER
+
+(** === Modules === *)
 
 structure Sq : SQ = Sq
 structure Sum : SUM = Sum
@@ -117,3 +128,7 @@ structure Word8Array : MONO_ARRAY = Word8Array
 structure Word8ArraySlice : MONO_ARRAY_SLICE = Word8ArraySlice
 structure Word8Vector : MONO_VECTOR = Word8Vector
 structure Word8VectorSlice : MONO_VECTOR_SLICE = Word8VectorSlice
+
+(** === Functors === *)
+
+functor MkWordFlags (Arg : WORD) : FLAGS = MkWordFlags (Arg)
