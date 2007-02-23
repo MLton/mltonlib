@@ -80,7 +80,7 @@ structure Query =
          let
             val () = cleanup free
             val pq = case !available of
-                        [] => (cleanup free; Prim.prepare (db, query))
+                        [] => Prim.prepare (db, query)
                       | x :: r => (available := r; x)
             val () = used := !used + 1
             val () = iF (pq, i)
