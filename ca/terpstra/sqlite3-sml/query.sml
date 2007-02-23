@@ -84,6 +84,16 @@ structure Query =
            used := !used - 1;
            available := pq :: !available))
       
+      (* Close unused queries, one at a time *)
+      fun cleanup free =
+         let
+            (* Carefully tidy the list up in case of exception *)
+            fun helper [] = ()
+              | helper (x :: r) = (Prim.finalize x; free := r; helper r)
+         in
+            MLton.Thread.atomically (fn () => helper (!free))
+         end
+      
       fun oF0 _ = ()
       fun oN0 (_, n) = n ()
       val oI0 = 0
@@ -92,29 +102,28 @@ structure Query =
       val iI0 = 1
       
       local
-         fun error s = 
-            TextIO.output (TextIO.stdErr, "Finalization exception " ^ s ^ "\n")
-         fun forceClose q = 
-            Prim.finalize q 
-            handle Prim.Error x => error ("Error: " ^ x)
-                 | Prim.Retry x => error ("Retry: " ^ x)
-                 | Prim.Abort x => error ("Abort: " ^ x)
-                 | _ => error ("unknown SML")
-         fun close l =
+         fun close free l =
             case Ring.get l of { db=_, query=_, available, used } =>
             if !used <> 0 then raise Prim.Error "SQLite wrapper bug: finalizing in-use query" else
-            ( Ring.remove l;
-              List.app forceClose (!available);
-              available := [];
-              used := ~1
-              )
+            (* We don't need to lock the free-list or pool-ring:
+             * Operations on them (adds/removes) are in a critical section;
+             * this method is only run from a distinct GC thread.
+             * Also, the available list is never accessed except by the 
+             * methods above which operate on a query. This is a finalizer
+             * for the query so there can be no further references.
+             *)
+            (Ring.remove l; free := !available @ !free)
+            (* This is unneeded as the link is no longer referenced anywhere:
+             *   (available := []; used := ~1)
+             *)
       in
-         fun prepare { ring, hooks=_, auth=_ } qt =
+         fun prepare { ring, free, hooks=_, auth=_ } qt =
             case Ring.get ring of { db, query=_, available=_, used=_ } =>
             Fold.fold (([qt], oF0, oN0, oI0, iF0, iN0, iI0),
                        fn (ql, oF, _, oI, iF, _, iI) => 
                        let
                            val qs = concat (rev ql)
+                           val () = cleanup free
                            val q = Prim.prepare (db, qs)
                        in 
                            if Prim.cols q < oI
@@ -128,14 +137,13 @@ structure Query =
                                                   \ for specified prototype")
                            else
                            let
-                              val atom = MLton.Thread.atomically
-                              val new = MLton.Finalizable.new
                               val i = { db = db, query = qs, 
                                         available = ref [q], used = ref 0 }
-                              fun closeA pool = atom (fn () => close pool)
-                              val pool = atom (fn () => new (Ring.add (i, ring)))
+                              val pool = MLton.Thread.atomically 
+                                            (fn () => MLton.Finalizable.new 
+                                                         (Ring.add (ring, i)))
                            in
-                              MLton.Finalizable.addFinalizer (pool, closeA);
+                              MLton.Finalizable.addFinalizer (pool, close free);
                               { pool = pool, iF = iF, oF = oF }
                            end
                        end)

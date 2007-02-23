@@ -20,7 +20,7 @@ signature RING =
       val new: 'a -> 'a t
       
       (* Add a value to the ring, get a handle to the link *)
-      val add: 'a * 'a t -> 'a t
+      val add: 'a t * 'a -> 'a t
       
       (* Remove a link from the ring, it is in a new ring *)
       val remove: 'a t -> unit

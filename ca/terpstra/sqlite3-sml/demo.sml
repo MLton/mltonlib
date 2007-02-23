@@ -52,19 +52,14 @@ in
            handle SQL.Error x => die x
 end
 
-(* Authorization functions at the moment are not safe to use.
- * A future SQLite3 library may resolve this problem.
- *)
-(*
 local
    open SQL.SQLite
-   fun auth (INSERT { table, db }) = 
-          (print (db ^ ":" ^ table ^ ": insert denied\n"); DENY)
+   fun auth (UPDATE { table, db, column }) = 
+          (print (db ^ ":" ^ table ^ ":" ^ column ^ ": update denied\n"); DENY)
      | auth _ = ALLOW
 in
    val () = setAuthorizer (db, SOME auth)
 end
-*)
 
 fun dumpP (s & i) = print (s ^ " " ^ Int.toString i ^ "\n")
 fun dumpV v = (Vector.app (fn s => print (s ^ " ")) v; print "\n")

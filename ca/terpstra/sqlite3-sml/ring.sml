@@ -28,7 +28,7 @@ structure Ring :> RING =
             self
          end
       
-      fun add (x, pred as LINK { prev=_, next=pn, value=_ }) =
+      fun add (pred as LINK { prev=_, next=pn, value=_ }, x) =
          let
             val succ as LINK { prev=sp, next=_, value=_ } = valOf (!pn)
             val self = LINK { value = x, prev = ref (SOME pred), 
