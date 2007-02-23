@@ -167,7 +167,7 @@ structure UnitTest :> sig
     * {Type.regExn}.
     *)
 end = struct
-   structure CL = CommandLine and G = RanQD1Gen and I = Int and S = String
+   structure G = RanQD1Gen and I = Int and S = String
 
    local
       open Type
@@ -192,50 +192,11 @@ end = struct
       val pretty = pretty
 
       local
-         (* XXX move to lib *)
-
-         fun l <+> r = if isSome l then l else r ()
-         val mapPartial = Option.mapPartial
-         val s2i = I.fromString
-         val getEnv = OS.Process.getEnv
-
-         fun getArg fromString short long = let
-            val short =
-                case short of
-                   NONE => const NONE
-                 | SOME s =>
-                   fn (a, b) =>
-                      if a <> "-"^s then
-                         NONE
-                      else
-                         SOME b
-
-            val long =
-                case long of
-                   NONE => const NONE
-                 | SOME s =>
-                   fn a =>
-                      if not |< S.isPrefix ("--"^s^"=") a then
-                         NONE
-                      else
-                         SOME (S.extract (a, 3 + size s, NONE))
-
-            fun lp [] = NONE
-              | lp [a] = long a <+> (fn () => NONE)
-              | lp (a::b::xs) =
-                long a       <+> (fn () =>
-                short (a, b) <+> (fn () =>
-                lp (b::xs)))
-         in
-            mapPartial fromString (lp (CL.arguments ()))
-         end
-
-         val cols =
-             valOf (getArg s2i (SOME "w") (SOME "width") <+> (fn () =>
-                    mapPartial s2i (getEnv "COLUMNS")    <+> (fn () =>
-                    SOME 70)))
+         open Query
+         val I = I.fromString
+         val cols = S"-w"@`I orElse L"--width"@`I orElse E"COLUMNS"@`I orElse`70
       in
-         val println = println TextIO.stdOut (SOME cols)
+         val println = println TextIO.stdOut (get cols)
       end
 
       val punctuate = punctuate
