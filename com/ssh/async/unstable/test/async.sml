@@ -32,5 +32,24 @@ in
                  ; eq (!n, 2)
                 end))
 
+      (title "Async.Event.choose")
+
+      (test (fn () => let
+                   val b1 = Mailbox.new ()
+                   val b2 = Mailbox.new ()
+                   val n = ref 0
+                   val e = choose [on (Mailbox.take b1, inc n),
+                                   on (Mailbox.take b2, inc n)]
+                in
+                   Mailbox.send b1 ()
+                 ; Mailbox.send b1 ()
+                 ; Mailbox.send b2 ()
+                 ; once e ; eq (!n, 0)
+                 ; Handler.runAll () ; eq (!n, 1)
+                 ; each e ; eq (!n, 1)
+                 ; Handler.runAll () ; eq (!n, 3)
+                 ; Handler.runAll () ; eq (!n, 3)
+                end))
+
       $
 end
