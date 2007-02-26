@@ -17,14 +17,7 @@ signature WITH = sig
 
    (** == Monad Interface == *)
 
-   val return : 'a -> ('a, 'r) t
-   (** Calls the block with the specified value.  Also see {alloc}. *)
-
-   val >>= : ('a, 'r) t * ('a -> ('b, 'r) t) -> ('b, 'r) t
-   (**
-    * Composes two with -procedures, passing any value produced by the
-    * first as an argument to the second.
-    *)
+   include MONAD' where type ('a, 'r) monad = ('a, 'r) t
 
    (** == Primitives == *)
 
@@ -46,9 +39,6 @@ signature WITH = sig
     *)
 
    (** == Useful Combinations == *)
-
-   val >>& : ('a, 'r) t * ('b, 'r) t -> (('a, 'b) Product.t, 'r) t
-   (** Product combinator. *)
 
    val around : 'a Thunk.t -> 'a Effect.t -> ('a, 'r) t
    (**

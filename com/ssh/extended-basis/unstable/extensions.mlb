@@ -106,8 +106,13 @@ in
                detail/product.sml
             end
          end
-         basis With = let
+         basis MkMonad = let
             open Fn Products
+         in
+            bas detail/mk-monad.fun end
+         end
+         basis With = let
+            open Fn MkMonad Products
          in
             bas public/with.sig detail/with.sml end
          end
@@ -159,11 +164,6 @@ in
             open Seqs List Fn Products
          in
             bas public/sequence/buffer.sig detail/buffer.sml end
-         end
-         basis MkMonad = let
-            open Fn Products
-         in
-            bas detail/mk-monad.fun end
          end
          basis Reader = let
             open Fn MkMonad Products Univ

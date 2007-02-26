@@ -7,15 +7,18 @@
 structure With :> WITH = struct
    open With
 
-   infix >>= >>&
+   infix >>=
 
-   val return = Fn.pass
-   fun (wA >>= a2wB) f = wA (fn a => a2wB a f)
+   structure Monad =
+      MkMonad' (type ('a, 'r) monad = ('a, 'r) t
+                val return = Fn.pass
+                fun (wA >>= a2wB) f = wA (fn a => a2wB a f))
+
+   open Monad
 
    fun alloc g a f = f (g a)
    fun free ef x f = (f x handle e => (ef x ; raise e)) before ef x
 
-   fun (wA >>& wB) f = wA (fn a => wB (fn b => f (Product.& (a, b))))
    fun around new del = alloc new () >>= free del
    fun entry ef = alloc ef ()
    fun exit ef = free ef ()
