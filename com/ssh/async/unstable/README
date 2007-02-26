@@ -1,0 +1,51 @@
+Library for Asynchronous Programming in SML
+-------------------------------------------
+
+   This library implements a simple and portable library for asynchronous
+   programming in SML.  The design of this library is heavily based on
+   [1], which is a library posted by Stephen Weeks to the MLton-user
+   mailing list.
+
+
+Info
+----
+
+   License:         MLton license (a BSD-style license)
+   Portability:     portable
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.karvonen@cs.helsinki.fi>
+
+
+About Library Organization
+--------------------------
+
+   public/
+
+      This directory contains the documented signature definitions (*.sig)
+      and listings of all top-level bindings exported by this library
+      (export*.sml).  The contents of this directory should be sufficient
+      to understand how to use the functionality provided by this library.
+
+   lib.mlb
+
+      This build file defines the library.  See the file for further
+      instructions.
+
+   detail/
+
+      This directory contains the implementation details of the library.
+
+
+About Motivation and Scope
+--------------------------
+
+   See [1] for starters.
+
+
+References
+----------
+
+  [1] Simple, portable, asynchronous programming in SML.
+      Stephen Weeks.
+      Posted on the mlton-user@mlton.org mailing list on July 19th, 2006.
+      [http://mlton.org/pipermail/mlton-user/2006-July/000856.html]
