@@ -26,6 +26,7 @@ val failing = Fn.failing
 val flip = Fn.flip
 val id = Fn.id
 val pass = Fn.pass
+val recur = Fn.recur
 val uncurry = Fn.uncurry
 val undefined = Fn.undefined
 val op /> = Fn./>

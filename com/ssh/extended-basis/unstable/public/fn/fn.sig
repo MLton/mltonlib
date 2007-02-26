@@ -9,6 +9,9 @@ signature FN = sig
    type ('a, 'b) t = 'a -> 'b
    (** The type of functions. *)
 
+   val fix : ('a -> 'b) Fix.t
+   (** Fixpoint of given functional. *)
+
    val map : ('c -> 'a) * ('b -> 'd) -> ('a -> 'b) -> 'c -> 'd
    (** {map (f, g) h = g o h o f}. *)
 
@@ -38,6 +41,9 @@ signature FN = sig
 
    val pass : 'a -> ('a -> 'b) -> 'b
    (** Pass to continuation ({pass x f = f x}). *)
+
+   val recur : 'a -> ('a -> 'b) UnOp.t -> 'b
+   (** {recur} is same as {flip fix}. *)
 
    val undefined : 'a -> 'b
    (**
