@@ -20,14 +20,11 @@ structure Async :> ASYNC = struct
       fun new () = T {scheduled = ref false, effect = id}
       fun scheduled (T t) = !(#scheduled t)
       fun prepend f (T t) = T {scheduled = #scheduled t, effect = #effect t o f}
-      local
-         val handlers = Queue.new ()
-      in
-         fun schedule a (T {scheduled, effect}) =
-             if !scheduled then ()
-             else (scheduled := true ; Queue.enque handlers (fn () => effect a))
-         fun runAll () = Queue.appClear (pass ()) handlers
-      end
+      val handlers = Queue.new ()
+      fun schedule a (T {scheduled, effect}) =
+          if !scheduled then ()
+          else (scheduled := true ; Queue.enque handlers (fn () => effect a))
+      fun runAll () = Queue.appClear (pass ()) handlers
    end
 
    structure Event = struct
@@ -48,7 +45,8 @@ structure Async :> ASYNC = struct
                       case e () of
                          INL ef => lp (es & ef::efs)
                        | result => result))
-      fun once (T t) = Sum.app (fn ef => ef (Handler.new ()), pass ()) (t ())
+      fun once (T t) = Sum.app (fn ef => ef (Handler.new ()),
+                                Queue.enque Handler.handlers) (t ())
       fun when ? = once (on ?)
       fun each e = when (e, fn () => each e)
       fun every ? = each (on ?)
