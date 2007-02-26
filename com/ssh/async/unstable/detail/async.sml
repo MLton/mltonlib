@@ -5,7 +5,7 @@
  *)
 
 structure Async :> ASYNC = struct
-   exception Put
+   exception Full
 
    structure Queue = struct
       open Queue
@@ -49,8 +49,8 @@ structure Async :> ASYNC = struct
                          INL ef => lp (es & ef::efs)
                        | result => result))
       fun once (T t) = Sum.app (fn ef => ef (Handler.new ()), pass ()) (t ())
-      fun each e = once (on (e, fn () => each e))
       fun when ? = once (on ?)
+      fun each e = when (e, fn () => each e)
       fun every ? = each (on ?)
       val any = once o choose
    end
@@ -85,9 +85,9 @@ structure Async :> ASYNC = struct
                       case !st of
                          SOME v => INR (const v)
                        | NONE => INL (Queue.enque rs))
-      fun put (T {rs, st}) v =
+      fun fill (T {rs, st}) v =
           case !st of
-             SOME _ => raise Put
+             SOME _ => raise Full
            | NONE => (st := SOME v ; Queue.appClear (Handler.schedule v) rs)
    end
 
@@ -99,9 +99,9 @@ structure Async :> ASYNC = struct
                       case !st of
                          SOME v => INR (fn () => (st := NONE ; v))
                        | NONE => INL (Queue.enque ts))
-      fun put (T {ts, st}) v =
+      fun fill (T {ts, st}) v =
           case !st of
-             SOME _ => raise Put
+             SOME _ => raise Full
            | NONE =>
              case Queue.find (not o Handler.scheduled) ts of
                 NONE => st := SOME v
@@ -127,7 +127,7 @@ structure Async :> ASYNC = struct
          val ost = !st
          val nst = IVar.new ()
       in 
-         st := nst ; IVar.put ost (N (v, nst))
+         st := nst ; IVar.fill ost (N (v, nst))
       end
    end
 end

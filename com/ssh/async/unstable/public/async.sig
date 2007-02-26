@@ -4,16 +4,26 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(**
+ * Asynchronous programming interface.
+ *)
 signature ASYNC = sig
-   exception Put
-
-   (** == Handlers == *)
+   exception Full
+   (**
+    * Raised by {IVar.fill} and {MVar.fill} when an attempt is made to
+    * fill a variable that already holds a value.
+    *)
 
    structure Handler : sig
       val runAll : Unit.t Effect.t
+      (**
+       * Attempts to run all scheduled handlers.  This includes handlers
+       * that are scheduled while {runAll} is running.  {runAll} stops
+       * either when all handlers have been executed successfully or when
+       * a handler raises an exception in which case the exception is
+       * propagated to the caller of {runAll}.
+       *)
    end
-
-   (** == Events == *)
 
    structure Event : sig
       type 'a t
@@ -21,14 +31,36 @@ signature ASYNC = sig
       (** == Combinators == *)
 
       val on : 'a t * ('a -> 'b) -> 'b t
+      (**
+       * Creates an event that acts like the given event and also executes
+       * the given function on the event value when the created event is
+       * committed.
+       *)
+
       val choose : 'a t List.t -> 'a t
+      (**
+       * Creates an event that chooses, in an unspecified manner, an
+       * occured event from the given list of events to commit.
+       *)
 
       (** == Handling Events == *)
 
       val once : Unit.t t Effect.t
-      val each : Unit.t t Effect.t
+      (**
+       * Commit to the given event once when it occurs.  The handlers
+       * attached to a committed event are executed when {Handler.runAll}
+       * is called.
+       *)
 
       (** == Utilities == *)
+
+      val each : Unit.t t Effect.t
+      (**
+       * Commit to the given event each time it occurs.  {each} can be
+       * implemented as
+       *
+       *> fun each e = when (e, fn () => each e)
+       *)
 
       val when : ('a t * 'a Effect.t) Effect.t
       (** {when (e, h) = once (on (e, h))} *)
@@ -40,7 +72,16 @@ signature ASYNC = sig
       (** {any = once o choose} *)
    end
 
-   (** == Communication Mechanisms == *)
+   (** == Communication Mechanisms ==
+    *
+    * The names of operations have been chosen to communicate the semantics:
+    * - A rendezvous is needed to {give} a value to a handler.
+    * - One can't {fill} a variable twice without emptying it in between.
+    * - Many can {read} a value without taking it.
+    * - One can {send} a value to a handler without a rendezvous.
+    * - Only the handler that {take}s a value sees it.
+    * - Multiple {taker}s may observe the same sequence of values.
+    *)
 
    structure Ch : sig
       type 'a t
@@ -53,14 +94,14 @@ signature ASYNC = sig
       type 'a t
       val new : 'a t Thunk.t
       val read : 'a t -> 'a Event.t
-      val put : 'a t -> 'a Effect.t
+      val fill : 'a t -> 'a Effect.t
    end
 
    structure MVar : sig
       type 'a t
       val new : 'a t Thunk.t
       val take : 'a t -> 'a Event.t
-      val put : 'a t -> 'a Effect.t
+      val fill : 'a t -> 'a Effect.t
    end
 
    structure Mailbox : sig
