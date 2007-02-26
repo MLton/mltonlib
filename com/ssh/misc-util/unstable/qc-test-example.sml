@@ -32,7 +32,7 @@ val () = let
        let
           val l = list int
        in
-          withGen (RanQD1Gen.prj (arbitrary l) stableSort) l
+          withGen (RanQD1Gen.map stableSort (arbitrary l)) l
        end
 
    (* Note that one can (of course) make local auxiliary definitions, like

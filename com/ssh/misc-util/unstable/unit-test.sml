@@ -428,13 +428,13 @@ end = struct
    fun skip _ _ = (NONE, [], [])
 
    fun classify tOpt p =
-       G.prj p (fn p as (r, ts, msg) =>
+       G.map (fn p as (r, ts, msg) =>
                    case tOpt & r of
                       NONE & _ => p
                     | _ & NONE => p
-                    | SOME t & _ => (r, t::ts, msg))
+                    | SOME t & _ => (r, t::ts, msg)) p
    fun trivial b = classify (if b then SOME "trivial" else NONE)
 
    fun collect t v p =
-       G.prj p (fn (r, ts, msg) => (r, pretty NONE (layout t v)::ts, msg))
+       G.map (fn (r, ts, msg) => (r, pretty NONE (layout t v)::ts, msg)) p
 end

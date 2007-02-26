@@ -18,10 +18,7 @@ signature RANDOM_GEN = sig
 
    val lift : (t -> 'a) -> 'a gen
 
-   val return : 'a -> 'a gen
-   val >>= : 'a gen * ('a -> 'b gen) -> 'b gen
-
-   val prj : 'b gen -> ('b -> 'a) -> 'a gen
+   include MONAD where type 'a monad = 'a gen
 
    val promote : ('a -> 'b gen) -> ('a -> 'b) gen
 

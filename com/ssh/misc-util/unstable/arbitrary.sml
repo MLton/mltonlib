@@ -52,7 +52,7 @@ end = struct
        IN {gen = gen, cog = cog, typ = typ}
 
    fun iso (IN {gen, cog, typ, ...}) (iso as (a2b, b2a)) =
-       IN {gen = G.prj gen b2a,
+       IN {gen = G.map b2a gen,
            cog = fn n => cog n o a2b,
            typ = Typ.iso typ iso}
 
@@ -62,9 +62,9 @@ end = struct
    val bool = IN {gen = G.bool,
                   cog = const (G.split o (fn false => 0w1 | true => 0w2)),
                   typ = Typ.bool}
-   val int  = IN {gen = G.prj (G.lift G.value)
-                              (fn w => (* XXX result may not fit an Int.int *)
-                                  W.toIntX (w - G.maxValue div 0w2)),
+   val int  = IN {gen = G.map (fn w => (* XXX result may not fit an Int.int *)
+                                  W.toIntX (w - G.maxValue div 0w2))
+                              (G.lift G.value),
                   cog = const (G.split o W.fromInt),
                   typ = Typ.int}
    val word = IN {gen = G.lift G.value,
@@ -114,8 +114,8 @@ end = struct
 
    fun (IN {gen = aGen, cog = aCog, typ = aTyp, ...}) +`
        (IN {gen = bGen, cog = bCog, typ = bTyp, ...}) = let
-      val aGen = G.prj aGen INL
-      val bGen = G.prj bGen INR
+      val aGen = G.map INL aGen
+      val bGen = G.map INR bGen
       val halve = G.resize (op div /> 2)
       val aGenHalf = G.frequency [(2, halve aGen), (1, bGen)]
       val bGenHalf = G.frequency [(1, aGen), (2, halve bGen)]
@@ -155,7 +155,7 @@ end = struct
 
    fun vector a = iso (list a) Vector.isoList
 
-   val char = IN {gen = G.prj (G.intInRange (0, Char.maxOrd)) chr,
+   val char = IN {gen = G.map chr (G.intInRange (0, Char.maxOrd)),
                   cog = const (G.split o W.fromInt o ord),
                   typ = Typ.char}
 

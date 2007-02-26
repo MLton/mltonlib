@@ -19,16 +19,23 @@ functor MkRandomGen (RNG : RNG) :>
    type 'a gen = Int.t -> t -> 'a
 
    val lift = const
-   fun return a _ _ = a
-   fun (m >>= k) n r = k (m n (split 0w314 r)) n (split 0w159 r)
-   fun prj gb b2a n = b2a o gb n
+
+ (*fun prj gb b2a n = b2a o gb n*)
+
+   structure Monad =
+      MkMonad (type 'a monad = 'a gen
+               fun return a _ _ = a
+               fun (m >>= k) n r = k (m n (split 0w314 r)) n (split 0w159 r))
+
+   open Monad
+
    fun promote a2b n r a = a2b a n r
    fun sized i2g n r = i2g n n r
    fun resize f g = g o f
    fun bool _ r = maxValue div 0w2 < value r
 
    fun inRange bInRange (a2b, b2a) =
-       flip prj b2a o bInRange o Pair.map (Sq.mk a2b)
+       map b2a o bInRange o Pair.map (Sq.mk a2b)
 
    fun wordInRange (l, h) =
        (D.assert 0 (fn () => l <= h)
@@ -40,8 +47,8 @@ functor MkRandomGen (RNG : RNG) :>
 
    fun intInRange (l, h) =
        (D.assert 0 (fn () => l <= h)
-      ; prj (inRange wordInRange (Iso.swap W.isoInt) (0, h - l))
-            (op + /> l))
+      ; map (op + /> l)
+            (inRange wordInRange (Iso.swap W.isoInt) (0, h - l)))
 
    local
       val w2r = R.fromLargeInt o W.toLargeInt
@@ -55,7 +62,7 @@ functor MkRandomGen (RNG : RNG) :>
 
    fun elements xs =
        let val xs = V.fromList xs
-       in prj (intInRange (0, V.length xs)) (xs <\ V.sub)
+       in map (xs <\ V.sub) (intInRange (0, V.length xs))
        end
 
    fun oneOf gs = elements gs >>= id

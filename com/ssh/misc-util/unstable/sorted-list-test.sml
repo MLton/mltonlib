@@ -25,7 +25,7 @@ val () = let
    val sortedList = let
       val l = list int
    in
-      fn #? => withGen (RanQD1Gen.prj (arbitrary l) (stableSort #?)) l
+      fn #? => withGen (RanQD1Gen.map (stableSort #?) (arbitrary l)) l
    end
 
    fun revPartition3Way c = let
