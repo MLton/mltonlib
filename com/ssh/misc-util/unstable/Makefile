@@ -50,6 +50,7 @@ $(nlffi-mlb) : $(ffi-h-files)
 	mlnlffigen -dir $(@D)       \
 	           -mlbfile $(@F)   \
 	           -linkage static  \
+	           -light           \
 	           $^
 
 $(mlb-path-map) : Makefile
