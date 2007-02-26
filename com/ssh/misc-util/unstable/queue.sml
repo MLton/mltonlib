@@ -38,4 +38,9 @@ structure Queue :> QUEUE = struct
        case N.get (!front) of
           NONE => NONE
         | SOME (a, n) => (front := n ; SOME a)
+
+   fun appClear ef q =
+       case deque q of
+          NONE => ()
+        | SOME v => (ef v : Unit.t ; appClear ef q)
 end
