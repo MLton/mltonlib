@@ -13,13 +13,12 @@
  *)
 structure Query :> sig
    type 'v t
-   val return : 'a -> 'a t
-   val >>= : 'a t * ('a -> 'b t) -> 'b t
-   val orElse : 'v t BinOp.t
+   include MONADP where type 'v monad = 'v t
+   val ` : 'a -> 'a t
+   val liftBinFn : ('a * 'b -> 'c) -> 'a t * 'b t -> 'c t (* XXX move to MONAD *)
    val get : 'a t -> 'a Option.t
    val mk : ('k -> 'v Option.t) -> 'k -> 'v t
    val E : String.t -> String.t t
-   val ` : 'a -> 'a t
    val ^` : String.t t BinOp.t
    val @` : 'a t * ('a -> 'b Option.t) -> 'b t
    val O : String.t -> Unit.t t
@@ -27,14 +26,20 @@ structure Query :> sig
    val S : String.t -> String.t t
 end = struct
    type 'v t = 'v Option.t Thunk.t
-   fun return x = const (SOME x)
-   fun (aM >>= a2bM) () = case aM () of NONE => NONE | SOME a => a2bM a ()
-   fun (l orElse r) () = case l () of NONE => r () | r => r
+   fun ` x = const (SOME x)
+   structure MonadP =
+     MkMonadP
+       (type 'v monad = 'v t
+        val return = `
+        fun (aM >>= a2bM) () = case aM () of NONE => NONE | SOME a => a2bM a ()
+        fun zero () = NONE
+        fun plus (l, r) () = case l () of NONE => r () | r => r)
+   open MonadP
+   fun liftBinFn f (aM, bM) = map f (aM >>* bM)
    fun get q = q ()
    fun mk f k () = f k
    val E = mk OS.Process.getEnv
-   val ` = return
-   fun lM ^` rM = lM >>= (fn l => rM >>= (fn r => ` (l ^ r)))
+   val op ^` = liftBinFn op ^
    local
       fun is s x = s = x
       fun isE s = String.isPrefix (s^"=")

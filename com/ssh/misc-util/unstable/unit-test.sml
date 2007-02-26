@@ -194,7 +194,7 @@ end = struct
       local
          open Query
          val I = I.fromString
-         val cols = S"-w"@`I orElse L"--width"@`I orElse E"COLUMNS"@`I orElse`70
+         val cols = sum [S"-w"@`I, L"--width"@`I, E"COLUMNS"@`I, `70]
       in
          val println = println TextIO.stdOut (get cols)
       end
