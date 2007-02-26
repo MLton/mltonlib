@@ -11,7 +11,7 @@
  * of course, also perform effectful queries.  An example of an effectful
  * query is {E} which queries the environment.
  *)
-structure Query :> sig
+structure Maybe :> sig
    type 'v t
    include MONADP where type 'v monad = 'v t
    val ` : 'a -> 'a t

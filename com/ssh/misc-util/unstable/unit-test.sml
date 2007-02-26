@@ -192,7 +192,7 @@ end = struct
       val pretty = pretty
 
       local
-         open Query
+         open Maybe
          val I = I.fromString
          val cols = sum [S"-w"@`I, L"--width"@`I, E"COLUMNS"@`I, `70]
       in
