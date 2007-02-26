@@ -9,10 +9,10 @@ structure Async :> ASYNC = struct
 
    structure Queue = struct
       open Queue
-      fun find p q =
+      fun dequeWhile p q =
           case Queue.deque q of
              NONE => NONE
-           | SOME t => if p t then find p q else SOME t
+           | SOME t => if p t then dequeWhile p q else SOME t
    end
 
    structure Handler = struct
@@ -62,13 +62,13 @@ structure Async :> ASYNC = struct
       fun new () = T {ts = Queue.new (), gs = Queue.new ()}
       fun take (T {gs, ts}) =
           Event.T (fn () =>
-                      case Queue.find (not o Handler.scheduled o #handler) gs of
+                      case Queue.dequeWhile (Handler.scheduled o #handler) gs of
                          NONE => INL (Queue.enque ts)
                        | SOME {handler, value} =>
                          INR (fn () => (Handler.schedule () handler ; value)))
       fun give (T {ts, gs}) v =
           Event.T (fn () =>
-                      case Queue.find (not o Handler.scheduled) ts of
+                      case Queue.dequeWhile Handler.scheduled ts of
                          SOME th => INR (fn () => Handler.schedule v th)
                        | NONE =>
                          INL (fn h => Queue.enque gs {handler = h, value = v}))
@@ -103,7 +103,7 @@ structure Async :> ASYNC = struct
           case !st of
              SOME _ => raise Full
            | NONE =>
-             case Queue.find (not o Handler.scheduled) ts of
+             case Queue.dequeWhile Handler.scheduled ts of
                 NONE => st := SOME v
               | SOME h => Handler.schedule v h
    end
@@ -114,14 +114,13 @@ structure Async :> ASYNC = struct
       fun new () = T (ref (IVar.new ()))
       fun taker (T st) = let
          val ch = Ch.new ()
+         fun lp st =
+             Event.when (IVar.read st,
+                         fn N (v, st) =>
+                            Event.when (Ch.give ch v,
+                                        fn () => lp st))
       in
-         recur (!st) (fn lp =>
-            fn st =>
-               Event.when (IVar.read st,
-                           fn N (v, st) =>
-                              Event.when (Ch.give ch v,
-                                          fn () => lp st)))
-       ; Ch.take ch
+         lp (!st) ; Ch.take ch
       end
       fun send (T st) v = let
          val ost = !st
