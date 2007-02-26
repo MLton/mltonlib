@@ -7,15 +7,17 @@
 local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    $(MLTON_LIB)/com/ssh/misc-util/unstable/lib.mlb
-
+in
    ann
       "forceUsed"
       "sequenceNonUnit warn"
       "warnUnused true"
    in
-      public/async.sig
-      detail/async.sml
+      local
+         public/async.sig
+         detail/async.sml
+      in
+         public/export.sml
+      end
    end
-in
-   public/export.sml
 end
