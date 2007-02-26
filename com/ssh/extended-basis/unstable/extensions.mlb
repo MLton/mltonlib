@@ -39,6 +39,8 @@ in
          public/concept/bitwise.sig
          public/concept/cstringable.sig
          public/concept/flags.sig
+         public/concept/func.sig
+         public/concept/monad.sig
          public/concept/ordered.sig
          public/concept/signed.sig
          public/concept/stringable.sig
@@ -158,8 +160,13 @@ in
          in
             bas public/sequence/buffer.sig detail/buffer.sml end
          end
+         basis MkMonad = let
+            open Fn Products
+         in
+            bas detail/mk-monad.fun end
+         end
          basis Reader = let
-            open Fn Products Univ
+            open Fn MkMonad Products Univ
          in
             bas public/reader.sig detail/reader.sml end
          end
@@ -229,7 +236,7 @@ in
          open Fix Fn
          open Iso
          open List
-         open MkWordFlags MonoSeqs
+         open MkMonad MkWordFlags MonoSeqs
          open Option Order
          open Products Promise
          open Reader Ref

@@ -7,6 +7,7 @@
 structure Writer :> WRITER = struct
    open Writer
 
+   type ('a, 's) func = ('a, 's) t
    fun map b2a wA = wA o Pair.map (b2a, Fn.id)
 
    type univ = Univ.t

@@ -8,9 +8,7 @@
 signature WRITER = sig
    type ('a, 's) t = 'a * 's -> 's
 
-   (** == Functor Interface == *)
-
-   val map : ('b -> 'a) -> ('a, 's) t -> ('b, 's) t
+   include CFUNC' where type ('a, 's) func = ('a, 's) t
 
    (** == Typing == *)
 

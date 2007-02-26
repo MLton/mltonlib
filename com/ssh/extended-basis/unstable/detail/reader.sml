@@ -1,19 +1,19 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
 structure Reader :> READER = struct
-   open Reader
+   infix >>=
 
-   infix >>= >>&
+   structure Monad =
+      MkMonad'
+         (type ('a, 's) monad = ('a, 's) Reader.t
+          fun return a s = SOME (a, s)
+          fun rA >>= a2rB = Option.mapPartial (Fn.uncurry a2rB) o rA)
 
-   fun return a s = SOME (a, s)
-   fun rA >>= a2rB = Option.mapPartial (Fn.uncurry a2rB) o rA
-
-   fun map a2b rA = rA >>= return o a2b
-   fun rA >>& rB = rA >>= (fn a => rB >>= (fn b => return (Product.& (a, b))))
+   open Reader Monad
 
    type univ = Univ.t
    type 'a u = ('a, univ) t

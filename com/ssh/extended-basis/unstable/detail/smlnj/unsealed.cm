@@ -29,6 +29,7 @@ is
    ../fn.sml
    ../iso.sml
    ../list.sml
+   ../mk-monad.fun
    ../mk-word-flags.fun
    ../option.sml
    ../order.sml

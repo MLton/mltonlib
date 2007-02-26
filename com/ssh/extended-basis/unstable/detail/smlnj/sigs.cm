@@ -11,6 +11,8 @@ is
    ../../public/concept/bitwise.sig
    ../../public/concept/cstringable.sig
    ../../public/concept/flags.sig
+   ../../public/concept/func.sig
+   ../../public/concept/monad.sig
    ../../public/concept/ordered.sig
    ../../public/concept/signed.sig
    ../../public/concept/stringable.sig

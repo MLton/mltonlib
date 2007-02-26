@@ -9,8 +9,20 @@
 (** === Concept Signatures === *)
 
 signature BITWISE = BITWISE
+signature CFUNC = CFUNC
+signature CFUNC' = CFUNC'
 signature CSTRINGABLE = CSTRINGABLE
 signature FLAGS = FLAGS
+signature FUNC = FUNC
+signature FUNC' = FUNC'
+signature MONAD = MONAD
+signature MONAD' = MONAD'
+signature MONADP = MONADP
+signature MONADP' = MONADP'
+signature MONADP_CORE = MONADP_CORE
+signature MONADP_CORE' = MONADP_CORE'
+signature MONAD_CORE = MONAD_CORE
+signature MONAD_CORE' = MONAD_CORE'
 signature ORDERED = ORDERED
 signature SIGNED = SIGNED
 signature STRINGABLE = STRINGABLE
@@ -132,4 +144,8 @@ structure Word8VectorSlice : MONO_VECTOR_SLICE = Word8VectorSlice
 
 (** === Functors === *)
 
+functor MkMonad (Arg : MONAD_CORE) : MONAD = MkMonad (Arg)
+functor MkMonad' (Arg : MONAD_CORE') : MONAD' = MkMonad' (Arg)
+functor MkMonadP (Arg : MONADP_CORE) : MONADP = MkMonadP (Arg)
+functor MkMonadP' (Arg : MONADP_CORE') : MONADP' = MkMonadP' (Arg)
 functor MkWordFlags (Arg : WORD) : FLAGS = MkWordFlags (Arg)

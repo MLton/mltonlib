@@ -6,20 +6,9 @@
 
 (** Utilities for dealing with readers. *)
 signature READER = sig
-   type ('a, 'b) t = 'b -> ('a * 'b) Option.t
+   type ('a, 's) t = 's -> ('a * 's) Option.t
 
-   (** == Monad Interface == *)
-
-   val return : 'a -> ('a, 's) t
-   val >>= : ('a, 's) t * ('a -> ('b, 's) t) -> ('b, 's) t
-
-   (** == Functor Interface == *)
-
-   val map : ('a -> 'b) -> ('a, 's) t -> ('b, 's) t
-
-   (** == Useful Combinators == *)
-
-   val >>& : ('a, 's) t * ('b, 's) t -> (('a, 'b) Product.t, 's) t
+   include MONAD' where type ('a, 's) monad = ('a, 's) t
 
    (** == Typing == *)
 
