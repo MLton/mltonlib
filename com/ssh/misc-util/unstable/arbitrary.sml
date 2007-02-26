@@ -84,7 +84,7 @@ end = struct
 
    fun (IN {gen = aGen, cog = aCog, typ = aTyp, ...}) *`
        (IN {gen = bGen, cog = bCog, typ = bTyp, ...}) =
-       IN {gen = aGen >>= (fn a => bGen >>= (fn b => G.return (a & b))),
+       IN {gen = G.>>& (aGen, bGen),
            cog = fn n => fn a & b => aCog n a o G.split 0w643 o bCog n b,
            typ = Typ.*` (aTyp, bTyp)}
 
