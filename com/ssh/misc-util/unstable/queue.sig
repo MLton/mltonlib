@@ -18,5 +18,6 @@ signature QUEUE = sig
    val deque : 'a t -> 'a Option.t
    val enque : 'a t -> 'a Effect.t
 
+   val foldClear : ('a * 's -> 's) -> 's -> 'a t -> 's
    val appClear : 'a Effect.t -> 'a t Effect.t
 end

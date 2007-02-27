@@ -39,8 +39,10 @@ structure Queue :> QUEUE = struct
           NONE => NONE
         | SOME (a, n) => (front := n ; SOME a)
 
-   fun appClear ef q =
+   fun foldClear f s q =
        case deque q of
-          NONE => ()
-        | SOME v => (ef v : Unit.t ; appClear ef q)
+          NONE => s
+        | SOME v => foldClear f (f (v, s)) q
+
+   fun appClear ef = foldClear (ef o #1) ()
 end
