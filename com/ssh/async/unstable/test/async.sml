@@ -5,10 +5,12 @@
  *)
 
 val () = let
-   open UnitTest Async Async.Event
+   open UnitTest Async Async.Event Async.Handler
    fun eq (ac, ex) = verifyEq Type.int {actual = ac, expect = ex}
+   fun eql (ac, ex) = verifyEq (Type.list Type.int) {actual = ac, expect = ex}
    val full = verifyFailsWith (fn Full => true | _ => false)
    fun inc v _ = v += 1
+   fun push l v = List.push (l, v)
 in
    unitTests
       (title "Async.IVar")
@@ -19,17 +21,12 @@ in
                 in
                    IVar.fill v ()
                  ; full (IVar.fill v)
-                 ; when (IVar.read v, inc n)
-                 ; eq (!n, 0)
-                 ; Handler.runAll ()
-                 ; eq (!n, 1)
+                 ; when (IVar.read v, inc n) ; eq (!n, 0)
+                 ; runAll () ; eq (!n, 1)
                  ; full (IVar.fill v)
-                 ; when (IVar.read v, inc n)
-                 ; eq (!n, 1)
-                 ; Handler.runAll ()
-                 ; eq (!n, 2)
-                 ; Handler.runAll ()
-                 ; eq (!n, 2)
+                 ; when (IVar.read v, inc n) ; eq (!n, 1)
+                 ; runAll () ; eq (!n, 2)
+                 ; runAll () ; eq (!n, 2)
                 end))
 
       (title "Async.Event.choose")
@@ -45,10 +42,35 @@ in
                  ; Mailbox.send b1 ()
                  ; Mailbox.send b2 ()
                  ; once e ; eq (!n, 0)
-                 ; Handler.runAll () ; eq (!n, 1)
+                 ; runAll () ; eq (!n, 1)
                  ; each e ; eq (!n, 1)
-                 ; Handler.runAll () ; eq (!n, 3)
-                 ; Handler.runAll () ; eq (!n, 3)
+                 ; runAll () ; eq (!n, 3)
+                 ; runAll () ; eq (!n, 3)
+                end))
+
+      (title "Async.Multicast")
+
+      (test (fn () => let
+                   open Multicast
+                   val c = new ()
+                   val () = send c 1
+                   val t1 = taker c
+                   val () = send c 2
+                   val t2 = taker c
+                   val () = send c 3
+                   val t3 = taker c
+                   val () = send c 4
+                   val s1 = ref []
+                   val s2 = ref []
+                   val s3 = ref []
+                in
+                   all [on (t1, push s1),
+                        on (t2, push s2),
+                        on (t3, push s3)]
+                 ; runAll ()
+                 ; eql (!s1, [4, 3, 2])
+                 ; eql (!s2, [3, 2])
+                 ; eql (!s3, [3])
                 end))
 
       $
