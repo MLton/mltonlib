@@ -312,6 +312,8 @@ structure Windows :> WINDOWS_EX = struct
    structure Wait = struct
       type t = C.voidptr
 
+      val compare = C.Ptr.compare'
+
       datatype 'a result
         = ABANDONED of 'a
         | OBJECT of 'a

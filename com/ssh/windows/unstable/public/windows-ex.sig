@@ -33,6 +33,8 @@ signature WINDOWS_EX = sig
    structure Wait : sig
       type t
 
+      val compare : t Cmp.t
+
       datatype 'a result
         = ABANDONED of 'a
         | OBJECT of 'a
