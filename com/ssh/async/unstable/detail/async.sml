@@ -28,8 +28,17 @@ structure Async :> ASYNC = struct
    end
 
    structure Event = struct
-      datatype 'a t = T of ('a Handler.t Effect.t, 'a Thunk.t) Sum.t Thunk.t
-      fun on (T t, f) = T (Sum.map (op o /> Handler.prepend f, f <\ op o) o t)
+      datatype 'a t = T of ('a Handler.t Effect.t, 'a) Sum.t Thunk.t
+      fun on (T t, f) =
+          T (fn () =>
+                INL (fn h => let
+                           val h = Handler.prepend f h
+                        in
+                           case t () of
+                              INL ef => ef h
+                            | INR v =>
+                              Handler.schedule () (Handler.prepend (const v) h)
+                        end))
       fun choose es =
           T (fn () =>
                 recur (es & []) (fn lp =>
@@ -46,7 +55,7 @@ structure Async :> ASYNC = struct
                          INL ef => lp (es & ef::efs)
                        | result => result))
       fun once (T t) = Sum.app (fn ef => ef (Handler.new ()),
-                                Queue.enque Handler.handlers) (t ())
+                                Queue.enque Handler.handlers o const) (t ())
       fun when ? = once (on ?)
       fun each e = when (e, fn () => each e)
       fun every ? = each (on ?)
@@ -64,11 +73,11 @@ structure Async :> ASYNC = struct
                       case Queue.dequeWhile (Handler.scheduled o #handler) gs of
                          NONE => INL (Queue.enque ts)
                        | SOME {handler, value} =>
-                         INR (fn () => (Handler.schedule () handler ; value)))
+                         (Handler.schedule () handler ; INR value))
       fun give (T {ts, gs}) v =
           Event.T (fn () =>
                       case Queue.dequeWhile Handler.scheduled ts of
-                         SOME th => INR (fn () => Handler.schedule v th)
+                         SOME th => (Handler.schedule v th ; INR ())
                        | NONE =>
                          INL (fn h => Queue.enque gs {handler = h, value = v}))
       fun send m = Event.once o give m
@@ -82,7 +91,7 @@ structure Async :> ASYNC = struct
       fun read (T {rs, st}) =
           Event.T (fn () =>
                       case !st of
-                         SOME v => INR (const v)
+                         SOME v => INR v
                        | NONE => INL (Queue.enque rs))
       fun fill (T {rs, st}) v =
           case !st of
@@ -96,7 +105,7 @@ structure Async :> ASYNC = struct
       fun take (T {ts, st}) =
           Event.T (fn () =>
                       case !st of
-                         SOME v => INR (fn () => (st := NONE ; v))
+                         SOME v => (st := NONE ; INR v)
                        | NONE => INL (Queue.enque ts))
       fun fill (T {ts, st}) v =
           case !st of

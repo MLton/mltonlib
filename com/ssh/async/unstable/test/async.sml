@@ -69,8 +69,8 @@ in
                         on (t3, push s3)]
                  ; runAll ()
                  ; eql (!s1, [4, 3, 2])
-                 ; eql (!s2, [3, 2])
-                 ; eql (!s3, [3])
+                 ; eql (!s2, [4, 3])
+                 ; eql (!s3, [4])
                 end))
 
       $
