@@ -13,4 +13,11 @@ signature OPTION = sig
 
    val isNone : 'a t UnPr.t
    (** Returns {true} if given option is {NONE}; otherwise returns {false}. *)
+
+   val collate : 'a Cmp.t -> 'a t Cmp.t
+   (** 
+     * Returns {EQUAL} if given {(NONE,NONE)}; {GREATER} if given 
+     * {(SOME _, NONE)}; {LESS} if given {(NONE, SOME _)}; for 
+     * {(SOME _, SOME _)} it uses the provided comparison function. *)
+
 end
