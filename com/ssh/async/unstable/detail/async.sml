@@ -116,7 +116,16 @@ structure Async :> ASYNC = struct
              case Queue.dequeWhile Handler.scheduled ts of
                 NONE => st := SOME v
               | SOME h => Handler.schedule v h
+      fun send (T {ts, st}) v =
+          case !st of
+             SOME _ => st := SOME v
+           | NONE =>
+             case Queue.dequeWhile Handler.scheduled ts of
+                NONE => st := SOME v
+              | SOME h => Handler.schedule v h
    end
+
+   structure SkipCh = MVar
 
    structure Multicast = struct
       datatype 'a n = N of 'a * 'a n IVar.t

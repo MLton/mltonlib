@@ -94,6 +94,13 @@ signature ASYNC = sig
       val give : 'a t -> 'a -> Unit.t Event.t
    end
 
+   structure SkipCh : sig
+      type 'a t
+      val new : 'a t Thunk.t
+      val take : 'a t -> 'a Event.t
+      val send : 'a t -> 'a Effect.t
+   end
+
    structure IVar : sig
       type 'a t
       val new : 'a t Thunk.t

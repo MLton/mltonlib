@@ -96,5 +96,18 @@ in
                  ; eql (!s3, [4])
                 end))
 
+      (title "Async.SkipCh")
+
+      (test (fn () => let
+                   open SkipCh
+                   val c = new ()
+                in
+                   send c 1
+                 ; when (take c, eq /> 1) ; runAll ()
+                 ; send c 2
+                 ; send c 3
+                 ; when (take c, eq /> 3) ; runAll ()
+                end))
+
       $
 end
