@@ -70,6 +70,9 @@ signature ASYNC = sig
 
       val any : Unit.t t List.t Effect.t
       (** {any = once o choose} *)
+
+      val all : Unit.t t List.t Effect.t
+      (** {all = each o choose} *)
    end
 
    (** == Communication Mechanisms ==

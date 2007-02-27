@@ -51,6 +51,7 @@ structure Async :> ASYNC = struct
       fun each e = when (e, fn () => each e)
       fun every ? = each (on ?)
       val any = once o choose
+      val all = each o choose
    end
 
    structure Ch = struct
