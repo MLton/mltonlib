@@ -25,6 +25,9 @@ structure Queue :> QUEUE = struct
    fun isEmpty (IN {front, ...}) =
        not (isSome (N.get (!front)))
 
+   fun length (IN {front, ...}) =
+       N.length (!front)
+
    fun enque (IN {back, ...}) =
        fn a => let
           val r = !back

@@ -88,6 +88,21 @@ structure Node :> sig
     * recursively.
     *)
 
+   val length : 'a t -> Int.t
+   (** Returns the length of the given imperative list. *)
+
+   val filter : 'a UnPr.t -> 'a t Effect.t
+   (**
+    * Drops all nodes from the imperative list whose elements do not
+    * satisfy the given predicate.
+    *)
+
+   val filterOut : 'a UnPr.t -> 'a t Effect.t
+   (**
+    * Drops all nodes from the imperative list whose elements satisfy the
+    * given predicate.
+    *)
+
    val foldl : ('a * 'b -> 'b) -> 'b -> 'a t -> 'b
    (**
     * Folds the imperative lists with the given function and starting
@@ -165,4 +180,13 @@ end = struct
           NONE => INL t
         | SOME (x, t') =>
           if p x then INR t else find p t'
+
+   fun length n = foldl (1 <\ op + o #2) 0 n
+
+   fun filter p t =
+       case get t of
+          NONE => ()
+        | SOME (x, t') => (if p x then () else drop t ; filter p t')
+
+   fun filterOut p = filter (negate p)
 end

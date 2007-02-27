@@ -15,6 +15,8 @@ signature QUEUE = sig
 
    val isEmpty : 'a t UnPr.t
 
+   val length : 'a t -> Int.t
+
    val deque : 'a t -> 'a Option.t
    val enque : 'a t -> 'a Effect.t
 
