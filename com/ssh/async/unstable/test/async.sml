@@ -4,6 +4,9 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(*
+ * Ad hoc tests against the Async module.
+ *)
 val () = let
    open UnitTest Async Async.Handler
    fun eq (ac, ex) = verifyEq Type.int {actual = ac, expect = ex}
@@ -16,15 +19,34 @@ in
       (title "Async.IVar")
 
       (test (fn () => let
-                   val v = IVar.new ()
+                   open IVar
+                   val v = new ()
                    val n = ref 0
                 in
-                   IVar.fill v ()
-                 ; full (IVar.fill v)
-                 ; when (IVar.read v, inc n) ; eq (!n, 0)
+                   fill v ()
+                 ; full (fill v)
+                 ; when (read v, inc n) ; eq (!n, 0)
                  ; runAll () ; eq (!n, 1)
-                 ; full (IVar.fill v)
-                 ; when (IVar.read v, inc n) ; eq (!n, 1)
+                 ; full (fill v)
+                 ; when (read v, inc n) ; eq (!n, 1)
+                 ; runAll () ; eq (!n, 2)
+                 ; runAll () ; eq (!n, 2)
+                end))
+
+      (title "Async.MVar")
+
+      (test (fn () => let
+                   open MVar
+                   val v = new ()
+                   val n = ref 0
+                in
+                   fill v ()
+                 ; full (fill v)
+                 ; when (take v, inc n) ; eq (!n, 0)
+                 ; runAll () ; eq (!n, 1)
+                 ; fill v ()
+                 ; full (fill v)
+                 ; when (take v, inc n) ; eq (!n, 1)
                  ; runAll () ; eq (!n, 2)
                  ; runAll () ; eq (!n, 2)
                 end))
@@ -32,15 +54,16 @@ in
       (title "Async.Event.choose")
 
       (test (fn () => let
-                   val b1 = Mailbox.new ()
-                   val b2 = Mailbox.new ()
+                   open Mailbox
+                   val b1 = new ()
+                   val b2 = new ()
                    val n = ref 0
-                   val e = choose [on (Mailbox.take b1, inc n),
-                                   on (Mailbox.take b2, inc n)]
+                   val e = choose [on (take b1, inc n),
+                                   on (take b2, inc n)]
                 in
-                   Mailbox.send b1 ()
-                 ; Mailbox.send b1 ()
-                 ; Mailbox.send b2 ()
+                   send b1 ()
+                 ; send b1 ()
+                 ; send b2 ()
                  ; once e ; eq (!n, 0)
                  ; runAll () ; eq (!n, 1)
                  ; each e ; eq (!n, 1)
