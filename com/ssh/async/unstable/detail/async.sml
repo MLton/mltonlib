@@ -28,9 +28,9 @@ structure Async :> ASYNC = struct
    end
 
    structure Event = struct
-      datatype 'a t = T of ('a Handler.t Effect.t, 'a) Sum.t Thunk.t
-      fun on (T t, f) =
-          T (fn () =>
+      datatype 'a t = E of ('a Handler.t Effect.t, 'a) Sum.t Thunk.t
+      fun on (E t, f) =
+          E (fn () =>
                 INL (fn h => let
                            val h = Handler.prepend f h
                         in
@@ -40,7 +40,7 @@ structure Async :> ASYNC = struct
                               Handler.schedule () (Handler.prepend (const v) h)
                         end))
       fun choose es =
-          T (fn () =>
+          E (fn () =>
                 recur (es & []) (fn lp =>
                    fn [] & efs =>
                       INL (fn h =>
@@ -50,11 +50,11 @@ structure Async :> ASYNC = struct
                                     (ef h
                                    ; if Handler.scheduled h then ()
                                      else lp efs)))
-                    | T e::es & efs =>
+                    | E e::es & efs =>
                       case e () of
                          INL ef => lp (es & ef::efs)
                        | result => result))
-      fun once (T t) = Sum.app (fn ef => ef (Handler.new ()),
+      fun once (E t) = Sum.app (fn ef => ef (Handler.new ()),
                                 Queue.enque Handler.handlers o const) (t ())
       fun when ? = once (on ?)
       fun each e = when (e, fn () => each e)
@@ -63,23 +63,25 @@ structure Async :> ASYNC = struct
       val all = each o choose
    end
 
+   open Event
+
    structure Ch = struct
       datatype 'a t
         = T of {ts : 'a Handler.t Queue.t,
                 gs : {handler : Unit.t Handler.t, value : 'a} Queue.t}
       fun new () = T {ts = Queue.new (), gs = Queue.new ()}
       fun take (T {gs, ts}) =
-          Event.T (fn () =>
-                      case Queue.dequeWhile (Handler.scheduled o #handler) gs of
-                         NONE => INL (Queue.enque ts)
-                       | SOME {handler, value} =>
-                         (Handler.schedule () handler ; INR value))
+          E (fn () =>
+                case Queue.dequeWhile (Handler.scheduled o #handler) gs of
+                   NONE => INL (Queue.enque ts)
+                 | SOME {handler, value} =>
+                   (Handler.schedule () handler ; INR value))
       fun give (T {ts, gs}) v =
-          Event.T (fn () =>
-                      case Queue.dequeWhile Handler.scheduled ts of
-                         SOME th => (Handler.schedule v th ; INR ())
-                       | NONE =>
-                         INL (fn h => Queue.enque gs {handler = h, value = v}))
+          E (fn () =>
+                case Queue.dequeWhile Handler.scheduled ts of
+                   SOME th => (Handler.schedule v th ; INR ())
+                 | NONE =>
+                   INL (fn h => Queue.enque gs {handler = h, value = v}))
       fun send m = Event.once o give m
    end
 
@@ -89,10 +91,10 @@ structure Async :> ASYNC = struct
       datatype 'a t = T of {rs : 'a Handler.t Queue.t, st : 'a Option.t Ref.t}
       fun new () = T {rs = Queue.new (), st = ref NONE}
       fun read (T {rs, st}) =
-          Event.T (fn () =>
-                      case !st of
-                         SOME v => INR v
-                       | NONE => INL (Queue.enque rs))
+          E (fn () =>
+                case !st of
+                   SOME v => INR v
+                 | NONE => INL (Queue.enque rs))
       fun fill (T {rs, st}) v =
           case !st of
              SOME _ => raise Full
@@ -103,10 +105,10 @@ structure Async :> ASYNC = struct
       datatype 'a t = T of {ts : 'a Handler.t Queue.t, st : 'a Option.t Ref.t}
       fun new () = T {ts = Queue.new (), st = ref NONE}
       fun take (T {ts, st}) =
-          Event.T (fn () =>
-                      case !st of
-                         SOME v => (st := NONE ; INR v)
-                       | NONE => INL (Queue.enque ts))
+          E (fn () =>
+                case !st of
+                   SOME v => (st := NONE ; INR v)
+                 | NONE => INL (Queue.enque ts))
       fun fill (T {ts, st}) v =
           case !st of
              SOME _ => raise Full
@@ -123,10 +125,10 @@ structure Async :> ASYNC = struct
       fun taker (T st) = let
          val ch = Ch.new ()
          fun lp st =
-             Event.when (IVar.read st,
-                         fn N (v, st) =>
-                            Event.when (Ch.give ch v,
-                                        fn () => lp st))
+             when (IVar.read st,
+                   fn N (v, st) =>
+                      when (Ch.give ch v,
+                            fn () => lp st))
       in
          lp (!st) ; Ch.take ch
       end

@@ -27,53 +27,54 @@ signature ASYNC = sig
 
    structure Event : sig
       type 'a t
-
-      (** == Combinators == *)
-
-      val on : 'a t * ('a -> 'b) -> 'b t
-      (**
-       * Creates an event that acts like the given event and also executes
-       * the given function on the event value when the created event is
-       * committed.
-       *)
-
-      val choose : 'a t List.t -> 'a t
-      (**
-       * Creates an event that chooses, in an unspecified manner, an
-       * occured event from the given list of events to commit.
-       *)
-
-      (** == Handling Events == *)
-
-      val once : Unit.t t Effect.t
-      (**
-       * Commit to the given event once when it occurs.  The handlers
-       * attached to a committed event are executed when {Handler.runAll}
-       * is called.
-       *)
-
-      (** == Utilities == *)
-
-      val each : Unit.t t Effect.t
-      (**
-       * Commit to the given event each time it occurs.  {each} can be
-       * implemented as
-       *
-       *> fun each e = when (e, fn () => each e)
-       *)
-
-      val when : ('a t * 'a Effect.t) Effect.t
-      (** {when (e, h) = once (on (e, h))} *)
-
-      val every : ('a t * 'a Effect.t) Effect.t
-      (** {every (e, h) = each (on (e, h))} *)
-
-      val any : Unit.t t List.t Effect.t
-      (** {any = once o choose} *)
-
-      val all : Unit.t t List.t Effect.t
-      (** {all = each o choose} *)
+      (** The type of asynchronous events. *)
    end
+
+   (** == Combinators == *)
+
+   val on : 'a Event.t * ('a -> 'b) -> 'b Event.t
+   (**
+    * Creates an event that acts like the given event and also executes
+    * the given function on the event value when the created event is
+    * committed.
+    *)
+
+   val choose : 'a Event.t List.t -> 'a Event.t
+   (**
+    * Creates an event that chooses, in an unspecified manner, an occured
+    * event from the given list of events to commit.
+    *)
+
+   (** == Handling Events == *)
+
+   val once : Unit.t Event.t Effect.t
+   (**
+    * Commit to the given event once when it occurs.  The handlers
+    * attached to a committed event are executed when {Handler.runAll} is
+    * called.
+    *)
+
+   (** == Utilities == *)
+
+   val each : Unit.t Event.t Effect.t
+   (**
+    * Commit to the given event each time it occurs.  {each} can be
+    * implemented as
+    *
+    *> fun each e = when (e, fn () => each e)
+    *)
+
+   val when : ('a Event.t * 'a Effect.t) Effect.t
+   (** {when (e, h) = once (on (e, h))} *)
+
+   val every : ('a Event.t * 'a Effect.t) Effect.t
+   (** {every (e, h) = each (on (e, h))} *)
+
+   val any : Unit.t Event.t List.t Effect.t
+   (** {any = once o choose} *)
+
+   val all : Unit.t Event.t List.t Effect.t
+   (** {all = each o choose} *)
 
    (** == Communication Mechanisms ==
     *

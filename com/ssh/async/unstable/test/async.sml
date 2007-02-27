@@ -5,7 +5,7 @@
  *)
 
 val () = let
-   open UnitTest Async Async.Event Async.Handler
+   open UnitTest Async Async.Handler
    fun eq (ac, ex) = verifyEq Type.int {actual = ac, expect = ex}
    fun eql (ac, ex) = verifyEq (Type.list Type.int) {actual = ac, expect = ex}
    val full = verifyFailsWith (fn Full => true | _ => false)
