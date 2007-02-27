@@ -68,6 +68,12 @@ structure Node :> sig
    val fromList : 'a List.t -> 'a t
    (** Constructs an imperative list from a functional list. *)
 
+   val toList : 'a t -> 'a List.t
+   (**
+    * Returns a functional list containing the same elements as the imperative
+    * list.
+    *)
+
    val app : 'a Effect.t -> 'a t Effect.t
    (**
     * Applies the given effect to all elements of the imperative list.
@@ -147,6 +153,9 @@ end = struct
           NONE => x
         | SOME (y, t) =>
           foldl f (f (y, x)) t
+
+   fun toList n =
+       rev (foldl op :: [] n)
 
    fun app e =
        foldl (e o #1) ()
