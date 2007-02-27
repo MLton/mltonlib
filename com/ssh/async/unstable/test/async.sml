@@ -51,7 +51,7 @@ in
                  ; runAll () ; eq (!n, 2)
                 end))
 
-      (title "Async.Event.choose")
+      (title "Async.choose")
 
       (test (fn () => let
                    open Mailbox
@@ -69,6 +69,25 @@ in
                  ; each e ; eq (!n, 1)
                  ; runAll () ; eq (!n, 3)
                  ; runAll () ; eq (!n, 3)
+                end))
+
+      (title "Async.Mailbox")
+
+      (test (fn () => let
+                   open Mailbox
+                   val b = new ()
+                   val s = ref []
+                in
+                   send b 1
+                 ; send b 2
+                 ; when (take b, push s) ; runAll ()
+                 ; when (take b, push s)
+                 ; when (take b, push s) ; runAll ()
+                 ; send b 3
+                 ; send b 4
+                 ; send b 5
+                 ; every (take b, push s) ; runAll ()
+                 ; eql (!s, [5,4,3,2,1])
                 end))
 
       (title "Async.Multicast")
