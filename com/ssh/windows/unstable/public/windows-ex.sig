@@ -13,11 +13,12 @@ signature WINDOWS_EX = sig
    structure EventLog : sig
       structure Type : sig
          include FLAGS where type flags_word = Word16.t
-         val auditFailure : flags
-         val auditSuccess : flags
-         val error : flags
-         val information : flags
-         val warning : flags
+         type t = flags
+         val auditFailure : t
+         val auditSuccess : t
+         val error : t
+         val information : t
+         val warning : t
       end
    end
 
@@ -76,12 +77,13 @@ signature WINDOWS_EX = sig
    structure FileChange : sig
       structure Filter : sig
          include FLAGS where type flags_word = Word32.t
-         val fileName : flags
-         val dirName : flags
-         val attributes : flags
-         val size : flags
-         val lastWrite : flags
-         val security : flags
+         type t = flags
+         val fileName : t
+         val dirName : t
+         val attributes : t
+         val size : t
+         val lastWrite : t
+         val security : t
       end
 
       type t

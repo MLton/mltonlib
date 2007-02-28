@@ -28,7 +28,6 @@ structure Windows :> WINDOWS_EX = struct
                     end
       val opt = option
       val int = int
-      val dbl = real
       val w32 = word32
       val bool = bool
       val time = iso largeReal (Time.toReal, Time.fromReal)
@@ -116,6 +115,7 @@ structure Windows :> WINDOWS_EX = struct
 
    structure Key = struct
       open Word32Flags
+      type t = flags
       val allAccess        = wc_KEY_ALL_ACCESS
       val createLink       = wc_KEY_CREATE_LINK
       val createSubKey     = wc_KEY_CREATE_SUB_KEY
@@ -281,6 +281,7 @@ structure Windows :> WINDOWS_EX = struct
    structure EventLog = struct
       structure Type = struct
          open Word16Flags
+         type t = flags
          val auditFailure = wc_EVENTLOG_AUDIT_FAILURE
          val auditSuccess = wc_EVENTLOG_AUDIT_SUCCESS
          val error        = wc_EVENTLOG_ERROR_TYPE
@@ -425,6 +426,7 @@ structure Windows :> WINDOWS_EX = struct
    structure FileChange = struct
       structure Filter = struct
          open Word32Flags
+         type t = flags
          val attributes = wc_FILE_NOTIFY_CHANGE_ATTRIBUTES
          val dirName    = wc_FILE_NOTIFY_CHANGE_DIR_NAME
          val fileName   = wc_FILE_NOTIFY_CHANGE_FILE_NAME

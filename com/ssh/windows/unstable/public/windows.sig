@@ -14,16 +14,17 @@
 signature WINDOWS = sig
    structure Key : sig
       include FLAGS where type flags_word = Word32.t
-      val allAccess : flags
-      val createLink : flags
-      val createSubKey : flags
-      val enumerateSubKeys : flags
-      val execute : flags
-      val notify : flags
-      val queryValue : flags
-      val read : flags
-      val setValue : flags
-      val write : flags
+      type t = flags
+      val allAccess : t
+      val createLink : t
+      val createSubKey : t
+      val enumerateSubKeys : t
+      val execute : t
+      val notify : t
+      val queryValue : t
+      val read : t
+      val setValue : t
+      val write : t
    end
 
    structure Reg : sig
@@ -42,12 +43,12 @@ signature WINDOWS = sig
       val keyOf : create_result -> hkey
 
       val closeKey : hkey Effect.t
-      val createKeyEx : hkey * String.t * Key.flags -> create_result
+      val createKeyEx : hkey * String.t * Key.t -> create_result
       val deleteKey : (hkey * String.t) Effect.t
       val deleteValue : (hkey * String.t) Effect.t
       val enumKeyEx : hkey * Int.t -> String.t Option.t
       val enumValueEx : hkey * Int.t -> String.t Option.t
-      val openKeyEx : hkey * String.t * Key.flags -> hkey
+      val openKeyEx : hkey * String.t * Key.t -> hkey
 
       datatype value
         = BINARY of Word8Vector.t
