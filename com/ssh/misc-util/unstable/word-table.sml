@@ -46,7 +46,8 @@ structure WordTable :> WORD_TABLE where type Key.t = Word32.t = struct
          (* Theoretically speaking, it should be possible to
           * execute the following code in constant space.
           *)
-       ; V.app (N.clearWith
+       ; V.app (ignore o
+                N.appClear
                    (fn entry as (key, _) => putAt t (keyToIdx t key) entry))
                oldTable
       end

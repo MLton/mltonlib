@@ -15,7 +15,6 @@ structure Queue :> sig
    include QUEUE
    val filter : 'a UnPr.t -> 'a t Effect.t
    val filterOut : 'a UnPr.t -> 'a t Effect.t
-   val foldClear : ('a * 's -> 's) -> 's -> 'a t -> 's
    val appClear : 'a Effect.t -> 'a t Effect.t
 end = struct
    structure N = Node
@@ -49,19 +48,12 @@ end = struct
           NONE => NONE
         | SOME (a, n) => (front := n ; SOME a)
 
-   fun filter p (q as IN {back, front}) =
-       case N.get (!front) of
-          NONE => ()
-        | SOME (v, n) => if p v then back := Node.filter p n
-                         else (front := n ; filter p q)
+   fun filter p (IN {back, front}) =
+       back := N.filter p (!front)
 
    fun filterOut p =
        filter (negate p)
 
-   fun foldClear f s q =
-       case deque q of
-          NONE => s
-        | SOME v => foldClear f (f (v, s)) q
-
-   fun appClear ef = foldClear (ef o #1) ()
+   fun appClear ef (IN {back, front}) =
+       back := N.appClear ef (!front)
 end

@@ -59,10 +59,11 @@ structure Node :> sig
     * the list.  Otherwise does nothing.
     *)
 
-   val clearWith : 'a Effect.t -> 'a t Effect.t
+   val appClear : 'a Effect.t -> 'a t UnOp.t
    (**
     * Takes all elements of the imperative list of nodes one-by-one and
-    * performs the given effect on the removed elements.
+    * performs the given effect on the removed elements.  Returns the
+    * last, and always empty, node of the remaining list.
     *)
 
    val fromList : 'a List.t -> 'a t
@@ -160,10 +161,10 @@ end = struct
    fun drop t =
        ignore (take t)
 
-   fun clearWith e t =
-       case take t of
-          NONE => ()
-        | SOME x => (e x : unit ; clearWith e t)
+   fun appClear e t =
+       case get t of
+          NONE => t
+        | SOME (x, t') => (e x : unit ; t <- get t' ; appClear e t)
 
    fun foldl f x t =
        case get t of
