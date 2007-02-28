@@ -49,8 +49,11 @@ end = struct
           NONE => NONE
         | SOME (a, n) => (front := n ; SOME a)
 
-   fun filter p (IN {back, front}) =
-       back := Node.filter p (!front)
+   fun filter p (q as IN {back, front}) =
+       case N.get (!front) of
+          NONE => ()
+        | SOME (v, n) => if p v then back := Node.filter p n
+                         else (front := n ; filter p q)
 
    fun filterOut p =
        filter (negate p)
