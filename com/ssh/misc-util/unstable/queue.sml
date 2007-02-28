@@ -5,12 +5,19 @@
  *)
 
 (*
- * An implementation of the {QUEUE} signature.  This is based on a space
- * safe implementation by Stephen Weeks posted on the MLton developers
- * mailing list.
+ * An implementation of an extended version of the {QUEUE} signature.  The
+ * extensions aren't part of the {QUEUE} signature, because they don't
+ * make sense for all possible implementations of the signature.  This
+ * implementation is based on a space safe implementation by Stephen Weeks
+ * posted on the MLton developers mailing list.
  *)
-
-structure Queue :> QUEUE = struct
+structure Queue :> sig
+   include QUEUE
+   val filter : 'a UnPr.t -> 'a t Effect.t
+   val filterOut : 'a UnPr.t -> 'a t Effect.t
+   val foldClear : ('a * 's -> 's) -> 's -> 'a t -> 's
+   val appClear : 'a Effect.t -> 'a t Effect.t
+end = struct
    structure N = Node
 
    datatype 'a t = IN of {back : 'a N.t Ref.t,
@@ -41,6 +48,12 @@ structure Queue :> QUEUE = struct
        case N.get (!front) of
           NONE => NONE
         | SOME (a, n) => (front := n ; SOME a)
+
+   fun filter p (IN {back, front}) =
+       back := Node.filter p (!front)
+
+   fun filterOut p =
+       filter (negate p)
 
    fun foldClear f s q =
        case deque q of

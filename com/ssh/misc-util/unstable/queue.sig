@@ -4,10 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(*
- * Signature for an imperative polymorphic queue.
- *)
-
+(** Signature for imperative polymorphic queues. *)
 signature QUEUE = sig
    type 'a t
 
@@ -19,7 +16,4 @@ signature QUEUE = sig
 
    val deque : 'a t -> 'a Option.t
    val enque : 'a t -> 'a Effect.t
-
-   val foldClear : ('a * 's -> 's) -> 's -> 'a t -> 's
-   val appClear : 'a Effect.t -> 'a t Effect.t
 end

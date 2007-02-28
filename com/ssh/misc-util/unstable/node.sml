@@ -91,16 +91,18 @@ structure Node :> sig
    val length : 'a t -> Int.t
    (** Returns the length of the given imperative list. *)
 
-   val filter : 'a UnPr.t -> 'a t Effect.t
+   val filter : 'a UnPr.t -> 'a t UnOp.t
    (**
     * Drops all nodes from the imperative list whose elements do not
-    * satisfy the given predicate.
+    * satisfy the given predicate.  Returns the last, and always empty,
+    * node of the remaining list.
     *)
 
-   val filterOut : 'a UnPr.t -> 'a t Effect.t
+   val filterOut : 'a UnPr.t -> 'a t UnOp.t
    (**
     * Drops all nodes from the imperative list whose elements satisfy the
-    * given predicate.
+    * given predicate.  Returns the last, and always empty, node of the
+    * remaining list.
     *)
 
    val foldl : ('a * 'b -> 'b) -> 'b -> 'a t -> 'b
@@ -185,7 +187,7 @@ end = struct
 
    fun filter p t =
        case get t of
-          NONE => ()
+          NONE => t
         | SOME (x, t') => (if p x then () else drop t ; filter p t')
 
    fun filterOut p = filter (negate p)

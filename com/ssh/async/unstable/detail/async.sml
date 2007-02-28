@@ -67,38 +67,38 @@ structure Async :> ASYNC = struct
 
    structure Ch = struct
       datatype 'a t
-        = T of {ts : 'a Handler.t Node.t,
-                gs : {handler : Unit.t Handler.t, value : 'a} Node.t}
-      fun new () = T {ts = Node.new (), gs = Node.new ()}
+        = T of {ts : 'a Handler.t Queue.t,
+                gs : {handler : Unit.t Handler.t, value : 'a} Queue.t}
+      fun new () = T {ts = Queue.new (), gs = Queue.new ()}
       fun take (T {gs, ts}) =
           E (fn () =>
-                (Node.filterOut (Handler.scheduled o #handler) gs
-               ; case Node.take gs of
-                    NONE => INL (Node.push ts)
+                (Queue.filterOut (Handler.scheduled o #handler) gs
+               ; case Queue.deque gs of
+                    NONE => INL (Queue.enque ts)
                   | SOME {handler, value} =>
                     (Handler.schedule () handler ; INR value)))
       fun give (T {ts, gs}) v =
           E (fn () =>
-                (Node.filterOut Handler.scheduled ts
-               ; case Node.take ts of
+                (Queue.filterOut Handler.scheduled ts
+               ; case Queue.deque ts of
                     SOME th => (Handler.schedule v th ; INR ())
                   | NONE =>
-                    INL (fn h => Node.push gs {handler = h, value = v})))
+                    INL (fn h => Queue.enque gs {handler = h, value = v})))
    end
 
    structure Mailbox = struct
-      datatype 'a t = T of {ts : 'a Handler.t Node.t, vs : 'a Queue.t}
-      fun new () = T {ts = Node.new (), vs = Queue.new ()}
+      datatype 'a t = T of {ts : 'a Handler.t Queue.t, vs : 'a Queue.t}
+      fun new () = T {ts = Queue.new (), vs = Queue.new ()}
       fun take (T {ts, vs}) =
           E (fn () =>
                 case Queue.deque vs of
-                   NONE => (Node.filterOut Handler.scheduled ts
-                          ; INL (Node.push ts))
+                   NONE => (Queue.filterOut Handler.scheduled ts
+                          ; INL (Queue.enque ts))
                  | SOME v => INR v)
       fun send (T {ts, vs}) v =
           (Queue.enque vs v
-         ; Node.filterOut Handler.scheduled ts
-         ; case Node.take ts of
+         ; Queue.filterOut Handler.scheduled ts
+         ; case Queue.deque ts of
               NONE => ()
             | SOME th =>
               case Queue.deque vs of
@@ -107,32 +107,32 @@ structure Async :> ASYNC = struct
    end
 
    structure IVar = struct
-      datatype 'a t = T of {rs : 'a Handler.t Node.t, st : 'a Option.t Ref.t}
-      fun new () = T {rs = Node.new (), st = ref NONE}
+      datatype 'a t = T of {rs : 'a Handler.t Queue.t, st : 'a Option.t Ref.t}
+      fun new () = T {rs = Queue.new (), st = ref NONE}
       fun read (T {rs, st}) =
           E (fn () =>
                 case !st of
                    SOME v => INR v
-                 | NONE => (Node.filterOut Handler.scheduled rs
-                          ; INL (Node.push rs)))
+                 | NONE => (Queue.filterOut Handler.scheduled rs
+                          ; INL (Queue.enque rs)))
       fun fill (T {rs, st}) v =
           case !st of
              SOME _ => raise Full
-           | NONE => (st := SOME v ; Node.clearWith (Handler.schedule v) rs)
+           | NONE => (st := SOME v ; Queue.appClear (Handler.schedule v) rs)
    end
 
    structure MVar = struct
-      datatype 'a t = T of {ts : 'a Handler.t Node.t, st : 'a Option.t Ref.t}
-      fun new () = T {ts = Node.new (), st = ref NONE}
+      datatype 'a t = T of {ts : 'a Handler.t Queue.t, st : 'a Option.t Ref.t}
+      fun new () = T {ts = Queue.new (), st = ref NONE}
       fun take (T {ts, st}) =
           E (fn () =>
                 case !st of
                    SOME v => (st := NONE ; INR v)
-                 | NONE => (Node.filterOut Handler.scheduled ts
-                          ; INL (Node.push ts)))
+                 | NONE => (Queue.filterOut Handler.scheduled ts
+                          ; INL (Queue.enque ts)))
       fun give (T {ts, st}) v =
-          (Node.filterOut Handler.scheduled ts
-         ; case Node.take ts of
+          (Queue.filterOut Handler.scheduled ts
+         ; case Queue.deque ts of
               NONE => st := SOME v
             | SOME h => Handler.schedule v h)
       fun fill (t as T {st, ...}) v =
