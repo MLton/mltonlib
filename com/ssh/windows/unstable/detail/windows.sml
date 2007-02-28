@@ -31,6 +31,7 @@ structure Windows :> WINDOWS_EX = struct
       val dbl = real
       val w32 = word32
       val bool = bool
+      val time = iso largeReal (Time.toReal, Time.fromReal)
    end
 
    val op >>& = With.>>&
@@ -336,8 +337,10 @@ structure Windows :> WINDOWS_EX = struct
                ; let val res =
                          F_win_WaitForMultipleObjects.f'
                             (n, C.Ptr.ro' hs, toCBool all,
-                             if Real.== (t, Real.posInf) then infinite
-                             else Word.fromInt (Real.round (t * 1000.0)))
+                             case t of
+                                NONE => infinite
+                              | SOME t =>
+                                Word.fromLargeInt (Time.toMilliseconds t))
                      fun get off = #2 (List.sub (ws, Word.toIntX (res - off)))
                  in
                     if res = timeout then
@@ -348,7 +351,8 @@ structure Windows :> WINDOWS_EX = struct
                        ABANDONED (get abandoned)
                     else if res = failed then
                        raiseLastError
-                          (fn () => F name [A (lst ptr) (map #1 ws), A dbl t])
+                          (fn () => F name [A (lst ptr) (map #1 ws),
+                                            A (opt time) t])
                     else
                        raise Fail "Unsupported WaitForMultipleObjects\
                                   \ functionality"
@@ -400,7 +404,20 @@ structure Windows :> WINDOWS_EX = struct
                     (fn () => F"Timer.create"[A bool manual, A (opt str) name])
                     F_win_CreateWaitableTimer.f' (null, toCBool manual, n'))
       val close = ptrToBool "Timer.close" F_win_CloseHandle.f'
-      val set = undefined
+      fun mk name toDue {timer, due, period} = let
+         val due' = toDue o Int64.fromLarge
+                               |< LargeInt.quot (Time.toNanoseconds due, 100)
+         val period' =
+             case period of
+                NONE => 0
+              | SOME p => Int32.fromLarge (Time.toMilliseconds p)
+      in
+         raiseOnFalse
+            (fn () => F name [A ptr timer, A time due, A (opt time) period])
+            F_win_SetWaitableTimer.f' (timer, due', period', 0)
+      end
+      val setAbs = mk "Timer.setAbs" id
+      val setRel = mk "Timer.setRel" op ~
       val cancel = ptrToBool "Timer.cancel" F_win_CancelWaitableTimer.f'
       val toWait = id
    end

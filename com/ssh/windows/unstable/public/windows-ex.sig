@@ -40,8 +40,8 @@ signature WINDOWS_EX = sig
         | OBJECT of 'a
         | TIMEOUT
 
-      val any : (t * 'a) List.t -> Real.t -> 'a result
-      val all : (t * 'a) List.t -> Real.t -> 'a result
+      val any : (t * 'a) List.t -> Time.time Option.t -> 'a result
+      val all : (t * 'a) List.t -> Time.time Option.t -> 'a result
    end
 
    structure Semaphore : sig
@@ -63,7 +63,12 @@ signature WINDOWS_EX = sig
       type t
       val create : {manual : Bool.t, name : String.t Option.t} -> t
       val close : t Effect.t
-      val set : {timer : t, due : Int64.t, period : Int32.t} Effect.t
+      val setAbs : {timer : t,
+                    due : Time.time,
+                    period : Time.time Option.t} Effect.t
+      val setRel : {timer : t,
+                    due : Time.time,
+                    period : Time.time Option.t} Effect.t
       val cancel : t Effect.t
       val toWait : t -> Wait.t
    end
