@@ -7,9 +7,7 @@
 (*
  * An implementation of an extended version of the {QUEUE} signature.  The
  * extensions aren't part of the {QUEUE} signature, because they don't
- * make sense for all possible implementations of the signature.  This
- * implementation is based on a space safe implementation by Stephen Weeks
- * posted on the MLton developers mailing list.
+ * make sense for all possible implementations of the signature.
  *)
 structure Queue :> sig
    include QUEUE
@@ -35,14 +33,13 @@ end = struct
    fun length (IN {front, ...}) =
        N.length (!front)
 
-   fun enque (IN {back, ...}) =
-       fn a => let
-          val r = !back
-          val n = N.new ()
-       in
-          N.<- (r, SOME (a, n))
+   fun enque (IN {back, ...}) a = let
+      val r = !back
+      val n = N.new ()
+   in
+      N.<- (r, SOME (a, n))
         ; back := n
-       end
+   end
 
    fun deque (IN {front, ...}) =
        case N.get (!front) of
