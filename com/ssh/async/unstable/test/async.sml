@@ -128,5 +128,25 @@ in
                  ; when (take c, eq /> 3) ; runAll ()
                 end))
 
+      (title "Async")
+
+      (test (fn () => let
+                   val v = IVar.new ()
+                   val c = SkipCh.new ()
+                   val l = ref []
+                   fun lp () =
+                       any [on (SkipCh.take c, lp o push l),
+                            on (IVar.read v, push l)]
+                in
+                   lp ()
+                 ; runAll ()
+                 ; SkipCh.send c 1 ; runAll ()
+                 ; SkipCh.send c 2
+                 ; SkipCh.send c 3
+                 ; SkipCh.send c 4 ; runAll ()
+                 ; IVar.fill v 5 ; runAll ()
+                 ; eql (!l, [5, 4, 2, 1])
+                end))
+
       $
 end
