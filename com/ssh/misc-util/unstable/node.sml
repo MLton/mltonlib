@@ -188,7 +188,8 @@ end = struct
    fun filter p t =
        case get t of
           NONE => t
-        | SOME (x, t') => (if p x then () else drop t ; filter p t')
+        | SOME (x, t') =>
+          if p x then filter p t' else (t <- get t' ; filter p t)
 
    fun filterOut p = filter (negate p)
 end
