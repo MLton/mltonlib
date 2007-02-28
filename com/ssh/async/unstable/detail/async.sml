@@ -54,8 +54,10 @@ structure Async :> ASYNC = struct
                       case e () of
                          INL ef => lp (es & ef::efs)
                        | result => result))
-      fun once (E t) = Sum.app (fn ef => ef (Handler.new ()),
-                                Queue.enque Handler.handlers o const) (t ())
+      fun once (E t) =
+          case t () of
+             INL ef => ef (Handler.new ())
+           | INR () => ()
       fun when ? = once (on ?)
       fun each e = when (e, fn () => each e)
       fun every ? = each (on ?)
