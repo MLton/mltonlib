@@ -29,7 +29,7 @@ structure Buffer :> BUFFER = struct
                end
    end
    local
-      fun mk sLength sAny sCopy (b as IN {length, data}, s) =
+      fun mk sLength sAny sCopy (b as IN {length, data}) s =
           case sLength s of
              0 => ()
            | n => let
@@ -45,8 +45,8 @@ structure Buffer :> BUFFER = struct
           mk (Fn.const 1) Fn.id (fn {src, dst, di} => A.update (dst, di, src)) ?
       fun pushArray ? = mk A.length (A.sub /> 0) A.copy ?
       fun pushArraySlice ? = mk AS.length (AS.sub /> 0) AS.copy ?
-      fun pushBuffer (b, s) =
-          pushArraySlice (b, AS.slice (data s, 0, SOME (length s)))
+      fun pushBuffer b s =
+          pushArraySlice b (AS.slice (data s, 0, SOME (length s)))
       fun pushList ? =
           mk List.length List.hd
              (fn {src, dst, di} =>

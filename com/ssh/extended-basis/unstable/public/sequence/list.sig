@@ -45,7 +45,7 @@ signature LIST = sig
 
    (** == Stack == *)
 
-   val push : ('a t Ref.t * 'a) Effect.t
+   val push : 'a t Ref.t -> 'a Effect.t
    val pop : 'a t Ref.t -> 'a Option.t
 
    (** == HOFs == *)

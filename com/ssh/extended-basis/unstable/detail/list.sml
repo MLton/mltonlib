@@ -39,7 +39,7 @@ structure List : LIST = struct
    end
    fun foldl1 f = fn [] => raise Empty | x::xs => foldl f x xs
    fun foldr1 f = foldl1 f o rev
-   fun push (r, x) = r := x :: !r
+   fun push r x = r := x :: !r
    fun pop r = case !r of x::xs => (r := xs ; SOME x) | [] => NONE
    fun split (l, i) =
        if i < 0 then raise Subscript

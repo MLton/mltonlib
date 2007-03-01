@@ -17,7 +17,7 @@ signature BUFFER = sig
    val duplicate : 'a t UnOp.t
    (**
     * Creates a new duplicate of the buffer.  {duplicate b} is equivalent
-    * to {let val b' = new () in pushBuffer (b', b) end}.
+    * to {let val b' = new () in pushBuffer b' b end}.
     *)
 
    (** == Accessors == *)
@@ -56,50 +56,50 @@ signature BUFFER = sig
 
    (** == Adding Elements to a Buffer == *)
 
-   val push : ('a t * 'a) Effect.t
+   val push : 'a t -> 'a Effect.t
    (**
     * Adds an element to the tail of the buffer.  More precisely, after
     *
     *> val cb = toList b
-    *> val () = push (b, v)
+    *> val () = push b v
     *> val ca = toList b
     *
     * it holds that {cb = init ca} and {last ca = v}.
     *)
 
-   val pushArray : ('a t * 'a Array.t) Effect.t
+   val pushArray : 'a t -> 'a Array.t Effect.t
    (**
-    * Adds the elements of the array to the buffer.  {pushArray (b, a)} is
-    * equivalent to {Array.app (b <\ push) a}.
+    * Adds the elements of the array to the buffer.  {pushArray b a} is
+    * equivalent to {Array.app (push b) a}.
     *)
 
-   val pushArraySlice : ('a t * 'a ArraySlice.t) Effect.t
+   val pushArraySlice : 'a t -> 'a ArraySlice.t Effect.t
    (**
-    * Adds the elements of the slice to the buffer.  {pushArraySlice (b,
-    * s)} is equivalent to {ArraySlice.app (b <\ push) s}.
+    * Adds the elements of the slice to the buffer.  {pushArraySlice b s}
+    * is equivalent to {ArraySlice.app (push b) s}.
     *)
 
-   val pushBuffer : ('a t * 'a t) Effect.t
+   val pushBuffer : 'a t -> 'a t Effect.t
    (**
-    * Adds the elements of the buffer to the buffer.  {pushBuffer (b, b')}
-    * is equivalent to {pushList (b, toList b')}.
+    * Adds the elements of the buffer to the buffer.  {pushBuffer b b'} is
+    * equivalent to {pushList b (toList b')}.
     *)
 
-   val pushList : ('a t * 'a List.t) Effect.t
+   val pushList : 'a t -> 'a List.t Effect.t
    (**
-    * Adds the elements of the list to the buffer.  {pushList (b, l)} is
-    * equivalent to {List.app (b <\ push) l}.
+    * Adds the elements of the list to the buffer.  {pushList b l} is
+    * equivalent to {List.app (push b) l}.
     *)
 
-   val pushVector : ('a t * 'a Vector.t) Effect.t
+   val pushVector : 'a t -> 'a Vector.t Effect.t
    (**
-    * Adds the elements of the vector to the buffer.  {pushVector (b, v)}
-    * is equivalent to {Vector.app (b <\ push) v}.
+    * Adds the elements of the vector to the buffer.  {pushVector b v} is
+    * equivalent to {Vector.app (push b) v}.
     *)
 
-   val pushVectorSlice : ('a t * 'a VectorSlice.t) Effect.t
+   val pushVectorSlice : 'a t -> 'a VectorSlice.t Effect.t
    (**
-    * Adds the elements of the slice to the buffer.  {pushVectorSlice (b,
-    * s)} is equivalent to {VectorSlice.app (b <\ push) s}.
+    * Adds the elements of the slice to the buffer.  {pushVectorSlice b
+    * s} is equivalent to {VectorSlice.app (push b) s}.
     *)
 end

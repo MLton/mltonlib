@@ -13,7 +13,7 @@ val () = let
    fun eql (ac, ex) = verifyEq (Type.list Type.int) {actual = ac, expect = ex}
    val full = verifyFailsWith (fn Full => true | _ => false)
    fun inc v _ = v += 1
-   fun push l v = List.push (l, v)
+   val push = List.push
 in
    unitTests
       (title "Async.IVar")
