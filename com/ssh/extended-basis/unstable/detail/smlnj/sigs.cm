@@ -61,6 +61,7 @@ is
    ../../public/text/string.sig
    ../../public/text/substring.sig
    ../../public/text/text.sig
+   ../../public/void.sig
    ../../public/with.sig
    ../../public/writer.sig
    funs.cm

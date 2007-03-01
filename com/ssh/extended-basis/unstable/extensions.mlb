@@ -48,6 +48,7 @@ in
          (* Compiler specific extensions (if any). *)
          basis Ext = bas detail/$(SML_COMPILER)/extensions.mlb end
 
+         basis Void = bas public/void.sig end
          basis Fn = bas public/fn/fn.sig detail/fn.sml end
          basis Unit = bas public/data/unit.sig end
          basis Sq = bas public/data/sq.sig detail/sq.sml end
@@ -243,6 +244,7 @@ in
          open Scalars Seqs ShiftOp Sq Sum
          open TextIO Thunk Tie
          open Unit Univ UnOp UnPr
+         open Void
          open With Writer
       in
          public/export/$(SML_COMPILER).sml

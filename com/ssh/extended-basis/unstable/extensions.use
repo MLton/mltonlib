@@ -22,6 +22,7 @@ in
         "public/concept/signed.sig",
         "public/concept/stringable.sig",
         "detail/"^compiler^"/extensions.use",
+        "public/void.sig",
         "public/fn/fn.sig", "detail/fn.sml",
         "public/data/unit.sig",
         "public/data/sq.sig", "detail/sq.sml",
