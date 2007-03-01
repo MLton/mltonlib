@@ -5,16 +5,25 @@
  *)
 
 structure With :> WITH = struct
-   open With
+   type 'a t = 'a Effect.t Effect.t
 
    infix >>=
 
    structure Monad =
-      MkMonad' (type ('a, 'r) monad = ('a, 'r) t
-                val return = Fn.pass
-                fun (wA >>= a2wB) f = wA (fn a => a2wB a f))
+      MkMonad (type 'a monad = 'a t
+               val return = Fn.pass
+               fun (aM >>= a2bM) f = aM (fn a => a2bM a f))
 
    open Monad
+
+   val lift = Fn.id
+   val for = Fn.id
+   fun one aM f = let
+      val result = ref NONE
+   in
+      aM (fn a => result := SOME (f a)) : Unit.t
+    ; valOf (!result)
+   end
 
    fun alloc g a f = f (g a)
    fun free ef x f = (f x handle e => (ef x ; raise e)) before ef x
