@@ -194,7 +194,7 @@ end = struct
       local
          open Maybe
          val I = I.fromString
-         val cols = sum [S"-w"@`I, L"--width"@`I, E"COLUMNS"@`I, `70]
+         val cols = Monad.sum [S"-w"@`I, L"--width"@`I, E"COLUMNS"@`I, `70]
       in
          val println = println TextIO.stdOut (get cols)
       end
@@ -428,13 +428,13 @@ end = struct
    fun skip _ _ = (NONE, [], [])
 
    fun classify tOpt p =
-       G.map (fn p as (r, ts, msg) =>
-                   case tOpt & r of
-                      NONE & _ => p
-                    | _ & NONE => p
-                    | SOME t & _ => (r, t::ts, msg)) p
+       G.Monad.map (fn p as (r, ts, msg) =>
+                       case tOpt & r of
+                          NONE & _ => p
+                        | _ & NONE => p
+                        | SOME t & _ => (r, t::ts, msg)) p
    fun trivial b = classify (if b then SOME "trivial" else NONE)
 
    fun collect t v p =
-       G.map (fn (r, ts, msg) => (r, pretty NONE (layout t v)::ts, msg)) p
+       G.Monad.map (fn (r, ts, msg) => (r, pretty NONE (layout t v)::ts, msg)) p
 end
