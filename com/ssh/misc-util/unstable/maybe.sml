@@ -13,7 +13,8 @@
  *)
 structure Maybe :> sig
    type 'v t
-   include MONADP where type 'v monad = 'v t
+   include MONADP_CORE where type 'v monad = 'v t
+   structure Monad : MONADP where type 'v monad = 'v t
    val ` : 'a -> 'a t
    val liftBinFn : ('a * 'b -> 'c) -> 'a t * 'b t -> 'c t (* XXX move to MONAD *)
    val get : 'a t -> 'a Option.t
@@ -27,14 +28,14 @@ structure Maybe :> sig
 end = struct
    type 'v t = 'v Option.t Thunk.t
    fun ` x = const (SOME x)
-   structure MonadP =
+   structure Monad =
      MkMonadP
        (type 'v monad = 'v t
         val return = `
         fun (aM >>= a2bM) () = case aM () of NONE => NONE | SOME a => a2bM a ()
         fun zero () = NONE
         fun plus (l, r) () = case l () of NONE => r () | r => r)
-   open MonadP
+   open Monad
    fun liftBinFn f (aM, bM) = map f (aM >>* bM)
    fun get q = q ()
    fun mk f k () = f k

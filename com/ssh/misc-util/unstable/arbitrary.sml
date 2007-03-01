@@ -45,6 +45,7 @@ end = struct
              typ : 'a Typ.t}
    type 'a arbitrary_t = 'a t
 
+   val map = G.Monad.map
    val op >>= = G.>>=
 
    fun arbitrary (IN {gen, ...}) = gen
@@ -52,7 +53,7 @@ end = struct
        IN {gen = gen, cog = cog, typ = typ}
 
    fun iso (IN {gen, cog, typ, ...}) (iso as (a2b, b2a)) =
-       IN {gen = G.map b2a gen,
+       IN {gen = map b2a gen,
            cog = fn n => cog n o a2b,
            typ = Typ.iso typ iso}
 
@@ -62,9 +63,9 @@ end = struct
    val bool = IN {gen = G.bool,
                   cog = const (G.split o (fn false => 0w1 | true => 0w2)),
                   typ = Typ.bool}
-   val int  = IN {gen = G.map (fn w => (* XXX result may not fit an Int.int *)
-                                  W.toIntX (w - G.maxValue div 0w2))
-                              (G.lift G.value),
+   val int  = IN {gen = map (fn w => W.toIntX (w - G.maxValue div 0w2))
+                            (* XXX result may not fit an Int.int *)
+                            (G.lift G.value),
                   cog = const (G.split o W.fromInt),
                   typ = Typ.int}
    val word = IN {gen = G.lift G.value,
@@ -84,7 +85,7 @@ end = struct
 
    fun (IN {gen = aGen, cog = aCog, typ = aTyp, ...}) *`
        (IN {gen = bGen, cog = bCog, typ = bTyp, ...}) =
-       IN {gen = G.>>& (aGen, bGen),
+       IN {gen = G.Monad.>>& (aGen, bGen),
            cog = fn n => fn a & b => aCog n a o G.split 0w643 o bCog n b,
            typ = Typ.*` (aTyp, bTyp)}
 
@@ -114,8 +115,8 @@ end = struct
 
    fun (IN {gen = aGen, cog = aCog, typ = aTyp, ...}) +`
        (IN {gen = bGen, cog = bCog, typ = bTyp, ...}) = let
-      val aGen = G.map INL aGen
-      val bGen = G.map INR bGen
+      val aGen = map INL aGen
+      val bGen = map INR bGen
       val halve = G.resize (op div /> 2)
       val aGenHalf = G.frequency [(2, halve aGen), (1, bGen)]
       val bGenHalf = G.frequency [(1, aGen), (2, halve bGen)]
@@ -155,7 +156,7 @@ end = struct
 
    fun vector a = iso (list a) Vector.isoList
 
-   val char = IN {gen = G.map chr (G.intInRange (0, Char.maxOrd)),
+   val char = IN {gen = map chr (G.intInRange (0, Char.maxOrd)),
                   cog = const (G.split o W.fromInt o ord),
                   typ = Typ.char}
 

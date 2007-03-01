@@ -18,7 +18,9 @@ signature RANDOM_GEN = sig
 
    val lift : (t -> 'a) -> 'a gen
 
-   include MONAD where type 'a monad = 'a gen
+   include MONAD_CORE where type 'a monad = 'a gen
+
+   structure Monad : MONAD where type 'a monad = 'a gen
 
    val promote : ('a -> 'b gen) -> ('a -> 'b) gen
 
