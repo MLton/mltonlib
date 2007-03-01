@@ -16,7 +16,7 @@
 structure WordTable :> WORD_TABLE where type Key.t = Word32.t = struct
    structure Key = Word32 and W = Word32 and N = Node and V = Vector
 
-   datatype 'a t = IN of {table : (W.t * 'a) N.t Vector.t Ref.t,
+   datatype 'a t = IN of {table : (W.t * 'a) N.p Vector.t Ref.t,
                           size : Int.t Ref.t}
 
    val caps = V.fromList
@@ -32,7 +32,7 @@ structure WordTable :> WORD_TABLE where type Key.t = Word32.t = struct
 
    fun keyToIdx t key = W.toIntX (key mod W.fromInt (V.length (table t)))
    fun putAt t idx entry = N.push (V.sub (table t, idx)) entry
-   fun newTable cap = V.tabulate (cap, N.new o ignore)
+   fun newTable cap = V.tabulate (cap, N.ptr o ignore)
    fun findKey t idx key = N.find (key <\ op = o #1) (V.sub (table t, idx))
 
    fun maybeRealloc (t as IN {table, ...}) = let
@@ -60,14 +60,13 @@ structure WordTable :> WORD_TABLE where type Key.t = Word32.t = struct
          ()
    end
 
-   fun new () = IN {table = ref (newTable minCap),
-                    size = ref 0}
+   fun new () = IN {table = ref (newTable minCap), size = ref 0}
 
-   fun == (IN {table = l, ...}, IN {table = r, ...}) = l = r
+   fun == (IN l, IN r) = #table l = #table r
 
    structure Action = struct
-      type ('v, 'r) t = ((W.t * 'v) N.t,
-                         (W.t * 'v) N.t) Sum.t * W.t * 'v t -> 'r
+      type ('v, 'r) t = ((W.t * 'v) N.p,
+                         (W.t * 'v) N.p) Sum.t * W.t * 'v t -> 'r
       type ('v, 'r, 's) m = ('v, 'r) t
       type none = unit
       type some = unit
@@ -93,7 +92,8 @@ structure WordTable :> WORD_TABLE where type Key.t = Word32.t = struct
           fn (INL _, _, _) =>
              undefined ()
            | (INR n, key, _) =>
-             (N.<- (n, SOME ((key, value), N.tl n))
+             (N.drop n
+            ; N.push n (key, value)
             ; result)
 
       fun remove result =

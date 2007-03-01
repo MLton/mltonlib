@@ -17,43 +17,39 @@ structure Queue :> sig
    val filterOut : 'a UnPr.t -> 'a t Effect.t
    val appClear : 'a Effect.t -> 'a t Effect.t
 end = struct
-   structure N = Node
-
-   datatype 'a t = IN of {back : 'a N.t Ref.t,
-                          front : 'a N.t Ref.t}
+   datatype 'a t = T of {back : 'a Node.p Ref.t, front : 'a Node.p Ref.t}
 
    fun new () = let
-      val n = N.new ()
+      val p = Node.ptr ()
    in
-      IN {back = ref n, front = ref n}
+      T {back = ref p, front = ref p}
    end
 
-   fun isEmpty (IN {front, ...}) =
-       not (isSome (N.get (!front)))
+   fun isEmpty (T {front, ...}) =
+       Node.isEmpty (!front)
 
-   fun length (IN {front, ...}) =
-       N.length (!front)
+   fun length (T {front, ...}) =
+       Node.length (!front)
 
-   fun enque (IN {back, ...}) =
-    fn a => let
+   fun enque (T {back, ...}) =
+    fn v => let
           val r = !back
-          val n = N.new ()
+          val n = Node.new v
        in
-          N.<- (r, SOME (a, n))
-        ; back := n
+          r := SOME n
+        ; back := Node.next n
        end
 
-   fun deque (IN {front, ...}) =
-       case N.get (!front) of
+   fun deque (T {front, ...}) =
+       case !(!front) of
           NONE => NONE
-        | SOME (a, n) => (front := n ; SOME a)
+        | SOME n => (front := Node.next n ; SOME (Node.value n))
 
-   fun filter p (IN {back, front}) =
-       back := N.filter p (!front)
+   fun filter c (T {back, front}) =
+       back := Node.filter c (!front)
 
-   fun filterOut p =
-       filter (negate p)
+   fun filterOut c = filter (negate c)
 
-   fun appClear ef (IN {back, front}) =
-       back := N.appClear ef (!front)
+   fun appClear ef (T {back, front}) =
+       back := Node.appClear ef (!front)
 end
