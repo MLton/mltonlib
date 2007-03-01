@@ -4,6 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(** == Monad == *)
+
 signature MONAD_CORE = sig
    type 'a monad
    val return : 'a -> 'a monad
@@ -25,6 +27,8 @@ signature MONAD = sig
    include MONAD_EX where type 'a monad_ex = 'a monad
 end
 
+(** == Monad Plus == *)
+
 signature MONADP_CORE = sig
    include MONAD_CORE
    val zero : 'a monad
@@ -43,6 +47,8 @@ signature MONADP = sig
 end
 
 (************************************************************************)
+
+(* XXX Should the following be removed? *)
 
 signature MONAD_CORE' = sig
    type ('a, 'x) monad
