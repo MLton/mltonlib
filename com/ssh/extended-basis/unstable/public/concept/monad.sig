@@ -4,7 +4,26 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(** == Monad == *)
+(** == Monad ==
+ *
+ * The concept of a monad comes from category theory.  Here a monad
+ * consists of a type constructor {monad} and two functions {return} and
+ * {>>=} (pronounced "bind"):
+ *
+ *> type 'a monad
+ *> val return : 'a -> 'a monad
+ *> val >>= : 'a monad * ('a -> 'b monad) -> 'b monad
+ *
+ * Furthermore, the {return} and {>>=} functions must obey three laws:
+ *
+ *> 1. return x >>= f == f x
+ *> 2. m >>= return == m
+ *> 3. (m >>= f) >>= g == m >>= (fn x => f x >>= g)
+ *
+ * The first two laws basically say that {return} is both a left and
+ * right-identity with respect to {>>=}.  The third law basically says
+ * that {>>=} is associative.
+ *)
 
 signature MONAD_CORE = sig
    type 'a monad
@@ -44,47 +63,4 @@ signature MONADP = sig
    include MONADP_CORE
    include MONAD_EX where type 'a monad_ex = 'a monad
    include MONADP_EX where type 'a monadp_ex = 'a monad
-end
-
-(************************************************************************)
-
-(* XXX Should the following be removed? *)
-
-signature MONAD_CORE' = sig
-   type ('a, 'x) monad
-   val return : 'a -> ('a, 'x) monad
-   val >>= : ('a, 'x) monad * ('a -> ('b, 'x) monad) -> ('b, 'x) monad
-end
-
-signature MONAD_EX' = sig
-   type ('a, 'x) monad_ex
-   include FUNC' where type ('a, 'x) func = ('a, 'x) monad_ex
-   val >> : ('a, 'x) monad_ex * ('b, 'x) monad_ex -> ('b, 'x) monad_ex
-   val >>* : ('a, 'x) monad_ex * ('b, 'x) monad_ex -> ('a * 'b, 'x) monad_ex
-   val >>& : ('a, 'x) monad_ex * ('b, 'x) monad_ex
-             -> (('a, 'b) Product.t, 'x) monad_ex
-   val >>@ : ('a -> 'b, 'x) monad_ex * ('a, 'x) monad_ex -> ('b, 'x) monad_ex
-   val seq : ('a, 'x) monad_ex List.t -> ('a List.t, 'x) monad_ex
-end
-
-signature MONAD' = sig
-   include MONAD_CORE'
-   include MONAD_EX' where type ('a, 'x) monad_ex = ('a, 'x) monad
-end
-
-signature MONADP_CORE' = sig
-   include MONAD_CORE'
-   val zero : ('a, 'x) monad
-   val plus : ('a, 'x) monad BinOp.t
-end
-
-signature MONADP_EX' = sig
-   type ('a, 'x) monadp_ex
-   val sum : ('a, 'x) monadp_ex List.t -> ('a, 'x) monadp_ex
-end
-
-signature MONADP' = sig
-   include MONADP_CORE'
-   include MONAD_EX' where type ('a, 'x) monad_ex = ('a, 'x) monad
-   include MONADP_EX' where type ('a, 'x) monadp_ex = ('a, 'x) monad
 end
