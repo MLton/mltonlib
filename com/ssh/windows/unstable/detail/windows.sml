@@ -322,6 +322,8 @@ structure Windows :> WINDOWS_EX = struct
    structure Wait = struct
       type t = C.voidptr
 
+      val hash =
+          Word.xorb o 0wx55555555 <\ Misc.psdes o C.Cvt.ml_ulong o C.U.p2i
       val compare = C.Ptr.compare'
 
       datatype 'a result
