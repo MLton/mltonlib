@@ -10,9 +10,9 @@ signature READER = sig
 
    (** == Monad Interface == *)
 
-   type s
-   include MONADP_CORE where type 'a monad = ('a, s) t
-   structure Monad : MONADP where type 'a monad = ('a, s) t
+   type 'a monad_d and 'a monad_r
+   include MONADP_CORE where type 'a monad = 'a monad_d -> 'a monad_r
+   structure Monad : MONADP where type 'a monad = 'a monad
 
    val polymorphically : ('a monad -> 'b monad) -> ('a, 's) t -> ('b, 's) t
 end
