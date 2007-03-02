@@ -29,7 +29,7 @@ structure WordTable :> WORD_TABLE where type Key.t = Word32.t = struct
 
    fun table (IN {table, ...}) = !table
    fun size (IN {size, ...}) = !size
-
+   fun isEmpty t = 0 = size t
    fun keyToIdx t key = W.toIntX (key mod W.fromInt (V.length (table t)))
    fun putAt t idx entry = N.push (V.sub (table t, idx)) entry
    fun newTable cap = V.tabulate (cap, N.ptr o ignore)
@@ -110,4 +110,9 @@ structure WordTable :> WORD_TABLE where type Key.t = Word32.t = struct
 
    fun access t key action =
        action (findKey t (keyToIdx t key) key, key, t)
+
+   fun fold f s =
+       Vector.foldl (fn (l, s) => N.fold (f o Pair.map (#2, id)) s l) s o table
+
+   fun toList t = fold op :: [] t
 end

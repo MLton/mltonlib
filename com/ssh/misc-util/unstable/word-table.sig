@@ -28,6 +28,9 @@ signature WORD_TABLE = sig
    val size : 'a t -> Int.t
    (** Returns the number of associations stored in the word table. *)
 
+   val isEmpty : 'a t UnPr.t
+   (** {isEmpty t == 0 = size t} *)
+
    (**
     * The {Action} substructure specifies type-safe combinators for
     * expressing actions to take on access.  In particular, the
@@ -52,4 +55,13 @@ signature WORD_TABLE = sig
 
    val access : 'v t -> Key.t -> ('v, 'r) Action.t -> 'r
    (** Performs an action on an association of the word table. *)
+
+   val fold : ('v * 's -> 's) -> 's -> 'v t -> 's
+   (**
+    * Fold over all the values stored in the table.  The order in which
+    * the elements are processed is not specified.
+    *)
+
+   val toList : 'a t -> 'a List.t
+   (** Return a list of all values in the table. *)
 end
