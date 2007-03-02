@@ -46,7 +46,8 @@ signature VOID = sig
    val void : t -> 'a
    (**
     * This function can never be called, because there is no way to create
-    * values of type {t}.  However, you can use {void} to call a function
-    * whose range is of type {t} from a context of any type.
+    * values of type {Void.t}.  However, you can use {void} to call a
+    * function {f : d -> Void.t} from a context of any type by writing
+    * {void (f x)}.
     *)
 end
