@@ -8,12 +8,11 @@
 signature READER = sig
    type ('a, 's) t = 's -> ('a * 's) Option.t
 
-   include MONAD' where type ('a, 's) monad = ('a, 's) t
+   (** == Monad Interface == *)
 
-   (** == Typing == *)
+   type s
+   include MONADP_CORE where type 'a monad = ('a, s) t
+   structure Monad : MONADP where type 'a monad = ('a, s) t
 
-   type univ
-   type 'a u = ('a, univ) t
-
-   val polymorphically : ('a u -> 'b u) -> ('a, 's) t -> ('b, 's) t
+   val polymorphically : ('a monad -> 'b monad) -> ('a, 's) t -> ('b, 's) t
 end

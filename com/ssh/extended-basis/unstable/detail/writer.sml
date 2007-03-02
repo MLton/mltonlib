@@ -7,11 +7,10 @@
 structure Writer :> WRITER = struct
    open Writer
 
-   type ('a, 's) func = ('a, 's) t
-   fun map b2a wA = wA o Pair.map (b2a, Fn.id)
+   type s = Univ.t
 
-   type univ = Univ.t
-   type 'a u = ('a, univ) t
+   type 'a func = ('a, s) t
+   fun map b2a wA = wA o Pair.map (b2a, Fn.id)
 
    fun polymorphically uA2uB = let
       val (to, from) = Univ.newIso ()

@@ -8,12 +8,10 @@
 signature WRITER = sig
    type ('a, 's) t = 'a * 's -> 's
 
-   include CFUNC' where type ('a, 's) func = ('a, 's) t
+   (** == Functor Interface == *)
 
-   (** == Typing == *)
+   type s
+   include CFUNC where type 'a func = ('a, s) t
 
-   type univ
-   type 'a u = ('a, univ) t
-
-   val polymorphically : ('a u -> 'b u) -> ('a, 's) t -> ('b, 's) t
+   val polymorphically : ('a func -> 'b func) -> ('a, 's) t -> ('b, 's) t
 end
