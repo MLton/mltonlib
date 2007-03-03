@@ -50,6 +50,11 @@ in
 
          basis Void = bas public/void.sig end
          basis Fn = bas public/fn/fn.sig detail/fn.sml end
+         basis Basic = let
+            open Fn
+         in
+            bas public/basic.sig detail/basic.sml end
+         end
          basis Unit = bas public/data/unit.sig end
          basis Sq = bas public/data/sq.sig detail/sq.sml end
          basis BinFn = let
@@ -138,7 +143,7 @@ in
             bas public/generic/iso.sig detail/iso.sml end
          end
          basis Tie = let
-            open Fix Fn Iso Products Sq
+            open Basic Fix Fn Iso Products Sq
          in
             bas public/generic/tie.sig detail/tie.sml end
          end
@@ -218,7 +223,7 @@ in
             detail/$(SML_COMPILER)/texts.sml
          end
          basis Promise = let
-            open Exn Fix Fn Products Sq Sum Tie
+            open Basic Exn Fix Fn Products Sq Sum Tie
          in
             bas public/lazy/promise.sig detail/promise.sml end
          end
@@ -231,7 +236,7 @@ in
             bas detail/mk-word-flags.fun end
          end
 
-         open BinFn BinOp BinPr Bool Buffer
+         open Basic BinFn BinOp BinPr Bool Buffer
          open Cmp
          open Effect Emb Exit Exn
          open Fix Fn

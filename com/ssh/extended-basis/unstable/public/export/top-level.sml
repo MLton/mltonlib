@@ -6,12 +6,22 @@
 
 (** == Top-Level Bindings == *)
 
-(** === Datatypes === *)
+(** === Types === *)
 
 datatype product = datatype Product.product
 datatype sum = datatype Sum.sum
+type void = Void.t
 
-(** === Functions === *)
+(** === Values === *)
+
+(** ==== Basic ==== *)
+
+val fail = Basic.fail
+val failing = Basic.failing
+val raising = Basic.raising
+val recur = Basic.recur
+val repeat = Basic.repeat
+val undefined = Basic.undefined
 
 (** ==== Exn ==== *)
 
@@ -22,13 +32,11 @@ val try = Exn.try
 
 val const = Fn.const
 val curry = Fn.curry
-val failing = Fn.failing
 val flip = Fn.flip
 val id = Fn.id
 val pass = Fn.pass
-val recur = Fn.recur
 val uncurry = Fn.uncurry
-val undefined = Fn.undefined
+
 val op /> = Fn./>
 val op </ = Fn.</
 val op <\ = Fn.<\
@@ -50,6 +58,7 @@ val println = TextIO.println
 
 (** ==== UnPr ==== *)
 
-val op andAlso = UnPr.andAlso
 val negate = UnPr.negate
+
+val op andAlso = UnPr.andAlso
 val op orElse = UnPr.orElse

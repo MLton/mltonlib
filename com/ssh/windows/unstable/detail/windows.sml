@@ -235,7 +235,7 @@ structure Windows :> WINDOWS_EX = struct
              else if ty = multiSz  then MULTI_SZ o toMultiSz
              else if ty = qword    then QWORD o Word64.fromLittleBytes
              else if ty = sz       then SZ o toSz
-             else raise Fail "Unsupported RegQueryValueEx functionality"
+             else fail "Unsupported RegQueryValueEx functionality"
 
          val toBin =
           fn BINARY x => (binary, x)
@@ -365,8 +365,7 @@ structure Windows :> WINDOWS_EX = struct
                            (fn () => F name [A (lst ptr) (map #1 ws),
                                              A (opt time) t])
                      else
-                        raise Fail "Unsupported WaitForMultipleObjects\
-                                   \ functionality"
+                        fail "Unsupported WaitForMultipleObjects functionality"
                   end))
       end
 

@@ -7,8 +7,8 @@
 structure Writer :> WRITER = struct
    open Writer
 
-   type 'a func_d = 'a * Univ.t and 'a func_r = Univ.t
-   type 'a func = 'a func_d -> 'a func_r
+   type 'a func_dom = 'a * Univ.t and 'a func_cod = Univ.t
+   type 'a func = 'a func_dom -> 'a func_cod
    fun map b2a wA = wA o Pair.map (b2a, Fn.id)
 
    fun polymorphically uA2uB = let

@@ -9,8 +9,7 @@
  * in the language standard library or prelude.
  *)
 structure Basic :> sig
-   val repeat : 'a UnOp.t -> Int.t -> 'a UnOp.t
-   (** {repeat f n x} repeats {f} {n}-times starting with {x}. *)
+   include BASIC (** From the Extended Basis *)
 
    val += : (Int.t Ref.t * Int.t) Effect.t
    (** {c += n} is equivalent to {c := !c + n}. *)
@@ -18,7 +17,7 @@ structure Basic :> sig
    val -= : (Int.t Ref.t * Int.t) Effect.t
    (** {c -= n} is equivalent to {c := !c - n}. *)
 end = struct
-   fun repeat f n x = if n = 0 then x else repeat f (n-1) (f x)
+   open Basic
 
    fun c += n = c := !c + n
    fun c -= n = c := !c - n

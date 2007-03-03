@@ -75,7 +75,7 @@ end = struct
    local
       val e = Fail "Dummy.-->"
    in
-      fun _ --> _ = SOME (failing e)
+      fun _ --> _ = SOME (raising e)
    end
 
    val exn = SOME Empty

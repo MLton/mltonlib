@@ -139,7 +139,7 @@ end = struct
            typ = Typ.--> (aTyp, bTyp)}
 
    val exn = let val e = Fail "Arbitrary.exn not supported yet"
-             in IN {gen = failing e, cog = failing e, typ = Typ.exn}
+             in IN {gen = raising e, cog = raising e, typ = Typ.exn}
              end
    fun regExn _ _ = ()
 

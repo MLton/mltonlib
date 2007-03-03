@@ -53,10 +53,10 @@ end = struct
    local
       val e = Fail "Eq.--> not supported"
    in
-      fun _ --> _ = failing e
+      fun _ --> _ = raising e
    end
 
-   val exn : exn t ref = ref TypeUtil.failExnSq
+   val exn : Exn.t t Ref.t = ref TypeUtil.failExnSq
    fun regExn t (_, prj) =
        Ref.modify (fn exn =>
                       fn (l, r) =>

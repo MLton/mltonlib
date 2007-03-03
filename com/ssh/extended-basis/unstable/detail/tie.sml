@@ -5,9 +5,9 @@
  *)
 
 structure Tie :> TIE = struct
-   type 'a t_domain = Unit.t
-   type 'a t_range = 'a * 'a UnOp.t
-   type 'a t = 'a t_domain -> 'a t_range
+   type 'a t_dom = Unit.t
+   type 'a t_cod = 'a * 'a UnOp.t
+   type 'a t = 'a t_dom -> 'a t_cod
    fun fix a f = let val (a, ta) = a () in ta (f a) end
    val pure = Fn.id
    fun tier th = (fn (a, ta) => (a, Fn.const a o ta)) o th
@@ -19,5 +19,5 @@ structure Tie :> TIE = struct
    fun fromRef rf x = !rf x
    fun function ? =
        tier (fn () => Pair.map (fromRef, Fn.curry op :=)
-                               (Sq.mk (ref (Fn.failing Fix.Fix)))) ?
+                               (Sq.mk (ref (Basic.raising Fix.Fix)))) ?
 end

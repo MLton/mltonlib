@@ -7,7 +7,7 @@
 (*
  * Global operator precedence table.
  *
- * We assume here the modified precedence table of the extended basis library.
+ * We assume here the modified precedence table of the Extended Basis library.
  *)
 
 (* ************************************************************************** *)
@@ -20,7 +20,7 @@ infixr 7 ! <^> <+>   !
 infixr 6 ! <$> <$$>  !
          ! </> <//>  !
 (* ========================================================================== *)
-infix  1 ! <-        ! += -=
+infix  1 ! <-        !
 (* ************************************************************************** *)
 
 nonfix ! (* We just used ! above as a visual separator. *)

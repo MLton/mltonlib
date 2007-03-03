@@ -53,14 +53,14 @@ end = struct
    local
       val e = Fail "Compare.--> not supported"
    in
-      fun _ --> _ = failing e
+      fun _ --> _ = raising e
    end
 
    (* XXX It is also possible to implement exn so that compare provides
     * a reasonable answer as long as at least one of the exception
     * variants (involved in a comparison) has been registered.
     *)
-   val exn : exn t ref = ref TypeUtil.failExnSq
+   val exn : Exn.t t Ref.t = ref TypeUtil.failExnSq
    fun regExn t (_, prj) =
        Ref.modify (fn exn =>
                       fn (l, r) =>

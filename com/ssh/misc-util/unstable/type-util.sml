@@ -13,7 +13,7 @@ structure TypeUtil :> sig
    val failExnSq : Exn.t Sq.t -> 'a
 end = struct
    val ` = Exn.name
-   fun failCat ss = raise Fail (concat ss)
+   fun failCat ss = fail (concat ss)
    fun failExn e = failCat ["unregistered exn ", `e]
    fun failExnSq (l, r) = failCat ["unregistered exns ", `l, " and ", `r]
 end

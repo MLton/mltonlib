@@ -30,7 +30,7 @@ structure Promise :> PROMISE = struct
 
    fun toThunk promise =
        case !(!promise) of
-          EAGER s => Sum.sum (Fn.failing, Fn.const) s
+          EAGER s => Sum.sum (Basic.raising, Fn.const) s
         | LAZY _ => fn () => force promise
 
    fun tie s k =
@@ -40,5 +40,5 @@ structure Promise :> PROMISE = struct
 
    fun Y ? =
        Tie.tier (fn () => Pair.map (Fn.id, tie)
-                                   (Sq.mk (lazy (Fn.failing Fix.Fix)))) ?
+                                   (Sq.mk (lazy (Basic.raising Fix.Fix)))) ?
 end

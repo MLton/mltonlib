@@ -18,7 +18,7 @@ in
                    val () = eq (0, size c)
                    val k5 = put c 5
                    val () = (eq (1, size c)
-                           ; notFound (fn () => putWith c (failing NotFound))
+                           ; notFound (fn () => putWith c (raising NotFound))
                            ; eq (1, size c)
                            ; eq (5, get c k5))
                    val k2 = put c 2

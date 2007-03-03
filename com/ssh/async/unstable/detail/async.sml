@@ -104,7 +104,7 @@ structure Async :> ASYNC = struct
               NONE => ()
             | SOME th =>
               case Queue.deque vs of
-                 NONE => raise Fail "impossible"
+                 NONE => fail "impossible"
                | SOME v => Handler.schedule v th)
    end
 

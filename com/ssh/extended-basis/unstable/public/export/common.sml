@@ -25,6 +25,7 @@ signature STRINGABLE = STRINGABLE
 
 signature ARRAY = ARRAY
 signature ARRAY_SLICE = ARRAY_SLICE
+signature BASIC = BASIC
 signature BIN_FN = BIN_FN
 signature BIN_OP = BIN_OP
 signature BIN_PR = BIN_PR
@@ -88,6 +89,7 @@ structure Writer : WRITER = Writer
 
 structure Array : ARRAY = Array
 structure ArraySlice : ARRAY_SLICE = ArraySlice
+structure Basic : BASIC = Basic
 structure BinFn : BIN_FN = BinFn
 structure BinOp : BIN_OP = BinOp
 structure BinPr : BIN_PR = BinPr

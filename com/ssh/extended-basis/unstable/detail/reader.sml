@@ -9,11 +9,11 @@ structure Reader :> READER = struct
 
    infix >>=
 
-   type 'a monad_d = Univ.t and 'a monad_r = ('a * Univ.t) Option.t
+   type 'a monad_dom = Univ.t and 'a monad_cod = ('a * Univ.t) Option.t
 
    structure Monad =
       MkMonadP
-         (type 'a monad = 'a monad_d -> 'a monad_r
+         (type 'a monad = 'a monad_dom -> 'a monad_cod
           fun return a s = SOME (a, s)
           fun aM >>= a2bM = Option.mapPartial (Fn.uncurry a2bM) o aM
           fun zero _ = NONE

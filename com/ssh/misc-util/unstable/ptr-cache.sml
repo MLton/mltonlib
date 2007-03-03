@@ -41,7 +41,7 @@ local
           ; nUnused += 1 ; nUsed -= 1
           ; while !nUsed < !nUnused do
                case pop () of
-                  NONE => raise Fail "bug"
+                  NONE => fail "bug"
                 | SOME k => C.free' k
          end
       end

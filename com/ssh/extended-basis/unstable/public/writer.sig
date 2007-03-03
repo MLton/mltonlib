@@ -10,8 +10,8 @@ signature WRITER = sig
 
    (** == Functor Interface == *)
 
-   type 'a func_d and 'a func_r
-   include CFUNC where type 'a func = 'a func_d -> 'a func_r
+   type 'a func_dom and 'a func_cod
+   include CFUNC where type 'a func = 'a func_dom -> 'a func_cod
 
    val polymorphically : ('a func -> 'b func) -> ('a, 's) t -> ('b, 's) t
 end

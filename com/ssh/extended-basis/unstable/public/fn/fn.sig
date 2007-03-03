@@ -21,12 +21,6 @@ signature FN = sig
    val curry : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
    (** Currying ({curry f x y = f (x, y)}). *)
 
-   val failing : exn -> 'a -> 'b
-   (**
-    * A failing function; {failing e} is equivalent to {fn _ => raise e},
-    * assuming {e} is a variable.
-    *)
-
    val flip : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
    (** Flip the order of arguments ({flip f x y = f y x}). *)
 
@@ -41,15 +35,6 @@ signature FN = sig
 
    val pass : 'a -> ('a -> 'b) -> 'b
    (** Pass to continuation ({pass x f = f x}). *)
-
-   val recur : 'a -> ('a -> 'b) UnOp.t -> 'b
-   (** {recur} is same as {flip fix}. *)
-
-   val undefined : 'a -> 'b
-   (**
-    * An undefined function.  This is equivalent to {failing (Fail
-    * "undefined")}.
-    *)
 
    val <\ : 'a * ('a * 'b -> 'c) -> 'b -> 'c
    (** Left section ({(x <\ f) y = f (x, y)}). *)

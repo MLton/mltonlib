@@ -24,6 +24,7 @@ in
         "detail/"^compiler^"/extensions.use",
         "public/void.sig",
         "public/fn/fn.sig", "detail/fn.sml",
+        "public/basic.sig", "detail/basic.sml",
         "public/data/unit.sig",
         "public/data/sq.sig", "detail/sq.sml",
         "public/fn/bin-fn.sig", "detail/bin-fn.sml",

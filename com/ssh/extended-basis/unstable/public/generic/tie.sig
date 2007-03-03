@@ -20,14 +20,13 @@
  * See also: http://mlton.org/Fixpoints
  *)
 signature TIE = sig
-   type 'a t_domain
-   type 'a t_range
-   type 'a t = 'a t_domain -> 'a t_range
+   type 'a t_dom and 'a t_cod
+   type 'a t = 'a t_dom -> 'a t_cod
    (**
     * The type of fixpoint tiers.
     *
-    * The type constructors {t_domain} and {t_range} are used to expose
-    * the arrow {->} type constructor (to allow eta-expansion) while
+    * The type constructors {t_dom} and {t_cod} are used to expose the
+    * arrow {->} type constructor (to allow eta-expansion) while
     * preventing clients from actually applying tiers.
     *)
 
