@@ -64,3 +64,23 @@ signature MONADP = sig
    include MONAD_EX where type 'a monad_ex = 'a monad
    include MONADP_EX where type 'a monadp_ex = 'a monad
 end
+
+(** == State Monads == *)
+
+signature MONAD_WS = sig (* WS = WITH_STATE *)
+  type 'a monad_ws
+  type monad_ws_state
+  val getState : monad_ws_state monad_ws
+  val setState : monad_ws_state -> Unit.t monad_ws
+  val run : monad_ws_state -> 'a monad_ws -> monad_ws_state * 'a
+end 
+ 
+signature MONAD_STATE = sig
+  include MONAD
+  include MONAD_WS where type 'a monad_ws = 'a monad
+end 
+
+signature MONADP_STATE = sig
+  include MONADP
+  include MONAD_WS where type 'a monad_ws = 'a monad
+end 

@@ -117,4 +117,32 @@ signature LIST = sig
     * Given an equality predicate on an element type returns an equality
     * predicate on lists of the element type.
     *)
+
+   (** == Operations using equivalence relations and partial orders == 
+    * The {ByEq} functions use a binary predicate and operates in O(n^2) 
+    * time.  The binary predicate is assumed to be an equivalence relation.  
+    *
+    * The {ByCmp} use comparison function and operates in O(n log n) time.  
+    * The comparison function is assumed to be be partial order.
+    *)
+
+   val uniqueByEq : 'a BinPr.t -> 'a t UnPr.t
+   (** 
+    * {uniqueByEq eq xs} returns {true} all if elements of are pair-wise 
+    * distinct.  
+    *)
+   
+   val divideByEq : 'a BinPr.t -> 'a t -> 'a t t
+   (** 
+    * {divideByEq eq xs} divides {xs} up into a list of lists. Each list
+    * contains elements in the equivalence class induced by {eq}.  
+    *)
+
+   val nubByEq : 'a BinPr.t -> 'a t -> 'a t
+   (** 
+    * {nubByEq eq xs} removes duplicates in {xs} based upon the 
+    * equivalence class specified by {eq}.  It preserves the ordering of 
+    * the elements in {xs}.
+    *)
+
 end

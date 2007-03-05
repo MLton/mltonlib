@@ -96,4 +96,38 @@ structure List : LIST = struct
       fun takeWhile ? = rev o #1 o mk op :: [] ?
       fun dropWhile ? = #2 o mk ignore () ?
    end
+   
+   fun uniqueByEq eq xs = 
+       case xs
+         of [] => true
+          | x::xs' => 
+            exists (Fn.curry eq x) xs' andalso
+            uniqueByEq eq xs' 
+
+   local
+     fun divideByEqTail eq xs accum = 
+         case xs
+           of [] => rev accum 
+            | x::xs' => let
+                val (xclass, remainder) = partition (Fn.curry eq x) xs'
+              in
+                divideByEqTail eq remainder ((x::xclass)::accum)
+              end
+   in
+     fun divideByEq eq xs = divideByEqTail eq xs []
+   end
+
+   local
+     fun nubByEqTail eq xs accum = 
+         case xs
+           of [] => accum
+            | x::xs' =>
+                if exists (Fn.curry eq x) xs' then
+                  nubByEqTail eq xs' accum
+                else 
+                  nubByEqTail eq xs' (x::accum)   
+   in
+     fun nubByEq eq xs = nubByEqTail eq (rev xs) []
+   end
+
 end
