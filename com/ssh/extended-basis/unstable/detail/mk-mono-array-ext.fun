@@ -4,10 +4,11 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkMonoArrayExt (structure MonoVector : MONO_VECTOR
-                        structure MonoArray : MONO_ARRAY
+functor MkMonoArrayExt (structure MonoVector : BASIS_MONO_VECTOR
+                        structure MonoArray : BASIS_MONO_ARRAY
                            where type elem = MonoVector.elem
-                           where type vector = MonoVector.vector) = struct
+                           where type vector = MonoVector.vector) :
+   MONO_ARRAY = struct
    local
       structure MonoArray = struct
          open MonoArray

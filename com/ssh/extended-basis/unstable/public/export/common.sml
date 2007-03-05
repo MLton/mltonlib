@@ -11,8 +11,10 @@
 signature BITWISE = BITWISE
 signature BOUNDED = BOUNDED
 signature BOUNDED_CORE = BOUNDED_CORE
+signature CASED = CASED
 signature CFUNC = CFUNC
 signature CSTRINGABLE = CSTRINGABLE
+signature CSTRINGABLE_CORE = CSTRINGABLE_CORE
 signature EQUALITY = EQUALITY
 signature EQUALITY_CORE = EQUALITY_CORE
 signature FLAGS = FLAGS
@@ -90,6 +92,11 @@ signature WRITER = WRITER
 
 (** === Modules === *)
 
+(*
+ * These structures are mentioned separately here, rather than in the
+ * below list sorted alphabetically, because otherwise SML/NJ (v110.62)
+ * barfs.
+ *)
 structure Sq : SQ = Sq
 structure Sum : SUM = Sum
 structure Thunk : THUNK = Thunk
@@ -154,11 +161,12 @@ structure Word8VectorSlice : MONO_VECTOR_SLICE = Word8VectorSlice
 
 (** === Functors === *)
 
-functor MkBounded (Core : BOUNDED_CORE) : BOUNDED = MkBounded (Core)
-functor MkEquality (Core : EQUALITY_CORE) : EQUALITY = MkEquality (Core)
-functor MkMonad (Core : MONAD_CORE) : MONAD = MkMonad (Core)
-functor MkMonadP (Core : MONADP_CORE) : MONADP = MkMonadP (Core)
-functor MkOrdered (Core : ORDERED_CORE) : ORDERED = MkOrdered (Core)
-functor MkScannable (Core : SCANNABLE_CORE) : SCANNABLE = MkScannable (Core)
-functor MkStringable (Core : STRINGABLE_CORE) : STRINGABLE = MkStringable (Core)
-functor MkWordFlags (Core : WORD) : FLAGS = MkWordFlags (Core)
+functor MkBounded (C : BOUNDED_CORE) : BOUNDED = MkBounded (C)
+functor MkCStringable (C : CSTRINGABLE_CORE) : CSTRINGABLE = MkCStringable (C)
+functor MkEquality (C : EQUALITY_CORE) : EQUALITY = MkEquality (C)
+functor MkMonad (C : MONAD_CORE) : MONAD = MkMonad (C)
+functor MkMonadP (C : MONADP_CORE) : MONADP = MkMonadP (C)
+functor MkOrdered (C : ORDERED_CORE) : ORDERED = MkOrdered (C)
+functor MkScannable (C : SCANNABLE_CORE) : SCANNABLE = MkScannable (C)
+functor MkStringable (C : STRINGABLE_CORE) : STRINGABLE = MkStringable (C)
+functor MkWordFlags (C : WORD) : FLAGS = MkWordFlags (C)

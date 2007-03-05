@@ -7,37 +7,37 @@
 (** == Extended {MONO_VECTOR_SLICE} modules for MLton == *)
 
 structure BoolVectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = BoolVectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisBoolVectorSlice)
 
 structure IntVectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = IntVectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisIntVectorSlice)
 structure LargeIntVectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = LargeIntVectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisLargeIntVectorSlice)
 structure Int8VectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Int8VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisInt8VectorSlice)
 structure Int16VectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Int16VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisInt16VectorSlice)
 structure Int32VectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Int32VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisInt32VectorSlice)
 structure Int64VectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Int64VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisInt64VectorSlice)
 
 structure RealVectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = RealVectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisRealVectorSlice)
 structure LargeRealVectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = LargeRealVectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisLargeRealVectorSlice)
 structure Real32VectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Real32VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisReal32VectorSlice)
 structure Real64VectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Real64VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisReal64VectorSlice)
 
 structure WordVectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = WordVectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisWordVectorSlice)
 structure LargeWordVectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = LargeWordVectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisLargeWordVectorSlice)
 structure Word16VectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Word16VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisWord16VectorSlice)
 structure Word32VectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Word32VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisWord32VectorSlice)
 structure Word64VectorSlice : MONO_VECTOR_SLICE =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Word64VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisWord64VectorSlice)

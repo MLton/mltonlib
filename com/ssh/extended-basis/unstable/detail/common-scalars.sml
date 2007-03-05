@@ -6,13 +6,13 @@
 
 (* Extended scalar modules common to all compilers *)
 
-structure Int = MkIntegerExt (Int)
-structure LargeInt = MkIntegerExt (LargeInt)
-structure Position = MkIntegerExt (Position)
+structure Int = MkIntegerExt (BasisInt)
+structure LargeInt = MkIntegerExt (BasisLargeInt)
+structure Position = MkIntegerExt (BasisPosition)
 
-structure LargeReal = MkRealExt (LargeReal)
-structure Real = MkRealExt (Real)
+structure LargeReal = MkRealExt (BasisLargeReal)
+structure Real = MkRealExt (BasisReal)
 
-structure LargeWord = MkWordExt (LargeWord)
-structure Word = MkWordExt (Word)
-structure Word8 = MkWordExt (Word8)
+structure LargeWord = MkWordExt (BasisLargeWord)
+structure Word = MkWordExt (BasisWord)
+structure Word8 = MkWordExt (BasisWord8)

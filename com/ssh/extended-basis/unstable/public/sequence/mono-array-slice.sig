@@ -6,7 +6,7 @@
 
 (** Extended {MONO_ARRAY_SLICE} signature. *)
 signature MONO_ARRAY_SLICE = sig
-   include MONO_ARRAY_SLICE
+   include BASIS_MONO_ARRAY_SLICE
 
    type t = slice
    (** Convenience alias. *)

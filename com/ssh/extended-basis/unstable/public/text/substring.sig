@@ -6,7 +6,7 @@
 
 (** Extended {SUBSTRING} signature. *)
 signature SUBSTRING = sig
-   include SUBSTRING
+   include BASIS_SUBSTRING
 
    type t = substring
    (** Convenience alias. *)

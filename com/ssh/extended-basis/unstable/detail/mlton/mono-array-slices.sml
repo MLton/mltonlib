@@ -7,37 +7,37 @@
 (** == Extended {MONO_ARRAY_SLICE} modules for MLton == *)
 
 structure BoolArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = BoolArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisBoolArraySlice)
 
 structure IntArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = IntArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisIntArraySlice)
 structure LargeIntArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = LargeIntArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisLargeIntArraySlice)
 structure Int8ArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = Int8ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisInt8ArraySlice)
 structure Int16ArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = Int16ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisInt16ArraySlice)
 structure Int32ArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = Int32ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisInt32ArraySlice)
 structure Int64ArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = Int64ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisInt64ArraySlice)
 
 structure RealArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = RealArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisRealArraySlice)
 structure LargeRealArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = LargeRealArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisLargeRealArraySlice)
 structure Real32ArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = Real32ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisReal32ArraySlice)
 structure Real64ArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = Real64ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisReal64ArraySlice)
 
 structure WordArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = WordArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisWordArraySlice)
 structure LargeWordArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = LargeWordArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisLargeWordArraySlice)
 structure Word16ArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = Word16ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisWord16ArraySlice)
 structure Word32ArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = Word32ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisWord32ArraySlice)
 structure Word64ArraySlice : MONO_ARRAY_SLICE =
-   MkMonoArraySliceExt (structure MonoArraySlice = Word64ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisWord64ArraySlice)

@@ -6,7 +6,7 @@
 
 (** Extended {ARRAY} signature. *)
 signature ARRAY = sig
-   include ARRAY
+   include BASIS_ARRAY
 
    type 'a t = 'a array
    (** Convenience alias. *)

@@ -6,7 +6,7 @@
 
 (** Extended {LIST} signature. *)
 signature LIST = sig
-   include LIST
+   include BASIS_LIST
 
    type 'a t = 'a list
    (** Convenience alias. *)

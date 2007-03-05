@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkMonoVectorExt (MonoVector : MONO_VECTOR) = struct
+functor MkMonoVectorExt (MonoVector : BASIS_MONO_VECTOR) : MONO_VECTOR = struct
    local
       structure MonoVector = struct
          open MonoVector

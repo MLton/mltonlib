@@ -6,7 +6,7 @@
 
 (** Extended {TEXT_IO} signature. *)
 signature TEXT_IO = sig
-   include TEXT_IO
+   include BASIS_TEXT_IO
 
    val println : String.t Effect.t
    (**

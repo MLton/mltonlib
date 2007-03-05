@@ -4,8 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkEquality (Core : EQUALITY_CORE) : EQUALITY = struct
+functor MkCStringable (Core : CSTRINGABLE_CORE) : CSTRINGABLE = struct
    open Core
-   type equality_ex = equality
-   val op != = not o op ==
+   type cstringable_ex = cstringable
+   val (toCString, fromCString) = embCString
 end

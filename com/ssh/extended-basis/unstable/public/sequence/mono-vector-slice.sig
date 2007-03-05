@@ -6,7 +6,7 @@
 
 (** Extended {MONO_VECTOR_SLICE} signature. *)
 signature MONO_VECTOR_SLICE = sig
-   include MONO_VECTOR_SLICE
+   include BASIS_MONO_VECTOR_SLICE
 
    type t = slice
    (** Convenience alias. *)

@@ -6,7 +6,7 @@
 
 (** Extended {MONO_VECTOR} signature. *)
 signature MONO_VECTOR = sig
-   include MONO_VECTOR
+   include BASIS_MONO_VECTOR
 
    type t = vector
    (** Convenience alias. *)

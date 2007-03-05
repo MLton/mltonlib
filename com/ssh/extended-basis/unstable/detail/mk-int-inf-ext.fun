@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkIntInfExt (I : INT_INF) = struct
+functor MkIntInfExt (I : BASIS_INT_INF) : INT_INF = struct
    local
       structure E = MkIntegerExt (I)
    in

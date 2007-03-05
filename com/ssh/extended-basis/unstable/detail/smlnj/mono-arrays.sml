@@ -7,8 +7,8 @@
 (** == Extended {MONO_ARRAY} modules for SML/NJ == *)
 
 structure RealArray =
-   MkMonoArrayExt (structure MonoArray = RealArray
-                   structure MonoVector = RealVector)
+   MkMonoArrayExt (structure MonoArray = BasisRealArray
+                   structure MonoVector = BasisRealVector)
 structure Real64Array =
-   MkMonoArrayExt (structure MonoArray = Real64Array
-                   structure MonoVector = Real64Vector)
+   MkMonoArrayExt (structure MonoArray = BasisReal64Array
+                   structure MonoVector = BasisReal64Vector)

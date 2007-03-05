@@ -7,6 +7,6 @@
 (** == Extended {MONO_ARRAY_SLICE} modules for SML/NJ == *)
 
 structure RealArraySlice =
-   MkMonoArraySliceExt (structure MonoArraySlice = RealArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisRealArraySlice)
 structure Real64ArraySlice =
-   MkMonoArraySliceExt (structure MonoArraySlice = Real64ArraySlice)
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisReal64ArraySlice)

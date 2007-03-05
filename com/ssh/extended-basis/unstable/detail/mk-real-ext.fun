@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkRealExt (R : REAL) = struct
+functor MkRealExt (R : BASIS_REAL) : REAL = struct
    open R
    type t = real
    val embDecimal = (toDecimal, fromDecimal)

@@ -5,7 +5,7 @@
  *)
 
 structure TextIO = struct
-   open TextIO
+   open BasisTextIO
 
    fun println s =
        (output (stdOut, s) ; output1 (stdOut, #"\n") ; flushOut stdOut)

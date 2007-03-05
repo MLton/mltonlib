@@ -7,6 +7,6 @@
 (** == Extended {MONO_VECTOR_SLICE} modules for SML/NJ == *)
 
 structure RealVectorSlice =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = RealVectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisRealVectorSlice)
 structure Real64VectorSlice =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Real64VectorSlice)
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisReal64VectorSlice)

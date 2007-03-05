@@ -6,19 +6,20 @@
 
 (* Extended mono sequence modules common to all compilers *)
 
-structure Word8Vector = MkMonoVectorExt (Word8Vector)
-structure Word8VectorSlice =
-   MkMonoVectorSliceExt (structure MonoVectorSlice = Word8VectorSlice)
-structure Word8Array = MkMonoArrayExt (structure MonoArray = Word8Array
-                                       structure MonoVector = Word8Vector)
-structure Word8ArraySlice =
-   MkMonoArraySliceExt (structure MonoArraySlice = Word8ArraySlice)
+structure Word8Vector : MONO_VECTOR = MkMonoVectorExt (BasisWord8Vector)
+structure Word8VectorSlice : MONO_VECTOR_SLICE =
+   MkMonoVectorSliceExt (structure MonoVectorSlice = BasisWord8VectorSlice)
+structure Word8Array : MONO_ARRAY =
+   MkMonoArrayExt (structure MonoArray = BasisWord8Array
+                   structure MonoVector = BasisWord8Vector)
+structure Word8ArraySlice : MONO_ARRAY_SLICE =
+   MkMonoArraySliceExt (structure MonoArraySlice = BasisWord8ArraySlice)
 
-structure Text = MkTextExt (Text)
-structure Char = Text.Char
-structure CharArray = Text.CharArray
-structure CharArraySlice = Text.CharArraySlice
-structure CharVector = Text.CharVector
-structure CharVectorSlice = Text.CharVectorSlice
-structure String = Text.String
-structure Substring = Text.Substring
+structure Text : TEXT = MkTextExt (BasisText)
+structure Char : CHAR = Text.Char
+structure CharArray : MONO_ARRAY = Text.CharArray
+structure CharArraySlice : MONO_ARRAY_SLICE = Text.CharArraySlice
+structure CharVector : MONO_VECTOR = Text.CharVector
+structure CharVectorSlice : MONO_VECTOR_SLICE = Text.CharVectorSlice
+structure String : STRING = Text.String
+structure Substring : SUBSTRING = Text.Substring

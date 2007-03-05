@@ -6,7 +6,7 @@
 
 (** Extended {VECTOR} signature. *)
 signature VECTOR = sig
-   include VECTOR
+   include BASIS_VECTOR
 
    type 'a t = 'a vector
    (** Convenience alias. *)

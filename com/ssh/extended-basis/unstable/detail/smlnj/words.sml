@@ -6,9 +6,9 @@
 
 (** == Extended {WORD} modules for SML/NJ == *)
 
-structure SysWord = MkWordExt (SysWord)
+structure SysWord = MkWordExt (BasisSysWord)
 
-structure Word31 = MkWordExt (Word31)
-structure Word32 = MkWordExt (Word32)
+structure Word31 = MkWordExt (BasisWord31)
+structure Word32 = MkWordExt (BasisWord32)
 
-structure Word64 = MkWordExt (Word64)
+structure Word64 = MkWordExt (BasisWord64)

@@ -6,7 +6,7 @@
 
 (** Extended {ARRAY_SLICE} signature. *)
 signature ARRAY_SLICE = sig
-   include ARRAY_SLICE
+   include BASIS_ARRAY_SLICE
 
    type 'a t = 'a slice
    (** Convenience alias. *)

@@ -6,7 +6,7 @@
 
 (** Extended {MONO_ARRAY} signature. *)
 signature MONO_ARRAY = sig
-   include MONO_ARRAY
+   include BASIS_MONO_ARRAY
 
    type t = array
    (** Convenience alias. *)

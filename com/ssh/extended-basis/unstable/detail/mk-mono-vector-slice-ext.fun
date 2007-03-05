@@ -4,7 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkMonoVectorSliceExt (structure MonoVectorSlice : MONO_VECTOR_SLICE) =
+functor MkMonoVectorSliceExt (structure MonoVectorSlice :
+                                 BASIS_MONO_VECTOR_SLICE) =
 struct
    open MonoVectorSlice
    type t = slice

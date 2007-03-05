@@ -5,14 +5,15 @@
  *)
 
 library
-   source(real.sig)
-   source(reals.sml)
-   source(word.sig)
-   source(words.sml)
+   source(-)
 is
    $/basis.cm
+   char.sig
    funs.cm
    real.sig
    reals.sml
+   string.sig
+   text.sig
+   text.sml
    word.sig
    words.sml

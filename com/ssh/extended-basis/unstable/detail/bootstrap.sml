@@ -10,21 +10,26 @@ structure Void = struct abstype t = T with fun void T = void T end end
 structure Exn = struct type t = exn end
 structure Fn = struct type ('a, 'b) t = 'a -> 'b end
 structure Unit = struct type t = unit end
-structure Bool = struct open Bool type t = bool end
-structure Char = struct open Char type t = char end
-structure Option = struct open Option type 'a t = 'a option end
-structure String = struct open String type t = string end
-structure Int = struct open Int type t = int end
-structure LargeInt = struct open LargeInt type t = int end
-structure Word = struct open Word type t = word end
-structure LargeWord = struct open LargeWord type t = word end
-structure LargeReal = struct open LargeReal type t = real end
-structure Word8Vector = struct open Word8Vector type t = vector end
-structure Array = struct open Array type 'a t = 'a array end
-structure ArraySlice = struct open ArraySlice type 'a t = 'a slice end
-structure Vector = struct open Vector type 'a t = 'a vector end
-structure VectorSlice = struct open VectorSlice type 'a t = 'a slice end
-structure List = struct open List type 'a t = 'a list end
+structure Bool = struct
+   open BasisBool
+   type t = bool
+   fun isFalse b = b = false
+   fun isTrue b = b = true
+end
+structure Char = struct open BasisChar type t = char end
+structure Option = struct open BasisOption type 'a t = 'a option end
+structure String = struct open BasisString type t = string end
+structure Int = struct open BasisInt type t = int end
+structure LargeInt = struct open BasisLargeInt type t = int end
+structure Word = struct open BasisWord type t = word end
+structure LargeWord = struct open BasisLargeWord type t = word end
+structure LargeReal = struct open BasisLargeReal type t = real end
+structure Word8Vector = struct open BasisWord8Vector type t = vector end
+structure Array = struct open BasisArray type 'a t = 'a array end
+structure ArraySlice = struct open BasisArraySlice type 'a t = 'a slice end
+structure Vector = struct open BasisVector type 'a t = 'a vector end
+structure VectorSlice = struct open BasisVectorSlice type 'a t = 'a slice end
+structure List = struct open BasisList type 'a t = 'a list end
 structure Effect = struct type 'a t = 'a -> Unit.t end
 structure Order = struct datatype t = datatype order end
 structure Pair = struct
@@ -54,3 +59,5 @@ structure Emb = struct type ('a, 'b) t = ('a -> 'b) * ('b -> 'a Option.t) end
 structure Iso = struct type ('a, 'b) t = ('a -> 'b) * ('b -> 'a) end
 structure ShiftOp = struct type 'a t = 'a * Word.t -> 'a end
 structure BinFn = struct type ('a, 'b) t = 'a Sq.t -> 'b end
+structure IEEEReal = BasisIEEEReal
+structure Univ = struct exception Univ end

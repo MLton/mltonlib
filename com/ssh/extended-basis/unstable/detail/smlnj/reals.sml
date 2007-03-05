@@ -6,4 +6,4 @@
 
 (** == Extended {REAL} modules for SML/NJ == *)
 
-structure Real64 = MkRealExt (Real64)
+structure Real64 = MkRealExt (BasisReal64)

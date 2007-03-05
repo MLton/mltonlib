@@ -21,7 +21,13 @@
  *)
 
 local
-   $(SML_LIB)/basis/basis.mlb
+   local
+      $(SML_LIB)/basis/basis.mlb
+   in
+      detail/basis-common.sml
+      detail/basis-$(SML_COMPILER).sml
+   end
+   $(SML_LIB)/basis/pervasive.mlb
 in
    ann
       "forceUsed"
@@ -41,6 +47,7 @@ in
          (* Concept signatures *)
          public/concept/bitwise.sig
          public/concept/bounded.sig
+         public/concept/cased.sig
          public/concept/cstringable.sig
          public/concept/equality.sig
          public/concept/flags.sig
@@ -62,6 +69,9 @@ in
 
          (* MkStringable *)
          detail/concept/mk-stringable.fun
+
+         (* MkCStringable *)
+         detail/concept/mk-cstringable.fun
 
          (* Void *)
          public/void.sig
@@ -95,7 +105,6 @@ in
          (* Univ *)
          public/data/univ.sig
          local
-            detail/univ-common.sml
             ann "warnUnused false" in
                detail/univ-ref.sml
                detail/univ-exn.sml
@@ -178,14 +187,14 @@ in
          detail/tie.sml
 
          (* Seqs *)
-         detail/mk-seq-common-ext.fun
          public/sequence/array.sig
-         detail/array.sml
          public/sequence/array-slice.sig
-         detail/array-slice.sml
          public/sequence/vector.sig
-         detail/vector.sml
          public/sequence/vector-slice.sig
+         detail/mk-seq-common-ext.fun
+         detail/array.sml
+         detail/array-slice.sml
+         detail/vector.sml
          detail/vector-slice.sml
 
          (* Option *)
@@ -213,26 +222,20 @@ in
          detail/exit.sml
 
          (* Scalars *)
-         detail/mk-integer-ext.fun
-         detail/mk-int-inf-ext.fun
-         detail/mk-real-ext.fun
-         detail/mk-word-ext.fun
          public/numeric/int-inf.sig
          public/numeric/integer.sig
          public/numeric/real.sig
          public/numeric/word.sig
+         detail/mk-integer-ext.fun
+         detail/mk-int-inf-ext.fun
+         detail/mk-real-ext.fun
+         detail/mk-word-ext.fun
          detail/common-scalars.sml
          detail/$(SML_COMPILER)/ints.sml
          detail/$(SML_COMPILER)/reals.sml
          detail/$(SML_COMPILER)/words.sml
 
          (* MonoSeqs *)
-         detail/mk-mono-seq-common-ext.fun
-         detail/mk-mono-vector-ext.fun
-         detail/mk-mono-vector-slice-ext.fun
-         detail/mk-mono-array-ext.fun
-         detail/mk-mono-array-slice-ext.fun
-         detail/mk-text-ext.fun
          public/sequence/mono-vector.sig
          public/sequence/mono-vector-slice.sig
          public/sequence/mono-array.sig
@@ -241,6 +244,12 @@ in
          public/text/string.sig
          public/text/substring.sig
          public/text/text.sig
+         detail/mk-mono-seq-common-ext.fun
+         detail/mk-mono-vector-ext.fun
+         detail/mk-mono-vector-slice-ext.fun
+         detail/mk-mono-array-ext.fun
+         detail/mk-mono-array-slice-ext.fun
+         detail/mk-text-ext.fun
          detail/common-mono-seqs.sml
          detail/$(SML_COMPILER)/mono-vectors.sml
          detail/$(SML_COMPILER)/mono-vector-slices.sml

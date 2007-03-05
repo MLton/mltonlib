@@ -6,7 +6,7 @@
 
 (** Extended {REAL} signature. *)
 signature REAL = sig
-   include REAL
+   include BASIS_REAL
 
    type t = real
    (** Convenience alias. *)

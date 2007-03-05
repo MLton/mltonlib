@@ -6,11 +6,11 @@
 
 (** == Extended {INTEGER} and {INT_INF} modules for SML/NJ == *)
 
-structure FixedInt = MkIntegerExt (FixedInt)
+structure FixedInt = MkIntegerExt (BasisFixedInt)
 
-structure Int31 = MkIntegerExt (Int31)
-structure Int32 = MkIntegerExt (Int32)
+structure Int31 = MkIntegerExt (BasisInt31)
+structure Int32 = MkIntegerExt (BasisInt32)
 
-structure Int64 = MkIntegerExt (Int64)
+structure Int64 = MkIntegerExt (BasisInt64)
 
-structure IntInf = MkIntInfExt (IntInf)
+structure IntInf = MkIntInfExt (BasisIntInf)

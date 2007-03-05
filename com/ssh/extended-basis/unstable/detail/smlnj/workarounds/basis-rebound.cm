@@ -4,8 +4,10 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkEquality (Core : EQUALITY_CORE) : EQUALITY = struct
-   open Core
-   type equality_ex = equality
-   val op != = not o op ==
-end
+library
+   source(../../basis-common.sml)
+   source(../../basis-smlnj.sml)
+is
+   ../../basis-common.sml
+   ../../basis-smlnj.sml
+   basis.cm

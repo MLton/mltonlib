@@ -8,12 +8,19 @@ group
    group(sigs.cm)
    source(-)
 is
-   ../../public/data/univ.sig
-   ../../public/generic/tie.sig
-   ../../public/lazy/promise.sig
+   ../basic.sml
+   ../effect.sml
+   ../fn.sml
+   ../pair.sml
+   ../product.sml
+   ../sq.sml
+   ../sum.sml
+   ../tie.sml
+   ../exn.sml
+   ext.sml
+   ../order.sml
    ../array-slice.sml
    ../array.sml
-   ../basic.sml
    ../bin-fn.sml
    ../bin-op.sml
    ../bin-pr.sml
@@ -23,24 +30,30 @@ is
    ../common-mono-seqs.sml
    ../common-scalars.sml
    ../concept/mk-bounded.fun
+   ../concept/mk-cstringable.fun
    ../concept/mk-equality.fun
    ../concept/mk-ordered.fun
    ../concept/mk-scannable.fun
    ../concept/mk-stringable.fun
-   ../effect.sml
    ../emb.sml
    ../exit.sml
-   ../exn.sml
    ../fix.sml
-   ../fn.sml
    ../iso.sml
    ../list.sml
+   ../mk-int-inf-ext.fun
+   ../mk-integer-ext.fun
    ../mk-monad.fun
+   ../mk-mono-array-ext.fun
+   ../mk-mono-array-slice-ext.fun
+   ../mk-mono-seq-common-ext.fun
+   ../mk-mono-vector-ext.fun
+   ../mk-mono-vector-slice-ext.fun
+   ../mk-real-ext.fun
+   ../mk-seq-common-ext.fun
+   ../mk-text-ext.fun
+   ../mk-word-ext.fun
    ../mk-word-flags.fun
    ../option.sml
-   ../order.sml
-   ../pair.sml
-   ../product.sml
    ../promise.sml
    ../reader.sml
    ../ref.sml
@@ -51,11 +64,8 @@ is
    ../smlnj/mono-vectors.sml
    ../smlnj/reals.sml
    ../smlnj/words.sml
-   ../sq.sml
-   ../sum.sml
    ../text-io.sml
    ../thunk.sml
-   ../tie.sml
    ../un-op.sml
    ../un-pr.sml
    ../univ-exn.sml
@@ -63,5 +73,5 @@ is
    ../vector.sml
    ../with.sml
    ../writer.sml
-   ext.sml
+   ../../public/lazy/promise.sig
    sigs.cm

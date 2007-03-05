@@ -6,7 +6,7 @@
 
 (** Extended {OPTION} signature. *)
 signature OPTION = sig
-   include OPTION
+   include BASIS_OPTION
 
    type 'a t = 'a option
    (** Convenience alias. *)

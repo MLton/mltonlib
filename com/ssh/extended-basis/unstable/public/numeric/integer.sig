@@ -6,7 +6,7 @@
 
 (** Extended {INTEGER} signature. *)
 signature INTEGER = sig
-   include INTEGER
+   include BASIS_INTEGER
 
    type t = int
    (** Convenience alias. *)

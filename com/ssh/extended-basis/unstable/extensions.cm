@@ -5,8 +5,7 @@
  *)
 
 library
-   source(public/export/common.sml)
-   source(public/export/smlnj.sml)
+   source(-)
 is
    detail/smlnj/unsealed.cm
    public/export/common.sml

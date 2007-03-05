@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkIntegerExt (I : INTEGER) = struct
+functor MkIntegerExt (I : BASIS_INTEGER) : INTEGER = struct
    open I
    type t = int
    val embString = (toString, fromString)

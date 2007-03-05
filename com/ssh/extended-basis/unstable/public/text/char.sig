@@ -6,21 +6,50 @@
 
 (** Extended {CHAR} signature. *)
 signature CHAR = sig
-   include CHAR
+   eqtype char
+   eqtype string
 
    type t = char
    (** Convenience alias. *)
 
+   val ord : t -> Int.t
+   val chr : Int.t -> t
+
+   val succ : t UnOp.t
+   val pred : t UnOp.t
+
+   val contains : string -> t -> bool
+   val notContains : string -> t -> bool
+
+   (** == Character Predicates == *)
+
+   val isAscii : t UnPr.t
+   val isAlpha : t UnPr.t
+   val isAlphaNum : t UnPr.t
+   val isCntrl : t UnPr.t
+   val isDigit : t UnPr.t
+   val isGraph : t UnPr.t
+   val isHexDigit : t UnPr.t
+   val isLower : t UnPr.t
+   val isPrint : t UnPr.t
+   val isSpace : t UnPr.t
+   val isPunct : t UnPr.t
+   val isUpper : t UnPr.t
+
    (** == Bounds == *)
 
-   val minOrd : Int.t
-   (** The least character code.  It always equals {0}. *)
+   val minChar : t
+   val maxChar : t
 
    val boundsChar : t Sq.t
    (**
     * Pair of the least and greatest characters.  It always equals
     * {(minChar, maxChar)}.
     *)
+
+   val maxOrd : Int.t
+   val minOrd : Int.t
+   (** The least character code.  It always equals {0}. *)
 
    val boundsOrd : Int.t Sq.t
    (**
@@ -36,4 +65,13 @@ signature CHAR = sig
     * equals {(ord, chr)}.  Note that the projection part of the
     * isomorphism, namely {chr}, is likely to be a partial function.
     *)
+
+   (** == Concepts == *)
+
+   include BOUNDED where type bounded = t
+   include CASED where type cased = t
+   include CSTRINGABLE where type cstringable = t
+   include ORDERED where type ordered = t
+   include SCANNABLE where type scannable = t
+   include STRINGABLE where type stringable = t
 end

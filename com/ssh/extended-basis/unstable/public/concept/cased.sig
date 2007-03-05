@@ -4,8 +4,10 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkEquality (Core : EQUALITY_CORE) : EQUALITY = struct
-   open Core
-   type equality_ex = equality
-   val op != = not o op ==
+(** == Cased == *)
+
+signature CASED = sig
+   type cased
+   val toLower : cased UnOp.t
+   val toUpper : cased UnOp.t
 end

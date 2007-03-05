@@ -4,8 +4,10 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkEquality (Core : EQUALITY_CORE) : EQUALITY = struct
-   open Core
-   type equality_ex = equality
-   val op != = not o op ==
+structure Text = struct
+   open Text
+   structure String = struct
+      val scan = fn _ => raise Fail "SML/NJ does not implement String.scan"
+      open String
+   end
 end

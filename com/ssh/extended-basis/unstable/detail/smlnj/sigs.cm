@@ -5,12 +5,13 @@
  *)
 
 group
-   group(funs.cm)
+   group(bootstrap.cm)
    source(-)
 is
    ../../public/basic.sig
    ../../public/concept/bitwise.sig
    ../../public/concept/bounded.sig
+   ../../public/concept/cased.sig
    ../../public/concept/cstringable.sig
    ../../public/concept/equality.sig
    ../../public/concept/flags.sig
@@ -31,6 +32,7 @@ is
    ../../public/data/sq.sig
    ../../public/data/sum.sig
    ../../public/data/unit.sig
+   ../../public/data/univ.sig
    ../../public/exit.sig
    ../../public/fn/bin-fn.sig
    ../../public/fn/bin-op.sig
@@ -45,6 +47,7 @@ is
    ../../public/generic/emb.sig
    ../../public/generic/fix.sig
    ../../public/generic/iso.sig
+   ../../public/generic/tie.sig
    ../../public/io/text-io.sig
    ../../public/numeric/int-inf.sig
    ../../public/numeric/integer.sig
@@ -68,4 +71,4 @@ is
    ../../public/void.sig
    ../../public/with.sig
    ../../public/writer.sig
-   funs.cm
+   bootstrap.cm

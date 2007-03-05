@@ -6,7 +6,7 @@
 
 (** Extended {WORD} signature. *)
 signature WORD = sig
-   include WORD
+   include BASIS_WORD
 
    type t = word
    (** Convenience alias. *)

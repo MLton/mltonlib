@@ -4,7 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkMonoArraySliceExt (structure MonoArraySlice : MONO_ARRAY_SLICE) =
+functor MkMonoArraySliceExt (structure MonoArraySlice :
+                                BASIS_MONO_ARRAY_SLICE) : MONO_ARRAY_SLICE =
 struct
    open MonoArraySlice
    type t = slice

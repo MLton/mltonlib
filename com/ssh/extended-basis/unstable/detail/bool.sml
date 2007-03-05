@@ -12,8 +12,6 @@ structure Bool : BOOL = struct
       type scannable = t
       type stringable = t
       val embString = (toString, fromString)
-      fun isFalse b = b = false
-      fun isTrue b = b = true
       val bounds = (false, true)
       val compare = fn (false, true) => LESS
                      | (true, false) => GREATER
@@ -25,9 +23,10 @@ structure Bool : BOOL = struct
    structure Scannable = MkScannable (Core)
    structure Stringable = MkStringable (Core)
 
+   open Bounded
+   open Ordered
+   open Scannable
+   open Stringable
+
    open Core
-        Bounded
-        Ordered
-        Scannable
-        Stringable
 end

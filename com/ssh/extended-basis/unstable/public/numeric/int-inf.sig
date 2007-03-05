@@ -6,7 +6,7 @@
 
 (** Extended {INT_INF} signature. *)
 signature INT_INF = sig
-   include INT_INF
+   include BASIS_INT_INF
 
    type t = int
    (** Convenience alias. *)
