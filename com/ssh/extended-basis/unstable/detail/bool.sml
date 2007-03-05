@@ -5,11 +5,29 @@
  *)
 
 structure Bool : BOOL = struct
-   open Bool
-   val equal = op = : t BinOp.t
-   val compare = fn (false,  true) => LESS
-                  | (true,  false) => GREATER
-                  | (_,         _) => EQUAL
-   fun isFalse b = b = false
-   fun isTrue b = b = true
+   structure Core = struct
+      open Bool
+      type bounded = t
+      type ordered = t
+      type scannable = t
+      type stringable = t
+      val embString = (toString, fromString)
+      fun isFalse b = b = false
+      fun isTrue b = b = true
+      val bounds = (false, true)
+      val compare = fn (false, true) => LESS
+                     | (true, false) => GREATER
+                     | (_,        _) => EQUAL
+   end
+
+   structure Bounded = MkBounded (Core)
+   structure Ordered = MkOrdered (Core)
+   structure Scannable = MkScannable (Core)
+   structure Stringable = MkStringable (Core)
+
+   open Core
+        Bounded
+        Ordered
+        Scannable
+        Stringable
 end

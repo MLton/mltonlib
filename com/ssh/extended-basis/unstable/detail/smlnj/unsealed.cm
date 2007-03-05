@@ -22,6 +22,11 @@ is
    ../cmp.sml
    ../common-mono-seqs.sml
    ../common-scalars.sml
+   ../concept/mk-bounded.fun
+   ../concept/mk-equality.fun
+   ../concept/mk-ordered.fun
+   ../concept/mk-scannable.fun
+   ../concept/mk-stringable.fun
    ../effect.sml
    ../emb.sml
    ../exit.sml

@@ -35,222 +35,232 @@ in
          (* Minimal modules for bootstrapping. *)
          detail/bootstrap.sml
 
+         (* Compiler specific extensions (if any). *)
+         detail/$(SML_COMPILER)/extensions.mlb
+
          (* Concept signatures *)
          public/concept/bitwise.sig
+         public/concept/bounded.sig
          public/concept/cstringable.sig
+         public/concept/equality.sig
          public/concept/flags.sig
          public/concept/func.sig
          public/concept/monad.sig
          public/concept/ordered.sig
+         public/concept/scannable.sig
          public/concept/signed.sig
          public/concept/stringable.sig
 
-         (* Compiler specific extensions (if any). *)
-         basis Ext = bas detail/$(SML_COMPILER)/extensions.mlb end
+         (* MkBounded *)
+         detail/concept/mk-bounded.fun
 
-         basis Void = bas public/void.sig end
-         basis Fn = bas public/fn/fn.sig detail/fn.sml end
-         basis Basic = let
-            open Fn
-         in
-            bas public/basic.sig detail/basic.sml end
-         end
-         basis Unit = bas public/data/unit.sig end
-         basis Sq = bas public/data/sq.sig detail/sq.sml end
-         basis BinFn = let
-            open Fn Sq
-         in
-            bas public/fn/bin-fn.sig detail/bin-fn.sml end
-         end
-         basis UnOp = bas public/fn/un-op.sig detail/un-op.sml end
-         basis Thunk = let
-            open Fn
-         in
-            bas public/fn/thunk.sig detail/thunk.sml end
-         end
-         basis Univ = bas
-            public/data/univ.sig
-            local
-               detail/univ-common.sml
-               ann "warnUnused false" in
-                  detail/univ-ref.sml
-                  detail/univ-exn.sml
-               end
-            in
-               detail/$(SML_COMPILER)/univ.sml
+         (* MkEquality *)
+         detail/concept/mk-equality.fun
+
+         (* MkScannable *)
+         detail/concept/mk-scannable.fun
+
+         (* MkStringable *)
+         detail/concept/mk-stringable.fun
+
+         (* Void *)
+         public/void.sig
+
+         (* Fn *)
+         public/fn/fn.sig
+         detail/fn.sml
+
+         (* Basic *)
+         public/basic.sig
+         detail/basic.sml
+
+         (* Unit *)
+         public/data/unit.sig
+
+         (* Sq *)
+         public/data/sq.sig
+         detail/sq.sml
+
+         (* BinFn *)
+         public/fn/bin-fn.sig detail/bin-fn.sml
+
+         (* UnOp *)
+         public/fn/un-op.sig
+         detail/un-op.sml
+
+         (* Thunk *)
+         public/fn/thunk.sig
+         detail/thunk.sml
+
+         (* Univ *)
+         public/data/univ.sig
+         local
+            detail/univ-common.sml
+            ann "warnUnused false" in
+               detail/univ-ref.sml
+               detail/univ-exn.sml
             end
-         end
-         basis BinOp = let
-            open BinFn
          in
-            bas public/fn/bin-op.sig detail/bin-op.sml end
-         end
-         basis Effect = bas public/fn/effect.sig detail/effect.sml end
-         basis Fix = bas public/generic/fix.sig detail/fix.sml end
-         basis UnPr = bas public/fn/un-pr.sig detail/un-pr.sml end
-         basis Order = bas public/data/order.sig detail/order.sml end
-         basis BinPr = let
-            open Sq UnPr
-         in
-            bas public/fn/bin-pr.sig detail/bin-pr.sml end
-         end
-         basis Cmp = let
-            open Fn Order Sq
-         in
-            bas public/fn/cmp.sig detail/cmp.sml end
-         end
-         basis Ref = bas public/data/ref.sig detail/ref.sml end
-         basis Bool = bas public/data/bool.sig detail/bool.sml end
-         basis Products = let
-            open Bool Effect Fn Order
-         in
-            bas
-               public/data/product-type.sig
-               public/data/pair.sig
-               detail/pair.sml
-               public/data/product.sig
-               detail/product.sml
-            end
-         end
-         basis MkMonad = let
-            open Fn Products
-         in
-            bas detail/mk-monad.fun end
-         end
-         basis With = let
-            open Fn MkMonad Products
-         in
-            bas public/with.sig detail/with.sml end
-         end
-         basis Sum = let
-            open Fn
-         in
-            bas public/data/sum.sig detail/sum.sml end
-         end
-         basis Exn = let
-            open Effect Ext Sum
-         in
-            bas public/data/exn.sig detail/exn.sml end
-         end
-         basis Emb = let
-            open Fn Products
-         in
-            bas public/generic/emb.sig detail/emb.sml end
-         end
-         basis Iso = let
-            open Fn Products Sum
-         in
-            bas public/generic/iso.sig detail/iso.sml end
-         end
-         basis Tie = let
-            open Basic Fix Fn Iso Products Sq
-         in
-            bas public/generic/tie.sig detail/tie.sml end
-         end
-         basis Seqs = bas
-            detail/mk-seq-common-ext.fun
-
-            public/sequence/array.sig
-            detail/array.sml
-            public/sequence/array-slice.sig
-            detail/array-slice.sml
-
-            public/sequence/vector.sig
-            detail/vector.sml
-            public/sequence/vector-slice.sig
-            detail/vector-slice.sml
-         end
-         basis Option = bas public/data/option.sig detail/option.sml end
-         basis List = let
-            open Cmp Fn Option Products
-         in
-            bas public/sequence/list.sig detail/list.sml end
-         end
-         basis Buffer = let
-            open Seqs List Fn Products
-         in
-            bas public/sequence/buffer.sig detail/buffer.sml end
-         end
-         basis Reader = let
-            open Fn MkMonad Products Univ
-         in
-            bas public/reader.sig detail/reader.sml end
-         end
-         basis Writer = let
-            open Fn Products Univ
-         in
-            bas public/writer.sig detail/writer.sml end
-         end
-         basis Exit = bas public/exit.sig detail/exit.sml end
-         basis Scalars = bas
-            detail/mk-integer-ext.fun
-            detail/mk-int-inf-ext.fun
-            detail/mk-real-ext.fun
-            detail/mk-word-ext.fun
-
-            public/numeric/int-inf.sig
-            public/numeric/integer.sig
-            public/numeric/real.sig
-            public/numeric/word.sig
-
-            detail/common-scalars.sml
-            detail/$(SML_COMPILER)/ints.sml
-            detail/$(SML_COMPILER)/reals.sml
-            detail/$(SML_COMPILER)/words.sml
-         end
-         basis MonoSeqs = bas
-            detail/mk-mono-seq-common-ext.fun
-            detail/mk-mono-vector-ext.fun
-            detail/mk-mono-vector-slice-ext.fun
-            detail/mk-mono-array-ext.fun
-            detail/mk-mono-array-slice-ext.fun
-            detail/mk-text-ext.fun
-
-            public/sequence/mono-vector.sig
-            public/sequence/mono-vector-slice.sig
-            public/sequence/mono-array.sig
-            public/sequence/mono-array-slice.sig
-            public/text/char.sig
-            public/text/string.sig
-            public/text/substring.sig
-            public/text/text.sig
-
-            detail/common-mono-seqs.sml
-            detail/$(SML_COMPILER)/mono-vectors.sml
-            detail/$(SML_COMPILER)/mono-vector-slices.sml
-            detail/$(SML_COMPILER)/mono-arrays.sml
-            detail/$(SML_COMPILER)/mono-array-slices.sml
-            detail/$(SML_COMPILER)/texts.sml
-         end
-         basis Promise = let
-            open Basic Exn Fix Fn Products Sq Sum Tie
-         in
-            bas public/lazy/promise.sig detail/promise.sml end
-         end
-         basis ShiftOp = bas public/fn/shift-op.sig end
-         basis TextIO = bas public/io/text-io.sig detail/text-io.sml end
-
-         basis MkWordFlags = let
-            open Fn Iso Scalars
-         in
-            bas detail/mk-word-flags.fun end
+            detail/$(SML_COMPILER)/univ.sml
          end
 
-         open Basic BinFn BinOp BinPr Bool Buffer
-         open Cmp
-         open Effect Emb Exit Exn
-         open Fix Fn
-         open Iso
-         open List
-         open MkMonad MkWordFlags MonoSeqs
-         open Option Order
-         open Products Promise
-         open Reader Ref
-         open Scalars Seqs ShiftOp Sq Sum
-         open TextIO Thunk Tie
-         open Unit Univ UnOp UnPr
-         open Void
-         open With Writer
+         (* BinOp *)
+         public/fn/bin-op.sig
+         detail/bin-op.sml
+
+         (* Effect *)
+         public/fn/effect.sig
+         detail/effect.sml
+
+         (* Fix *)
+         public/generic/fix.sig
+         detail/fix.sml
+
+         (* UnPr *)
+         public/fn/un-pr.sig
+         detail/un-pr.sml
+
+         (* Order *)
+         public/data/order.sig
+         detail/order.sml
+
+         (* BinPr *)
+         public/fn/bin-pr.sig
+         detail/bin-pr.sml
+
+         (* Cmp *)
+         public/fn/cmp.sig
+         detail/cmp.sml
+
+         (* MkOrdered *)
+         detail/concept/mk-ordered.fun
+
+         (* Ref *)
+         public/data/ref.sig
+         detail/ref.sml
+
+         (* Bool *)
+         public/data/bool.sig
+         detail/bool.sml
+
+         (* Products *)
+         public/data/product-type.sig
+         public/data/pair.sig
+         detail/pair.sml
+         public/data/product.sig
+         detail/product.sml
+
+         (* MkMonad *)
+         detail/mk-monad.fun
+
+         (* With *)
+         public/with.sig
+         detail/with.sml
+
+         (* Sum *)
+         public/data/sum.sig
+         detail/sum.sml
+
+         (* Exn *)
+         public/data/exn.sig
+         detail/exn.sml
+
+         (* Emb *)
+         public/generic/emb.sig
+         detail/emb.sml
+
+         (* Iso *)
+         public/generic/iso.sig
+         detail/iso.sml
+
+         (* Tie *)
+         public/generic/tie.sig
+         detail/tie.sml
+
+         (* Seqs *)
+         detail/mk-seq-common-ext.fun
+         public/sequence/array.sig
+         detail/array.sml
+         public/sequence/array-slice.sig
+         detail/array-slice.sml
+         public/sequence/vector.sig
+         detail/vector.sml
+         public/sequence/vector-slice.sig
+         detail/vector-slice.sml
+
+         (* Option *)
+         public/data/option.sig
+         detail/option.sml
+
+         (* List *)
+         public/sequence/list.sig
+         detail/list.sml
+
+         (* Buffer *)
+         public/sequence/buffer.sig
+         detail/buffer.sml
+
+         (* Reader *)
+         public/reader.sig
+         detail/reader.sml
+
+         (* Writer *)
+         public/writer.sig
+         detail/writer.sml
+
+         (* Exit *)
+         public/exit.sig
+         detail/exit.sml
+
+         (* Scalars *)
+         detail/mk-integer-ext.fun
+         detail/mk-int-inf-ext.fun
+         detail/mk-real-ext.fun
+         detail/mk-word-ext.fun
+         public/numeric/int-inf.sig
+         public/numeric/integer.sig
+         public/numeric/real.sig
+         public/numeric/word.sig
+         detail/common-scalars.sml
+         detail/$(SML_COMPILER)/ints.sml
+         detail/$(SML_COMPILER)/reals.sml
+         detail/$(SML_COMPILER)/words.sml
+
+         (* MonoSeqs *)
+         detail/mk-mono-seq-common-ext.fun
+         detail/mk-mono-vector-ext.fun
+         detail/mk-mono-vector-slice-ext.fun
+         detail/mk-mono-array-ext.fun
+         detail/mk-mono-array-slice-ext.fun
+         detail/mk-text-ext.fun
+         public/sequence/mono-vector.sig
+         public/sequence/mono-vector-slice.sig
+         public/sequence/mono-array.sig
+         public/sequence/mono-array-slice.sig
+         public/text/char.sig
+         public/text/string.sig
+         public/text/substring.sig
+         public/text/text.sig
+         detail/common-mono-seqs.sml
+         detail/$(SML_COMPILER)/mono-vectors.sml
+         detail/$(SML_COMPILER)/mono-vector-slices.sml
+         detail/$(SML_COMPILER)/mono-arrays.sml
+         detail/$(SML_COMPILER)/mono-array-slices.sml
+         detail/$(SML_COMPILER)/texts.sml
+
+         (* Promise *)
+         public/lazy/promise.sig
+         detail/promise.sml
+
+         (* ShiftOp *)
+         public/fn/shift-op.sig
+
+         (* TextIO *)
+         public/io/text-io.sig
+         detail/text-io.sml
+
+         (* MkWordFlags *)
+         detail/mk-word-flags.fun
       in
          public/export/$(SML_COMPILER).sml
          public/export/common.sml

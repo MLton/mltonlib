@@ -6,10 +6,13 @@
 
 (** Extended {BOOL} signature. *)
 signature BOOL = sig
-   include BOOL
+   datatype bool = datatype Bool.bool
 
-   type t = bool
+   type t = Bool.t
    (** Convenience alias. *)
+
+   val not : t UnOp.t
+   (** Logical negation. *)
 
    val isTrue : t UnPr.t
    (** {isTrue x = x = true} *)
@@ -17,9 +20,10 @@ signature BOOL = sig
    val isFalse : t UnPr.t
    (** {isFalse x = x = false} *)
 
-   val equal : t BinPr.t
-   (** Equivalent to {op =}. *)
+   (** == Concepts == *)
 
-   val compare : t Cmp.t
-   (** An ordering on booleans.  {false} is defined less than {true}. *)
+   include BOUNDED where type bounded = t
+   include ORDERED where type ordered = t
+   include SCANNABLE where type scannable = t
+   include STRINGABLE where type stringable = t
 end

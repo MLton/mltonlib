@@ -9,17 +9,29 @@
 (** === Concept Signatures === *)
 
 signature BITWISE = BITWISE
+signature BOUNDED = BOUNDED
+signature BOUNDED_CORE = BOUNDED_CORE
 signature CFUNC = CFUNC
 signature CSTRINGABLE = CSTRINGABLE
+signature EQUALITY = EQUALITY
+signature EQUALITY_CORE = EQUALITY_CORE
 signature FLAGS = FLAGS
 signature FUNC = FUNC
+signature MAYBE_BOUNDED = MAYBE_BOUNDED
+signature MAYBE_BOUNDED_CORE = MAYBE_BOUNDED_CORE
 signature MONAD = MONAD
 signature MONADP = MONADP
 signature MONADP_CORE = MONADP_CORE
 signature MONAD_CORE = MONAD_CORE
 signature ORDERED = ORDERED
+signature ORDERED_CORE = ORDERED_CORE
+signature SCANNABLE = SCANNABLE
+signature SCANNABLE_CORE = SCANNABLE_CORE
+signature SCANNABLE_FROM_FORMAT = SCANNABLE_FROM_FORMAT
+signature SCANNABLE_FROM_FORMAT_CORE = SCANNABLE_FROM_FORMAT_CORE
 signature SIGNED = SIGNED
 signature STRINGABLE = STRINGABLE
+signature STRINGABLE_CORE = STRINGABLE_CORE
 
 (** === Module Signatures === *)
 
@@ -142,6 +154,11 @@ structure Word8VectorSlice : MONO_VECTOR_SLICE = Word8VectorSlice
 
 (** === Functors === *)
 
-functor MkMonad (Arg : MONAD_CORE) : MONAD = MkMonad (Arg)
-functor MkMonadP (Arg : MONADP_CORE) : MONADP = MkMonadP (Arg)
-functor MkWordFlags (Arg : WORD) : FLAGS = MkWordFlags (Arg)
+functor MkBounded (Core : BOUNDED_CORE) : BOUNDED = MkBounded (Core)
+functor MkEquality (Core : EQUALITY_CORE) : EQUALITY = MkEquality (Core)
+functor MkMonad (Core : MONAD_CORE) : MONAD = MkMonad (Core)
+functor MkMonadP (Core : MONADP_CORE) : MONADP = MkMonadP (Core)
+functor MkOrdered (Core : ORDERED_CORE) : ORDERED = MkOrdered (Core)
+functor MkScannable (Core : SCANNABLE_CORE) : SCANNABLE = MkScannable (Core)
+functor MkStringable (Core : STRINGABLE_CORE) : STRINGABLE = MkStringable (Core)
+functor MkWordFlags (Core : WORD) : FLAGS = MkWordFlags (Core)
