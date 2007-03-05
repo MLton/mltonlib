@@ -6,13 +6,13 @@
 
 (** Utilities for dealing with side-effecting procedures. *)
 signature EFFECT = sig
-   type 'a t = 'a -> unit
+   type 'a t = 'a -> Unit.t
    (** Type of side-effecting procedures. *)
 
    val ignore : 'a t
    (** No-operation ({ignore = fn _ => ()}). *)
 
-   val nop : unit t
+   val nop : Unit.t t
    (** No-operation ({nop = fn () => ()}). *)
 
    val obs : 'a t -> 'a UnOp.t
@@ -23,7 +23,7 @@ signature EFFECT = sig
     * observed by the effect.
     *)
 
-   val past : unit t -> 'a UnOp.t
+   val past : Unit.t t -> 'a UnOp.t
    (**
     * Side-effecting I-combinator ({past ef x = (ef () ; x)}).  Using
     * {past} and {o} you can "attach" side-effects to a function.  The
