@@ -5,9 +5,8 @@
  *)
 
 library
-   source(../../basis-common.sml)
-   source(../../basis-smlnj.sml)
+   source(-)
 is
-   ../../basis-common.sml
-   ../../basis-smlnj.sml
+   ../../../detail/common/basis.sml
+   ../../../detail/smlnj/basis.sml
    basis.cm

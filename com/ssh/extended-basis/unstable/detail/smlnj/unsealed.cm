@@ -17,8 +17,8 @@ is
    ../../detail/bool.sml
    ../../detail/buffer.sml
    ../../detail/cmp.sml
-   ../../detail/common-mono-seqs.sml
-   ../../detail/common-scalars.sml
+   ../../detail/common/mono-seqs.sml
+   ../../detail/common/scalars.sml
    ../../detail/concept/mk-bounded.fun
    ../../detail/concept/mk-cstringable.fun
    ../../detail/concept/mk-equality.fun

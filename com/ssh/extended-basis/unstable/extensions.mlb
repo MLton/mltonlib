@@ -24,8 +24,8 @@ local
    local
       $(SML_LIB)/basis/basis.mlb
    in
-      detail/basis-common.sml
-      detail/basis-$(SML_COMPILER).sml
+      detail/common/basis.sml
+      detail/$(SML_COMPILER)/basis.sml
    end
    $(SML_LIB)/basis/pervasive.mlb
 in
@@ -230,7 +230,7 @@ in
          detail/mk-int-inf-ext.fun
          detail/mk-real-ext.fun
          detail/mk-word-ext.fun
-         detail/common-scalars.sml
+         detail/common/scalars.sml
          detail/$(SML_COMPILER)/ints.sml
          detail/$(SML_COMPILER)/reals.sml
          detail/$(SML_COMPILER)/words.sml
@@ -250,7 +250,7 @@ in
          detail/mk-mono-array-ext.fun
          detail/mk-mono-array-slice-ext.fun
          detail/mk-text-ext.fun
-         detail/common-mono-seqs.sml
+         detail/common/mono-seqs.sml
          detail/$(SML_COMPILER)/mono-vectors.sml
          detail/$(SML_COMPILER)/mono-vector-slices.sml
          detail/$(SML_COMPILER)/mono-arrays.sml
