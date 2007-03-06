@@ -6,4 +6,4 @@
 
 val () =
     app use
-        ["detail/ext.sml"]
+        ["detail/common/ext.sml"]

@@ -7,5 +7,5 @@
 local
    $(SML_LIB)/basis/basis.mlb
 in
-   ../ext.sml
+   ../../detail/common/ext.sml
 end
