@@ -74,11 +74,11 @@ in
          detail/concept/mk-cstringable.fun
 
          (* Void *)
-         public/void.sig
+         public/data/void.sig
 
          (* Fn *)
          public/fn/fn.sig
-         detail/fn.sml
+         detail/fn/fn.sml
 
          (* Basic *)
          public/basic.sig
@@ -89,25 +89,25 @@ in
 
          (* Sq *)
          public/data/sq.sig
-         detail/sq.sml
+         detail/data/sq.sml
 
          (* BinFn *)
-         public/fn/bin-fn.sig detail/bin-fn.sml
+         public/fn/bin-fn.sig detail/fn/bin-fn.sml
 
          (* UnOp *)
          public/fn/un-op.sig
-         detail/un-op.sml
+         detail/fn/un-op.sml
 
          (* Thunk *)
          public/fn/thunk.sig
-         detail/thunk.sml
+         detail/fn/thunk.sml
 
          (* Univ *)
          public/data/univ.sig
          local
             ann "warnUnused false" in
-               detail/univ-ref.sml
-               detail/univ-exn.sml
+               detail/data/univ-ref.sml
+               detail/data/univ-exn.sml
             end
          in
             detail/$(SML_COMPILER)/univ.sml
@@ -115,11 +115,11 @@ in
 
          (* BinOp *)
          public/fn/bin-op.sig
-         detail/bin-op.sml
+         detail/fn/bin-op.sml
 
          (* Effect *)
          public/fn/effect.sig
-         detail/effect.sml
+         detail/fn/effect.sml
 
          (* Fix *)
          public/generic/fix.sig
@@ -127,37 +127,37 @@ in
 
          (* UnPr *)
          public/fn/un-pr.sig
-         detail/un-pr.sml
+         detail/fn/un-pr.sml
 
          (* Order *)
          public/data/order.sig
-         detail/order.sml
+         detail/data/order.sml
 
          (* BinPr *)
          public/fn/bin-pr.sig
-         detail/bin-pr.sml
+         detail/fn/bin-pr.sml
 
          (* Cmp *)
          public/fn/cmp.sig
-         detail/cmp.sml
+         detail/fn/cmp.sml
 
          (* MkOrdered *)
          detail/concept/mk-ordered.fun
 
          (* Ref *)
          public/data/ref.sig
-         detail/ref.sml
+         detail/data/ref.sml
 
          (* Bool *)
          public/data/bool.sig
-         detail/bool.sml
+         detail/data/bool.sml
 
          (* Products *)
          public/data/product-type.sig
          public/data/pair.sig
-         detail/pair.sml
+         detail/data/pair.sml
          public/data/product.sig
-         detail/product.sml
+         detail/data/product.sml
 
          (* MkMonad *)
          detail/concept/mk-monad.fun
@@ -168,7 +168,7 @@ in
 
          (* Sum *)
          public/data/sum.sig
-         detail/sum.sml
+         detail/data/sum.sml
 
          (* Exn *)
          public/control/exn.sig
@@ -191,31 +191,31 @@ in
          public/sequence/array-slice.sig
          public/sequence/vector.sig
          public/sequence/vector-slice.sig
-         detail/mk-seq-common-ext.fun
-         detail/array.sml
-         detail/array-slice.sml
-         detail/vector.sml
-         detail/vector-slice.sml
+         detail/sequence/mk-seq-common-ext.fun
+         detail/sequence/array.sml
+         detail/sequence/array-slice.sml
+         detail/sequence/vector.sml
+         detail/sequence/vector-slice.sml
 
          (* Option *)
          public/data/option.sig
-         detail/option.sml
+         detail/data/option.sml
 
          (* List *)
          public/sequence/list.sig
-         detail/list.sml
+         detail/sequence/list.sml
 
          (* Buffer *)
          public/sequence/buffer.sig
-         detail/buffer.sml
+         detail/sequence/buffer.sml
 
          (* Reader *)
-         public/reader.sig
-         detail/reader.sml
+         public/io/reader.sig
+         detail/io/reader.sml
 
          (* Writer *)
-         public/writer.sig
-         detail/writer.sml
+         public/io/writer.sig
+         detail/io/writer.sml
 
          (* Exit *)
          public/control/exit.sig
@@ -226,10 +226,10 @@ in
          public/numeric/integer.sig
          public/numeric/real.sig
          public/numeric/word.sig
-         detail/mk-integer-ext.fun
-         detail/mk-int-inf-ext.fun
-         detail/mk-real-ext.fun
-         detail/mk-word-ext.fun
+         detail/numeric/mk-integer-ext.fun
+         detail/numeric/mk-int-inf-ext.fun
+         detail/numeric/mk-real-ext.fun
+         detail/numeric/mk-word-ext.fun
          detail/common/scalars.sml
          detail/$(SML_COMPILER)/ints.sml
          detail/$(SML_COMPILER)/reals.sml
@@ -244,12 +244,12 @@ in
          public/text/string.sig
          public/text/substring.sig
          public/text/text.sig
-         detail/mk-mono-seq-common-ext.fun
-         detail/mk-mono-vector-ext.fun
-         detail/mk-mono-vector-slice-ext.fun
-         detail/mk-mono-array-ext.fun
-         detail/mk-mono-array-slice-ext.fun
-         detail/mk-text-ext.fun
+         detail/sequence/mk-mono-seq-common-ext.fun
+         detail/sequence/mk-mono-vector-ext.fun
+         detail/sequence/mk-mono-vector-slice-ext.fun
+         detail/sequence/mk-mono-array-ext.fun
+         detail/sequence/mk-mono-array-slice-ext.fun
+         detail/text/mk-text-ext.fun
          detail/common/mono-seqs.sml
          detail/$(SML_COMPILER)/mono-vectors.sml
          detail/$(SML_COMPILER)/mono-vector-slices.sml

@@ -8,15 +8,7 @@ group
    group(sigs.cm)
    source(-)
 is
-   ../../detail/array-slice.sml
-   ../../detail/array.sml
    ../../detail/basic.sml
-   ../../detail/bin-fn.sml
-   ../../detail/bin-op.sml
-   ../../detail/bin-pr.sml
-   ../../detail/bool.sml
-   ../../detail/buffer.sml
-   ../../detail/cmp.sml
    ../../detail/common/mono-seqs.sml
    ../../detail/common/scalars.sml
    ../../detail/concept/mk-bounded.fun
@@ -30,32 +22,48 @@ is
    ../../detail/control/exit.sml
    ../../detail/control/exn.sml
    ../../detail/control/with.sml
-   ../../detail/effect.sml
-   ../../detail/fn.sml
+   ../../detail/data/bool.sml
+   ../../detail/data/option.sml
+   ../../detail/data/order.sml
+   ../../detail/data/pair.sml
+   ../../detail/data/product.sml
+   ../../detail/data/ref.sml
+   ../../detail/data/sq.sml
+   ../../detail/data/sum.sml
+   ../../detail/data/univ-exn.sml
+   ../../detail/fn/bin-fn.sml
+   ../../detail/fn/bin-op.sml
+   ../../detail/fn/bin-pr.sml
+   ../../detail/fn/cmp.sml
+   ../../detail/fn/effect.sml
+   ../../detail/fn/fn.sml
+   ../../detail/fn/thunk.sml
+   ../../detail/fn/un-op.sml
+   ../../detail/fn/un-pr.sml
    ../../detail/generic/emb.sml
    ../../detail/generic/fix.sml
    ../../detail/generic/iso.sml
    ../../detail/generic/tie.sml
+   ../../detail/io/reader.sml
    ../../detail/io/text-io.sml
+   ../../detail/io/writer.sml
    ../../detail/lazy/promise.sml
-   ../../detail/list.sml
-   ../../detail/mk-int-inf-ext.fun
-   ../../detail/mk-integer-ext.fun
-   ../../detail/mk-mono-array-ext.fun
-   ../../detail/mk-mono-array-slice-ext.fun
-   ../../detail/mk-mono-seq-common-ext.fun
-   ../../detail/mk-mono-vector-ext.fun
-   ../../detail/mk-mono-vector-slice-ext.fun
-   ../../detail/mk-real-ext.fun
-   ../../detail/mk-seq-common-ext.fun
-   ../../detail/mk-text-ext.fun
-   ../../detail/mk-word-ext.fun
-   ../../detail/option.sml
-   ../../detail/order.sml
-   ../../detail/pair.sml
-   ../../detail/product.sml
-   ../../detail/reader.sml
-   ../../detail/ref.sml
+   ../../detail/numeric/mk-int-inf-ext.fun
+   ../../detail/numeric/mk-integer-ext.fun
+   ../../detail/numeric/mk-real-ext.fun
+   ../../detail/numeric/mk-word-ext.fun
+   ../../detail/sequence/array-slice.sml
+   ../../detail/sequence/array.sml
+   ../../detail/sequence/buffer.sml
+   ../../detail/sequence/list.sml
+   ../../detail/sequence/mk-mono-array-ext.fun
+   ../../detail/sequence/mk-mono-array-slice-ext.fun
+   ../../detail/sequence/mk-mono-seq-common-ext.fun
+   ../../detail/sequence/mk-mono-vector-ext.fun
+   ../../detail/sequence/mk-mono-vector-slice-ext.fun
+   ../../detail/sequence/mk-seq-common-ext.fun
+   ../../detail/sequence/vector-slice.sml
+   ../../detail/sequence/vector.sml
    ../../detail/smlnj/ints.sml
    ../../detail/smlnj/mono-array-slices.sml
    ../../detail/smlnj/mono-arrays.sml
@@ -63,15 +71,7 @@ is
    ../../detail/smlnj/mono-vectors.sml
    ../../detail/smlnj/reals.sml
    ../../detail/smlnj/words.sml
-   ../../detail/sq.sml
-   ../../detail/sum.sml
-   ../../detail/thunk.sml
-   ../../detail/un-op.sml
-   ../../detail/un-pr.sml
-   ../../detail/univ-exn.sml
-   ../../detail/vector-slice.sml
-   ../../detail/vector.sml
-   ../../detail/writer.sml
+   ../../detail/text/mk-text-ext.fun
    ../../public/lazy/promise.sig
    ext.sml
    sigs.cm

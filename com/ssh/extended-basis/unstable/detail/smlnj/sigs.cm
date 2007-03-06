@@ -35,6 +35,7 @@ is
    ../../public/data/sum.sig
    ../../public/data/unit.sig
    ../../public/data/univ.sig
+   ../../public/data/void.sig
    ../../public/fn/bin-fn.sig
    ../../public/fn/bin-op.sig
    ../../public/fn/bin-pr.sig
@@ -49,12 +50,13 @@ is
    ../../public/generic/fix.sig
    ../../public/generic/iso.sig
    ../../public/generic/tie.sig
+   ../../public/io/reader.sig
    ../../public/io/text-io.sig
+   ../../public/io/writer.sig
    ../../public/numeric/int-inf.sig
    ../../public/numeric/integer.sig
    ../../public/numeric/real.sig
    ../../public/numeric/word.sig
-   ../../public/reader.sig
    ../../public/sequence/array-slice.sig
    ../../public/sequence/array.sig
    ../../public/sequence/buffer.sig
@@ -69,6 +71,4 @@ is
    ../../public/text/string.sig
    ../../public/text/substring.sig
    ../../public/text/text.sig
-   ../../public/void.sig
-   ../../public/writer.sig
    bootstrap.cm
