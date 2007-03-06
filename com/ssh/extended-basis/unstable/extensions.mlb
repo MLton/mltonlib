@@ -92,7 +92,8 @@ in
          detail/data/sq.sml
 
          (* BinFn *)
-         public/fn/bin-fn.sig detail/fn/bin-fn.sml
+         public/fn/bin-fn.sig
+         detail/fn/bin-fn.sml
 
          (* UnOp *)
          public/fn/un-op.sig
