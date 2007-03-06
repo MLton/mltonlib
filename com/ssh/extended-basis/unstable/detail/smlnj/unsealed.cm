@@ -27,13 +27,17 @@ is
    ../../detail/concept/mk-scannable.fun
    ../../detail/concept/mk-stringable.fun
    ../../detail/concept/mk-word-flags.fun
+   ../../detail/control/exit.sml
+   ../../detail/control/exn.sml
+   ../../detail/control/with.sml
    ../../detail/effect.sml
-   ../../detail/emb.sml
-   ../../detail/exit.sml
-   ../../detail/exn.sml
-   ../../detail/fix.sml
    ../../detail/fn.sml
-   ../../detail/iso.sml
+   ../../detail/generic/emb.sml
+   ../../detail/generic/fix.sml
+   ../../detail/generic/iso.sml
+   ../../detail/generic/tie.sml
+   ../../detail/io/text-io.sml
+   ../../detail/lazy/promise.sml
    ../../detail/list.sml
    ../../detail/mk-int-inf-ext.fun
    ../../detail/mk-integer-ext.fun
@@ -50,7 +54,6 @@ is
    ../../detail/order.sml
    ../../detail/pair.sml
    ../../detail/product.sml
-   ../../detail/promise.sml
    ../../detail/reader.sml
    ../../detail/ref.sml
    ../../detail/smlnj/ints.sml
@@ -62,15 +65,12 @@ is
    ../../detail/smlnj/words.sml
    ../../detail/sq.sml
    ../../detail/sum.sml
-   ../../detail/text-io.sml
    ../../detail/thunk.sml
-   ../../detail/tie.sml
    ../../detail/un-op.sml
    ../../detail/un-pr.sml
    ../../detail/univ-exn.sml
    ../../detail/vector-slice.sml
    ../../detail/vector.sml
-   ../../detail/with.sml
    ../../detail/writer.sml
    ../../public/lazy/promise.sig
    ext.sml

@@ -21,8 +21,10 @@ is
    ../../public/concept/scannable.sig
    ../../public/concept/signed.sig
    ../../public/concept/stringable.sig
+   ../../public/control/exit.sig
+   ../../public/control/exn.sig
+   ../../public/control/with.sig
    ../../public/data/bool.sig
-   ../../public/data/exn.sig
    ../../public/data/option.sig
    ../../public/data/order.sig
    ../../public/data/pair.sig
@@ -33,7 +35,6 @@ is
    ../../public/data/sum.sig
    ../../public/data/unit.sig
    ../../public/data/univ.sig
-   ../../public/exit.sig
    ../../public/fn/bin-fn.sig
    ../../public/fn/bin-op.sig
    ../../public/fn/bin-pr.sig
@@ -69,6 +70,5 @@ is
    ../../public/text/substring.sig
    ../../public/text/text.sig
    ../../public/void.sig
-   ../../public/with.sig
    ../../public/writer.sig
    bootstrap.cm

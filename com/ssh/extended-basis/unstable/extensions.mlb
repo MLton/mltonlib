@@ -123,7 +123,7 @@ in
 
          (* Fix *)
          public/generic/fix.sig
-         detail/fix.sml
+         detail/generic/fix.sml
 
          (* UnPr *)
          public/fn/un-pr.sig
@@ -163,28 +163,28 @@ in
          detail/concept/mk-monad.fun
 
          (* With *)
-         public/with.sig
-         detail/with.sml
+         public/control/with.sig
+         detail/control/with.sml
 
          (* Sum *)
          public/data/sum.sig
          detail/sum.sml
 
          (* Exn *)
-         public/data/exn.sig
-         detail/exn.sml
+         public/control/exn.sig
+         detail/control/exn.sml
 
          (* Emb *)
          public/generic/emb.sig
-         detail/emb.sml
+         detail/generic/emb.sml
 
          (* Iso *)
          public/generic/iso.sig
-         detail/iso.sml
+         detail/generic/iso.sml
 
          (* Tie *)
          public/generic/tie.sig
-         detail/tie.sml
+         detail/generic/tie.sml
 
          (* Seqs *)
          public/sequence/array.sig
@@ -218,8 +218,8 @@ in
          detail/writer.sml
 
          (* Exit *)
-         public/exit.sig
-         detail/exit.sml
+         public/control/exit.sig
+         detail/control/exit.sml
 
          (* Scalars *)
          public/numeric/int-inf.sig
@@ -259,14 +259,14 @@ in
 
          (* Promise *)
          public/lazy/promise.sig
-         detail/promise.sml
+         detail/lazy/promise.sml
 
          (* ShiftOp *)
          public/fn/shift-op.sig
 
          (* TextIO *)
          public/io/text-io.sig
-         detail/text-io.sml
+         detail/io/text-io.sml
 
          (* MkWordFlags *)
          detail/concept/mk-word-flags.fun
