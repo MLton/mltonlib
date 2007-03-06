@@ -33,6 +33,8 @@ structure Node :> sig
    val push : 'a p -> 'a Effect.t
    val pop : 'a p -> 'a Option.t
 
+   val peek : 'a p -> 'a Option.t
+
    val drop : 'a p Effect.t
 
    val find : 'a UnPr.t -> 'a p -> ('a p, 'a p) Sum.t
@@ -43,6 +45,8 @@ structure Node :> sig
    val filter : 'a UnPr.t -> 'a p UnOp.t
 
    val appClear : 'a Effect.t -> 'a p UnOp.t
+
+   val insert : 'a BinPr.t -> 'a p -> 'a Effect.t
 end = struct
    datatype 'a t = T of 'a * 'a p
    withtype 'a p = 'a t Option.t Ref.t
@@ -72,6 +76,11 @@ end = struct
           NONE => NONE
         | SOME (T (v, p')) => (p := !p' ; SOME v)
 
+   fun peek p =
+       case !p of
+          NONE => NONE
+        | SOME (T (v, _)) => SOME v
+
    fun find c p =
        case !p of
           NONE => INL p
@@ -95,4 +104,10 @@ end = struct
        case !p of
           NONE => p
         | SOME (T (v, n)) => (ef v : unit ; p := !n ; appClear ef p)
+
+   fun insert lt p v =
+       case !p of
+          NONE => push p v
+        | SOME (T (x, p')) =>
+          if lt (x, v) then insert lt p' v else push p v
 end
