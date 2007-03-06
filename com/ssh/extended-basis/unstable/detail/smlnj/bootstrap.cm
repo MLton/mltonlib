@@ -5,8 +5,8 @@
  *)
 
 group
-   library(workarounds/basis-rebound.cm)
+   library(basis-rebound.cm)
    source(-)
 is
    ../../detail/bootstrap.sml
-   workarounds/basis-rebound.cm
+   basis-rebound.cm
