@@ -160,7 +160,7 @@ in
          detail/product.sml
 
          (* MkMonad *)
-         detail/mk-monad.fun
+         detail/concept/mk-monad.fun
 
          (* With *)
          public/with.sig
@@ -269,7 +269,7 @@ in
          detail/text-io.sml
 
          (* MkWordFlags *)
-         detail/mk-word-flags.fun
+         detail/concept/mk-word-flags.fun
       in
          public/export/$(SML_COMPILER).sml
          public/export/common.sml

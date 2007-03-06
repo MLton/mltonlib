@@ -8,5 +8,5 @@ group
    library(workarounds/basis-rebound.cm)
    source(-)
 is
-   ../bootstrap.sml
+   ../../detail/bootstrap.sml
    workarounds/basis-rebound.cm
