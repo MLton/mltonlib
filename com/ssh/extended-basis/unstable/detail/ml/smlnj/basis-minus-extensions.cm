@@ -5,6 +5,6 @@
  *)
 
 library
-   library(workarounds/basis.cm) - library(../../extensions.cm)
+   library(workarounds/basis.cm) - library(../../../extensions.cm)
 is
    workarounds/basis.cm

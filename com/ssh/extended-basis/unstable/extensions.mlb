@@ -24,8 +24,8 @@ local
    local
       $(SML_LIB)/basis/basis.mlb
    in
-      detail/common/basis.sml
-      detail/$(SML_COMPILER)/basis.sml
+      detail/ml/common/basis.sml
+      detail/ml/$(SML_COMPILER)/basis.sml
    end
    $(SML_LIB)/basis/pervasive.mlb
 in
@@ -36,13 +36,13 @@ in
    in
       local
          (* Workarounds (if any). *)
-         detail/$(SML_COMPILER)/workarounds.mlb
+         detail/ml/$(SML_COMPILER)/workarounds.mlb
 
          (* Minimal modules for bootstrapping. *)
          detail/bootstrap.sml
 
          (* Compiler specific extensions (if any). *)
-         detail/$(SML_COMPILER)/extensions.mlb
+         detail/ml/$(SML_COMPILER)/extensions.mlb
 
          (* Concept signatures *)
          public/concept/bitwise.sig
@@ -111,7 +111,7 @@ in
                detail/data/univ-exn.sml
             end
          in
-            detail/$(SML_COMPILER)/univ.sml
+            detail/ml/$(SML_COMPILER)/univ.sml
          end
 
          (* BinOp *)
@@ -231,10 +231,10 @@ in
          detail/numeric/mk-int-inf-ext.fun
          detail/numeric/mk-real-ext.fun
          detail/numeric/mk-word-ext.fun
-         detail/common/scalars.sml
-         detail/$(SML_COMPILER)/ints.sml
-         detail/$(SML_COMPILER)/reals.sml
-         detail/$(SML_COMPILER)/words.sml
+         detail/ml/common/scalars.sml
+         detail/ml/$(SML_COMPILER)/ints.sml
+         detail/ml/$(SML_COMPILER)/reals.sml
+         detail/ml/$(SML_COMPILER)/words.sml
 
          (* MonoSeqs *)
          public/sequence/mono-vector.sig
@@ -251,12 +251,12 @@ in
          detail/sequence/mk-mono-array-ext.fun
          detail/sequence/mk-mono-array-slice-ext.fun
          detail/text/mk-text-ext.fun
-         detail/common/mono-seqs.sml
-         detail/$(SML_COMPILER)/mono-vectors.sml
-         detail/$(SML_COMPILER)/mono-vector-slices.sml
-         detail/$(SML_COMPILER)/mono-arrays.sml
-         detail/$(SML_COMPILER)/mono-array-slices.sml
-         detail/$(SML_COMPILER)/texts.sml
+         detail/ml/common/mono-seqs.sml
+         detail/ml/$(SML_COMPILER)/mono-vectors.sml
+         detail/ml/$(SML_COMPILER)/mono-vector-slices.sml
+         detail/ml/$(SML_COMPILER)/mono-arrays.sml
+         detail/ml/$(SML_COMPILER)/mono-array-slices.sml
+         detail/ml/$(SML_COMPILER)/texts.sml
 
          (* Promise *)
          public/lazy/promise.sig

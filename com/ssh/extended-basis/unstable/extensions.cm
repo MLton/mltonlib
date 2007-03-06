@@ -7,6 +7,6 @@
 library
    source(-)
 is
-   detail/smlnj/unsealed.cm
+   detail/ml/smlnj/unsealed.cm
    public/export/common.sml
    public/export/smlnj.sml

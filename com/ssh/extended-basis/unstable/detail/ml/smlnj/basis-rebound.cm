@@ -7,6 +7,6 @@
 library
    source(-)
 is
-   ../../detail/common/basis.sml
-   ../../detail/smlnj/basis.sml
+   ../../../detail/ml/common/basis.sml
+   ../../../detail/ml/smlnj/basis.sml
    workarounds/basis.cm

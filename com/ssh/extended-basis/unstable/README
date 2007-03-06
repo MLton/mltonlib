@@ -49,13 +49,13 @@ About Library Organization
 
       This directory contains the implementation details of the library.
 
-   detail/$(SML_COMPILER)/
+   detail/ml/$(SML_COMPILER)/
 
       These directories (e.g. detail/mlton/) contain compiler specific
       implementation details.  Different compilers implement different
       subsets of the original basis library.
 
-   detail/$(SML_COMPILER)/workarounds/
+   detail/ml/$(SML_COMPILER)/workarounds/
 
       These directories (e.g. detail/smlnj/workarounds/) contain compiler
       specific workarounds.  The idea is that workarounds are separated
