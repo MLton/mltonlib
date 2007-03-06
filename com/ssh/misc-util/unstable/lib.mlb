@@ -54,6 +54,7 @@ in
       cache.sml
       mk-int-obj-cache.fun
       ptr-cache.sml
+      ref-cache.sml
    end
 
    (* SML *)

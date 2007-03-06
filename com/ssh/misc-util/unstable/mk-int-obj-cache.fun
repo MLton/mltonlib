@@ -64,4 +64,5 @@ functor MkIntObjCache (Key : INT_OBJ) :> CACHE
     ; if n*4 < cap c then realloc c (cap c div 2) else ()
    end
    fun use c k = get c k before rem c k
+   fun values c = List.tabulate (size c, #value o sub c)
 end

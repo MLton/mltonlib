@@ -47,4 +47,7 @@ signature CACHE = sig
 
    val rem : 'a t -> Key.t -> Unit.t
    (** Removes from the cache the value corresponding to the key. *)
+
+   val values : 'a t -> 'a List.t
+   (** Returns a list of values in the cache. *)
 end

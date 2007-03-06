@@ -55,4 +55,6 @@ structure Cache :> CACHE where type Key.t = MLRep.Long.Unsigned.word = struct
    fun get ? = access (A.get {none = raising NotFound, some = A.return}) ?
    fun use ? = access (A.get {none = raising NotFound, some = A.remove}) ?
    fun rem ? = access (A.peek {none = raising NotFound, some = A.remove}) ?
+
+   fun values (IN {table, ...}) = T.toList table
 end
