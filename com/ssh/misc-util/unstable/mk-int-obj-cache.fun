@@ -20,6 +20,8 @@ functor MkIntObjCache (Key : INT_OBJ) :> CACHE
    fun size c = gt#size c
    fun cap c = Array.length (gt#table c)
 
+   fun isEmpty c = 0 = size c
+
    fun sub c i = valOf (Array.sub (gt#table c, i))
    fun update c (i, v) = Array.update (gt#table c, i, v)
 

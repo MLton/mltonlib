@@ -29,6 +29,9 @@ signature CACHE = sig
    val size : 'a t -> Int.t
    (** Returns the number of elements in the cache. *)
 
+   val isEmpty : 'a t UnPr.t
+   (** {isEmpty c} is equivalent to {size x = 0}. *)
+
    val putWith : 'a t -> (Key.t -> 'a) -> Key.t * 'a
    (**
     * Puts a key dependent value into cache and returns the key and

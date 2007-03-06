@@ -31,6 +31,8 @@ structure Cache :> CACHE where type Key.t = MLRep.Long.Unsigned.word = struct
 
    fun size (IN {table, ...}) = T.size table
 
+   fun isEmpty c = 0 = size c
+
    fun putWith (t as IN {table, seed}) keyToValue = let
       val word = !seed before seed := Misc.ranqd1 (!seed)
       val key = wordToKey word
