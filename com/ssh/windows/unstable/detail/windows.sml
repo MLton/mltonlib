@@ -310,13 +310,21 @@ structure Windows :> WINDOWS_EX = struct
       end
    end
 
-   structure Path = struct
+   structure File = struct
       fun getShortName p =
           one (withZs p)
               (fn p' =>
                   onError0ElseRequiredSize
                      (fn () => F"Path.getShortName"[A str p])
                      (fn (b, s) => F_win_GetShortPathName.f' (p', b, s)))
+
+      fun copy {from, to, failIfExists} =
+          one (withZs from >>& withZs to)
+              (fn from' & to' =>
+                  raiseOnFalse
+                     (fn () => F"File.copy"[A str from, A str to,
+                                            A bool failIfExists])
+                     F_win_CopyFile.f' (from', to', toCBool failIfExists))
    end
 
    structure Wait = struct

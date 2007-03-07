@@ -67,6 +67,7 @@ WIN_FUNCTION(GetModuleFileName, DWORD, 3, (HMODULE, LPTSTR, DWORD))
 
 /************************************************************************/
 
+WIN_FUNCTION(CopyFile, BOOL, 3, (LPCTSTR, LPCTSTR, BOOL))
 WIN_FUNCTION(GetShortPathName, DWORD, 3, (LPCTSTR, LPTSTR, DWORD))
 
 /************************************************************************/

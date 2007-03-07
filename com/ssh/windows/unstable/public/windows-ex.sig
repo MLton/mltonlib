@@ -27,8 +27,9 @@ signature WINDOWS_EX = sig
       val getFileName : t Option.t -> String.t
    end
 
-   structure Path : sig
+   structure File : sig
       val getShortName : String.t UnOp.t
+      val copy : {from : String.t, to : String.t, failIfExists : Bool.t} Effect.t
    end
 
    structure Wait : sig
