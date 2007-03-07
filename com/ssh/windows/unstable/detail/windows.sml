@@ -410,6 +410,7 @@ structure Windows :> WINDOWS_EX = struct
                      (fn () => F"Mutex.create"[A (opt str) name, A bool own])
                      F_win_CreateMutex.f' (null, toCBool own, name'))
       val close = ptrToBool "Mutex.close" F_win_CloseHandle.f'
+      val release = ptrToBool "Mutex.release" F_win_ReleaseMutex.f'
       val toWait = id
    end
 

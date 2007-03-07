@@ -60,6 +60,7 @@ signature WINDOWS_EX = sig
       type t
       val create : {name : String.t Option.t, own : Bool.t} -> t
       val close : t Effect.t
+      val release : t Effect.t
       val toWait : t -> Wait.t
    end
 
