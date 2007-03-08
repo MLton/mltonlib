@@ -16,6 +16,8 @@ type void = Void.t
 
 (** ==== Basic ==== *)
 
+val eq = Basic.eq
+val notEq = Basic.notEq
 val fail = Basic.fail
 val failing = Basic.failing
 val raising = Basic.raising

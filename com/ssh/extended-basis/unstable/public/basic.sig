@@ -6,6 +6,12 @@
 
 (** Basic utilities. *)
 signature BASIC = sig
+   val eq : ''a -> ''a UnPr.t
+   (** Curried version of {=}. *)
+
+   val notEq : ''a -> ''a UnPr.t
+   (** Curried version of {<>}. *)
+
    val fail : String.t -> 'a
    (** {fail m} is equivalent to {raise Fail m}. *)
 
