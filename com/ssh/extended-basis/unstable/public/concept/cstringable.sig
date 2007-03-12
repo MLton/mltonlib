@@ -42,6 +42,6 @@ signature CSTRINGABLE_EX = sig
 end
 
 signature CSTRINGABLE = sig
-   include CSTRINGABLE_CORE
-   include CSTRINGABLE_EX where type cstringable_ex = cstringable
+   include CSTRINGABLE_CORE CSTRINGABLE_EX
+   sharing type cstringable = cstringable_ex
 end

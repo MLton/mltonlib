@@ -11,13 +11,12 @@ signature FORMATTABLE = sig
 end
 
 signature FORMATTABLE_and_SCANNABLE = sig
-   include FORMATTABLE
-   include SCANNABLE where type scannable = formattable
+   include FORMATTABLE SCANNABLE
+   sharing type scannable = formattable
 end
 
 signature FORMATTABLE_and_SCANNABLE_FROM_FORMAT = sig
-   include FORMATTABLE
-   include SCANNABLE_FROM_FORMAT
-      where type scannable = formattable
-      where type scannable_format = formattable_format
+   include FORMATTABLE SCANNABLE_FROM_FORMAT
+   sharing type scannable = formattable
+   sharing type scannable_format = formattable_format
 end

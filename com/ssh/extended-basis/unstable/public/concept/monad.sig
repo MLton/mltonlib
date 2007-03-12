@@ -42,8 +42,8 @@ signature MONAD_EX = sig
 end
 
 signature MONAD = sig
-   include MONAD_CORE
-   include MONAD_EX where type 'a monad_ex = 'a monad
+   include MONAD_CORE MONAD_EX
+   sharing type monad_ex = monad
 end
 
 (** == Monad Plus == *)
@@ -60,9 +60,8 @@ signature MONADP_EX = sig
 end
 
 signature MONADP = sig
-   include MONADP_CORE
-   include MONAD_EX where type 'a monad_ex = 'a monad
-   include MONADP_EX where type 'a monadp_ex = 'a monad
+   include MONADP_CORE MONAD_EX MONADP_EX
+   sharing type monad = monad_ex = monadp_ex
 end
 
 (** == State Monads == *)
@@ -76,11 +75,11 @@ signature MONAD_WS = sig (* WS = WITH_STATE *)
 end 
  
 signature MONAD_STATE = sig
-  include MONAD
-  include MONAD_WS where type 'a monad_ws = 'a monad
+  include MONAD MONAD_WS
+  sharing type monad = monad_ws
 end 
 
 signature MONADP_STATE = sig
-  include MONADP
-  include MONAD_WS where type 'a monad_ws = 'a monad
+  include MONADP MONAD_WS
+  sharing type monad = monad_ws
 end 

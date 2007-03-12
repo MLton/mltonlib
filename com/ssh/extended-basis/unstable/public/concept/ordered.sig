@@ -44,7 +44,6 @@ signature ORDERED_EX = sig
 end
 
 signature ORDERED = sig
-   include ORDERED_CORE
-   include EQUALITY where type equality = ordered
-   include ORDERED_EX where type ordered_ex = ordered
+   include ORDERED_CORE EQUALITY ORDERED_EX
+   sharing type ordered = equality = ordered_ex
 end

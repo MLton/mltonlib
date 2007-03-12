@@ -18,8 +18,8 @@ signature BOUNDED_EX = sig
 end
 
 signature BOUNDED = sig
-   include BOUNDED_CORE
-   include BOUNDED_EX where type bounded_ex = bounded
+   include BOUNDED_CORE BOUNDED_EX
+   sharing type bounded = bounded_ex
 end
 
 (** == Maybe Bounded == *)
@@ -36,6 +36,6 @@ signature MAYBE_BOUNDED_EX = sig
 end
 
 signature MAYBE_BOUNDED = sig
-   include MAYBE_BOUNDED_CORE
-   include MAYBE_BOUNDED_EX where type bounded_ex = bounded
+   include MAYBE_BOUNDED_CORE MAYBE_BOUNDED_EX
+   sharing type bounded = bounded_ex
 end

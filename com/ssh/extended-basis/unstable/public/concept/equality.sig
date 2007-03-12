@@ -25,6 +25,6 @@ signature EQUALITY_EX = sig
 end
 
 signature EQUALITY = sig
-   include EQUALITY_CORE
-   include EQUALITY_EX where type equality_ex = equality
+   include EQUALITY_CORE EQUALITY_EX
+   sharing type equality = equality_ex
 end
