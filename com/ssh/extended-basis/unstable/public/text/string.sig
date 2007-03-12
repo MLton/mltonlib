@@ -6,11 +6,11 @@
 
 (** Extended {STRING} signature. *)
 signature STRING = sig
+   eqtype t
+   (** Convenience alias. *)
+
    eqtype string
    eqtype char
-
-   type t = string
-   (** Convenience alias. *)
 
    val maxSize : Int.t
    val size : t -> Int.t
@@ -52,8 +52,8 @@ signature STRING = sig
 
    (** == {MONO_VECTOR} == *)
 
-   type elem = char
-   type vector = t
+   type elem
+   type vector
 
    val all : elem UnPr.t -> vector UnPr.t
    val app : elem Effect.t -> vector Effect.t
@@ -78,9 +78,8 @@ signature STRING = sig
 
    (** == Concepts == *)
 
-   include CASED where type cased = t
-   include CSTRINGABLE where type cstringable = t
-   include ORDERED where type ordered = t
-   include SCANNABLE where type scannable = t
-   include STRINGABLE where type stringable = t
+   include CASED CSTRINGABLE ORDERED SCANNABLE STRINGABLE
+
+   sharing type char=elem
+   sharing type t=string=cstringable=ordered=scannable=stringable=vector
 end

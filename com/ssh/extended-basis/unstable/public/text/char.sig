@@ -6,11 +6,11 @@
 
 (** Extended {CHAR} signature. *)
 signature CHAR = sig
+   eqtype t
+   (** Convenience alias. *)
+
    eqtype char
    eqtype string
-
-   type t = char
-   (** Convenience alias. *)
 
    val ord : t -> Int.t
    val chr : Int.t -> t
@@ -68,10 +68,7 @@ signature CHAR = sig
 
    (** == Concepts == *)
 
-   include BOUNDED where type bounded = t
-   include CASED where type cased = t
-   include CSTRINGABLE where type cstringable = t
-   include ORDERED where type ordered = t
-   include SCANNABLE where type scannable = t
-   include STRINGABLE where type stringable = t
+   include BOUNDED CASED CSTRINGABLE ORDERED SCANNABLE STRINGABLE
+
+   sharing type t=char=bounded=cased=cstringable=ordered=scannable=stringable
 end
