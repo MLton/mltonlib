@@ -103,7 +103,7 @@ end = struct
       in
          I {sz = d+bS, al = Word.max (aA, bA),
             rd = fn p => aR p & bR (Ptr.+ (p, d)),
-            wr = fn p => fn a & b => (aW p a ; bW (Ptr.+ (p, d)) b)}
+            wr = fn p => Product.app (aW p, bW (Ptr.+ (p, d)))}
       end
 
       datatype 'a s =
