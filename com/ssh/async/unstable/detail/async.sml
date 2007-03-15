@@ -7,14 +7,6 @@
 structure Async :> ASYNC = struct
    exception Full
 
-   structure Queue = struct
-      open Queue
-      fun dequeWhile p q =
-          case Queue.deque q of
-             NONE => NONE
-           | SOME t => if p t then dequeWhile p q else SOME t
-   end
-
    structure Handler = struct
       datatype 'a t = T of {scheduled : Bool.t Ref.t, effect : 'a Effect.t}
       fun new () = T {scheduled = ref false, effect = id}
