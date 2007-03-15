@@ -38,7 +38,21 @@ signature MONAD_EX = sig
    val >>& : 'a monad_ex * 'b monad_ex -> ('a, 'b) Product.t monad_ex
    val >>* : 'a monad_ex * 'b monad_ex -> ('a * 'b) monad_ex
    val >>@ : ('a -> 'b) monad_ex * 'a monad_ex -> 'b monad_ex
+
    val seq : 'a monad_ex List.t -> 'a List.t monad_ex
+   val seqWith : ('a -> 'b monad_ex) -> 'a List.t -> 'b List.t monad_ex
+
+   val app : 'a monad_ex List.t -> unit monad_ex
+   val appWith : ('a -> 'b monad_ex) -> 'a List.t -> unit monad_ex
+
+   val ignore : 'a monad_ex -> unit monad_ex
+   (** {ignore m == (m >> return ())} *)
+
+   val when : bool -> unit monad_ex -> unit monad_ex
+   (** {when b m == if b then m else (return ())} *)
+
+   val unless : bool -> unit monad_ex -> unit monad_ex
+   (** {unless b m == if b then (return ()) else m} *)
 end
 
 signature MONAD = sig

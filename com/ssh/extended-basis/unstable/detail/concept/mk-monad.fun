@@ -16,6 +16,32 @@ functor MkMonad (MonadCore : MONAD_CORE) : MONAD = struct
    fun aM >> bM = map #2 (aM >>* bM)
    fun seq [] = return []
      | seq (xM::xMs) = map op :: (xM >>* seq xMs)
+
+   local 
+     fun seqWithTail f xs accum =
+         case xs
+           of [] => return (List.rev accum)
+            | x::xs' => (f x) >>= (fn x' => seqWithTail f xs' (x'::accum))
+   in
+     fun seqWith f xs =
+         seqWithTail f xs []
+   end
+
+   fun app (ms : 'a monad list) : unit monad =
+       case ms
+         of [] => return ()
+          | m::ms' => m >> (app ms')
+
+   fun appWith (f : 'a -> 'b monad) (xs : 'a list) : unit monad =
+       case xs
+         of [] => return ()
+          | x::xs' => (f x) >> (appWith f xs')
+
+   fun ignore m = m >> return ()
+
+   fun when b m = if b then m else return ()
+   fun unless b m = if b then return () else m
+
 end
 
 functor MkMonadP (MonadPCore : MONADP_CORE) : MONADP = struct
