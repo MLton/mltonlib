@@ -6,15 +6,7 @@
 
 (** == Top-Level Bindings == *)
 
-(** === Types === *)
-
-datatype product = datatype Product.product
-datatype sum = datatype Sum.sum
-type void = Void.t
-
-(** === Values === *)
-
-(** ==== Basic ==== *)
+(** === Basic === *)
 
 val eq = Basic.eq
 val notEq = Basic.notEq
@@ -25,12 +17,12 @@ val recur = Basic.recur
 val repeat = Basic.repeat
 val undefined = Basic.undefined
 
-(** ==== Exn ==== *)
+(** === Exn === *)
 
 val finally = Exn.finally
 val try = Exn.try
 
-(** ==== Fn ==== *)
+(** === Fn === *)
 
 val const = Fn.const
 val curry = Fn.curry
@@ -46,21 +38,34 @@ val op >| = Fn.>|
 val op \> = Fn.\>
 val op |< = Fn.|<
 
-(** ==== Option ==== *)
+(** === Option === *)
 
 val isNone = Option.isNone
 
-(** ==== Ref ==== *)
+(** === Product === *)
+
+datatype product = datatype Product.product
+
+(** === Ref === *)
 
 val op :=: = Ref.:=:
 
-(** ==== TextIO ==== *)
+(** === Sum === *)
+
+datatype sum = datatype Sum.sum
+
+(** === TextIO === *)
 
 val println = TextIO.println
 
-(** ==== UnPr ==== *)
+(** === UnPr === *)
 
 val negate = UnPr.negate
 
 val op andAlso = UnPr.andAlso
 val op orElse = UnPr.orElse
+
+(** === Void === *)
+
+type void = Void.t
+val void = Void.void
