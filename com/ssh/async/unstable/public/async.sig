@@ -5,7 +5,12 @@
  *)
 
 (**
- * Asynchronous programming interface.
+ * Signature for an asynchronous programming library.
+ *
+ * The design is based on a library posted by Stephen Weeks to the
+ * MLton-user mailing list:
+ * [http://mlton.org/pipermail/mlton-user/2006-July/000856.html
+ *  Simple, portable, asynchronous programming in SML].
  *)
 signature ASYNC = sig
    exception Full
@@ -22,44 +27,65 @@ signature ASYNC = sig
        * either when all handlers have been executed successfully or when
        * a handler raises an exception in which case the exception is
        * propagated to the caller of {runAll}.
+       *
+       * {runAll} is typically only called from a platform dependent event
+       * loop.
        *)
    end
 
    structure Event : sig
       type 'a t
-      (** The type of asynchronous events. *)
+      (**
+       * An event of type {'a t} is a first-class object that represents
+       * the possibility of communicating a value of type {'a} from one
+       * part of the program to another.  At each moment, an event is
+       * either enabled or disabled depending on whether it is able to
+       * supply a value.  When an event is enabled, it may be committed
+       * to, which means that the value supplied by the event is consumed.
+       *)
    end
 
-   (** == Combinators == *)
+   (** == Combinators ==
+    *
+    * Event combinators work in such away that committing to the returned
+    * event also commits to a given event.  However, committing to a given
+    * event does not commit to the returned event.
+    *)
 
    val on : 'a Event.t * ('a -> 'b) -> 'b Event.t
    (**
-    * Creates an event that acts like the given event and also executes
-    * the given function on the event value when the created event is
-    * committed.
+    * Creates an event that is enabled whenever the given event is enabled
+    * and when committed to also executes the given function, which is
+    * usually referred to as either a handler or an action.
     *)
 
    val choose : 'a Event.t List.t -> 'a Event.t
    (**
-    * Creates an event that chooses, in an unspecified manner, an occured
-    * event from the given list of events to commit.
+    * Creates an event that chooses, in an unspecified manner, an enabled
+    * event from the given list of events to commit to.
     *)
 
    (** == Handling Events == *)
 
    val once : Unit.t Event.t Effect.t
    (**
-    * Commit to the given event once when it occurs.  The handlers
-    * attached to a committed event are executed when {Handler.runAll} is
-    * called.
+    * Registers desire to commit to the given event when it is enabled.
+    *
+    * {once} returns without running handlers.  Any handlers attached to a
+    * committed event are executed only when {Handler.runAll} is called.
+    *
+    * It is possible to register desire to commit to a particular event
+    * multiple times and an event may not be able to supply a value for
+    * all of the commits.
     *)
 
    (** == Utilities == *)
 
    val each : Unit.t Event.t Effect.t
    (**
-    * Commit to the given event each time it occurs.  {each} can be
-    * implemented as
+    * Registers desire to commit to the given event each time it occurs.
+    *
+    * {each} can be implemented as a simple tail-recursive loop:
     *
     *> fun each e = when (e, fn () => each e)
     *)
