@@ -108,14 +108,19 @@ structure Export:>
    structure Word64 = Word64
 
    val op @ = op @
+   val ! = !
+   val op := = op :=
    val concat = concat
    val die = die
    val finally = finally
+   val id = id
    val ignore = ignore
    val lazy = lazy
    val not = not
    val op o = op o
+   val pass = pass
    val print = print
+   val recur = recur
    val valOf = valOf
 
 end

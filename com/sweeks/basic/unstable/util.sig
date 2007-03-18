@@ -12,6 +12,7 @@ signature UTIL = sig
    val fst: 'a * 'b -> 'a
    val id: 'a -> 'a
    val o: ('a -> 'b) * ('c -> 'a) -> 'c -> 'b
+   val pass: 'a -> ('a -> 'b) -> 'b
    val recur: 'a * ('a * ('a -> 'b) -> 'b) -> 'b
    val snd: 'a * 'b -> 'b
 

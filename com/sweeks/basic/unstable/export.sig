@@ -60,15 +60,19 @@ signature EXPORT = sig
    sharing type ArraySlice.base = Array.t
    sharing type VectorSlice.base = Vector.t
 
+   val ! : 'a Ref.t -> 'a
+   val := : 'a Ref.t * 'a -> Unit.t
    val @ : 'a List.t * 'a List.t -> 'a List.t
    val concat: String.t Seq.t -> String.t
    val die: String.t -> 'a
    val finally: 'a thunk * Unit.t thunk -> 'a
+   val id: 'a -> 'a
    val ignore: 'a -> Unit.t
    val lazy: 'a thunk -> 'a thunk
    val not: Bool.t -> Bool.t
    val o: ('a -> 'b) * ('c -> 'a) -> 'c -> 'b
+   val pass: 'a -> ('a -> 'b) -> 'b
    val print: String.t -> Unit.t
+   val recur: 'a * ('a * ('a -> 'b) -> 'b) -> 'b
    val valOf: 'a Option.t -> 'a
-
 end

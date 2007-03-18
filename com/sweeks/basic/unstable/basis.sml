@@ -6,7 +6,7 @@
 structure Basis = struct
    structure Array = struct open Array type 'a t = 'a array end
    structure ArraySlice = ArraySlice
-   structure Bool = struct open Bool type t = bool end
+   structure Bool = struct open Bool datatype t = datatype bool end
    structure Byte = Byte
    structure Char = struct open Char type t = char end
    structure CommandLine = CommandLine

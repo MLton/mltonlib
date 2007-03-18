@@ -13,6 +13,8 @@ structure Util: UTIL = struct
 
    fun (f o g) x = f (g x)
 
+   fun pass x f = f x
+      
    fun recur (x, f) = let fun loop x = f (x, loop) in loop x end
 
    fun fst (a, _) = a

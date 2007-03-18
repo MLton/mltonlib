@@ -13,6 +13,7 @@ datatype z = datatype Order.t
 val _: z = Less (* quell unused warning *)
 datatype z = datatype Option.t
 val _: Unit.t z = None (* quell unused warning *)
+datatype z = datatype Ref.t
 type z = Unit.t
 
 (* The following are so that nice type names are used by -show-basis. *)

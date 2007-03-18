@@ -11,3 +11,10 @@ structure Ref: REF = struct
    val op := = op := 
 
 end
+
+local
+   open Ref
+in
+   val ! = !
+   val op := = op :=
+end

@@ -1,8 +1,10 @@
 eqtype z = unit
+val ! : 'a Ref.t -> 'a
 val * : ('a * 'a) -> 'a
 val + : ('a * 'a) -> 'a
 val - : ('a * 'a) -> 'a
 val / : ('a * 'a) -> 'a
+val := : ('a Ref.t * 'a) -> unit
 val < : ('a * 'a) -> Bool.t
 val <= : ('a * 'a) -> Bool.t
 val <> : ('a * 'a) -> Bool.t
@@ -15,12 +17,15 @@ val concat: string Seq.t -> string
 val die: string -> 'a
 val div: ('a * 'a) -> 'a
 val finally: ((unit -> 'a) * (unit -> unit)) -> 'a
+val id: 'a -> 'a
 val ignore: 'a -> unit
 val lazy: (unit -> 'a) -> (unit -> 'a)
 val mod: ('a * 'a) -> 'a
 val not: Bool.t -> Bool.t
 val o: (('a -> 'b) * ('c -> 'a)) -> ('c -> 'b)
+val pass: 'a -> (('a -> 'b) -> 'b)
 val print: string -> unit
+val recur: ('a * (('a * ('a -> 'b)) -> 'b)) -> 'b
 val valOf: 'a Option.t -> 'a
 val ~ : 'a -> 'a
 structure Array: ARRAY
@@ -353,7 +358,7 @@ signature ARRAY_SLICE =
    end
 signature BOOL = 
    sig
-      eqtype t = Bool.t
+      datatype t = false | true
       val not: Bool.t -> Bool.t
    end
 signature CHAR = 
