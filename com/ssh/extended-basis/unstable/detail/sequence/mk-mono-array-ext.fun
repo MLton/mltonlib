@@ -18,6 +18,7 @@ functor MkMonoArrayExt (structure MonoVector : BASIS_MONO_VECTOR
    in
       open MonoArray Common
    end
+   fun empty () = tabulate (0, Basic.undefined)
    local
       fun mk tabulate length sub ? = tabulate (length ?, fn i => sub (?, i))
    in

@@ -11,11 +11,18 @@ signature MONO_ARRAY = sig
    type t = array
    (** Convenience alias. *)
 
-   val duplicate : t -> t
+   (** == Constructors == *)
+
+   val empty : t Thunk.t
+   (** Makes a new empty array. *)
+
+   val duplicate : t UnOp.t
    (**
     * Makes a fresh duplicate of the given array.  {duplicate a} is
     * equivalent to {tabulate (length a, fn i => sub (a, i))}.
     *)
+
+   (** == HOFs == *)
 
    val unfoldi : (Int.t * 'a -> elem * 'a) -> Int.t * 'a -> t * 'a
    (**

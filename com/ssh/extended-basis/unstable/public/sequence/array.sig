@@ -11,11 +11,18 @@ signature ARRAY = sig
    type 'a t = 'a array
    (** Convenience alias. *)
 
+   (** == Constructors == *)
+
+   val empty : 'a t Thunk.t
+   (** Makes a new empty array. *)
+
    val duplicate : 'a t UnOp.t
    (**
     * Makes a fresh duplicate of the given array.  {duplicate a} is
     * equivalent to {tabulate (length a, fn i => sub (a, i))}.
     *)
+
+   (** == HOFs == *)
 
    val unfoldi : (Int.t * 'b -> 'a * 'b) -> Int.t * 'b -> 'a t * 'b
    (**

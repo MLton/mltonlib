@@ -10,6 +10,7 @@ structure Array : ARRAY = struct
    in
       open Array Common
    end
+   fun empty () = tabulate (0, Basic.undefined)
    fun duplicate a = tabulate (length a, fn i => sub (a, i))
    val toVector = vector
    fun fromVector v = tabulate (Vector.length v, fn i => Vector.sub (v, i))
