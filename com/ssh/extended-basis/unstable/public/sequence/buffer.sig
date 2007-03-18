@@ -4,7 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(** Imperative dynamically growing buffer. *)
+(**
+ * Imperative dynamically growing buffer.  A (plain) buffer only allows
+ * elements to be pushed to the end.  This simplifies the implementation.
+ *
+ * See also: {RESIZABLE_ARRAY}
+ *)
 signature BUFFER = sig
    type 'a t
    (** The type of buffers. *)
@@ -18,6 +23,36 @@ signature BUFFER = sig
    (**
     * Creates a new duplicate of the buffer.  {duplicate b} is equivalent
     * to {let val b' = new () in pushBuffer b' b end}.
+    *)
+
+   (** == Capacity == *)
+
+   val capacity : 'a t -> Int.t
+   (**
+    * Returns the maximum length after which it becomes necessary for the
+    * buffer to allocate more storage for holding additional elements.  It
+    * always holds that {length b <= capacity b}.
+    *)
+
+   val reserve : 'a t -> Int.t Effect.t
+   (**
+    * {reserve b n} attempts to ensure that {n <= capacity b}.  Does
+    * nothing if the specified capacity is smaller than the current
+    * capacity.  Also, the capacity of some type of buffers can not be
+    * increased when they are empty.
+    *
+    * This can be used to avoid incremental (re)allocation when one knows
+    * how many elements will be pushed into the buffer.
+    *)
+
+   val trim : 'a t Effect.t
+   (**
+    * Attempts to eliminate excess capacity allocated for the buffer.  In
+    * other words, after {trim b} it should be that {capacity b - length
+    * b} is as small as possible.
+    *
+    * Warning: Trim should be used with care as it can destroy asymptotic
+    * complexity guarantees.
     *)
 
    (** == Accessors == *)
@@ -54,7 +89,11 @@ signature BUFFER = sig
     * equivalent to {Vector.fromList (toList b)}.
     *)
 
-   (** == Adding Elements to a Buffer == *)
+   (** == Adding Elements to a Buffer ==
+    *
+    * It is generally guaranteed that adding elements to a buffer does not
+    * reduce the capacity of the buffer.
+    *)
 
    val push : 'a t -> 'a Effect.t
    (**
@@ -65,6 +104,9 @@ signature BUFFER = sig
     *> val ca = toList b
     *
     * it holds that {cb = init ca} and {last ca = v}.
+    *
+    * Assuming that {trim} is never called, then the amortized complexity
+    * of {push} is O(1).
     *)
 
    val pushArray : 'a t -> 'a Array.t Effect.t

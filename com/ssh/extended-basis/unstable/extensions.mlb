@@ -208,7 +208,12 @@ in
 
          (* Buffer *)
          public/sequence/buffer.sig
+         detail/sequence/mk-buffer-common.fun
          detail/sequence/buffer.sml
+
+         (* ResizableArray *)
+         public/sequence/resizable-array.sig
+         detail/sequence/resizable-array.sml
 
          (* Reader *)
          public/io/reader.sig

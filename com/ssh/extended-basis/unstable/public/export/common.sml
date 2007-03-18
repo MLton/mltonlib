@@ -73,6 +73,7 @@ signature PROMISE = PROMISE
 signature READER = READER
 signature REAL = REAL
 signature REF = REF
+signature RESIZABLE_ARRAY = RESIZABLE_ARRAY
 signature SHIFT_OP = SHIFT_OP
 signature SQ = SQ
 signature STRING = STRING
@@ -145,6 +146,7 @@ structure Promise : PROMISE = Promise
 structure Reader : READER = Reader
 structure Real : REAL = Real
 structure Ref : REF where type 'a t = 'a ref = Ref
+structure ResizableArray : RESIZABLE_ARRAY = ResizableArray
 structure ShiftOp : SHIFT_OP = ShiftOp
 structure String : STRING = String
 structure Substring : SUBSTRING = Substring

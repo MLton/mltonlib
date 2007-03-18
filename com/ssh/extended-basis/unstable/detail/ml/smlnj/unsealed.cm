@@ -63,12 +63,14 @@ is
    ../../../detail/sequence/array.sml
    ../../../detail/sequence/buffer.sml
    ../../../detail/sequence/list.sml
+   ../../../detail/sequence/mk-buffer-common.fun
    ../../../detail/sequence/mk-mono-array-ext.fun
    ../../../detail/sequence/mk-mono-array-slice-ext.fun
    ../../../detail/sequence/mk-mono-seq-common-ext.fun
    ../../../detail/sequence/mk-mono-vector-ext.fun
    ../../../detail/sequence/mk-mono-vector-slice-ext.fun
    ../../../detail/sequence/mk-seq-common-ext.fun
+   ../../../detail/sequence/resizable-array.sml
    ../../../detail/sequence/vector-slice.sml
    ../../../detail/sequence/vector.sml
    ../../../detail/text/mk-text-ext.fun
