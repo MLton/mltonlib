@@ -7,7 +7,7 @@
 structure Reader :> READER = struct
    open Reader
 
-   infix >>=
+   infix >>= <|>
 
    type 'a monad_dom = Univ.t and 'a monad_cod = ('a * Univ.t) Option.t
 
@@ -17,7 +17,7 @@ structure Reader :> READER = struct
           fun return a s = SOME (a, s)
           fun aM >>= a2bM = Option.mapPartial (Fn.uncurry a2bM) o aM
           fun zero _ = NONE
-          fun plus (lM, rM) s = case lM s of NONE => rM s | result => result)
+          fun (lM <|> rM) s = case lM s of NONE => rM s | result => result)
 
    open Monad
 

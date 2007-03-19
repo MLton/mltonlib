@@ -65,7 +65,7 @@ end
 signature MONADP_CORE = sig
    include MONAD_CORE
    val zero : 'a monad
-   val plus : 'a monad BinOp.t
+   val <|> : 'a monad BinOp.t
 end
 
 signature MONADP_EX = sig

@@ -34,7 +34,7 @@ end = struct
         val return = `
         fun (aM >>= a2bM) () = case aM () of NONE => NONE | SOME a => a2bM a ()
         fun zero () = NONE
-        fun plus (l, r) () = case l () of NONE => r () | r => r)
+        fun (l <|> r) () = case l () of NONE => r () | r => r)
    open Monad
    fun liftBinFn f (aM, bM) = map f (aM >>* bM)
    fun get q = q ()

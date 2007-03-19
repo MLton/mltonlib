@@ -4,9 +4,9 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkMonad (MonadCore : MONAD_CORE) : MONAD = struct
+functor MkMonad (Core : MONAD_CORE) : MONAD = struct
    infix >> >>& >>* >>= >>@
-   open MonadCore
+   open Core
    type 'a func = 'a monad
    fun map f aM = aM >>= return o f
    type 'a monad_ex = 'a monad
@@ -14,39 +14,25 @@ functor MkMonad (MonadCore : MONAD_CORE) : MONAD = struct
    fun fM >>@ aM = map Fn.\> (fM >>* aM)
    fun aM >>& bM = map Product.& (aM >>* bM)
    fun aM >> bM = map #2 (aM >>* bM)
-   fun seq [] = return []
-     | seq (xM::xMs) = map op :: (xM >>* seq xMs)
-
-   local 
-     fun seqWithTail f xs accum =
-         case xs
-           of [] => return (List.rev accum)
-            | x::xs' => (f x) >>= (fn x' => seqWithTail f xs' (x'::accum))
+   local
+      fun mk fin comb x2yM ac =
+       fn [] => return (fin ac)
+        | x::xs => x2yM x >>= (fn y => mk fin comb x2yM (comb (y, ac)) xs)
    in
-     fun seqWith f xs =
-         seqWithTail f xs []
+      fun seqWith x2yM = mk rev op :: x2yM []
+      fun appWith x2yM = mk ignore ignore x2yM ()
+      fun seq xMs = seqWith Fn.id xMs
+      fun app xMs = appWith Fn.id xMs
    end
-
-   fun app (ms : 'a monad list) : unit monad =
-       case ms
-         of [] => return ()
-          | m::ms' => m >> (app ms')
-
-   fun appWith (f : 'a -> 'b monad) (xs : 'a list) : unit monad =
-       case xs
-         of [] => return ()
-          | x::xs' => (f x) >> (appWith f xs')
-
    fun ignore m = m >> return ()
-
    fun when b m = if b then m else return ()
    fun unless b m = if b then return () else m
-
 end
 
-functor MkMonadP (MonadPCore : MONADP_CORE) : MONADP = struct
-   structure Monad = MkMonad (MonadPCore)
-   open Monad MonadPCore
+functor MkMonadP (Core : MONADP_CORE) : MONADP = struct
+   infix <|>
+   structure Monad = MkMonad (Core)
+   open Monad Core
    type 'a monadp_ex = 'a monad
-   fun sum [] = zero | sum [x] = x | sum (x::xs) = plus (x, sum xs)
+   fun sum [] = zero | sum [x] = x | sum (x::xs) = x <|> sum xs
 end
