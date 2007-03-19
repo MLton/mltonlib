@@ -223,6 +223,10 @@ WIN_FUNCTION(FindWindow, HWND, 2, (LPCTSTR, LPCTSTR))
 
 /************************************************************************/
 
+WIN_FUNCTION(FreeConsole, BOOL, 0, (void))
+
+/************************************************************************/
+
 C_CODE(LPTSTR win_FormatErrorLocalAlloc(DWORD error))
 
 #endif

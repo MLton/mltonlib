@@ -508,4 +508,8 @@ structure Windows :> WINDOWS_EX = struct
 
       fun show (w, c) = 0 <> F_win_ShowWindow.f' (w, c)
    end
+
+   structure Console = struct
+      val free = raiseOnFalse (fn () => F"Console.free" []) F_win_FreeConsole.f'
+   end
 end

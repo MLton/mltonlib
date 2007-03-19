@@ -122,4 +122,8 @@ signature WINDOWS_EX = sig
 
       val show : t * SW.t -> Bool.t
    end
+
+   structure Console : sig
+      val free : Unit.t Effect.t
+   end
 end
