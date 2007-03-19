@@ -77,6 +77,18 @@ structure Windows :> WINDOWS_EX = struct
    fun raiseOnNull ? = raiseOn C.Ptr.isNull' id ?
    fun raiseOnFalse ? = raiseOn (0 <\ op =) ignore ?
 
+   fun raiseOnNullIfErrorElseNone call f x = let
+      val r = f x
+   in
+      if C.Ptr.isNull' r
+      then let
+            val e = getLastError ()
+         in
+            if e = success then NONE else raiseError call e
+         end
+      else SOME r
+   end
+
    fun ptrToBool name f h = raiseOnFalse (fn () => F name [A ptr h]) f h
 
    fun withAlloc alloc = around alloc C.free'
@@ -472,7 +484,7 @@ structure Windows :> WINDOWS_EX = struct
       fun find {class, window} =
           one (withOptZs class >>& withOptZs window)
               (fn c & w =>
-                  raiseOnNull
+                  raiseOnNullIfErrorElseNone
                      (fn () => F"Window.find"
                                 [A (opt str) class, A (opt str) window])
                      F_win_FindWindow.f' (c, w))

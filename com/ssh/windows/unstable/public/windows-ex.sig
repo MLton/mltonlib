@@ -100,7 +100,8 @@ signature WINDOWS_EX = sig
    structure Window : sig
       type t
 
-      val find : {class : String.t Option.t, window : String.t  Option.t} -> t
+      val find : {class : String.t Option.t,
+                  window : String.t Option.t} -> t Option.t
 
       structure SW : sig
          type t
