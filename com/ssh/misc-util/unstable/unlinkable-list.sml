@@ -5,17 +5,15 @@
  *)
 
 structure UnlinkableList :> sig
-   type 'a t and l
+   type 'a t
 
    val new : 'a t Thunk.t
 
-   val pushFront : 'a t -> 'a -> l
-   val pushBack : 'a t -> 'a -> l
+   val pushFront : 'a t -> 'a -> Unit.t Effect.t
+   val pushBack : 'a t -> 'a -> Unit.t Effect.t
 
    val popFront : 'a t -> 'a Option.t
    val popBack : 'a t -> 'a Option.t
-
-   val unlink : l Effect.t
 end = struct
    type 'a p = 'a Option.t Ref.t
    val ! = fn p => case !p of SOME it => it | _ => fail "bug"
@@ -23,8 +21,6 @@ end = struct
 
    datatype 'a t = RING of 'a l | NODE of {link : 'a l, value : 'a}
    withtype 'a l = {pred : 'a t p, succ : 'a t p}
-
-   type l = Unit.t Effect.t
 
    val link = fn RING link => link | NODE {link, ...} => link
    fun pred n = #pred (link n)
@@ -43,8 +39,6 @@ end = struct
    in
       ls := n ; lp := n ; succ p := s ; pred s := p
    end
-
-   fun unlink ef = ef ()
 
    fun push (p, s, v) = let
       val l = newLink () val n = NODE {link = l, value = v}
