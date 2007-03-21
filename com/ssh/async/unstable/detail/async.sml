@@ -8,19 +8,22 @@ structure Async :> ASYNC = struct
    exception Full
 
    structure Handler = struct
-      datatype 'a t = T of {scheduled : Bool.t Ref.t, effect : 'a Effect.t}
-      fun new () = T {scheduled = ref false, effect = id}
-      fun scheduled (T t) = !(#scheduled t)
-      fun prepend f (T t) = T {scheduled = #scheduled t, effect = #effect t o f}
+      datatype 'a t =
+         T of {unlink : Unit.t Effect.t List.t Ref.t, effect : 'a Effect.t}
+      fun new () = T {unlink = ref [], effect = id}
+      fun prepend f (T t) = T {unlink = #unlink t, effect = #effect t o f}
+      fun pushFront ul (h as T t) =
+          (List.push (#unlink t) (UnlinkableList.pushFront ul h)
+         ; false)
       val handlers = Queue.new ()
-      fun schedule a (T {scheduled, effect}) =
-          if !scheduled then ()
-          else (scheduled := true ; Queue.enque handlers (fn () => effect a))
+      fun schedule a (T {unlink, effect}) =
+          (app (pass ()) (!unlink)
+         ; Queue.enque handlers (fn () => effect a))
       fun runAll () = Queue.appClear (pass ()) handlers
    end
 
    structure Event = struct
-      datatype 'a t = E of ('a Handler.t Effect.t, 'a) Sum.t Thunk.t
+      datatype 'a t = E of ('a Handler.t UnPr.t, 'a) Sum.t Thunk.t
       fun on (E t, f) =
           E (fn () =>
                 INL (fn h => let
@@ -29,7 +32,8 @@ structure Async :> ASYNC = struct
                            case t () of
                               INL ef => ef h
                             | INR v =>
-                              Handler.schedule () (Handler.prepend (const v) h)
+                              (Handler.schedule () (Handler.prepend (const v) h)
+                             ; true)
                         end))
       fun choose es =
           E (fn () =>
@@ -37,18 +41,16 @@ structure Async :> ASYNC = struct
                    fn [] & efs =>
                       INL (fn h =>
                               recur efs (fn lp =>
-                                 fn [] => ()
+                                 fn [] => false
                                   | ef::efs =>
-                                    (ef h
-                                   ; if Handler.scheduled h then ()
-                                     else lp efs)))
+                                    ef h orelse lp efs))
                     | E e::es & efs =>
                       case e () of
                          INL ef => lp (es & ef::efs)
                        | result => result))
       fun once (E t) =
           case t () of
-             INL ef => ef (Handler.new ())
+             INL ef => ignore (ef (Handler.new ()))
            | INR () => ()
       fun when ? = once (on ?)
       fun each e = when (e, fn () => each e)
@@ -60,39 +62,39 @@ structure Async :> ASYNC = struct
    open Event
 
    structure Ch = struct
-      datatype 'a t
-        = T of {ts : 'a Handler.t Queue.t,
-                gs : {handler : Unit.t Handler.t, value : 'a} Queue.t}
-      fun new () = T {ts = Queue.new (), gs = Queue.new ()}
+      datatype 'a t =
+         T of {ts : 'a Handler.t UnlinkableList.t,
+               gs : {handler : Unit.t Handler.t, value : 'a} UnlinkableList.t}
+      fun new () = T {ts = UnlinkableList.new (), gs = UnlinkableList.new ()}
       fun take (T {gs, ts}) =
           E (fn () =>
-                (Queue.filterOut (Handler.scheduled o #handler) gs
-               ; case Queue.deque gs of
-                    NONE => INL (Queue.enque ts)
-                  | SOME {handler, value} =>
-                    (Handler.schedule () handler ; INR value)))
+                case UnlinkableList.popBack gs of
+                   NONE => INL (Handler.pushFront ts)
+                 | SOME {handler, value} =>
+                   (Handler.schedule () handler ; INR value))
       fun give (T {ts, gs}) v =
           E (fn () =>
-                (Queue.filterOut Handler.scheduled ts
-               ; case Queue.deque ts of
-                    SOME th => (Handler.schedule v th ; INR ())
-                  | NONE =>
-                    INL (fn h => Queue.enque gs {handler = h, value = v})))
+                case UnlinkableList.popBack ts of
+                   SOME th => (Handler.schedule v th ; INR ())
+                 | NONE =>
+                   INL (fn h as Handler.T t =>
+                           (List.push (#unlink t)
+                                      (UnlinkableList.pushFront
+                                          gs {handler = h, value = v})
+                          ; false)))
    end
 
    structure Mailbox = struct
-      datatype 'a t = T of {ts : 'a Handler.t Queue.t, vs : 'a Queue.t}
-      fun new () = T {ts = Queue.new (), vs = Queue.new ()}
+      datatype 'a t = T of {ts : 'a Handler.t UnlinkableList.t, vs : 'a Queue.t}
+      fun new () = T {ts = UnlinkableList.new (), vs = Queue.new ()}
       fun take (T {ts, vs}) =
           E (fn () =>
                 case Queue.deque vs of
-                   NONE => (Queue.filterOut Handler.scheduled ts
-                          ; INL (Queue.enque ts))
+                   NONE => INL (Handler.pushFront ts)
                  | SOME v => INR v)
       fun send (T {ts, vs}) v =
           (Queue.enque vs v
-         ; Queue.filterOut Handler.scheduled ts
-         ; case Queue.deque ts of
+         ; case UnlinkableList.popBack ts of
               NONE => ()
             | SOME th =>
               case Queue.deque vs of
@@ -101,34 +103,38 @@ structure Async :> ASYNC = struct
    end
 
    structure IVar = struct
-      datatype 'a t = T of {rs : 'a Handler.t Queue.t, st : 'a Option.t Ref.t}
-      fun new () = T {rs = Queue.new (), st = ref NONE}
+      datatype 'a t =
+         T of {rs : 'a Handler.t UnlinkableList.t, st : 'a Option.t Ref.t}
+      fun new () = T {rs = UnlinkableList.new (), st = ref NONE}
       fun read (T {rs, st}) =
           E (fn () =>
                 case !st of
                    SOME v => INR v
-                 | NONE => (Queue.filterOut Handler.scheduled rs
-                          ; INL (Queue.enque rs)))
+                 | NONE => INL (Handler.pushFront rs))
+      fun whileSome getSome from doSome =
+          case getSome from of
+             NONE => ()
+           | SOME v => (doSome v : Unit.t ; whileSome getSome from doSome)
       fun fill (T {rs, st}) v =
           case !st of
              SOME _ => raise Full
-           | NONE => (st := SOME v ; Queue.appClear (Handler.schedule v) rs)
+           | NONE => (st := SOME v
+                    ; whileSome UnlinkableList.popBack rs (Handler.schedule v))
    end
 
    structure MVar = struct
-      datatype 'a t = T of {ts : 'a Handler.t Queue.t, st : 'a Option.t Ref.t}
-      fun new () = T {ts = Queue.new (), st = ref NONE}
+      datatype 'a t =
+         T of {ts : 'a Handler.t UnlinkableList.t, st : 'a Option.t Ref.t}
+      fun new () = T {ts = UnlinkableList.new (), st = ref NONE}
       fun take (T {ts, st}) =
           E (fn () =>
                 case !st of
                    SOME v => (st := NONE ; INR v)
-                 | NONE => (Queue.filterOut Handler.scheduled ts
-                          ; INL (Queue.enque ts)))
+                 | NONE => INL (Handler.pushFront ts))
       fun give (T {ts, st}) v =
-          (Queue.filterOut Handler.scheduled ts
-         ; case Queue.deque ts of
-              NONE => st := SOME v
-            | SOME h => Handler.schedule v h)
+          case UnlinkableList.popBack ts of
+             NONE => st := SOME v
+           | SOME h => Handler.schedule v h
       fun fill (t as T {st, ...}) v =
           case !st of
              SOME _ => raise Full
