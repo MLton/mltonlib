@@ -102,6 +102,8 @@ end = struct
       implode (rev (to (foldl (fn (e, rs) => to rs e) [] es) e))
    end
 
+   (* XXX exponential complexity (pattern = "*a...*ab", string = "a...a") *)
+
    fun matchStream (es, e) = let
       val es = es @ [e]
    in
