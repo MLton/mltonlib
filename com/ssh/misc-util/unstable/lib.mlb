@@ -37,6 +37,7 @@ in
    sorted-list.sml
 
    node.sml
+   unlinkable-list.sml
 
    queue.sig
    queue.sml
