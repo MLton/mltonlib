@@ -65,6 +65,8 @@ signature WINDOWS_EX = sig
 
       val any : (t * 'a) List.t -> Time.time Option.t -> 'a result
       val all : (t * 'a) List.t -> Time.time Option.t -> 'a result
+
+      val one : t * 'a -> Time.time Option.t -> 'a result
    end
 
    structure Semaphore : sig

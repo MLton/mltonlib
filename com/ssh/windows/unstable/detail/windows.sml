@@ -410,6 +410,10 @@ structure Windows :> WINDOWS_EX = struct
       val failed    = wc_WAIT_FAILED
       val infinite  = wc_INFINITE
 
+      val toMillis =
+       fn NONE => infinite
+        | SOME t => Word.fromLargeInt (Time.toMilliseconds t)
+
       fun wait name all ws t = let
          val n = Word.fromInt (length ws)
          val s = C.S.voidptr
@@ -420,11 +424,7 @@ structure Windows :> WINDOWS_EX = struct
                                 C.Set.voidptr' (C.Ptr.sub' s (hs, i), w)) ws
                 ; let val res =
                           F_win_WaitForMultipleObjects.f'
-                             (n, C.Ptr.ro' hs, toCBool all,
-                              case t of
-                                 NONE => infinite
-                               | SOME t =>
-                                 Word.fromLargeInt (Time.toMilliseconds t))
+                             (n, C.Ptr.ro' hs, toCBool all, toMillis t)
                       fun get off = #2 (List.sub (ws, Word.toIntX (res - off)))
                   in
                      if res = timeout then
@@ -444,6 +444,21 @@ structure Windows :> WINDOWS_EX = struct
 
       fun any ? = wait "Wait.any" false ?
       fun all ? = wait "Wait.all" true ?
+
+      fun one (w, v) t = let
+         val res = F_win_WaitForSingleObject.f' (w, toMillis t)
+      in
+         if res = timeout then
+            TIMEOUT
+         else if res = object then
+            OBJECT v
+         else if res = abandoned then
+            ABANDONED v
+         else if res = failed then
+            raiseLastError (fn () => F "Wait.one" [A ptr w, A (opt time) t])
+         else
+            fail "Unsupported WaitForSingleObject functionality"
+      end
    end
 
    structure Semaphore = struct

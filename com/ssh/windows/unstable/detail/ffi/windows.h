@@ -170,6 +170,8 @@ WIN_FUNCTION(WaitForMultipleObjectsEx, DWORD, 5,
              (DWORD, const HANDLE *, BOOL, DWORD, BOOL))
 WIN_FUNCTION(WaitForMultipleObjects, DWORD, 4,
              (DWORD, const HANDLE *, BOOL, DWORD))
+WIN_FUNCTION(WaitForSingleObject, DWORD, 2, (HANDLE, DWORD))
+WIN_FUNCTION(WaitForSingleObjectEx, DWORD, 3, (HANDLE, DWORD, BOOL))
 
 /************************************************************************/
 
