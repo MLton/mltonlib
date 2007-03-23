@@ -137,17 +137,24 @@ WIN_FUNCTION(RegSetValueEx, LONG, 6,
 
 /************************************************************************/
 
+WIN_TYPEDEF(HANDLE, void *)
+
+WIN_FUNCTION(CloseHandle, BOOL, 1, (HANDLE))
+
+/************************************************************************/
+
 WIN_CONST(EVENTLOG_ERROR_TYPE, WORD)
 WIN_CONST(EVENTLOG_AUDIT_FAILURE, WORD)
 WIN_CONST(EVENTLOG_AUDIT_SUCCESS, WORD)
 WIN_CONST(EVENTLOG_INFORMATION_TYPE, WORD)
 WIN_CONST(EVENTLOG_WARNING_TYPE, WORD)
 
-/************************************************************************/
+WIN_TYPEDEF(PSID, void *)
 
-WIN_TYPEDEF(HANDLE, void *)
-
-WIN_FUNCTION(CloseHandle, BOOL, 1, (HANDLE))
+WIN_FUNCTION(RegisterEventSource, HANDLE, 2, (LPCTSTR, LPCTSTR))
+WIN_FUNCTION(DeregisterEventSource, BOOL, 1, (HANDLE))
+WIN_FUNCTION(ReportEvent, BOOL, 9,
+             (HANDLE, WORD, WORD, DWORD, PSID, WORD, DWORD, LPCTSTR *, LPVOID))
 
 /************************************************************************/
 
@@ -224,6 +231,10 @@ WIN_FUNCTION(FindWindow, HWND, 2, (LPCTSTR, LPCTSTR))
 /************************************************************************/
 
 WIN_FUNCTION(FreeConsole, BOOL, 0, (void))
+
+/************************************************************************/
+
+WIN_FUNCTION(OutputDebugString, void, 1, (LPCTSTR))
 
 /************************************************************************/
 

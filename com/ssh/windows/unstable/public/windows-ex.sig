@@ -10,6 +10,12 @@
 signature WINDOWS_EX = sig
    include WINDOWS
 
+   structure Authorization : sig
+      structure SID : sig
+         type t
+      end
+   end
+
    structure EventLog : sig
       structure Type : sig
          include FLAGS where type flags_word = Word16.t
@@ -19,6 +25,19 @@ signature WINDOWS_EX = sig
          val error : t
          val information : t
          val warning : t
+      end
+
+      structure Source : sig
+         type t
+         val create : {server : String.t Option.t, source : String.t} -> t
+         val close : t Effect.t
+         val report : {source : t,
+                       typ : Type.t,
+                       sid : Authorization.SID.t Option.t,
+                       category : Word16.t,
+                       event : Word32.t,
+                       strings : String.t List.t,
+                       data : Word8Vector.t Option.t} Effect.t
       end
    end
 
@@ -125,5 +144,9 @@ signature WINDOWS_EX = sig
 
    structure Console : sig
       val free : Unit.t Effect.t
+   end
+
+   structure Debug : sig
+      val output : String.t Effect.t
    end
 end

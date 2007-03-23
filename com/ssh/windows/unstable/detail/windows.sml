@@ -8,6 +8,8 @@
 
 (* Implementation of Windows utilities. *)
 structure Windows :> WINDOWS_EX = struct
+   structure W8V = Word8Vector
+
    open Windows
 
    local
@@ -28,6 +30,7 @@ structure Windows :> WINDOWS_EX = struct
                     end
       val opt = option
       val int = int
+      val w16 = word16
       val w32 = word32
       val bool = bool
       val time = iso largeReal (Time.toReal, Time.fromReal)
@@ -36,9 +39,13 @@ structure Windows :> WINDOWS_EX = struct
    local
       open With
    in
-      val one = one
       val around = around
+      val for = for
+      val one = one
       val op >>& = Monad.>>&
+      val op >>= = op >>=
+      val return = return
+      val seqWith = Monad.seqWith
    end
 
    val success     = wc_ERROR_SUCCESS
@@ -97,8 +104,13 @@ structure Windows :> WINDOWS_EX = struct
    val withDword = withNew C.S.ulong
    val withLong = withNew C.S.slong
    fun withZs mlStr = withAlloc (fn () => ZString.dupML' mlStr)
-   val withOptZs = fn NONE => With.return null | SOME s => withZs s
-   fun withBuf size = withAlloc (fn () => C.alloc' C.S.uchar size)
+   fun withArray size length = withAlloc (fn () => C.alloc' size length)
+   fun withBuf length = withAlloc (fn () => C.alloc' C.S.uchar length)
+   fun withData v =
+       withBuf (Word.fromInt (W8V.length v)) >>= (fn b =>
+       (W8V.appi (fn (i, x) => C.Set.uchar' (C.Ptr.sub' C.S.uchar (b, i), x)) v
+      ; return b))
+   fun withOpt wit = fn NONE => With.return null | SOME arg => wit arg
 
    exception InsufficientBuffer
 
@@ -222,7 +234,7 @@ structure Windows :> WINDOWS_EX = struct
                  ; C.Get.voidptr' r))
 
       datatype value
-        = BINARY of Word8Vector.t
+        = BINARY of W8V.t
         | DWORD of Word32.t
         | EXPAND_SZ of String.t
         | MULTI_SZ of String.t List.t
@@ -274,27 +286,29 @@ structure Windows :> WINDOWS_EX = struct
                            (fn b =>
                                (f b
                               ; (fromBin (C.Get.ulong' t) o
-                                 Word8Vector.tabulate)
+                                 W8V.tabulate)
                                    (Word.toInt (C.Get.ulong' s),
                                     C.Get.uchar' o b <\ C.Ptr.sub' C.S.uchar)))
                      end)
 
          fun setValueEx (h, n, v) = let
             val (t, d) = toBin v
-            val s = Word.fromInt (Word8Vector.length d)
          in
-            one (withZs n >>& withBuf s)
+            one (withZs n >>& withData d)
                 (fn n' & b =>
-                    (Word8Vector.appi
-                        (fn (i, x) =>
-                            C.Set.uchar' (C.Ptr.sub' C.S.uchar (b, i), x))
-                        d
-                      ; raiseOnError
-                           (fn () => F"Reg.setValueEx"[A ptr h, A str n,
-                                                       Prettier.txt "<value>"])
-                           F_win_RegSetValueEx.f'
-                           (h, n', 0w0, t, C.Ptr.ro' b, s)))
+                    raiseOnError
+                       (fn () => F"Reg.setValueEx"
+                                  [A ptr h, A str n, Prettier.txt "<value>"])
+                       F_win_RegSetValueEx.f'
+                       (h, n', 0w0, t, C.Ptr.ro' b,
+                        Word.fromInt (W8V.length d)))
          end
+      end
+   end
+
+   structure Authorization = struct
+      structure SID = struct
+         type t = C.voidptr
       end
    end
 
@@ -307,6 +321,45 @@ structure Windows :> WINDOWS_EX = struct
          val error        = wc_EVENTLOG_ERROR_TYPE
          val information  = wc_EVENTLOG_INFORMATION_TYPE
          val warning      = wc_EVENTLOG_WARNING_TYPE
+      end
+
+      structure Source = struct
+         type t = C.voidptr
+         fun create {server, source} =
+             one (withOpt withZs server >>& withZs source)
+                 (fn server' & source' =>
+                     raiseOnNull
+                        (fn () => F"EventLog.Source.create"
+                                   [A (opt str) server, A str source])
+                        F_win_RegisterEventSource.f' (server', source'))
+         fun close t =
+             raiseOnFalse
+                (fn () => F"EventLog.Source.close"[A ptr t])
+                F_win_DeregisterEventSource.f' t
+         fun report {source, typ, sid, category, event, strings, data} =
+             for (withOpt withData data >>&
+                  withOpt (withArray C.S.ptr)
+                     let val n = length strings
+                     in if 0=n then NONE else SOME (Word.fromInt n)
+                     end >>&
+                  seqWith withZs strings)
+                 (fn data' & arr' & strs' =>
+                     (List.appi
+                         (fn (i, x) =>
+                             C.Set.ptr' (C.Ptr.sub' C.S.ptr (arr', i), x)) strs'
+                    ; raiseOnFalse
+                         (fn () => F"EventLog.Source.report"
+                                    [A ptr source, A w16 typ, A w16 category,
+                                     A w32 event, A (opt ptr) sid,
+                                     A (lst str) strings,
+                                     Prettier.txt "<data>"])
+                         F_win_ReportEvent.f'
+                         (source, typ, category, event, getOpt (sid, null),
+                          Word16.fromInt (length strings),
+                          getOpt (Option.map (Word.fromInt o W8V.length) data,
+                                  0w0),
+                          arr',
+                          C.Ptr.inject' data')))
       end
    end
 
@@ -396,7 +449,7 @@ structure Windows :> WINDOWS_EX = struct
    structure Semaphore = struct
       type t = C.voidptr
       fun create {init, max, name} =
-          one (withOptZs name)
+          one (withOpt withZs name)
               (fn name' =>
                   raiseOnNull
                      (fn () => F"Semaphore.create"
@@ -416,7 +469,7 @@ structure Windows :> WINDOWS_EX = struct
    structure Mutex = struct
       type t = C.voidptr
       fun create {name, own} =
-          one (withOptZs name)
+          one (withOpt withZs name)
               (fn name' =>
                   raiseOnNull
                      (fn () => F"Mutex.create"[A (opt str) name, A bool own])
@@ -429,7 +482,7 @@ structure Windows :> WINDOWS_EX = struct
    structure Timer = struct
       type t = C.voidptr
       fun create {manual, name} =
-          one (withOptZs name)
+          one (withOpt withZs name)
               (fn n' =>
                   raiseOnNull
                      (fn () => F"Timer.create"[A bool manual, A (opt str) name])
@@ -482,7 +535,7 @@ structure Windows :> WINDOWS_EX = struct
       type t = C.voidptr
 
       fun find {class, window} =
-          one (withOptZs class >>& withOptZs window)
+          one (withOpt withZs class >>& withOpt withZs window)
               (fn c & w =>
                   raiseOnNullIfErrorElseNone
                      (fn () => F"Window.find"
@@ -511,5 +564,9 @@ structure Windows :> WINDOWS_EX = struct
 
    structure Console = struct
       val free = raiseOnFalse (fn () => F"Console.free" []) F_win_FreeConsole.f'
+   end
+
+   structure Debug = struct
+      fun output s = one (withZs s) F_win_OutputDebugString.f'
    end
 end
