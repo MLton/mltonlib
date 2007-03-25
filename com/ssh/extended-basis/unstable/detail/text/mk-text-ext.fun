@@ -4,8 +4,14 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkTextExt (T : BASIS_TEXT) : TEXT = struct
-   open T
+functor MkTextExt (structure Text : BASIS_TEXT
+                   val stringToBytes :
+                       Text.String.string -> BasisWord8Vector.vector
+                   val bytesToString :
+                       BasisWord8Vector.vector -> Text.String.string)
+        : TEXT =
+struct
+   open Text
 
    structure Char : CHAR = struct
       structure Core = struct
@@ -61,6 +67,9 @@ functor MkTextExt (T : BASIS_TEXT) : TEXT = struct
          type ordered = t
          type scannable = t
          type stringable = t
+         val toBytes = stringToBytes
+         val fromBytes = bytesToString
+         val isoBytes = (toBytes, fromBytes)
          val toUpper = map Char.toUpper
          val toLower = map Char.toLower
          val embCString = (toCString, fromCString)

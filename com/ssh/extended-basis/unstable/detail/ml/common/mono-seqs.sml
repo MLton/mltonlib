@@ -15,7 +15,7 @@ structure Word8Array : MONO_ARRAY =
 structure Word8ArraySlice : MONO_ARRAY_SLICE =
    MkMonoArraySliceExt (structure MonoArraySlice = BasisWord8ArraySlice)
 
-structure Text : TEXT = MkTextExt (BasisText)
+structure Text : TEXT = MkTextExt (structure Text = BasisText open BasisByte)
 structure Char : CHAR = Text.Char
 structure CharArray : MONO_ARRAY = Text.CharArray
 structure CharArraySlice : MONO_ARRAY_SLICE = Text.CharArraySlice

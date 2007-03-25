@@ -42,7 +42,21 @@ signature STRING = sig
 
    val collate : char Cmp.t -> t Cmp.t
 
+   (** == Bytes == *)
+
+   val toBytes : t -> Word8Vector.t
+   (** Converts given string to a byte vector. *)
+
+   val fromBytes : Word8Vector.t -> t
+   (** Converts given byte vector to a string. *)
+
    (** == Isomorphisms == *)
+
+   val isoBytes : (t, Word8Vector.t) Iso.t
+   (**
+    * An isomorphism between strings and byte vectors.  It is always
+    * equivalent to {(toBytes, fromBytes)}.
+    *)
 
    val isoList : (t, char List.t) Iso.t
    (**
