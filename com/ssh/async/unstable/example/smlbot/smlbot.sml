@@ -20,19 +20,6 @@ end = struct
       PollLoop.relTimeout (t, IVar.fill v) ; IVar.read v
    end
 
-   structure TextIO = struct
-      open TextIO
-      fun getReader i = #1 (TextIO.StreamIO.getReader (TextIO.getInstream i))
-      fun getIDesc i =
-          case getReader i of
-             TextPrimIO.RD {ioDesc = SOME d, ...} => d
-           | _ => fail "getIDesc"
-      fun readVecNB i =
-          case getReader i of
-             TextPrimIO.RD {chunkSize = n, readVecNB = SOME r, ...} => r n
-           | _ => fail "readVecNB"
-   end
-
    local
       fun mk toIODesc poll s = let
          val ch = IVar.new ()
@@ -45,7 +32,6 @@ end = struct
       end
    in
       val sockEvt = mk Socket.ioDesc
-      val insEvt = mk TextIO.getIDesc OS.IO.pollIn
    end
 
    fun mkSender sock = let
@@ -91,18 +77,10 @@ end = struct
                  in
                     TextIO.output (outs, code)
                   ; TextIO.closeOut outs
-                  ; reading [] proc ins
+                  ; send (format (TextIO.inputAll ins)) : Unit.t
+                  ; TextIO.closeIn ins
+                  ; taking ()
                  end)
-      and reading ss proc ins =
-          (when (insEvt ins))
-             (fn () =>
-                 case TextIO.readVecNB ins of
-                    SOME "" => (TextIO.closeIn ins
-                              ; ignore (Unix.reap proc)
-                              ; send (format (concat (rev ss))) : Unit.t
-                              ; taking ())
-                  | SOME s => reading (s::ss) proc ins
-                  | NONE => reading ss proc ins)
    in
       taking () ; Mailbox.send jobs
    end
