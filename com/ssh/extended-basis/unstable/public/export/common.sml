@@ -26,6 +26,7 @@ signature MONADP = MONADP
 signature MONADP_CORE = MONADP_CORE
 signature MONAD_CORE = MONAD_CORE
 signature MONAD_EX = MONAD_EX
+signature MONADP_EX = MONADP_EX
 signature MONAD_WS = MONAD_WS
 signature MONAD_STATE = MONAD_STATE
 signature MONADP_STATE = MONADP_STATE
