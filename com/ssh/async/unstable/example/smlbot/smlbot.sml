@@ -148,7 +148,9 @@ end = struct
                ; app send [["PASS", pass],
                            ["NICK", nick],
                            ["USER", nick, "0", "*", nick],
-                           ["JOIN", ch]]
+                           ["JOIN", ch],
+                           ["NOTICE", ch,
+                            ":Hello, I'm smlbot. Try writing \"sml: <code>\"."]]
                ; startReceiver sock send run
                ; PollLoop.run Handler.runAll
               end)
