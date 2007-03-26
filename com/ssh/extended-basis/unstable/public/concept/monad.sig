@@ -39,11 +39,23 @@ signature MONAD_EX = sig
    val >>* : 'a monad_ex * 'b monad_ex -> ('a * 'b) monad_ex
    val >>@ : ('a -> 'b) monad_ex * 'a monad_ex -> 'b monad_ex
 
+   val pure : ('a -> 'b) -> 'a -> 'b monad_ex
+   (** {pure f == return o f} *)
+
+   val thunk : 'a Thunk.t -> 'a monad_ex 
+   (** {thunk thk == return () >>= pure thunk} *)
+
    val seq : 'a monad_ex List.t -> 'a List.t monad_ex
    val seqWith : ('a -> 'b monad_ex) -> 'a List.t -> 'b List.t monad_ex
+   val seqWithPartial : ('a -> 'b Option.t monad_ex) -> 'a List.t -> 
+                        'b List.t monad_ex
 
    val app : 'a monad_ex List.t -> unit monad_ex
    val appWith : ('a -> 'b monad_ex) -> 'a List.t -> unit monad_ex
+
+   val oo : ('b -> 'c monad_ex) * ('a -> 'b monad_ex) -> 'a -> 
+            'c monad_ex
+   (** {f2 oo f1 == (fn x => f1 x >>= f2) } *)
 
    val ignore : 'a monad_ex -> unit monad_ex
    (** {ignore m == (m >> return ())} *)
@@ -53,6 +65,26 @@ signature MONAD_EX = sig
 
    val unless : bool -> unit monad_ex -> unit monad_ex
    (** {unless b m == if b then (return ()) else m} *)
+
+   val tabulate : int -> (int -> 'a monad_ex) -> 'a List.t monad_ex
+   (**
+     * Tabulate is a version of List.tabulate that can use
+     * functions that produce computations.  
+     *
+     * {tabulate n f == 
+     *   (f 0) >>= (fn x0 => (f 1) >>= ... 
+     *                (fn xn >>= return [x1, ..., xn]))} 
+     *
+     * The actual implementation is tail recursive. *) 
+
+  val foldl : ('a * 'b -> 'b monad_ex) -> 'b -> 'a list -> 'b monad_ex 
+  val foldr : ('a * 'b -> 'b monad_ex) -> 'b -> 'a list -> 'b monad_ex 
+
+  val mapFst : ('a -> 'c monad_ex) -> ('a, 'b) Pair.t -> 
+               ('c, 'b) Pair.t monad_ex
+  val mapSnd : ('b -> 'c monad_ex) -> ('a, 'b) Pair.t -> 
+               ('a, 'c) Pair.t monad_ex
+
 end
 
 signature MONAD = sig
@@ -71,6 +103,7 @@ end
 signature MONADP_EX = sig
    type 'a monadp_ex
    val sum : 'a monadp_ex List.t -> 'a monadp_ex
+   val sumWith : ('a -> 'b monadp_ex) -> 'a List.t -> 'b monadp_ex
 end
 
 signature MONADP = sig
