@@ -35,7 +35,7 @@ end = struct
       recur ([] & !timeouts) (fn lp =>
          fn fs & [] => here fs [(absTime, action)]
           | fs & e::es => if Time.<= (#1e, absTime) then lp (e::fs & es)
-                             else here fs ((absTime, action)::es))
+                          else here fs ((absTime, action)::es))
    end
    fun relTimeout (relTime, action) =
        absTimeout (Time.+ (Time.now (), relTime), action)
