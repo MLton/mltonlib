@@ -12,8 +12,6 @@ end = struct
 
    open Async
 
-   fun when e f = Async.when (e, f)
-
    fun relTimeout t = let
       val v = IVar.new ()
    in
@@ -70,7 +68,7 @@ end = struct
           o String.tokens (eq #"\n") o stripPrefix 0
       val jobs = Mailbox.new ()
       fun taking () =
-          (when (Mailbox.take jobs))
+          (every (Mailbox.take jobs))
              (fn code => let
                     val proc = Unix.execute ("./run-sandboxed-sml.sh", [])
                     val (ins, outs) = Unix.streamsOf proc
@@ -79,7 +77,7 @@ end = struct
                   ; TextIO.closeOut outs
                   ; send (format (TextIO.inputAll ins)) : Unit.t
                   ; TextIO.closeIn ins
-                  ; taking ()
+                  ; ignore (Unix.reap proc)
                  end)
    in
       taking () ; Mailbox.send jobs

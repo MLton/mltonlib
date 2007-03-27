@@ -24,7 +24,7 @@ structure Async :> ASYNC = struct
 
    structure Event = struct
       datatype 'a t = E of ('a Handler.t UnPr.t, 'a) Sum.t Thunk.t
-      fun on (E t, f) =
+      fun on (E t) f =
           E (fn () =>
                 INL (fn h => let
                            val h = Handler.prepend f h
@@ -52,9 +52,9 @@ structure Async :> ASYNC = struct
           case t () of
              INL ef => ignore (ef (Handler.new ()))
            | INR () => ()
-      fun when ? = once (on ?)
-      fun each e = when (e, fn () => each e)
-      fun every ? = each (on ?)
+      fun when ? = once o on ?
+      fun each e = when e (fn () => each e)
+      fun every ? = each o on ?
       val any = once o choose
       val all = each o choose
    end
@@ -154,10 +154,10 @@ structure Async :> ASYNC = struct
       fun taker (T st) = let
          val ch = Ch.new ()
          fun lp st =
-             when (IVar.read st,
-                   fn N (v, st) =>
-                      when (Ch.give ch v,
-                            fn () => lp st))
+             when (IVar.read st)
+                  (fn N (v, st) =>
+                      when (Ch.give ch v)
+                           (fn () => lp st))
       in
          lp (!st) ; Ch.take ch
       end

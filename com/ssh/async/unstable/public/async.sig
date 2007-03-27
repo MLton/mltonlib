@@ -52,7 +52,7 @@ signature ASYNC = sig
     * event does not commit to the returned event.
     *)
 
-   val on : 'a Event.t * ('a -> 'b) -> 'b Event.t
+   val on : 'a Event.t -> ('a -> 'b) -> 'b Event.t
    (**
     * Creates an event that is enabled whenever the given event is enabled
     * and when committed to also executes the given function, which is
@@ -87,14 +87,14 @@ signature ASYNC = sig
     *
     * {each} can be implemented as a simple tail-recursive loop:
     *
-    *> fun each e = when (e, fn () => each e)
+    *> fun each e = when e (fn () => each e)
     *)
 
-   val when : ('a Event.t * 'a Effect.t) Effect.t
-   (** {when (e, h) = once (on (e, h))} *)
+   val when : 'a Event.t -> 'a Effect.t Effect.t
+   (** {when e = once o on e} *)
 
-   val every : ('a Event.t * 'a Effect.t) Effect.t
-   (** {every (e, h) = each (on (e, h))} *)
+   val every : 'a Event.t -> 'a Effect.t Effect.t
+   (** {every e = each o on e} *)
 
    val any : Unit.t Event.t List.t Effect.t
    (** {any = once o choose} *)

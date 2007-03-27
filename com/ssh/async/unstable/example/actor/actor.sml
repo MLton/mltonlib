@@ -51,7 +51,7 @@ end = struct
       val wakeupCh = SkipCh.new ()
       fun handler f =
           recur (!msgs, []) (fn loop =>
-             fn ([], _) => when (SkipCh.take wakeupCh, fn () => handler f)
+             fn ([], _) => when (SkipCh.take wakeupCh) (fn () => handler f)
               | (m::ms, fms) =>
                 try (fn () => f m,
                      fn () => msgs := List.revAppend (fms, ms),
