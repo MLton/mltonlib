@@ -4,6 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(* XXX consider supporting HaMLet S and possibly Alice ML as evaluators *)
+
 structure SMLBot :> sig
    val run : {host : String.t, port : String.t, pass : String.t,
               nick : String.t, channel : String.t} Effect.t
@@ -83,7 +85,7 @@ end = struct
       taking () ; Mailbox.send jobs
    end
 
-   fun startReceiver sock send run = let
+   fun startReceiver sock send nick run = let
       fun parse ss = let
          open Substring
          fun parseArgs args = let
@@ -107,6 +109,8 @@ end = struct
          end
       end
 
+      val prefix = nick ^ ":"
+
       fun receiving ("\n"::"\r"::ss) =
           dispatch (parse (Substring.full (concat (rev ss))))
         | receiving ss =
@@ -122,8 +126,8 @@ end = struct
             | "PRIVMSG" => let
                  val m = List.last args
               in
-                 if String.isPrefix "sml:" m
-                 then run (String.extract (m, 4, NONE))
+                 if String.isPrefix prefix m
+                 then run (String.extract (m, size prefix, NONE))
                  else ()
               end
             | _ => ()
@@ -143,13 +147,15 @@ end = struct
                      INetSock.toAddr
                         (NetHostDB.addr (valOf (NetHostDB.getByName host)),
                          valOf (Int.fromString port)))
-               ; app send [["PASS", pass],
-                           ["NICK", nick],
-                           ["USER", nick, "0", "*", nick],
-                           ["JOIN", ch],
-                           ["NOTICE", ch,
-                            ":Hello, I'm smlbot. Try writing \"sml: <code>\"."]]
-               ; startReceiver sock send run
+               ; app send
+                     [["PASS", pass],
+                      ["NICK", nick],
+                      ["USER", nick, "0", "*", nick],
+                      ["JOIN", ch],
+                      ["NOTICE", ch,
+                       ":Hello, I'm "^nick^". Try writing \""^nick^
+                       ": <code>\"."]]
+               ; startReceiver sock send nick run
                ; PollLoop.run Handler.runAll
               end)
 end
