@@ -17,7 +17,7 @@ functor MkMonad (Core : MONAD_CORE) : MONAD = struct
    fun aM >>& bM = map Product.& (aM >>* bM)
    fun aM >> bM = map #2 (aM >>* bM)
 
-   fun ignore m = m >> return ()
+   fun ignore m = map Effect.ignore m
    fun (y2zM oo x2yM) x = x2yM x >>= y2zM
 
    local
