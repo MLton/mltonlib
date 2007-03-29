@@ -39,7 +39,9 @@ end = struct
       fun taking () =
           (when (Mailbox.take msgs))
              (fn msg => let
-                    val v = String.toBytes (String.concatWith " " msg ^ "\r\n")
+                    val v = String.concatWith " " msg
+                    val v = if size v <= 510 then v else substring (v, 0, 510)
+                    val v = String.toBytes (v ^ "\r\n")
                  in
                     sending v (W8V.length v)
                  end)
@@ -60,12 +62,18 @@ end = struct
       taking () ; Mailbox.send msgs
    end
 
+   val maxLines = 10
+
    fun mkRunner send = let
       fun stripPrefix i s =
-          if #"-" = String.sub (s, i) andalso #" " = String.sub (s, i+1)
-          then String.extract (s, i+2, NONE)
+          if #"\n" = String.sub (s, i)   andalso
+             #"-"  = String.sub (s, i+1) andalso
+             #" "  = String.sub (s, i+2)
+          then String.extract (s, i+3, NONE)
           else stripPrefix (i+1) s
       val format =
+          (fn l => if length l <= maxLines then l else
+                   List.take (l, maxLines-1) @ ["..."]) o
           List.filter (negate (String.isPrefix "[" orElse String.isPrefix "-"))
           o String.tokens (eq #"\n") o stripPrefix 0
       val jobs = Mailbox.new ()
@@ -76,6 +84,7 @@ end = struct
                     val (ins, outs) = Unix.streamsOf proc
                  in
                     TextIO.output (outs, code)
+                  ; TextIO.output1 (outs, #";")
                   ; TextIO.closeOut outs
                   ; send (format (TextIO.inputAll ins)) : Unit.t
                   ; TextIO.closeIn ins
