@@ -12,10 +12,14 @@ functor MkMonad (Core : MONAD_CORE) : MONAD = struct
    fun map f aM = aM >>= pure f
    fun thunk th = map th (return ())
    type 'a monad_ex = 'a monad
-   fun aM >>* bM = aM >>= (fn a => bM >>= Fn.<\ (a, return))
-   fun fM >>@ aM = map Fn.\> (fM >>* aM)
-   fun aM >>& bM = map Product.& (aM >>* bM)
-   fun aM >> bM = map #2 (aM >>* bM)
+   local
+      fun mk f (aM, bM) = aM >>= (fn a => bM >>= (fn b => return (f (a, b))))
+   in
+      fun op >>  ? = mk #2 ?
+      fun op >>& ? = mk Product.& ?
+      fun op >>* ? = mk Fn.id ?
+      fun op >>@ ? = mk Fn.\> ?
+   end
 
    fun ignore m = map Effect.ignore m
    fun (y2zM oo x2yM) x = x2yM x >>= y2zM
