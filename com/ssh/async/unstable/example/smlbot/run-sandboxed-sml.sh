@@ -18,4 +18,12 @@ if ! test -e .sandbox-prefix.sml ; then
 fi
 
 # Run the code from stdin
-exec nice -n 19 sml .sandbox-prefix.sml 2>&1
+
+if test -d .hamlet-succ ; then
+    # Using HaMLet successor with modified Basis
+    cd .hamlet-succ
+    exec nice -n 19 ./hamlet 2>&1
+else
+    # Using sml/nj with the sandbox prefix
+    exec nice -n 19 sml .sandbox-prefix.sml 2>&1
+fi
