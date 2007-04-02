@@ -11,6 +11,15 @@ local
    ../poll-loop/lib.mlb
 
    ann
+      "forceUsed"
+      "sequenceNonUnit warn"
+      "warnUnused true"
+   in
+      text-io.sml
+      text-prim-io.sml
+   end
+
+   ann
       "sequenceNonUnit warn"
       "warnUnused true"
    in

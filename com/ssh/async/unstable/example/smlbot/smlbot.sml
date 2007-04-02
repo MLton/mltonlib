@@ -32,6 +32,7 @@ end = struct
       end
    in
       val sockEvt = mk Socket.ioDesc
+      val iodEvt = mk id
    end
 
    fun mkSender sock = let
@@ -62,39 +63,64 @@ end = struct
       taking () ; Mailbox.send msgs
    end
 
-   val maxLines = 10
+   fun startSession send = let
+      open TextPrimIO Substring
+      val proc = Unix.execute ("./run-sandboxed-sml.sh", [])
+      val (ins, outs) = Unix.streamsOf proc
+      val (rd, inp) = TextIO.getReader ins
 
-   fun mkRunner send = let
-      fun stripPrefix i s =
-          if #"\n" = String.sub (s, i)   andalso
-             #"-"  = String.sub (s, i+1) andalso
-             #" "  = String.sub (s, i+2)
-          then String.extract (s, i+3, NONE)
-          else stripPrefix (i+1) s
-      val format =
-          (fn l => if length l <= maxLines then l else
-                   List.take (l, maxLines-1) @ ["..."]) o
-          List.filter (negate (String.isPrefix "[" orElse String.isPrefix "-"))
-          o String.tokens (eq #"\n") o stripPrefix 0
-      val jobs = Mailbox.new ()
-      fun taking () =
-          (every (Mailbox.take jobs))
-             (fn code => let
-                    val proc = Unix.execute ("./run-sandboxed-sml.sh", [])
-                    val (ins, outs) = Unix.streamsOf proc
-                 in
-                    TextIO.output (outs, code)
-                  ; TextIO.output1 (outs, #";")
-                  ; TextIO.closeOut outs
-                  ; send (format (TextIO.inputAll ins)) : Unit.t
-                  ; TextIO.closeIn ins
-                  ; ignore (Unix.reap proc)
-                 end)
+      val die = IVar.new ()
+
+      val rdDesc = RD.ioDesc rd
+      fun reading prefix =
+          (println "reading"
+         ; any [IVar.read die,
+                on (iodEvt OS.IO.pollIn rdDesc)
+                   (fn () =>
+                       case RD.readVecNB rd (RD.chunkSize rd) of
+                          NONE => reading prefix
+                        | SOME suffix =>
+                          if "" = suffix then IVar.fill die () else
+                          processLines (full (prefix ^ suffix)))])
+      and processLines inp = let
+         val (line, rest) = splitl (notEq #"\n") inp
+      in
+         if isEmpty rest then
+            reading (string inp)
+         else
+            (send (string line) : Unit.t ; processLines (triml 1 rest))
+      end
+
+      val wr = #1 (TextIO.getWriter outs)
+      val wrDesc = WR.ioDesc wr
+      val lines = Mailbox.new ()
+      fun waitingLines () =
+          (println "waitingLines"
+         ; any [IVar.read die,
+                on (Mailbox.take lines)
+                   (fn line =>
+                       writingLine (full (line ^ "\n")))])
+      and writingLine line =
+          (println "writingLine"
+         ; if isEmpty line then waitingLines () else
+           any [IVar.read die,
+                on (iodEvt OS.IO.pollOut wrDesc)
+                   (fn () =>
+                       case WR.writeVecNB wr line of
+                          NONE => writingLine line
+                        | SOME n => writingLine (triml n line))])
    in
-      taking () ; Mailbox.send jobs
+      when (IVar.read die)
+           (fn () => (print "Closing session... "
+                    ; WR.close wr
+                    ; RD.close rd
+                    ; ignore (Unix.reap proc)
+                    ; println "done"))
+    ; waitingLines () ; processLines (full inp)
+    ; {die = die, run = Mailbox.send lines}
    end
 
-   fun startReceiver sock send nick run = let
+   fun startReceiver sock send nick ch = let
       fun parse ss = let
          open Substring
          fun parseArgs args = let
@@ -119,37 +145,53 @@ end = struct
       end
 
       val prefix = nick ^ ":"
+      val reset = prefix ^ " (*) reset"
 
-      fun receiving ("\n"::"\r"::ss) =
-          dispatch (parse (Substring.full (concat (rev ss))))
-        | receiving ss =
-          (when (sockEvt OS.IO.pollIn sock))
-             (fn () =>
-                 case Socket.recvVecNB (sock, 1) of
-                    NONE => receiving ss
-                  | SOME bs => receiving (String.fromBytes bs :: ss))
+      fun start () = startSession (fn l => send ["NOTICE", ch, ":" ^ l])
 
-      and dispatch {cmd, args, ...} =
-          (case String.toUpper cmd of
-              "PING" => send ["PONG", List.last args]
+      fun receiving (session as {die, ...}) =
+       fn "\n"::"\r"::ss =>
+          dispatch session (parse (Substring.full (concat (rev ss))))
+        | ss =>
+          (println "receiving"
+         ; any [on (IVar.read die)
+                   (fn () =>
+                       receiving (start ()) ss),
+                on (sockEvt OS.IO.pollIn sock)
+                   (fn () =>
+                       case Socket.recvVecNB (sock, 1) of
+                          NONE => receiving session ss
+                        | SOME bs =>
+                          if 0 = W8V.length bs then
+                             IVar.fill die ()
+                          else
+                             receiving session (String.fromBytes bs :: ss))])
+
+      and dispatch (session as {run, die}) {cmd, args, ...} =
+          (println "dispatch"
+         ; case String.toUpper cmd of
+              "PING" => (send ["PONG", List.last args] ; receiving session [])
             | "PRIVMSG" => let
                  val m = List.last args
               in
-                 if String.isPrefix prefix m
-                 then run (String.extract (m, size prefix, NONE))
-                 else ()
+                 if reset = m then
+                    (IVar.fill die ()
+                   ; receiving (start ()) [])
+                 else if String.isPrefix prefix m then
+                    (run (String.extract (m, size prefix, NONE))
+                   ; receiving session [])
+                 else
+                    receiving session []
               end
-            | _ => ()
-         ; receiving [])
+            | _ => receiving session [])
    in
-      receiving []
+      receiving (start ()) []
    end
 
    fun run {host, port, pass, nick, channel = ch} =
        (With.for (With.around INetSock.TCP.socket Socket.close))
           (fn sock => let
                  val send = mkSender sock
-                 val run = mkRunner (app (fn l => send ["NOTICE", ch, ":" ^ l]))
               in
                  Socket.connect
                     (sock,
@@ -164,7 +206,7 @@ end = struct
                       ["NOTICE", ch,
                        ":Hello, I'm "^nick^". Try writing \""^nick^
                        ": <code>\"."]]
-               ; startReceiver sock send nick run
+               ; startReceiver sock send nick ch
                ; PollLoop.run Handler.runAll
               end)
 end

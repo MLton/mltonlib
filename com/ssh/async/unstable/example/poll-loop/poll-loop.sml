@@ -43,14 +43,17 @@ end = struct
    fun run ef =
        (ef () : Unit.t
       ; if null (!descs) orelse !doStop then doStop := false else let
-           val ds = map #1 (!descs)
-           fun doPoll timeout = OS.IO.poll (ds, timeout)
-           fun noTimeout ids =
-               (app (fn id =>
-                        findDesc (OS.IO.infoToPollDesc id)
-                                 (fn (_, (_, action), _) =>
-                                     action id)) ids
-              ; run ef)
+           val descs = (!descs)
+           fun doPoll timeout = OS.IO.poll (map #1 descs, timeout)
+           fun noTimeout is =
+               recur (is & descs) (fn lp =>
+                  fn [] & _ => run ef
+                   | _ & [] => fail "run"
+                   | i::is & (da as (d, action))::das =>
+                     if OS.IO.infoToPollDesc i = d then
+                        (action i ; lp (is & da::das))
+                     else
+                        lp (i::is & das))
         in
            case List.pop timeouts of
               NONE => noTimeout (doPoll NONE)
