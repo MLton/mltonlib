@@ -35,6 +35,9 @@ end = struct
       val iodEvt = mk id
    end
 
+   val print = ignore
+   val println = ignore
+
    fun mkSender sock = let
       val msgs = Mailbox.new ()
       fun taking () =
