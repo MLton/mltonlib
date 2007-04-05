@@ -12,6 +12,9 @@ functor MkMonad (Core : MONAD_CORE) : MONAD = struct
    fun map f aM = aM >>= pure f
    fun thunk th = map th (return ())
    type 'a monad_ex = 'a monad
+
+   fun op =<< x = (op >>= o Pair.swap) x
+
    local
       fun mk f (aM, bM) = aM >>= (fn a => bM >>= (fn b => return (f (a, b))))
    in

@@ -34,6 +34,7 @@ end
 signature MONAD_EX = sig
    type 'a monad_ex
    include FUNC where type 'a func = 'a monad_ex
+   val =<< : ('a -> 'b monad_ex) * 'a monad_ex -> 'b monad_ex
    val >> : 'a monad_ex * 'b monad_ex -> 'b monad_ex
    val >>& : 'a monad_ex * 'b monad_ex -> ('a, 'b) Product.t monad_ex
    val >>* : 'a monad_ex * 'b monad_ex -> ('a * 'b) monad_ex
