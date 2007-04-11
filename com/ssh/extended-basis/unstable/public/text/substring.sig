@@ -24,10 +24,10 @@ signature SUBSTRING = sig
     * as far as possible within the underlying string either to the left
     * or to the right.  For example,
     *
-    *> "aa" = string |< extendr (eq #"a") |< substring ("aabb", 0, 0)
+    *> "aa" = string o extendr (eq #"a") |< substring ("aabb", 0, 0)
     *
     * and
     *
-    *> "aabb" = string |< extendr (const true) |< substring ("aabb", 0, 0)
+    *> "aabb" = string o extendr (const true) |< substring ("aabb", 0, 0)
     *)
 end
