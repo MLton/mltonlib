@@ -94,5 +94,21 @@ struct
       open Substring
       type t = substring
       val length = size
+      fun extendl pred ss = let
+         val (s, i, n) = base ss
+         val j = i+n
+         fun lp i = if 0 < i andalso pred (String.sub (s, i-1)) then lp (i-1)
+                    else substring (s, i, j-i)
+      in
+         lp i
+      end
+      fun extendr pred ss = let
+         val (s, i, n) = base ss
+         val m = String.size s
+         fun lp j = if j < m andalso pred (String.sub (s, j)) then lp (j+1)
+                    else substring (s, i, j-i)
+      in
+         lp (i+n)
+      end
    end
 end
