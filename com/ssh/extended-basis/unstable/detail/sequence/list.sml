@@ -101,7 +101,7 @@ structure List : LIST = struct
        case xs
          of [] => true
           | x::xs' => 
-            (not o (exists) (Fn.curry eq x)) xs' andalso
+            (not o (exists (Fn.curry eq x))) xs' andalso
             uniqueByEq eq xs' 
 
    local
