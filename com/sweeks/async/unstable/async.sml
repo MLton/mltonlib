@@ -55,25 +55,40 @@ structure Async: ASYNC = struct
       datatype 'a v = Filled of 'a | Unfilled of ('a -> Unit.t) List.t
       datatype 'a t = T of 'a v Ref.t
 
-      fun upon (T r, f) =
-         case !r of
-            Filled v => schedule (f, v)
-          | Unfilled fs => r := Unfilled (f :: fs)
-   end
+      fun empty () = T (ref (Unfilled []))
+         
+      fun full x = T (ref (Filled x))
 
-   val upon = Deferred.upon
+      val return = full
 
-   structure Ivar = struct
-      open Deferred
-
-      fun new () = T (ref (Unfilled []))
-               
       fun fill (T r, v) =
          case !r of
             Filled _ => raise Full
           | Unfilled fs => (r := Filled v; List.for (fs, pass v))
 
-      val read = id
+      fun upon (T r, f) =
+         case !r of
+            Filled v => schedule (f, v)
+          | Unfilled fs => r := Unfilled (f :: fs)
+
+      fun >>= (d, f) = let
+         val d' = empty ()
+         val () = upon (d, fn a => upon (f a, fn b => fill (d', b)))
+      in
+         d'
+      end
+   end
+
+   val upon = Deferred.upon
+
+   structure Ivar = struct
+      datatype 'a t = T of 'a Deferred.t
+
+      fun new () = T (Deferred.empty ())
+               
+      fun fill (T d, v) = Deferred.fill (d, v)
+
+      fun read (T d) = d
    end
       
    structure Stream = struct
@@ -119,38 +134,19 @@ structure Async: ASYNC = struct
       end
    end
 
-   structure Tail = struct
+   structure Multicast = struct
       datatype 'a t = T of 'a Stream.t Ref.t
-
-      fun toStream (T r) = !r
 
       fun new () = T (ref (Stream.new ()))
 
-      fun extend (t as T r, v) = r := Stream.extend (!r, v)
+      fun listen (T r) = !r
+
+      fun send (t as T r, v) = r := Stream.extend (!r, v)
 
       fun close (T r) = Stream.close (!r)
    end
 
-   structure Multicast = struct
-      open Tail
-
-      fun reader (T r) = !r
-
-      val send = extend
-   end
-
-   structure Handler: sig
-      type 'a t
-
-      val ignore: Unit.t -> 'a t
-      val isScheduled: 'a t -> Bool.t
-      val new: ('a -> Unit.t) -> 'a t
-      val maybeSchedule: 'a t * 'a -> Unit.t
-      val precompose: 'a t * ('b -> 'a) -> 'b t
-      (* It is an error to call Handler.schedule h if Handler.isScheduled h.
-       *)
-      val schedule: 'a t * 'a -> Unit.t
-   end = struct
+   structure Handler = struct
       datatype 'a t = T of {handler: 'a -> Unit.t,
                             isScheduled: Bool.t Ref.t}
 
@@ -188,6 +184,13 @@ structure Async: ASYNC = struct
          Ivar.read i
       end
 
+      fun >>= (t, f) =
+         T (fn Handler.T {handler, isScheduled} =>
+            send (t,
+                  Handler.T
+                  {handler = fn a => upon (commit (f a), handler),
+                   isScheduled = isScheduled}))
+   
       fun any ts =
          T (fn h =>
             List.recur (ts, (), ignore, fn (t, (), k) =>
@@ -197,19 +200,21 @@ structure Async: ASYNC = struct
                            (send (t, h); k ())))
 
       fun always a = T (fn h => Handler.maybeSchedule (h, a))
+
+      val return = always
          
-      fun never () = T ignore
+      fun never () = T ignore        
 
       fun map (t, f) = T (fn h => send (t, Handler.precompose (h, f)))
    end
 
    structure Channel = struct
-      datatype 'a t = T of {givers: ('a * Unit.t Handler.t) Tail.t,
-                            takers: 'a Handler.t Tail.t}
+      datatype 'a t = T of {givers: ('a * Unit.t Handler.t) Multicast.t,
+                            takers: 'a Handler.t Multicast.t}
 
       fun 'a new () = let
-         val givers: ('a * Unit.t Handler.t) Tail.t = Tail.new ()
-         val takers = Tail.new ()
+         val givers: ('a * Unit.t Handler.t) Multicast.t = Multicast.new ()
+         val takers = Multicast.new ()
          fun loop (gs, ts) =
             upon (Stream.read gs, fn opt =>
                   Option.for (opt, fn (g, gs) => loopG (g, gs, ts)))
@@ -228,23 +233,23 @@ structure Async: ASYNC = struct
              | (false, true) => loopG (g, gs, ts)
              | (true, false) => loopT (gs, t, ts)
              | (true, true) => loop (gs, ts)
-         val () = loop (Tail.toStream givers, Tail.toStream takers)
+         val () = loop (Multicast.listen givers, Multicast.listen takers)
       in
          T {givers = givers,
             takers = takers}
       end
 
       fun give (T {givers, ...}, a) =
-         Event.T (fn h => Tail.extend (givers, (a, h)))
+         Event.T (fn h => Multicast.send (givers, (a, h)))
 
       fun take (T {takers, ...}) =
-         Event.T (fn h => Tail.extend (takers, h))
+         Event.T (fn h => Multicast.send (takers, h))
    end
 
    structure Mailbox = struct
       open Channel
 
       fun send (T {givers, ...}, a) =
-         Tail.extend (givers, (a, Handler.ignore ()))
+         Multicast.send (givers, (a, Handler.ignore ()))
    end
 end
