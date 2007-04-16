@@ -12,6 +12,7 @@ signature OPTION = sig
     * The standard option type (with correct capitalization).
     *)
 
+   val for: 'a t * ('a -> Unit.t) -> Unit.t
    val isNone: 'a t -> Bool.t
    (**
     * isNone None = true

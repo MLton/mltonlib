@@ -7,6 +7,11 @@ structure Option = struct
 
    datatype 'a t = None | Some of 'a
 
+   fun for (opt, f) =
+      case opt of
+         None => ()
+       | Some x => f x
+
    fun map (opt, f) =
       case opt of
          None => None
