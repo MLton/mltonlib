@@ -94,6 +94,7 @@ struct
       open Substring
       type t = substring
       val length = size
+      fun droplr p = dropl p o dropr p
       fun extendl pred ss = let
          val (s, i, n) = base ss
          val j = i+n

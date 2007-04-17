@@ -17,6 +17,9 @@ signature SUBSTRING = sig
     * {size}.
     *)
 
+   val droplr : char UnPr.t -> t UnOp.t
+   (** {droplr p} is equivalent to {dropl p o dropr p}. *)
+
    val extendl : char UnPr.t -> t UnOp.t
    val extendr : char UnPr.t -> t UnOp.t
    (**
