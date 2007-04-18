@@ -263,9 +263,9 @@ in
          detail/ml/$(SML_COMPILER)/mono-array-slices.sml
          detail/ml/$(SML_COMPILER)/texts.sml
 
-         (* Promise *)
-         public/lazy/promise.sig
-         detail/lazy/promise.sml
+         (* Lazy *)
+         public/lazy/lazy.sig
+         detail/lazy/lazy.sml
 
          (* ShiftOp *)
          public/fn/shift-op.sig

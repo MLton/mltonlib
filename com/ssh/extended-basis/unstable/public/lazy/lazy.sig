@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -16,7 +16,7 @@
  * - apply {force} to arguments of destructors, and
  * - wrap function bodies with {lazy (fn () => ...)}.
  *)
-signature PROMISE = sig
+signature LAZY = sig
    type 'a t
    (** The abstract type of promises. *)
 

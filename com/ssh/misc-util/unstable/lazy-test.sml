@@ -5,7 +5,7 @@
  *)
 
 (*
- * Unit tests for the {Promise} module.
+ * Unit tests for the {Lazy} module.
  *)
 
 val () = let
@@ -14,7 +14,7 @@ val () = let
    val fix = Tie.fix
 
    local
-      open Promise
+      open Lazy
    in
       val D = delay
       val E = eager
@@ -25,7 +25,7 @@ val () = let
 
    (* lazy stream *)
    datatype 'a stream' = NIL | CONS of 'a * 'a stream
-   withtype 'a stream = 'a stream' Promise.t
+   withtype 'a stream = 'a stream' Lazy.t
 
    local
       fun strip s = case F s of NIL => raise Empty | CONS x => x
@@ -49,7 +49,7 @@ val () = let
    fun inc x = (x += 1 ; !x)
 in
    unitTests
-      (title "Promise.fix")
+      (title "Lazy.fix")
 
       (testRaises
           Fix.Fix
@@ -76,7 +76,7 @@ in
                   actual = streamSub (fibs, 6)}
               end))
 
-      (title "Promise - memoization")
+      (title "Lazy - memoization")
 
       (testEq
           (list int)
@@ -121,7 +121,7 @@ in
                   actual = [streamSub (s, 4), streamSub (s, 4), !count]}
               end))
 
-      (title "Promise - reentrancy")
+      (title "Lazy - reentrancy")
 
       (testEq
           (list int)

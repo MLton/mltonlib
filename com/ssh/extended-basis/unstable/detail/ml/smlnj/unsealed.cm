@@ -45,7 +45,7 @@ is
    ../../../detail/io/reader.sml
    ../../../detail/io/text-io.sml
    ../../../detail/io/writer.sml
-   ../../../detail/lazy/promise.sml
+   ../../../detail/lazy/lazy.sml
    ../../../detail/ml/common/mono-seqs.sml
    ../../../detail/ml/common/scalars.sml
    ../../../detail/ml/smlnj/ints.sml
@@ -74,6 +74,6 @@ is
    ../../../detail/sequence/vector-slice.sml
    ../../../detail/sequence/vector.sml
    ../../../detail/text/mk-text-ext.fun
-   ../../../public/lazy/promise.sig
+   ../../../public/lazy/lazy.sig
    ext.sml
    sigs.cm

@@ -217,15 +217,11 @@ structure Prettier :> sig
    val equals    : t  (** {txt "="} *)
 end = struct
    structure Dbg = MkDbg (open DbgDefs val name = "Prettier")
-         and C = Char and S = String and SS = Substring and P = Promise
+         and C = Char and S = String and SS = Substring
 
-   local
-      open P
-   in
-      val E = eager
-      val F = force
-      val L = lazy
-   end
+   val E = eager
+   val F = force
+   val L = lazy
 
    datatype t' =
       EMPTY
@@ -236,7 +232,7 @@ end = struct
     | CHOICE of {wide : t, narrow : t}
     | COLUMN of Int.t -> t
     | NESTING of Int.t -> t
-   withtype t = t' P.t
+   withtype t = t' Lazy.t
 
    datatype elem =
       STRING of String.t
@@ -374,7 +370,7 @@ end = struct
          NIL
        | PRINT of String.t * t
        | LINEFEED of Int.t * t
-      withtype t = t' P.t
+      withtype t = t' Lazy.t
 
       fun layout s doc =
           case F doc of

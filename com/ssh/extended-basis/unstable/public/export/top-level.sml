@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -38,6 +38,15 @@ val op <\ = Fn.<\
 val op >| = Fn.>|
 val op \> = Fn.\>
 val op |< = Fn.|<
+
+(** === Lazy === *)
+
+type 'a lazy = 'a Lazy.t
+val delay = Lazy.delay
+val eager = Lazy.eager
+val force = Lazy.force
+val lazy = Lazy.lazy
+val memo = Lazy.memo
 
 (** === Option === *)
 
