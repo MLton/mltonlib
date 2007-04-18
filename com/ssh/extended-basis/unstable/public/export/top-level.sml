@@ -29,6 +29,7 @@ val curry = Fn.curry
 val flip = Fn.flip
 val id = Fn.id
 val pass = Fn.pass
+val seal = Fn.seal
 val uncurry = Fn.uncurry
 
 val op /> = Fn./>

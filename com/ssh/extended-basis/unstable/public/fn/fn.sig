@@ -36,6 +36,12 @@ signature FN = sig
    val pass : 'a -> ('a -> 'b) -> 'b
    (** Pass to continuation ({pass x f = f x}). *)
 
+   val seal : ('a -> 'b) -> 'a -> 'b Thunk.t
+   (**
+    * {seal f x} is equivalent to {fn () => f x} assuming {f} and {x} are
+    * variables.
+    *)
+
    val <\ : 'a * ('a * 'b -> 'c) -> 'b -> 'c
    (** Left section ({(x <\ f) y = f (x, y)}). *)
 

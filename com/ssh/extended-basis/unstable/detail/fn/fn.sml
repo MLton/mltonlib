@@ -13,6 +13,7 @@ structure Fn :> FN = struct
    fun id x = x
    fun map (f, g) h = g o h o f
    fun pass x f = f x
+   fun seal f x () = f x
    fun uncurry f (x, y) = f x y
    val op o = op o
    fun op <\ (x, f) y = f (x, y)
