@@ -10,7 +10,9 @@ structure Promise :> PROMISE = struct
    withtype 'a t = 'a status ref ref
 
    fun lazy th = ref (ref (LAZY th))
+
    fun eager x = ref (ref (EAGER (Sum.INR x)))
+
    fun delay th = lazy (ref o ref o EAGER o (fn () => Exn.eval th))
 
    fun replay s = Sum.sum (Exn.throw, Fn.id) s
@@ -28,10 +30,9 @@ structure Promise :> PROMISE = struct
            | EAGER x => replay x
        end
 
-   fun toThunk promise =
-       case !(!promise) of
-          EAGER s => Sum.sum (Basic.raising, Fn.const) s
-        | LAZY _ => fn () => force promise
+   fun toThunk promise = fn () => force promise
+
+   fun memo th = toThunk (delay th)
 
    fun tie s k =
        case !(!s) of

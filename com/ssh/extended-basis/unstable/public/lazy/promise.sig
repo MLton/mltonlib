@@ -68,6 +68,9 @@ signature PROMISE = sig
     * deliver the resulting promise.
     *)
 
+   val memo : 'a Thunk.t UnOp.t
+   (** {memo th} is equivalent to {toThunk (delay th)}. *)
+
    val toThunk : 'a t -> 'a Thunk.t
    (**
     * Converts a promise into a thunk.  This can be useful for working
