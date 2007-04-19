@@ -29,4 +29,7 @@ signature EFFECT = sig
     * {past} and {o} you can "attach" side-effects to a function.  The
     * name {past} comes from the idea that the data flows past the effect.
     *)
+
+   val tabulate : Int.t -> (Int.t t) t
+   (** {tabulate n f == (f 0; ... ; f (n - 1))} *) 
 end
