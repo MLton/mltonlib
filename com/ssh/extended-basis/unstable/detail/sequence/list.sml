@@ -8,10 +8,10 @@ structure List : LIST = struct
    open List
    val sub = nth
    fun init l = rev (tl (rev l))
-   fun unfoldl' f x = let
-      fun lp (ys, x) = case f x of NONE => (ys, x) | SOME (y, x) => lp (y::ys, x)
+   fun unfoldl' f = let
+      fun lp ys x = case f x of NONE => (ys, x) | SOME (y, x) => lp (y::ys) x
    in
-      lp ([], x)
+      lp []
    end
    fun unfoldr' f = Pair.map (rev, Fn.id) o unfoldl' f
    fun unfoldl f = #1 o unfoldl' f
@@ -48,11 +48,12 @@ structure List : LIST = struct
                                  | ([], _) => raise Subscript
                                  | (x::xs, n) => SOME (x, (xs, n-1)))
                                (l, i))
-   fun findi p l = let
-      fun lp (_, []) = NONE
-        | lp (i, x::xs) = if p (i, x) then SOME (i, x) else lp (i+1, xs)
+   fun findi p = let
+      fun lp i =
+       fn [] => NONE
+        | x::xs => if p (i, x) then SOME (i, x) else lp (i+1) xs
    in
-      lp (0, l)
+      lp 0
    end
    fun equal eq = let
       fun lp ([],       []) = true
@@ -84,12 +85,12 @@ structure List : LIST = struct
    fun maximum cmp = foldl1 (Cmp.max cmp o Pair.swap)
    fun minimum cmp = foldl1 (Cmp.min cmp o Pair.swap)
    local
-      fun mk combine init pred xs = let
-         fun lp (ts, []) = (ts, [])
-           | lp (ts, x::xs) =
-             if pred x then lp (combine (x, ts), xs) else (ts, x::xs)
+      fun mk combine init pred = let
+         fun lp ts =
+          fn [] => (ts, [])
+           | x::xs => if pred x then lp (combine (x, ts)) xs else (ts, x::xs)
       in
-         lp (init, xs)
+         lp init
       end
    in
       fun span ? = Pair.map (rev, Fn.id) o mk op :: [] ?
