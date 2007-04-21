@@ -8,10 +8,8 @@ structure Option : OPTION = struct
    open Option
    val isNone = fn NONE   => true
                  | SOME _ => false
-
    fun collate cmp = fn (NONE, NONE)       => EQUAL
                       | (SOME _, NONE)     => GREATER
                       | (NONE, SOME _)     => LESS
-                      | (SOME x1, SOME x2) => cmp (x1, x2) 
-
+                      | (SOME x1, SOME x2) => cmp (x1, x2)
 end

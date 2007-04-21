@@ -5,15 +5,18 @@
  *)
 
 functor MkMonad (Core : MONAD_CORE) : MONAD = struct
-   infix >> >>& >>* >>= >>@ oo
+   infix >> >>& >>* >>= >>@ oo =<<
+
    open Core
+
    type 'a func = 'a monad
+   type 'a monad_ex = 'a monad
+
+   fun f =<< x = x >>= f
+
    fun pure f = return o f
    fun map f aM = aM >>= pure f
    fun thunk th = map th (return ())
-   type 'a monad_ex = 'a monad
-
-   fun op =<< x = (op >>= o Pair.swap) x
 
    local
       fun mk f (aM, bM) = aM >>= (fn a => bM >>= (fn b => return (f (a, b))))
@@ -28,23 +31,22 @@ functor MkMonad (Core : MONAD_CORE) : MONAD = struct
    fun (y2zM oo x2yM) x = x2yM x >>= y2zM
 
    local
-      fun mkFold fM b fin =
-       fn [] => return (fin b)
-        | x::xs => fM (x, b) >>= (fn b' => mkFold fM b' fin xs)
+      fun mk fM b fin =
+       fn []    => return (fin b)
+        | x::xs => fM (x, b) >>= (fn b' => mk fM b' fin xs)
    in
-      fun foldl fM b = mkFold fM b Fn.id
+      fun foldl fM b = mk fM b Fn.id
       fun foldr fM b = foldl fM b o rev
 
-      fun seqWith x2yM =
-          mkFold (fn (x, ys) => map (fn y => y::ys) (x2yM x)) [] rev
+      fun seqWith x2yM = mk (fn (x, ys) => map (fn y => y::ys) (x2yM x)) [] rev
       fun appWith x2yM = foldl (ignore o x2yM o Pair.fst) ()
 
       fun seq xMs = seqWith Fn.id xMs
       fun app xMs = appWith Fn.id xMs
 
       fun seqWithPartial x2yM =
-          mkFold (fn (x, ys) => map (fn SOME y => y::ys | NONE => ys) (x2yM x))
-                 [] rev
+          mk (fn (x, ys) => map (fn SOME y => y::ys | NONE => ys) (x2yM x))
+             [] rev
    end
 
    fun when b m = if b then m else return ()
@@ -76,9 +78,9 @@ functor MkMonadP (Core : MONADP_CORE) : MONADP = struct
    type 'a monadp_ex = 'a monad
 
    fun sumWith x2yM =
-       fn [] => zero
-        | [x] => x2yM x
-        | x::xs => x2yM x <|> sumWith x2yM xs
+    fn []    => zero
+     | [x]   => x2yM x
+     | x::xs => x2yM x <|> sumWith x2yM xs
 
    fun sum ms = sumWith Fn.id ms
 end

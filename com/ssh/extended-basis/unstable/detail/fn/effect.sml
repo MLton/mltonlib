@@ -8,13 +8,7 @@ structure Effect :> EFFECT = struct
    open Effect
    val ignore = ignore
    val nop = ignore
-   fun obs ef x = (ef x : unit ; x)
-   fun past ef x = (ef () : unit ; x)
-   local   
-      fun tabulate' m ef = 
-            fn 0 => ()
-             | n => (ef m; tabulate' (m + 1) ef (n - 1))
-   in
-      fun tabulate n ef = tabulate' 0 ef n
-   end
+   fun obs ef x = (ef x : Unit.t ; x)
+   fun past ef x = (ef () : Unit.t ; x)
+   fun tabulate n ef = ignore (Basic.repeat (fn i => (ef i : Unit.t ; i+1)) n 0)
 end

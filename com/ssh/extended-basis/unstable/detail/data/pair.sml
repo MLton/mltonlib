@@ -23,7 +23,7 @@ structure Pair : PAIR = struct
    fun fst (a, _) = a
    fun snd (_, b) = b
 
-   fun app (ea, eb) (a, b) = (ea a : unit ; eb b : unit)
+   fun app (ea, eb) (a, b) = (ea a : Unit.t ; eb b : Unit.t)
    fun appFst eA = app (eA, Effect.ignore)
    fun appSnd eB = app (Effect.ignore, eB)
 

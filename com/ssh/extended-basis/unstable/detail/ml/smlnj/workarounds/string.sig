@@ -35,5 +35,5 @@ signature STRING = sig
    val scan : (Char.char, 'a) StringCvt.reader -> (string, 'a) StringCvt.reader
    val fromString : String.string -> string option
    val toCString : string -> String.string
-   val fromCString : String.string -> string option 
+   val fromCString : String.string -> string option
 end

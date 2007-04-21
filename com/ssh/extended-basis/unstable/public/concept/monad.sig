@@ -33,7 +33,9 @@ end
 
 signature MONAD_EX = sig
    type 'a monad_ex
-   include FUNC where type 'a func = 'a monad_ex
+   include FUNC
+   sharing type func = monad_ex
+
    val =<< : ('a -> 'b monad_ex) * 'a monad_ex -> 'b monad_ex
    val >> : 'a monad_ex * 'b monad_ex -> 'b monad_ex
    val >>& : 'a monad_ex * 'b monad_ex -> ('a, 'b) Product.t monad_ex
@@ -43,49 +45,49 @@ signature MONAD_EX = sig
    val pure : ('a -> 'b) -> 'a -> 'b monad_ex
    (** {pure f == return o f} *)
 
-   val thunk : 'a Thunk.t -> 'a monad_ex 
+   val thunk : 'a Thunk.t -> 'a monad_ex
    (** {thunk thk == return () >>= pure thunk} *)
 
    val seq : 'a monad_ex List.t -> 'a List.t monad_ex
    val seqWith : ('a -> 'b monad_ex) -> 'a List.t -> 'b List.t monad_ex
-   val seqWithPartial : ('a -> 'b Option.t monad_ex) -> 'a List.t -> 
+   val seqWithPartial : ('a -> 'b Option.t monad_ex) -> 'a List.t ->
                         'b List.t monad_ex
 
-   val app : 'a monad_ex List.t -> unit monad_ex
-   val appWith : ('a -> 'b monad_ex) -> 'a List.t -> unit monad_ex
+   val app : 'a monad_ex List.t -> Unit.t monad_ex
+   val appWith : ('a -> 'b monad_ex) -> 'a List.t -> Unit.t monad_ex
 
-   val oo : ('b -> 'c monad_ex) * ('a -> 'b monad_ex) -> 'a -> 
+   val oo : ('b -> 'c monad_ex) * ('a -> 'b monad_ex) -> 'a ->
             'c monad_ex
    (** {f2 oo f1 == (fn x => f1 x >>= f2) } *)
 
-   val ignore : 'a monad_ex -> unit monad_ex
-   (** {ignore m == (m >> return ())} *)
+   val ignore : 'a monad_ex -> Unit.t monad_ex
+   (** {ignore m == m >> return ()} *)
 
-   val when : bool -> unit monad_ex -> unit monad_ex
-   (** {when b m == if b then m else (return ())} *)
+   val when : Bool.t -> Unit.t monad_ex -> Unit.t monad_ex
+   (** {when b m == if b then m else return ()} *)
 
-   val unless : bool -> unit monad_ex -> unit monad_ex
-   (** {unless b m == if b then (return ()) else m} *)
+   val unless : Bool.t -> Unit.t monad_ex -> Unit.t monad_ex
+   (** {unless b m == if b then return () else m} *)
 
-   val tabulate : int -> (int -> 'a monad_ex) -> 'a List.t monad_ex
+   val tabulate : Int.t -> (Int.t -> 'a monad_ex) -> 'a List.t monad_ex
    (**
-     * Tabulate is a version of List.tabulate that can use
-     * functions that produce computations.  
-     *
-     * {tabulate n f == 
-     *   (f 0) >>= (fn x0 => (f 1) >>= ... 
-     *                (fn xn >>= return [x1, ..., xn]))} 
-     *
-     * The actual implementation is tail recursive. *) 
+    * Tabulate is a version of List.tabulate that can use functions that
+    * produce computations.
+    *
+    *> tabulate n f ==
+    *>  (f 0) >>= (fn x0 => (f 1) >>= ...
+    *>               (fn xn >>= return [x1, ..., xn]))
+    *
+    * The actual implementation is tail recursive.
+    *)
 
-  val foldl : ('a * 'b -> 'b monad_ex) -> 'b -> 'a list -> 'b monad_ex 
-  val foldr : ('a * 'b -> 'b monad_ex) -> 'b -> 'a list -> 'b monad_ex 
+  val foldl : ('a * 'b -> 'b monad_ex) -> 'b -> 'a List.t -> 'b monad_ex
+  val foldr : ('a * 'b -> 'b monad_ex) -> 'b -> 'a List.t -> 'b monad_ex
 
-  val mapFst : ('a -> 'c monad_ex) -> ('a, 'b) Pair.t -> 
+  val mapFst : ('a -> 'c monad_ex) -> ('a, 'b) Pair.t ->
                ('c, 'b) Pair.t monad_ex
-  val mapSnd : ('b -> 'c monad_ex) -> ('a, 'b) Pair.t -> 
+  val mapSnd : ('b -> 'c monad_ex) -> ('a, 'b) Pair.t ->
                ('a, 'c) Pair.t monad_ex
-
 end
 
 signature MONAD = sig
@@ -120,14 +122,14 @@ signature MONAD_WS = sig (* WS = WITH_STATE *)
   val getState : monad_ws_state monad_ws
   val setState : monad_ws_state -> Unit.t monad_ws
   val run : monad_ws_state -> 'a monad_ws -> monad_ws_state * 'a
-end 
- 
+end
+
 signature MONAD_STATE = sig
   include MONAD MONAD_WS
   sharing type monad = monad_ws
-end 
+end
 
 signature MONADP_STATE = sig
   include MONADP MONAD_WS
   sharing type monad = monad_ws
-end 
+end

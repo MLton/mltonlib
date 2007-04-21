@@ -18,8 +18,8 @@ signature CHAR = sig
    val succ : t UnOp.t
    val pred : t UnOp.t
 
-   val contains : string -> t -> bool
-   val notContains : string -> t -> bool
+   val contains : string -> t UnPr.t
+   val notContains : string -> t UnPr.t
 
    (** == Character Predicates == *)
 

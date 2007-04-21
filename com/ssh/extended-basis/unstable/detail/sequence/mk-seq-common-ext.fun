@@ -6,8 +6,8 @@
 
 functor MkSeqCommonExt (type 'a t
                         val foldr : ('a * 'b -> 'b) -> 'b -> 'a t -> 'b
-                        val fromList : 'a list -> 'a t
-                        val maxLen : int) = struct
+                        val fromList : 'a List.t -> 'a t
+                        val maxLen : Int.t) = struct
    fun unfoldi fis (n, s) = let
       fun lp (i, s, xs) =
           if i = n then (fromList (rev xs), s)

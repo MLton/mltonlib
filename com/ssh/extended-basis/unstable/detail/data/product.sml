@@ -25,7 +25,7 @@ structure Product : PRODUCT = struct
    fun fst (a & _) = a
    fun snd (_ & b) = b
 
-   fun app (eA, eB) (a & b) = (eA a : unit ; eB b : unit)
+   fun app (eA, eB) (a & b) = (eA a : Unit.t ; eB b : Unit.t)
    fun appFst eA = app (eA, Effect.ignore)
    fun appSnd eB = app (Effect.ignore, eB)
 

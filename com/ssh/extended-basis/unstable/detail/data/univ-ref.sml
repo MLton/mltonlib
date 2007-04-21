@@ -8,8 +8,8 @@ structure UnivRef :> UNIV = struct
    open Univ
 
    datatype t =
-      IN of {clear : unit -> unit,
-             store : unit -> unit}
+      IN of {clear : Unit.t Effect.t,
+             store : Unit.t Effect.t}
 
    local
       fun mk deref = let
@@ -23,7 +23,7 @@ structure UnivRef :> UNIV = struct
       end
    in
       fun newIso () = mk (fn SOME ? => ? | NONE => raise Univ)
-      fun newEmb () = mk (fn ? => ?)
+      fun newEmb () = mk Fn.id
    end
 end
 

@@ -30,6 +30,6 @@ signature EFFECT = sig
     * name {past} comes from the idea that the data flows past the effect.
     *)
 
-   val tabulate : Int.t -> (Int.t t) t
-   (** {tabulate n f == (f 0; ... ; f (n - 1))} *) 
+   val tabulate : Int.t -> Int.t t t
+   (** {tabulate n f == (f 0; ... ; f (n - 1))} *)
 end
