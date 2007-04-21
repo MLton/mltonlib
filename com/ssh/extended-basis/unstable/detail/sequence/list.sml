@@ -116,18 +116,7 @@ structure List : LIST = struct
    in
      fun divideByEq eq xs = divideByEqTail eq xs []
    end
-
-   local
-     fun nubByEqTail eq xs accum = 
-         case xs
-           of [] => accum
-            | x::xs' =>
-                if exists (Fn.curry eq x) xs' then
-                  nubByEqTail eq xs' accum
-                else 
-                  nubByEqTail eq xs' (x::accum)   
-   in
-     fun nubByEq eq xs = nubByEqTail eq (rev xs) []
-   end
-
+   fun nubByEq eq =
+       rev o foldl (fn (x, ys) =>
+                       if exists (Fn.curry eq x) ys then ys else x::ys) []
 end
