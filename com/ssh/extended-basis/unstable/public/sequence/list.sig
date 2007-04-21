@@ -25,6 +25,16 @@ signature LIST = sig
     * {Empty} if the list is empty.
     *)
 
+   val inits : 'a t -> 'a t t
+   (**
+    * Returns all initial segments of the given list, shortest first.
+    *
+    * Warning: The time and space complexity of this function is {O(n*n)}.
+    *)
+
+   val tails : 'a t -> 'a t t
+   (** Returns all final segments of the given list, longest first. *)
+
    (** == Transformations == *)
 
    val intersperse : 'a -> 'a t UnOp.t
@@ -78,10 +88,10 @@ signature LIST = sig
 
    (** == Unfolding == *)
 
-   val unfoldl : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list
-   val unfoldl' : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list * 'a
-   val unfoldr : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list
-   val unfoldr' : ('a -> ('b * 'a) Option.t) -> 'a -> 'b list * 'a
+   val unfoldl : ('a -> ('b * 'a) Option.t) -> 'a -> 'b t
+   val unfoldl' : ('a -> ('b * 'a) Option.t) -> 'a -> 'b t * 'a
+   val unfoldr : ('a -> ('b * 'a) Option.t) -> 'a -> 'b t
+   val unfoldr' : ('a -> ('b * 'a) Option.t) -> 'a -> 'b t * 'a
 
    (** == Extracting sublists == *)
 
@@ -138,11 +148,10 @@ signature LIST = sig
     * contains elements in the equivalence class induced by {eq}.  
     *)
 
-   val nubByEq : 'a BinPr.t -> 'a t -> 'a t
+   val nubByEq : 'a BinPr.t -> 'a t UnOp.t
    (** 
     * {nubByEq eq xs} removes duplicates in {xs} based upon the 
     * equivalence class specified by {eq}.  It preserves the ordering of 
     * the elements in {xs}.
     *)
-
 end

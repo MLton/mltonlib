@@ -96,20 +96,18 @@ structure List : LIST = struct
       fun takeWhile ? = rev o #1 o mk op :: [] ?
       fun dropWhile ? = #2 o mk ignore () ?
    end
+   fun process f s = fn [] => s | x::xs => Fn.uncurry (process f) (f (x, s, xs))
    fun uniqueByEq eq =
     fn [] => true
      | x::xs => not (exists (Fn.curry eq x) xs) andalso uniqueByEq eq xs
-   fun divideByEq eq = let
-      fun lp accum =
-       fn [] => rev accum
-        | x::xs => let
-             val (xclass, remainder) = partition (Fn.curry eq x) xs
-          in
-             lp ((x::xclass)::accum) remainder
-          end
-   in
-      lp []
-   end
+   fun tails l = rev ([]::process (fn (x, a, xs) => ((x::xs)::a, xs)) [] l)
+   fun inits l = []::process (fn (x, a, xs) => (rev (x::xs)::a, xs)) [] (rev l)
+   fun divideByEq eq =
+       rev o process (fn (y, cs, xs) => let
+                            val (ys, xs) = partition (Fn.curry eq y) xs
+                         in
+                            ((y::ys)::cs, xs)
+                         end) []
    fun nubByEq eq =
        rev o foldl (fn (x, ys) =>
                        if exists (Fn.curry eq x) ys then ys else x::ys) []
