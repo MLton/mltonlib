@@ -14,6 +14,12 @@ signature BOOL = sig
    val not : t UnOp.t
    (** Logical negation. *)
 
+   val orb : t BinOp.t
+   (** Logical disjunction *)
+
+   val andb : t BinOp.t
+   (** Logical conjunction *)
+
    val isTrue : t UnPr.t
    (** {isTrue x = x = true} *)
 

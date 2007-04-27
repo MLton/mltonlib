@@ -29,4 +29,7 @@ structure Bool : BOOL = struct
    open Stringable
 
    open Core
+
+   fun orb (b1, b2) = b1 orelse b2
+   fun andb (b1, b2) = b1 andalso b2
 end
