@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -7,6 +7,7 @@
 structure Bool : BOOL = struct
    structure Core = struct
       open Bool
+      type bitwise = t
       type bounded = t
       type ordered = t
       type scannable = t
@@ -16,6 +17,10 @@ structure Bool : BOOL = struct
       val compare = fn (false, true) => LESS
                      | (true, false) => GREATER
                      | (_,        _) => EQUAL
+      fun andb (b1, b2) = b1 andalso b2
+      val notb = not
+      fun orb (b1, b2) = b1 orelse b2
+      val xorb = op <>
    end
 
    structure Bounded = MkBounded (Core)
@@ -29,7 +34,4 @@ structure Bool : BOOL = struct
    open Stringable
 
    open Core
-
-   fun orb (b1, b2) = b1 orelse b2
-   fun andb (b1, b2) = b1 andalso b2
 end

@@ -19,6 +19,7 @@ is
    ../../../public/concept/monad.sig
    ../../../public/concept/ordered.sig
    ../../../public/concept/scannable.sig
+   ../../../public/concept/shiftable.sig
    ../../../public/concept/signed.sig
    ../../../public/concept/stringable.sig
    ../../../public/control/exit.sig

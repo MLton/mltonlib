@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -14,12 +14,6 @@ signature BOOL = sig
    val not : t UnOp.t
    (** Logical negation. *)
 
-   val orb : t BinOp.t
-   (** Logical disjunction *)
-
-   val andb : t BinOp.t
-   (** Logical conjunction *)
-
    val isTrue : t UnPr.t
    (** {isTrue x = x = true} *)
 
@@ -28,6 +22,7 @@ signature BOOL = sig
 
    (** == Concepts == *)
 
+   include BITWISE where type bitwise = t
    include BOUNDED where type bounded = t
    include ORDERED where type ordered = t
    include SCANNABLE where type scannable = t
