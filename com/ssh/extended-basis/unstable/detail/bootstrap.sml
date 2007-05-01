@@ -31,7 +31,7 @@ structure Vector = struct open BasisVector type 'a t = 'a vector end
 structure VectorSlice = struct open BasisVectorSlice type 'a t = 'a slice end
 structure List = struct open BasisList type 'a t = 'a list end
 structure Effect = struct type 'a t = 'a -> Unit.t end
-structure Order = struct datatype t = datatype order end
+structure Order = struct datatype order = datatype order type t = order end
 structure Pair = struct
    type ('a, 'b) pair = 'a * 'b
    type ('a, 'b) t = ('a, 'b) pair

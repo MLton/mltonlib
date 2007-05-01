@@ -6,8 +6,11 @@
 
 (** Utilities for dealing with the {order} datatype. *)
 signature ORDER = sig
-   datatype t = datatype order
+   datatype order = datatype order
    (** The {order} datatype. *)
+
+   type t = order
+   (** Convenience alias. *)
 
    val swap : t UnOp.t
    (**

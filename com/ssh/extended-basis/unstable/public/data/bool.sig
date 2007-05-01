@@ -6,9 +6,10 @@
 
 (** Extended {BOOL} signature. *)
 signature BOOL = sig
-   datatype bool = datatype Bool.bool
+   datatype bool = datatype bool
+   (** The {bool} datatype. *)
 
-   type t = Bool.t
+   type t = bool
    (** Convenience alias. *)
 
    val not : t UnOp.t
