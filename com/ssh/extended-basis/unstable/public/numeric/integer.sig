@@ -60,6 +60,6 @@ signature INTEGER = sig
    include SIGNED
    include STRINGABLE
 
-   sharing type t = int = bounded = formattable = intable = largeable = ordered
-                  = signed = stringable
+   sharing type bounded = formattable = int = intable = largeable = ordered
+              = signed = stringable = t
 end

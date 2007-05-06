@@ -18,3 +18,11 @@ signature INTABLE = sig
    val toInt : intable -> Int.t
    val toLargeInt : intable -> LargeInt.t
 end
+
+signature INTABLE_X = sig
+   include INTABLE
+   val isoIntX : (intable, Int.t) Iso.t
+   val isoLargeIntX : (intable, LargeInt.t) Iso.t
+   val toIntX : intable -> Int.t
+   val toLargeIntX : intable -> LargeInt.t
+end

@@ -28,3 +28,9 @@ signature SHIFTABLE = sig
     * returns {floor (i / 2^n)}.
     *)
 end
+
+(** Like {SHIFTABLE}, but the sequence of bits is finite. *)
+signature SHIFTABLE_FIN = sig
+   include SHIFTABLE
+   val >> : shiftable ShiftOp.t
+end

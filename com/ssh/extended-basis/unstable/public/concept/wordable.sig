@@ -18,3 +18,12 @@ signature WORDABLE = sig
    val toLargeWord : wordable -> LargeWord.t
    val toWord : wordable -> Word.t
 end
+
+signature WORDABLE_X = sig
+   include WORDABLE
+   val fromWordX : Word.t -> wordable
+   val isoLargeWordX : (wordable, LargeWord.t) Iso.t
+   val isoWordX : (wordable, Word.t) Iso.t
+   val toLargeWordX : wordable -> LargeWord.t
+   val toWordX : wordable -> Word.t
+end

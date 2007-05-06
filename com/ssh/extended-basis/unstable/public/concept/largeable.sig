@@ -18,3 +18,9 @@ signature LARGEABLE = sig
    val isoLarge : (largeable, largeable_large) Iso.t
    val toLarge : largeable -> largeable_large
 end
+
+signature LARGEABLE_X = sig
+   include LARGEABLE
+   val isoLargeX : (largeable, LargeWord.t) Iso.t
+   val toLargeX : largeable -> largeable_large
+end
