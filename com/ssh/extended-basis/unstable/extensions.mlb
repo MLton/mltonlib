@@ -234,8 +234,8 @@ in
          detail/control/exit.sml
 
          (* Scalars *)
-         public/numeric/int-inf.sig
          public/numeric/integer.sig
+         public/numeric/int-inf.sig
          public/numeric/real.sig
          public/numeric/word.sig
          detail/numeric/mk-integer-ext.fun
