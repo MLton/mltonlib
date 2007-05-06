@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -6,59 +6,15 @@
 
 (** Extended {INT_INF} signature. *)
 signature INT_INF = sig
-   include BASIS_INT_INF
+   include INTEGER
 
-   type t = int
-   (** Convenience alias. *)
+   val divMod : t Sq.t UnOp.t
+   val quotRem : t Sq.t UnOp.t
 
-   (** == Bounds == *)
+   val pow : t * Int.t -> t
+   val log2 : t -> Int.t
 
-   val bounds : t Sq.t Option.t
-   (**
-    * Pair of the minimal and maximal integers, respectively,
-    * representable by {int}.  If {minInt = NONE} and {maxInt = NONE},
-    * this is also {NONE}.  Otherwise this is {SOME (valOf minInt, valOf
-    * maxInt)}.
-    *)
+   include BITWISE SHIFTABLE
 
-   (** == Embeddings == *)
-
-   val embString : (t, String.t) Emb.t
-   (**
-    * An embedding of integers into strings.  It is always equivalent to
-    * {(toString, fromString)}.
-    *)
-
-   (** == Isomorphisms == *)
-
-   val isoInt : (t, Int.t) Iso.t
-   (**
-    * An isomorphism between integers of type {int} and the default
-    * integer type.  It is always equivalent to {(toInt, fromInt)}.  Note
-    * that one of the injection and projection parts may be partial.
-    *)
-
-   val isoLarge : (t, LargeInt.t) Iso.t
-   (**
-    * An isomorphism between integers of type {int} and integers of type
-    * {LargeInt.int}.  It is always equivalent to {(toLarge, fromLarge)}.
-    * Note that the projection part may be partial.
-    *)
-
-   (** == Predicates == *)
-
-   val isEven : t UnPr.t
-   (**
-    * Returns true if the given integer is of the form {2*n} for some
-    * integer {n}.
-    *)
-
-   val isOdd : t UnPr.t
-   (**
-    * Returns true if the given integer is of the form {2*n+1} for some
-    * integer {n}.
-    *)
-
-   val isZero : t UnPr.t
-   (** Returns true if the given integer is {0}. *)
+   sharing type t = bitwise = shiftable
 end
