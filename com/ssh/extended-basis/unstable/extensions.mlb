@@ -52,12 +52,17 @@ in
          public/concept/equality.sig
          public/concept/flags.sig
          public/concept/func.sig
+         public/concept/intable.sig
+         public/concept/largeable.sig
          public/concept/monad.sig
          public/concept/ordered.sig
          public/concept/scannable.sig
          public/concept/shiftable.sig
          public/concept/signed.sig
          public/concept/stringable.sig
+         public/concept/wordable.sig
+
+         public/concept/formattable.sig
 
          (* MkBounded *)
          detail/concept/mk-bounded.fun

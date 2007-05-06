@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -6,44 +6,31 @@
 
 (** Extended {INTEGER} signature. *)
 signature INTEGER = sig
-   include BASIS_INTEGER
+   eqtype int
 
-   type t = int
+   type t
    (** Convenience alias. *)
 
-   (** == Bounds == *)
+   (** == Misc == *)
 
-   val bounds : t Sq.t Option.t
-   (**
-    * Pair of the minimal and maximal integers, respectively,
-    * representable by {int}.  If {minInt = NONE} and {maxInt = NONE},
-    * this is also {NONE}.  Otherwise this is {SOME (valOf minInt, valOf
-    * maxInt)}.
-    *)
+   val precision : Int.t Option.t
 
-   (** == Embeddings == *)
+   val minInt : t Option.t
+   val maxInt : t Option.t
 
-   val embString : (t, String.t) Emb.t
-   (**
-    * An embedding of integers into strings.  It is always equivalent to
-    * {(toString, fromString)}.
-    *)
+   (** == Numeric == *)
 
-   (** == Isomorphisms == *)
+   val + : t BinOp.t
+   val - : t BinOp.t
+   val * : t BinOp.t
 
-   val isoInt : (t, Int.t) Iso.t
-   (**
-    * An isomorphism between integers of type {int} and the default
-    * integer type.  It is always equivalent to {(toInt, fromInt)}.  Note
-    * that one of the injection and projection parts may be partial.
-    *)
+   val div : t BinOp.t
+   val mod : t BinOp.t
 
-   val isoLarge : (t, LargeInt.t) Iso.t
-   (**
-    * An isomorphism between integers of type {int} and integers of type
-    * {LargeInt.int}.  It is always equivalent to {(toLarge, fromLarge)}.
-    * Note that the projection part may be partial.
-    *)
+   val quot : t BinOp.t
+   val rem : t BinOp.t
+
+   val ~ : t UnOp.t
 
    (** == Predicates == *)
 
@@ -61,4 +48,18 @@ signature INTEGER = sig
 
    val isZero : t UnPr.t
    (** Returns true if the given integer is {0}. *)
+
+   (** == Concepts == *)
+
+   include FORMATTABLE_and_SCANNABLE_FROM_FORMAT
+           where type formattable_format = BasisStringCvt.radix
+   include INTABLE
+   include LARGEABLE where type largeable_large = LargeInt.t
+   include MAYBE_BOUNDED
+   include ORDERED
+   include SIGNED
+   include STRINGABLE
+
+   sharing type t = int = bounded = formattable = intable = largeable = ordered
+                  = signed = stringable
 end
