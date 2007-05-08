@@ -18,7 +18,7 @@ end = struct
           val (value, seed) = Iso.<--> (Iso.swap Word.isoLarge, Word32.isoLarge)
           val next = Misc.ranqd1
           fun split w = #2 o Misc.psdes /> seed w
-          val maxValue = value Word32.maxWord)
+          val maxValue = value Word32.maxValue)
    open G
    val make = id
 end
