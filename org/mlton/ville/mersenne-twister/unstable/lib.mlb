@@ -1,0 +1,8 @@
+local
+   $(SML_LIB)/basis/basis.mlb
+
+   public/rng.sig
+   detail/mt-19937.sml
+in
+   public/export.sml
+end

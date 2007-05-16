@@ -1,0 +1,38 @@
+Overview
+--------
+
+This is an implementation of the Mersenne Twister random number
+generator for Standard ML.
+
+Mersenne Twister (MT) is a pseudorandom number generating algorithm
+developed in 1997 by by Makoto Matsumoto and Takuji Nishimura.  It has
+the following properties:
+
+  * Very long period (2^19937-1).
+  * Very high order of dimensional equidistribution (623-dimensional
+    equidistribution is assured).
+  * Fast.
+  * Memory efficient.
+  * Passes the Diehard tests for statistical randomness.
+
+Note that MT is not cryptographically secure!  Observing a sufficient
+number of iterates allows one to deduce the internal state of the
+generator, thus predicting all future iterates.  MT has been designed
+with Monte carlo simulations and other statistical simulations in
+mind.
+
+For more information on MT, see the wikipedia entry:
+  http://en.wikipedia.org/wiki/Mersenne_twister
+
+There is also a new version of the MT optimized for 128 bit operations
+(SIMD).  I don't know if it can be implemented efficiently for MLton.
+
+
+Usage
+-----
+
+The library is available via the MLB file "lib.mlb".  The exported
+interface may change, but the implementation correct, stable, and
+reasonably efficient.
+
+Run "make check" to build and run the test program.
