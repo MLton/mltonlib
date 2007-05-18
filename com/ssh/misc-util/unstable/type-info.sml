@@ -94,7 +94,8 @@ end = struct
    fun pure (IN {exn, recs, ...}) =
       IN {alts = 1, base = true, exn = exn, pure = true, recs = recs}
 
-   val iso = const
+   fun iso (IN {base, exn, pure, recs, ...}) =
+       const (IN {alts = 1, base = base, exn = exn, pure = pure, recs = recs})
 
    fun (IN {base = bl, exn = hl, recs = rl, ...}) *`
        (IN {base = br, exn = hr, recs = rr, ...}) =
