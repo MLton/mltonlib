@@ -1,7 +1,7 @@
 local
-  $(SML_LIB)/basis/basis.mlb
+   $(SML_LIB)/basis/basis.mlb
 
-  lib.mlb
-  test/first-5000.sml
+   lib.mlb
+   test/first-5000.sml
 in
 end

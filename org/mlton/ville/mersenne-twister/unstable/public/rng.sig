@@ -3,15 +3,15 @@
  * objects.
  *)
 signature RNG = sig
-  type t
+   type t
 
-  val new: word -> t
-  (**
-   * Creates a new random number generator and seeds it with the
-   * given seed.
-   *)
+   val new: word -> t
+   (**
+    * Creates a new random number generator and seeds it with the
+    * given seed.
+    *)
 
-  val rand: t -> word
-  (** Returns the next 32 bit random number. *)
+   val rand: t -> word
+   (** Returns the next 32 bit random number. *)
 
 end
