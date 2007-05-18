@@ -44,11 +44,10 @@ functor LiftShow
 end
 
 structure Show :> sig
-   include TYPE
-   include SHOW
-      where type 'a show_t = 'a t
-      where type 'a show_s = 'a s
-      where type ('a, 'k) show_p = ('a, 'k) p
+   include TYPE SHOW
+   sharing type show_t = t
+   sharing type show_s = s
+   sharing type show_p = p
 end = struct
    local
       open Prettier

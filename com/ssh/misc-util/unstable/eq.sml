@@ -34,8 +34,8 @@ functor LiftEq
 end
 
 structure Eq :> sig
-   include STRUCTURAL_TYPE
-   include EQ where type 'a eq_t = 'a t
+   include STRUCTURAL_TYPE EQ
+   sharing type eq_t = t
 end = struct
    type 'a t = 'a BinPr.t
    type 'a eq_t = 'a t

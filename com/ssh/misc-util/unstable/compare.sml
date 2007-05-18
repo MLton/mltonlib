@@ -34,8 +34,8 @@ functor LiftCompare
 end
 
 structure Compare :> sig
-   include STRUCTURAL_TYPE
-   include COMPARE where type 'a compare_t = 'a t
+   include STRUCTURAL_TYPE COMPARE
+   sharing type compare_t = t
 end = struct
    type 'a t = 'a Cmp.t
    type 'a compare_t = 'a t

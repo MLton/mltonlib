@@ -45,8 +45,8 @@ functor LiftDummy
 end
 
 structure Dummy :> sig
-   include STRUCTURAL_TYPE
-   include DUMMY where type 'a dummy_t = 'a t
+   include STRUCTURAL_TYPE DUMMY
+   sharing type dummy_t = t
 end = struct
    type 'a t = 'a option
    type 'a dummy_t = 'a t
