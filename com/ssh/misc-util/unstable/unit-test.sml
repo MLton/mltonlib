@@ -177,7 +177,6 @@ end = struct
       val eq = eq
       val exn = exn
       val layout = layout
-      val notEq = notEq
    end
 
    local
@@ -212,6 +211,7 @@ end = struct
    type 'a s = (t, t, t, Unit.t, 'a) Fold.step0
 
    exception Failure of Prettier.t
+   val failure = Exn.throw o Failure
 
    val defaultCfg =
        IN {title = NONE,
@@ -234,19 +234,13 @@ end = struct
    val i2s = I.toString
 
    fun runTest safeTest =
-       Fold.step0
-          (fn cfg as IN {idx, ...} =>
-              (if safeTest cfg then
-                  succeeded += 1
-               else
-                  failed += 1
-             ; updCfg (U#idx (idx + 1)) $ cfg))
+       Fold.step0 (fn cfg as IN {idx, ...} =>
+                      ((if safeTest cfg then succeeded else failed) += 1
+                     ; updCfg (U#idx (idx + 1)) $ cfg))
 
    fun header (IN {title, idx, ...}) =
-       if isSome title then
-          concat [i2s idx, ". ", valOf title, " test"]
-       else
-          "An untitled test"
+       case title of NONE   => "An untitled test"
+                   | SOME t => concat [i2s idx, ". ", t, " test"]
 
    (* We assume here that we're the first call to atExit so that it
     * is (relatively) safe to call terminate in our atExit effect.
@@ -257,49 +251,35 @@ end = struct
        OS.Process.atExit
           (fn () =>
               if 0 = !failed then
-                 printlnStrs
-                    ["All ", i2s (!succeeded), " tests succeeded."]
+                 printlnStrs ["All ", i2s (!succeeded), " tests succeeded."]
               else
-                 (printlnStrs
-                     [i2s (!succeeded + !failed), " tests of which\n",
-                      i2s (!succeeded), " succeeded and\n",
-                      i2s (!failed), " failed."]
+                 (printlnStrs [i2s (!succeeded + !failed), " tests of which\n",
+                               i2s (!succeeded), " succeeded and\n",
+                               i2s (!failed), " failed."]
                 ; OS.Process.terminate OS.Process.failure))
 
    (* TEST SPECIFICATION INTERFACE *)
 
-   fun unitTests ? =
-       Fold.fold (defaultCfg, ignore) ?
-
-   fun title title =
-       Fold.step0 (updCfg (U #idx 1) (U #title (SOME title)) $)
+   fun unitTests ? = Fold.fold (defaultCfg, ignore) ?
+   fun title title = Fold.step0 (updCfg (U #idx 1) (U #title (SOME title)) $)
 
    (* AD HOC TESTING HELPERS *)
 
    fun verifyEq t {actual, expect} =
-       if notEq t (actual, expect) then
-          raise Failure (indent [str "Equality test failed:",
-                                 named t "expected" expect <^> comma,
-                                 named t "but got" actual])
-       else
-          ()
+       if eq t (actual, expect) then ()
+       else failure (indent [str "Equality test failed:",
+                             named t "expected" expect <^> comma,
+                             named t "but got" actual])
 
    fun verifyTrue  b = verifyEq bool {expect = true,  actual = b}
    fun verifyFalse b = verifyEq bool {expect = false, actual = b}
 
    fun verifyFailsWith ePr th =
        try (th,
-            fn _ =>
-               raise Failure (str "Test didn't raise an\
-                                  \ exception as expected"),
-            fn e =>
-               if ePr e then
-                  ()
-               else
-                  raise Failure (group (named exn
-                                              "Test raised an\
-                                              \ unexpected exception"
-                                              e)))
+            fn _ => failure (str "Test didn't raise an exception as expected"),
+            fn e => if ePr e then ()
+                    else failure o group |<
+                            named exn "Test raised an unexpected exception" e)
 
    fun verifyFails ? = verifyFailsWith (const true) ?
    fun verifyRaises e = verifyFailsWith (e <\ eq exn)
@@ -314,19 +294,18 @@ end = struct
                       (printlnStrs [header cfg, " succeeded."]
                      ; true),
                    fn e =>
-                      (println
-                          (indent
-                              [str (header cfg ^ " failed."),
-                               case e of
-                                  Failure doc => doc <^> dot
-                                | _ =>
-                                  indent [str "Unhandled exception",
-                                          str (Exn.message e) <^> dot],
-                               case Exn.history e of
-                                  [] =>
-                                  str "No exception history available."
-                                | hs => (indent o map str)
-                                           ("Exception history:"::hs)])
+                      ((println o indent)
+                          [str (header cfg ^ " failed."),
+                           case e of
+                              Failure doc => doc <^> dot
+                            | _ =>
+                              indent [str "Unhandled exception",
+                                      str (Exn.message e) <^> dot],
+                           case Exn.history e of
+                              [] =>
+                              str "No exception history available."
+                            | hs => (indent o map str)
+                                       ("Exception history:"::hs)]
                      ; false)))
 
    fun testEq t th = test (verifyEq t o th)
@@ -404,11 +383,9 @@ end = struct
                       | (SOME true, tags, _) =>
                         lp (passN + 1) skipN (List.revAppend (tags, allTags))
                       | (SOME false, _, msgs) =>
-                        (println
-                            (indent
-                                [str (header cfg ^ " failed."),
-                                 indent (str "Falsifiable:"::msgs)] <^>
-                             dot)
+                        ((println o indent)
+                            [str (header cfg ^ " failed."),
+                             indent (str "Falsifiable:"::msgs) <^> dot]
                        ; false)
            in
               lp 0 0 []
