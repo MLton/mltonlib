@@ -33,8 +33,8 @@ struct
 end
 
 structure Arbitrary :> sig
-   include STRUCTURAL_TYPE
-   include ARBITRARY where type 'a arbitrary_t = 'a t
+   include STRUCTURAL_TYPE ARBITRARY
+   sharing type arbitrary_t = t
 end = struct
    structure G = RanQD1Gen and I = Int and R = Real and W = Word
          and Typ = TypeInfo
@@ -79,9 +79,20 @@ end = struct
                                R.toLarge),
                   typ = Typ.real}
 
-   fun Y ? = let open Tie in iso (function *` function *` Typ.Y) end
-                (fn IN {gen = a, cog = b, typ = c} => a & b & c,
-                 fn a & b & c => IN {gen = a, cog = b, typ = c}) ?
+   fun Y ? = let
+      open Tie
+      val genFn = pure (fn () => let
+                              val r = ref (raising Fix.Fix)
+                              fun f x = !r x
+                           in
+                              (G.resize (op div /> 2) f,
+                               fn f' => (r := f' ; f'))
+                           end)
+   in
+      iso (genFn *` function *` Typ.Y)
+          (fn IN {gen = a, cog = b, typ = c} => a & b & c,
+           fn a & b & c => IN {gen = a, cog = b, typ = c})
+   end ?
 
    fun (IN {gen = aGen, cog = aCog, typ = aTyp, ...}) *`
        (IN {gen = bGen, cog = bCog, typ = bTyp, ...}) =
@@ -89,43 +100,18 @@ end = struct
            cog = fn n => fn a & b => aCog n a o G.split 0w643 o bCog n b,
            typ = Typ.*` (aTyp, bTyp)}
 
-   (* XXX Generation of recursive datatypes could probably be improved.
-    *
-    * We are somewhat more ambitious here than what is done in the
-    * original QuickCheck library.  As noted in the QuickCheck paper,
-    * naive generation of recursive datatypes may not terminate (for one
-    * thing).  The simplistic heuristic used below is to reduce the size
-    * whenever the recursive branch is chosen.  This guarantees
-    * termination in many cases, but not all.  However, it is probably
-    * possible to devise a much smarter algorithm.  Namely, one could
-    * compute a "probability of recursion" of some kind and then use that
-    * while choosing which branch to generate.  Consider the following
-    * datatype:
-    *
-    *>  datatype foo = ALWAYS of foo * foo | SOMETIMES of foo option
-    *
-    * Intuitively the "recursion probabilities" of the ALWAYS and
-    * SOMETIMES branches are different.  It seems plausible that this
-    * could be exploited to guarantee termination.
-    *
-    * Actually, it would probably be more fruitful to use an estimate of
-    * the expected "size" of the complete generated data structure to
-    * guide the generation process.
-    *)
-
    fun (IN {gen = aGen, cog = aCog, typ = aTyp, ...}) +`
        (IN {gen = bGen, cog = bCog, typ = bTyp, ...}) = let
       val aGen = map INL aGen
       val bGen = map INR bGen
-      val halve = G.resize (op div /> 2)
-      val aGenHalf = G.frequency [(2, halve aGen), (1, bGen)]
-      val bGenHalf = G.frequency [(1, aGen), (2, halve bGen)]
+      val gen = G.frequency [(Typ.numConsecutiveAlts aTyp, aGen),
+                             (Typ.numConsecutiveAlts bTyp, bGen)]
+      val gen0 = case Typ.hasBaseCase aTyp & Typ.hasBaseCase bTyp of
+                    true & false => aGen
+                  | false & true => bGen
+                  | _            => gen
    in
-      IN {gen = case Typ.hasRecData aTyp & Typ.hasRecData bTyp of
-                   true  & false => G.sized (fn 0 => bGen | _ => aGenHalf)
-                 | false & true  => G.sized (fn 0 => aGen | _ => bGenHalf)
-                 | _     & _     =>
-                   G.bool >>= (fn false => aGen | true  => bGen),
+      IN {gen = G.sized (fn 0 => gen0 | _ => gen),
           cog = fn n => fn INL a => G.split 0w423 o aCog n a
                          | INR b => G.split 0w324 o bCog n b,
           typ = Typ.+` (aTyp, bTyp)}
