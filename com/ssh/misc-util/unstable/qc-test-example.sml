@@ -28,12 +28,11 @@ val () = let
       val stableSort = mk stableSort
    end
 
-   val sortedList =
-       let
-          val l = list int
-       in
-          withGen (RanQD1Gen.Monad.map stableSort (arbitrary l)) l
-       end
+   val sortedList = let
+      val l = list int
+   in
+      withGen (RanQD1Gen.Monad.map stableSort (arbitrary l)) l
+   end
 
    (* Note that one can (of course) make local auxiliary definitions, like
     * here, to help with testing.
