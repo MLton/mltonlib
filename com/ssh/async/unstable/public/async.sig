@@ -110,7 +110,8 @@ signature ASYNC = sig
     * - Many can {read} a value without taking it.
     * - One can {send} a value to a handler without a rendezvous.
     * - Only the handler that {take}s a value sees it.
-    * - Multiple {taker}s may observe the same sequence of values.
+    * - Many can {tap} into a communication to observe the same sequence of
+    *   values.
     *)
 
    structure Ch : sig
@@ -151,7 +152,7 @@ signature ASYNC = sig
    structure Multicast : sig
       type 'a t
       val new : 'a t Thunk.t
-      val taker : 'a t -> 'a Event.t
+      val tap : 'a t -> 'a Event.t
       val send : 'a t -> 'a Effect.t
    end
 end

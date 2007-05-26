@@ -96,11 +96,11 @@ in
                    open Multicast
                    val c = new ()
                    val () = send c 1
-                   val t1 = taker c
+                   val t1 = tap c
                    val () = send c 2
-                   val t2 = taker c
+                   val t2 = tap c
                    val () = send c 3
-                   val t3 = taker c
+                   val t3 = tap c
                    val () = send c 4
                    val s1 = ref []
                    val s2 = ref []

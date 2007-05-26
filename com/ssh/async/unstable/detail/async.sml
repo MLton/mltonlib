@@ -151,7 +151,7 @@ structure Async :> ASYNC = struct
       datatype 'a n = N of 'a * 'a n IVar.t
       datatype 'a t = T of 'a n IVar.t Ref.t
       fun new () = T (ref (IVar.new ()))
-      fun taker (T st) = let
+      fun tap (T st) = let
          val ch = Ch.new ()
          fun lp st =
              when (IVar.read st)
