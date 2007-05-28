@@ -9,40 +9,61 @@
  * providing a random number generator.
  *)
 
-functor MkRandomGen (RNG : RNG) :>
-   RANDOM_GEN
-      where type t = RNG.t = struct
+functor MkRandomGen (RNG : RNG) :> RANDOM_GEN where type RNG.t = RNG.t = struct
    structure D = MkDbg (open DbgDefs val name = "MkRandomGen")
          and A = Array and R = Real and V = Vector and W = Word
 
-   open RNG
-   type 'a gen = Int.t -> t -> 'a
+   structure RNG = RNG
 
-   val lift = const
+   type 'a dom = Int.t * RNG.t and 'a cod = 'a
+   type 'a t = 'a dom -> 'a cod
 
- (*fun prj gb b2a n = b2a o gb n*)
+   fun generate n t =
+       pass (W.toInt (RNG.value t mod (W.fromInt n)), RNG.next t)
+
+   fun lift r2a = r2a o Pair.snd
 
    structure Monad =
-      MkMonad (type 'a monad = 'a gen
-               fun return a _ _ = a
-               fun (m >>= k) n r = k (m n (split 0w314 r)) n (split 0w159 r))
+      MkMonad (type 'a monad = 'a t
+               val return = const
+               fun (m >>= k) (n, r) =
+                   k (m (n, RNG.split 0w314 r)) (n, RNG.split 0w159 r))
 
    open Monad
 
-   fun promote a2b n r a = a2b a n r
-   fun sized i2g n r = i2g n n r
-   fun resize f g = g o f
-   fun bool _ r = maxValue div 0w2 < value r
+   fun map a2b ga = a2b o ga
+
+   fun promote a2b (n, r) a = a2b a (n, r)
+
+   fun variant v m = m o Pair.map (id, RNG.split (W.fromInt v + 0w1))
+
+   fun mapUnOp (to, from) eG2eG = let
+      fun map f g = f o g
+   in
+      Fn.map (map to, map from) eG2eG
+   end
+
+   fun sized i2g (n, r) = i2g n (n, r)
+   fun resize f g = g o Pair.map (f, id)
+   fun bool (_, r) = RNG.maxValue div 0w2 < RNG.value r
+
+   fun Y ? = Tie.pure (fn () => let
+                             val r = ref (raising Fix.Fix)
+                             fun f x = !r x
+                          in
+                             (resize (op div /> 2) f,
+                              fn f' => (r := f' ; f'))
+                          end) ?
 
    fun inRange bInRange (a2b, b2a) =
        map b2a o bInRange o Pair.map (Sq.mk a2b)
 
    fun wordInRange (l, h) =
        (D.assert 0 (fn () => l <= h)
-      ; let val n = h - l + 0w1     (* XXX may overflow *)
-            val d = maxValue div n  (* XXX may result in zero *)
+      ; let val n = h - l + 0w1         (* XXX may overflow *)
+            val d = RNG.maxValue div n  (* XXX may result in zero *)
             val m = n * d
-        in lift (fn r => value r mod m div d + l)
+        in lift (fn r => RNG.value r mod m div d + l)
         end)
 
    fun intInRange (l, h) =
@@ -55,8 +76,8 @@ functor MkRandomGen (RNG : RNG) :>
    in
       fun realInRange (l, h) =
           (D.assert 0 (fn () => l <= h)
-         ; let val m = (h - l) / w2r maxValue
-           in const (fn r => w2r (value r) * m + l)
+         ; let val m = (h - l) / w2r RNG.maxValue
+           in fn (_, r) => w2r (RNG.value r) * m + l
            end)
    end
 
@@ -92,10 +113,10 @@ functor MkRandomGen (RNG : RNG) :>
          lp []
       end
    in
-      fun list ga m n r =
+      fun list ga m (n, r) =
           unfold (op = /> 0w0)
                  (op - /> 0w1)
-                 (ga n o flip split r)
+                 (fn i => ga (n, RNG.split i r))
                  (W.fromInt m)
    end
 end

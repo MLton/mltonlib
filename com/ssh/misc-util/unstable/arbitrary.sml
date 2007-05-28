@@ -15,10 +15,10 @@
 signature ARBITRARY = sig
    type 'a arbitrary_t
 
-   val arbitrary : 'a arbitrary_t -> 'a RanQD1Gen.gen
+   val arbitrary : 'a arbitrary_t -> 'a RanQD1Gen.t
    (** Extracts the random value generator. *)
 
-   val withGen : 'a RanQD1Gen.gen -> 'a arbitrary_t UnOp.t
+   val withGen : 'a RanQD1Gen.t -> 'a arbitrary_t UnOp.t
    (** Functionally updates the random value generator. *)
 end
 
@@ -39,11 +39,13 @@ end = struct
    structure G = RanQD1Gen and I = Int and R = Real and W = Word
          and Typ = TypeInfo
 
-   datatype 'a t =
-      IN of {gen : 'a G.gen,
-             cog : int -> 'a -> G.t UnOp.t,
-             typ : 'a Typ.t}
+   datatype 'a t
+     = IN of {gen : 'a G.t,
+              cog : 'a -> Univ.t G.t UnOp.t,
+              typ : 'a Typ.t}
    type 'a arbitrary_t = 'a t
+
+   fun universally ? = G.mapUnOp (Univ.newIso ()) ?
 
    val map = G.Monad.map
    val op >>= = G.>>=
@@ -54,50 +56,37 @@ end = struct
 
    fun iso (IN {gen, cog, typ, ...}) (iso as (a2b, b2a)) =
        IN {gen = map b2a gen,
-           cog = fn n => cog n o a2b,
+           cog = cog o a2b,
            typ = Typ.iso typ iso}
 
-   val unit = IN {gen = const (const ()),
-                  cog = const (const (G.split 0w0)),
-                  typ = Typ.unit}
+   val unit = IN {gen = G.return (), cog = const (G.variant 0), typ = Typ.unit}
    val bool = IN {gen = G.bool,
-                  cog = const (G.split o (fn false => 0w1 | true => 0w2)),
+                  cog = G.variant o (fn true => 1 | false => 0),
                   typ = Typ.bool}
-   val int  = IN {gen = map (fn w => W.toIntX (w - G.maxValue div 0w2))
+   val int  = IN {gen = map (fn w => W.toIntX (w - G.RNG.maxValue div 0w2))
                             (* XXX result may not fit an Int.int *)
-                            (G.lift G.value),
-                  cog = const (G.split o W.fromInt),
+                            (G.lift G.RNG.value),
+                  cog = G.variant,
                   typ = Typ.int}
-   val word = IN {gen = G.lift G.value,
-                  cog = const G.split,
+   val word = IN {gen = G.lift G.RNG.value,
+                  cog = G.variant o W.toIntX,
                   typ = Typ.word}
    val real = IN {gen = G.sized ((fn r => G.realInRange (~r, r)) o real),
-                  cog = const (G.split o W.fromLarge o
-                               PackWord32Little.subVec /> 0 o
-                               PackReal32Little.toBytes o
-                               Real32.fromLarge IEEEReal.TO_NEAREST o
-                               R.toLarge),
+                  cog = (G.variant o LargeWord.toIntX o
+                         PackWord32Little.subVec /> 0 o
+                         PackReal32Little.toBytes o
+                         Real32.fromLarge IEEEReal.TO_NEAREST o
+                         R.toLarge),
                   typ = Typ.real}
 
-   fun Y ? = let
-      open Tie
-      val genFn = pure (fn () => let
-                              val r = ref (raising Fix.Fix)
-                              fun f x = !r x
-                           in
-                              (G.resize (op div /> 2) f,
-                               fn f' => (r := f' ; f'))
-                           end)
-   in
-      iso (genFn *` function *` Typ.Y)
-          (fn IN {gen = a, cog = b, typ = c} => a & b & c,
-           fn a & b & c => IN {gen = a, cog = b, typ = c})
-   end ?
+   fun Y ? = let open Tie in iso (G.Y *` function *` Typ.Y) end
+                (fn IN {gen = a, cog = b, typ = c} => a & b & c,
+                 fn a & b & c => IN {gen = a, cog = b, typ = c}) ?
 
    fun (IN {gen = aGen, cog = aCog, typ = aTyp, ...}) *`
        (IN {gen = bGen, cog = bCog, typ = bTyp, ...}) =
        IN {gen = G.Monad.>>& (aGen, bGen),
-           cog = fn n => fn a & b => aCog n a o G.split 0w643 o bCog n b,
+           cog = fn a & b => aCog a o bCog b,
            typ = Typ.*` (aTyp, bTyp)}
 
    fun (IN {gen = aGen, cog = aCog, typ = aTyp, ...}) +`
@@ -112,27 +101,27 @@ end = struct
                   | _            => gen
    in
       IN {gen = G.sized (fn 0 => gen0 | _ => gen),
-          cog = fn n => fn INL a => G.split 0w423 o aCog n a
-                         | INR b => G.split 0w324 o bCog n b,
+          cog = fn INL a => G.variant 0 o aCog a
+                 | INR b => G.variant 1 o bCog b,
           typ = Typ.+` (aTyp, bTyp)}
    end
 
    fun (IN {gen = aGen, cog = aCog, typ = aTyp, ...}) -->
        (IN {gen = bGen, cog = bCog, typ = bTyp, ...}) =
-       IN {gen = G.promote (fn a => fn n => bGen n o aCog n a),
-           cog = fn n => fn a2b => fn r =>
-                    bCog n (a2b (aGen n (G.split 0w3 r))) (G.split 0w4 r),
+       IN {gen = G.promote (fn a => universally (aCog a) bGen),
+           cog = fn f => fn g => aGen >>= (fn a => universally (bCog (f a)) g),
            typ = Typ.--> (aTyp, bTyp)}
 
    val exn = let val e = Fail "Arbitrary.exn not supported yet"
-             in IN {gen = raising e, cog = raising e, typ = Typ.exn}
+             in IN {gen = G.return Empty, cog = raising e, typ = Typ.exn}
              end
    fun regExn _ _ = ()
 
    fun list (IN {gen = xGen, cog = xCog, typ = xTyp, ...}) = let
       val xsGen = G.sized (0 <\ G.intInRange) >>= G.list xGen
-      fun xsCog _ []      t = G.split 0w5 t
-        | xsCog n (x::xs) t = xsCog n xs (xCog n x t)
+      fun xsCog [] = G.variant 0
+        | xsCog (x::xs) =
+          universally (xCog x) o G.variant 1 o universally (xsCog xs)
    in
       IN {gen = xsGen, cog = xsCog, typ = Typ.list xTyp}
    end
@@ -143,7 +132,7 @@ end = struct
    fun vector a = iso (list a) Vector.isoList
 
    val char = IN {gen = map chr (G.intInRange (0, Char.maxOrd)),
-                  cog = const (G.split o W.fromInt o ord),
+                  cog = G.variant o ord,
                   typ = Typ.char}
 
    val string = iso (list char) String.isoList

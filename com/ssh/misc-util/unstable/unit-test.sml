@@ -319,7 +319,7 @@ end = struct
 
    (* RANDOM TESTING INTERFACE *)
 
-   type law = (Bool.t Option.t * String.t List.t * Prettier.t List.t) G.gen
+   type law = (Bool.t Option.t * String.t List.t * Prettier.t List.t) G.t
 
    local
       fun mk field value = Fold.step0 (updCfg (U field value) $)
@@ -376,8 +376,9 @@ end = struct
                   else if skipM <= skipN then
                      done "Arguments exhausted after" passN allTags
                   else
-                     case prop (size passN)
-                               (!rng before Ref.modify G.next rng) of
+                     case G.generate (size passN)
+                                     (!rng before Ref.modify G.RNG.next rng)
+                                     prop of
                         (NONE, _, _) =>
                         lp passN (skipN + 1) allTags
                       | (SOME true, tags, _) =>
@@ -393,16 +394,19 @@ end = struct
 
    fun all t toProp =
        G.>>= (arbitrary t,
-              fn v => fn n => fn g =>
-                 try (fn () => toProp v n g,
-                      fn (r as SOME false, ts, msgs) =>
-                         (r, ts, named t "with" v :: msgs)
-                       | p => p,
-                      fn e => (SOME false, [],
-                               [named t "with" v,
-                                named exn "raised" e])))
+              fn v => fn ? =>
+                 (G.>>= (toProp v,
+                         fn (r as SOME false, ts, msgs) =>
+                            G.return (r, ts, named t "with" v :: msgs)
+                          | p =>
+                            G.return p) ?
+                  handle e =>
+                         G.return (SOME false, [],
+                                   [named t "with" v,
+                                    named exn "raised" e]) ?))
+
    fun that b = G.return (SOME b, [], [])
-   fun skip _ _ = (NONE, [], [])
+   val skip = G.return (NONE, [], [])
 
    fun classify tOpt p =
        G.Monad.map (fn p as (r, ts, msg) =>

@@ -12,32 +12,40 @@
  *)
 
 signature RANDOM_GEN = sig
-   include RNG
+   structure RNG : RNG
 
-   type 'a gen = Int.t -> t -> 'a
+   type 'a dom and 'a cod
+   type 'a t = 'a dom -> 'a cod
 
-   val lift : (t -> 'a) -> 'a gen
+   val generate : Int.t -> RNG.t -> 'a t -> 'a
 
-   include MONAD_CORE where type 'a monad = 'a gen
+   val lift : (RNG.t -> 'a) -> 'a t
 
-   structure Monad : MONAD where type 'a monad = 'a gen
+   include MONAD_CORE where type 'a monad = 'a t
 
-   val promote : ('a -> 'b gen) -> ('a -> 'b) gen
+   structure Monad : MONAD where type 'a monad = 'a t
 
-   val sized : (Int.t -> 'a gen) -> 'a gen
-   val resize : Int.t UnOp.t -> 'a gen UnOp.t
+   val promote : ('a -> 'b t) -> ('a -> 'b) t
 
-   val elements : 'a List.t -> 'a gen
-   val oneOf : 'a gen List.t -> 'a gen
-   val frequency : (Int.t * 'a gen) List.t -> 'a gen
+   val Y : 'a t Tie.t
 
-   val inRange : ('b Sq.t -> 'b gen) -> ('a, 'b) Iso.t -> 'a Sq.t -> 'a gen
+   val variant : Int.t -> 'a t UnOp.t
+   val mapUnOp : ('a, 'b) Iso.t -> 'b t UnOp.t -> 'a t UnOp.t
 
-   val intInRange  : Int.t  Sq.t -> Int.t  gen
-   val realInRange : Real.t Sq.t -> Real.t gen
-   val wordInRange : Word.t Sq.t -> Word.t gen
+   val sized : (Int.t -> 'a t) -> 'a t
+   val resize : Int.t UnOp.t -> 'a t UnOp.t
 
-   val bool : Bool.t gen
+   val elements : 'a List.t -> 'a t
+   val oneOf : 'a t List.t -> 'a t
+   val frequency : (Int.t * 'a t) List.t -> 'a t
 
-   val list : 'a gen -> Int.t -> 'a List.t gen
+   val inRange : ('b Sq.t -> 'b t) -> ('a, 'b) Iso.t -> 'a Sq.t -> 'a t
+
+   val intInRange  : Int.t  Sq.t -> Int.t  t
+   val realInRange : Real.t Sq.t -> Real.t t
+   val wordInRange : Word.t Sq.t -> Word.t t
+
+   val bool : Bool.t t
+
+   val list : 'a t -> Int.t -> 'a List.t t
 end

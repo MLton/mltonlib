@@ -10,7 +10,7 @@
 
 structure RanQD1Gen :> sig
    include RANDOM_GEN
-   val make : Word32.t -> t
+   val make : Word32.t -> RNG.t
 end = struct
    structure G =
       MkRandomGen
