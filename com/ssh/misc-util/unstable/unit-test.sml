@@ -27,8 +27,8 @@ structure UnitTest :> sig
 
    val test : Unit.t Effect.t -> 'a s
    (**
-    * Registers an ad hoc test.  An ad hoc test should indicate failure
-    * by raising an exception.
+    * Registers an ad hoc test.  An ad hoc test should indicate failure by
+    * raising an exception.
     *)
 
    val testEq : 'a Type.t -> {actual : 'a, expect : 'a} Thunk.t -> 'b s
@@ -41,10 +41,7 @@ structure UnitTest :> sig
    (** Tests that the thunk evaluates to {false}. *)
 
    val testFailsWith : Exn.t UnPr.t -> 'a Thunk.t -> 'b s
-   (**
-    * Tests that the thunk raises an exception satisfying the
-    * predicate.
-    *)
+   (** Tests that the thunk raises an exception satisfying the predicate. *)
 
    val testFails : 'a Thunk.t -> 'b s
    (** Tests that the thunk raises an exception. *)
@@ -59,22 +56,22 @@ structure UnitTest :> sig
 
    val sizeFn : Int.t UnOp.t -> 'a s
    (**
-    * Sets the function to determine the "size" of generated random
-    * test data.  The argument to the function is the number of tests
-    * passed.  The default function is {fn n => n div 2 + 3}.
+    * Sets the function to determine the "size" of generated random test
+    * data.  The argument to the function is the number of tests passed.
+    * The default function is {fn n => n div 2 + 3}.
     *)
 
    val maxPass : Int.t -> 'a s
    (**
-    * Sets the max number of passed random test cases to try per test.
+    * Sets the maximum number of passed random test cases to try per test.
     * The default is 100.
     *)
 
    val maxSkip : Int.t -> 'a s
    (**
-    * Sets the max number of skipped random test cases to accept per
-    * test.  The default is 200.  If a lot of tests are being skipped,
-    * you should implement a better test data generator or a more
+    * Sets the maximum number of skipped random test cases to accept per
+    * test.  The default is 200.  If a lot of tests are being skipped, you
+    * should implement a better test data generator or a more
     * comprehensive law.
     *)
 
@@ -108,9 +105,8 @@ structure UnitTest :> sig
 
    val skip : law
    (**
-    * Specifies that the premises of a conditional law aren't satisfied
-    * so the specific test case of the law should be ignored.  For
-    * example,
+    * Specifies that the premises of a conditional law aren't satisfied so
+    * the specific test case of the law should be ignored.  For example,
     *
     *> all (sq int)
     *>     (fn (x, y) =>
@@ -162,12 +158,11 @@ structure UnitTest :> sig
 
    val verifyRaises : Exn.t -> 'a Thunk.t Effect.t
    (**
-    * Verifies that the thunk raises an exception equal to the given
-    * one.  The exception constructor must be registered with
-    * {Type.regExn}.
+    * Verifies that the thunk raises an exception equal to the given one.
+    * The exception constructor must be registered with {Type.regExn}.
     *)
 end = struct
-   structure G = RanQD1Gen and I = Int and S = String
+   structure G=RanQD1Gen and I=Int
 
    local
       open Type
@@ -331,33 +326,18 @@ end = struct
 
    val rng = ref (G.make (Word32.fromWord (getOpt (RandomDev.seed (), 0w0))))
 
+   fun sort ? = SortedList.stableSort #n ?
+
+   fun table n =
+       punctuate comma o
+       map (fn (n, m) => str (concat [i2s n, "% ", m])) o
+       sort (I.compare o Pair.swap o Pair.map (Sq.mk Pair.fst)) o
+       map (Pair.map (fn l => Int.quot (100 * length l, n), hd) o Sq.mk) o
+       List.divideByEq op =
+
    fun chk prop =
        runTest
           (fn cfg as IN {size, passM, skipM, ...} => let
-              fun sort ? = SortedList.stableSort #n ?
-
-              fun group xs = let
-                 fun lp (gs, xs) x =
-                     fn y::ys =>
-                        lp (if x = y then
-                               (gs, x::xs)
-                            else
-                               ((x::xs)::gs, []))
-                           y ys
-                      | [] => (x::xs)::gs
-              in
-                 case sort S.compare xs of
-                    [] => []
-                  | x::xs => lp ([], []) x xs
-              end
-
-              fun table n allTags =
-                  punctuate comma o
-                  map (fn (n, m) => str (concat [i2s n, "% ", m])) o
-                  sort (I.compare o Pair.swap o Pair.map (Sq.mk Pair.fst)) o
-                  map (Pair.map (fn l => 100 * length l div n, hd) o Sq.mk) o
-                  group |< sort S.compare allTags
-
               fun done msg passN tags =
                   ((println o indent)
                       ((str o concat)
