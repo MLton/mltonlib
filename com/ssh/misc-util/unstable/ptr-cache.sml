@@ -5,7 +5,7 @@
  *)
 
 local
-   structure PtrIntObj = struct
+   structure PtrIntObj : INT_OBJ = struct
       (* XXX Simplify *)
       type t = C.voidptr
       local
