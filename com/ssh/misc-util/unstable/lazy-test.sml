@@ -172,5 +172,25 @@ in
                   actual = [!count, F p, !count]}
               end))
 
+      (title "Lazy - exceptions")
+
+      (test (fn () => let
+                   val e = ref Empty
+                   val p = D (fn () => raise !e before e := Subscript)
+                   val chk = verifyFailsWith (fn Empty => true | _ => false)
+                in
+                   chk (fn () => F p)
+                 ; chk (fn () => F p)
+                end))
+
+      (test (fn () => let
+                   val e = ref Empty
+                   val p = L (fn () => raise !e before e := Subscript)
+                   val chk = verifyFailsWith (fn Empty => true | _ => false)
+                in
+                   chk (fn () => F p)
+                 ; chk (fn () => F p)
+                end))
+
       $
 end
