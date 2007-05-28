@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -20,24 +20,23 @@
  * See also: http://mlton.org/Fixpoints
  *)
 signature TIE = sig
-   type 'a t_dom and 'a t_cod
-   type 'a t = 'a t_dom -> 'a t_cod
+   type 'a dom and 'a cod
+   type 'a t = 'a dom -> 'a cod
    (**
     * The type of fixpoint tiers.
     *
-    * The type constructors {t_dom} and {t_cod} are used to expose the
-    * arrow {->} type constructor (to allow eta-expansion) while
-    * preventing clients from actually applying tiers.
+    * The type constructors {dom} and {cod} are used to expose the arrow
+    * {->} type constructor (to allow eta-expansion) while preventing
+    * clients from actually applying tiers.
     *)
 
    val fix : 'a t -> 'a Fix.t
    (**
     * Produces a fixpoint combinator from the given tier.  For example,
-    * given a module {Fn} implementing a tier {Fn.Y} for functions, one
-    * could make a mutually recursive definition of functions:
+    * one can make a mutually recursive definition of functions:
     *
     *> val isEven & isOdd =
-    *>     let open Tie in fix (Fn *` Fn) end
+    *>     let open Tie in fix (function *` function) end
     *>        (fn isEven & isOdd =>
     *>            (fn 0w0 => true
     *>              | 0w1 => false
@@ -46,6 +45,8 @@ signature TIE = sig
     *>              | 0w1 => true
     *>              | n => isEven (n-0w1)))
     *)
+
+   (** == Making New Tiers == *)
 
    val pure : ('a * 'a UnOp.t) Thunk.t -> 'a t
    (**
@@ -59,6 +60,8 @@ signature TIE = sig
     * providing a thunk whose instantiation allocates a fresh "knot" and a
     * procedure for "tying" it.
     *)
+
+   (** == Combining Existing Tiers == *)
 
    val iso : 'b t -> ('a, 'b) Iso.t -> 'a t
    (**
@@ -79,6 +82,8 @@ signature TIE = sig
     * Given tiers for {'a} and {'b} produces a tier for the product {'a *
     * 'b}.
     *)
+
+   (** == Particular Tiers == *)
 
    val option : 'a Option.t t
    (** Tier for options. *)
