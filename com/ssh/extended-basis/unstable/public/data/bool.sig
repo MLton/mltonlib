@@ -21,6 +21,9 @@ signature BOOL = sig
    val isFalse : t UnPr.t
    (** {isFalse x = x = false} *)
 
+   val toInt : t -> Int.t
+   (** {toInt true = 1} and {toInt false = 0}. *)
+
    (** == Concepts == *)
 
    include BITWISE where type bitwise = t

@@ -21,6 +21,7 @@ structure Bool : BOOL = struct
       val notb = not
       fun orb (b1, b2) = b1 orelse b2
       val xorb = op <>
+      val toInt = fn true => 1 | false => 0
    end
 
    structure Bounded = MkBounded (Core)

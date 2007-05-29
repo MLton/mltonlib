@@ -61,7 +61,7 @@ end = struct
 
    val unit = IN {gen = G.return (), cog = const (G.variant 0), typ = Typ.unit}
    val bool = IN {gen = G.bool,
-                  cog = G.variant o (fn true => 1 | false => 0),
+                  cog = G.variant o Bool.toInt,
                   typ = Typ.bool}
    val int  = IN {gen = map (fn w => W.toIntX (w - G.RNG.maxValue div 0w2))
                             (* XXX result may not fit an Int.int *)
