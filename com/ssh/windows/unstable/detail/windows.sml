@@ -48,6 +48,8 @@ structure Windows :> WINDOWS_EX = struct
       val seqWith = Monad.seqWith
    end
 
+   val invalidHandleValue : C.voidptr = C.U.i2p (C.Cvt.c_ulong (~ 0w1))
+
    val success     = wc_ERROR_SUCCESS
    val noMoreItems = wc_ERROR_NO_MORE_ITEMS
    val moreData    = wc_ERROR_MORE_DATA
@@ -82,6 +84,7 @@ structure Windows :> WINDOWS_EX = struct
    val toCBool = fn true => 1 | false => 0
 
    fun raiseOnNull ? = raiseOn C.Ptr.isNull' id ?
+   fun raiseOnInvalidHandle ? = raiseOn (eq invalidHandleValue) id ?
    fun raiseOnFalse ? = raiseOn (0 <\ op =) ignore ?
 
    fun raiseOnNullIfErrorElseNone call f x = let
@@ -537,7 +540,7 @@ structure Windows :> WINDOWS_EX = struct
       fun first (n, b, f) =
           one (withZs n)
               (fn n' =>
-                  raiseOnNull
+                  raiseOnInvalidHandle
                      (fn () => F"FileChange.first"[A str n, A bool b, A w32 f])
                      F_win_FindFirstChangeNotification.f'
                      (n', toCBool b, f))
