@@ -17,7 +17,7 @@
  * fixpoint combinators does not support mutual recursion over different
  * abstract types.
  *
- * See also: http://mlton.org/Fixpoints
+ * See also: [http://mlton.org/Fixpoints]
  *)
 signature TIE = sig
    type 'a dom and 'a cod
