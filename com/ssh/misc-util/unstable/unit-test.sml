@@ -12,12 +12,12 @@ structure UnitTest :> sig
    type t
    (** Type of unit test fold state. *)
 
-   type 'a s = (t, t, t, Unit.t, 'a) Fold.step0
+   type 'a s = (t, t, Unit.t, t, t, Unit.t, 'a) Fold.s
    (** Type of a unit test fold step. *)
 
    (** == TEST SPECIFICATION INTERFACE == *)
 
-   val unitTests : (t, t, Unit.t, 'a) Fold.t
+   val unitTests : (t, t, Unit.t, 'a) Fold.f
    (** Begins test specification. *)
 
    val title : String.t -> 'a s
@@ -203,7 +203,7 @@ end = struct
              size : Int.t UnOp.t,
              passM : Int.t,
              skipM : Int.t}
-   type 'a s = (t, t, t, Unit.t, 'a) Fold.step0
+   type 'a s = (t, t, Unit.t, t, t, Unit.t, 'a) Fold.s
 
    exception Failure of Prettier.t
    val failure = Exn.throw o Failure
@@ -229,7 +229,7 @@ end = struct
    val i2s = I.toString
 
    fun runTest safeTest =
-       Fold.step0 (fn cfg as IN {idx, ...} =>
+       Fold.mapSt (fn cfg as IN {idx, ...} =>
                       ((if safeTest cfg then succeeded else failed) += 1
                      ; updCfg (U#idx (idx + 1)) $ cfg))
 
@@ -255,8 +255,8 @@ end = struct
 
    (* TEST SPECIFICATION INTERFACE *)
 
-   fun unitTests ? = Fold.fold (defaultCfg, ignore) ?
-   fun title title = Fold.step0 (updCfg (U #idx 1) (U #title (SOME title)) $)
+   fun unitTests ? = Fold.wrap (defaultCfg, ignore) ?
+   fun title title = Fold.mapSt (updCfg (U #idx 1) (U #title (SOME title)) $)
 
    (* AD HOC TESTING HELPERS *)
 
@@ -317,7 +317,7 @@ end = struct
    type law = (Bool.t Option.t * String.t List.t * Prettier.t List.t) G.t
 
    local
-      fun mk field value = Fold.step0 (updCfg (U field value) $)
+      fun mk field value = Fold.mapSt (updCfg (U field value) $)
    in
       fun sizeFn  ? = mk #size  ?
       fun maxPass ? = mk #passM ?

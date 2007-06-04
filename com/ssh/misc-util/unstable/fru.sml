@@ -15,36 +15,27 @@
  *)
 
 structure FRU = struct
-   local
-      fun pathFold ? = Fold01N.fold {zero = const (), none = id, some = id} ?
-      fun pathStep ? =
-          Fold01N.step0
-             {none = const id,
-              some = fn m =>
-                        fn p =>
-                           m (p o INL) &
-                             (p o INR)} ?
-
-      fun setFold ? = Fold01N.fold {zero = id, none = id, some = id} ?
-      fun setStep ? =
-          Fold01N.step0
-             {none = const const,
-              some = fn u =>
-                        fn INL p =>
-                           (fn l & r => u p l & r)
-                         | INR v =>
-                           (fn l & _ => l & v)} ?
+   fun make ? = let
+      fun fin (m, u) =
+          fn iso : ('r1, 'p1) Iso.t =>
+             fn (_, p2r') : ('r2, 'p2) Iso.t =>
+                p2r' (m (Fn.map iso o u))
    in
-      fun make ? =
-          FoldPair.fold
-             (pathFold, setFold)
-             (fn (m, u) =>
-                 fn iso : ('r1, 'p1) Iso.t =>
-                    fn (_, p2r') : ('r2, 'p2) Iso.t =>
-                       p2r' (m (Fn.map iso o u))) ?
+      Fold.NSZ.wrap {none = fin, some = fin,
+                     zero = (const (), id)}
+   end ?
 
-      fun A ? = FoldPair.step0 (pathStep, setStep) ?
-   end
+   fun A ? =
+       Fold.NSZ.mapSt
+          {none = Pair.map (const id, const const),
+           some = Pair.map (fn m =>
+                               fn p =>
+                                  m (p o INL) & (p o INR),
+                            fn u =>
+                               fn INL p =>
+                                  (fn l & r => u p l & r)
+                                | INR v =>
+                                  (fn l & _ => l & v))} ?
 
    (* 2^n *)
    val A1 = A
@@ -65,13 +56,13 @@ structure FRU = struct
    fun A14 ? = pass ? A8 A6
    fun A15 ? = pass ? A8 A7
 
-   fun updData iso u = Fold.fold ((id, u), Fn.map iso o Pair.fst)
+   fun updData iso u = Fold.wrap ((id, u), Fn.map iso o Pair.fst)
    fun fruData iso = Fold.post (fn f => fn ~ => updData iso o f ~) make
 
    fun upd ? = updData Iso.id ?
    fun fru ? = fruData Iso.id ?
 
-   fun U s v = Fold.step0 (fn (f, u) => (s u v o f, u))
+   fun U s v = Fold.mapSt (fn (f, u) => (s u v o f, u))
 end
 
 val U = FRU.U

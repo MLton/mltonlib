@@ -27,11 +27,6 @@ in
 
    bit-flags.sml
 
-   (* variable argument fold *)
-   fold.sml
-   fold01n.sml
-   fold-pair.sml
-
    fru.sml
 
    glob.sml
