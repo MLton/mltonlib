@@ -38,6 +38,7 @@ is
    ../../../detail/fn/thunk.sml
    ../../../detail/fn/un-op.sml
    ../../../detail/fn/un-pr.sml
+   ../../../detail/fold/fold.sml
    ../../../detail/generic/emb.sml
    ../../../detail/generic/fix.sml
    ../../../detail/generic/iso.sml

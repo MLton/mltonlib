@@ -166,6 +166,10 @@ in
          public/data/product.sig
          detail/data/product.sml
 
+         (* Fold *)
+         public/fold/fold.sig
+         detail/fold/fold.sml
+
          (* MkMonad *)
          detail/concept/mk-monad.fun
 

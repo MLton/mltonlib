@@ -39,6 +39,10 @@ val op >| = Fn.>|
 val op \> = Fn.\>
 val op |< = Fn.|<
 
+(** === Fold === *)
+
+val $ = Fold.$
+
 (** === Lazy === *)
 
 type 'a lazy = 'a Lazy.t

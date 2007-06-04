@@ -51,6 +51,7 @@ is
    ../../../public/fn/thunk.sig
    ../../../public/fn/un-op.sig
    ../../../public/fn/un-pr.sig
+   ../../../public/fold/fold.sig
    ../../../public/generic/emb.sig
    ../../../public/generic/fix.sig
    ../../../public/generic/iso.sig
