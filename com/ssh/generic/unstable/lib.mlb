@@ -1,0 +1,36 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+local
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+in
+   ann
+      "forceUsed"
+      "sequenceNonUnit warn"
+      "warnUnused true"
+   in
+      local
+         public/generics.sig
+         local
+            detail/sml-syntax.sml
+         in
+            detail/generics.sml
+         end
+
+         public/generic-index.sig
+         public/generic.sig
+
+         public/lifting.sig
+         detail/lifting.sml
+
+         public/generic-lifting.sig
+
+         detail/pair-generics.fun
+      in
+         public/export.sml
+      end
+   end
+end
