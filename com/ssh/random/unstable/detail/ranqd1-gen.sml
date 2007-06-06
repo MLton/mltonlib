@@ -6,7 +6,11 @@
 
 structure RanQD1Gen :> RANDOM_GEN where type RNG.Seed.t = Word32.t =
    MkRandomGen
-      (type t = Word32.t
+      ((* <-- SML/NJ workarounds *)
+       open Fn
+       infixr 4 />
+       (* SML/NJ workarounds --> *)
+       type t = Word32.t
        structure Seed = Word32
        val make = id
        val (value, seed) = Iso.<--> (Iso.swap Word.isoLarge, Word32.isoLarge)

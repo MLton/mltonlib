@@ -1,0 +1,15 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+group is
+  ../../../../../extended-basis/unstable/basis.cm
+  ../../../public/random-dev.sig
+  ../../../public/random-gen.sig
+  ../../../public/rng.sig
+  ../../mk-random-gen.fun
+  ../../numerical-recipes.sml
+  ../../ranqd1-gen.sml
+  random-dev.sml

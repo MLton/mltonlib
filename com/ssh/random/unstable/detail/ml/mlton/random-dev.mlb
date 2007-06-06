@@ -6,24 +6,14 @@
 
 local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+   $(MLTON_ROOT)/basis/mlton.mlb
 in
    ann
       "forceUsed"
       "sequenceNonUnit warn"
       "warnUnused true"
    in
-      local
-         public/rng.sig
-         public/random-gen.sig
-
-         detail/mk-random-gen.fun
-
-         detail/numerical-recipes.sml
-         detail/ranqd1-gen.sml
-
-         detail/ml/$(SML_COMPILER)/random-dev.mlb
-      in
-         public/export.sml
-      end
+      ../../../public/random-dev.sig
+      random-dev.sml
    end
 end

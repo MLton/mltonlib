@@ -23,6 +23,14 @@ structure NumericalRecipes :> sig
     * of the book Numerical Recipes in C.
     *)
 end = struct
+   (* <-- SML/NJ workarounds *)
+   open Fn
+   infix  7 >> <<
+   infix  6 andb
+   infix  5 xorb
+   infix  4 orb
+   (* SML/NJ workarounds --> *)
+
    fun ranqd1 s : Word32.t = s * 0w1664525 + 0w1013904223
 
    val psdes =

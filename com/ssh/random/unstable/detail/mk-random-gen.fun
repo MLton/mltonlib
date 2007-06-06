@@ -8,6 +8,13 @@ functor MkRandomGen (RNG : RNG) :>
    RANDOM_GEN where type RNG.t = RNG.t
               where type RNG.Seed.t = RNG.Seed.t =
 struct
+   (* <-- SML/NJ workarounds *)
+   open Basic Fn
+   infix  4 <\
+   infixr 4 />
+   infix  1 >>=
+   (* SML/NJ workarounds --> *)
+
    structure A = Array and R = Real and V = Vector and W = Word
 
    fun assert th = if th () then () else fail "assertion failed"
