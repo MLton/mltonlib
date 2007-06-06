@@ -5,6 +5,11 @@
  *)
 
 structure Lifting :> LIFTING = struct
+   (* <-- SML/NJ workaround *)
+   open Fn
+   infixr 4 />
+   (* SML/NJ workaround --> *)
+
    datatype ('t, 'u) t = IN of {get : 'u -> 't, update : 't UnOp.t -> 'u UnOp.t}
    fun out (IN t) = t
 

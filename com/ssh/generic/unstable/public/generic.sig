@@ -110,7 +110,7 @@ signature GENERIC = sig
    (** == SUPPORT FOR BINARY DATA == *)
 
    val word8  : Word8.t  Index.t
-   val word16 : Word16.t Index.t
+(* val word16 : Word16.t Index.t (* Word16 not provided by SML/NJ *) *)
    val word32 : Word32.t Index.t
    val word64 : Word64.t Index.t
 

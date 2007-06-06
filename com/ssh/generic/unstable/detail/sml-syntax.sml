@@ -16,6 +16,14 @@ structure SmlSyntax :> sig
    val isLongId     : String.t UnPr.t
    val isNumLabel   : String.t UnPr.t
 end = struct
+   (* <-- SML/NJ workaround *)
+   open Fn UnPr
+   infix  4 <\
+   infixr 4 />
+   infix  2 andAlso
+   infix  1 orElse
+   (* SML/NJ workaround --> *)
+
    structure C = Char and L = List and S = String
    val isSym = C.contains "!%&$#+-/:<=>?@\\~`^|*"
    val isntEmpty = 0 <\ op < o size

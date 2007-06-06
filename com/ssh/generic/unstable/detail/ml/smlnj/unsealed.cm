@@ -1,0 +1,17 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+group is
+   ../../generics.sml
+   ../../lifting.sml
+   ../../pair-generics.fun
+   ../../sml-syntax.sml
+   ../../../public/generic-index.sig
+   ../../../public/generic-lifting.sig
+   ../../../public/generic.sig
+   ../../../public/generics.sig
+   ../../../public/lifting.sig
+   ../../../../../extended-basis/unstable/basis.cm

@@ -63,7 +63,7 @@ functor PairGenerics (structure F : GENERIC
    val largeWord = (F.largeWord, S.largeWord)
 
    val word8  = (F.word8,  S.word8)
-   val word16 = (F.word16, S.word16)
+(* val word16 = (F.word16, S.word16) (* Word16 not provided by SML/NJ *) *)
    val word32 = (F.word32, S.word32)
    val word64 = (F.word64, S.word64)
 end

@@ -5,6 +5,10 @@
  *)
 
 structure Generics :> GENERICS = struct
+   (* <-- SML/NJ workaround *)
+   open Basic Fn
+   (* SML/NJ workaround --> *)
+
    structure Label = struct
       type t = String.t
       val toString = id
