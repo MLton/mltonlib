@@ -48,4 +48,10 @@ signature ISO = sig
     * Creates an isomorphism between products given isomorphisms between
     * elements.
     *)
+
+   val pair : ('a, 'c) t * ('b, 'd) t -> ('a * 'b, 'c * 'd) t
+   (**
+    * Creates an isomorphism between pairs given isomorphisms between
+    * elements.
+    *)
 end

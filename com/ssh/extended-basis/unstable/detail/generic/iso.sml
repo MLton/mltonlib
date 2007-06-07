@@ -25,5 +25,6 @@ structure Iso :> ISO = struct
       fun op --> ? = mk (Fn.map, Fn.map) ?
       fun op  +` ? = mk (Sum.map, Sum.map) ?
       fun op  *` ? = mk (Product.map, Product.map) ?
+      fun pair   ? = mk (Pair.map, Pair.map) ?
    end
 end
