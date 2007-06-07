@@ -31,12 +31,12 @@ functor LiftGeneric (Arg : GENERIC) : EXT_GENERIC = LiftGeneric (Arg)
 
 functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
    EXT_GENERIC
-      where type ('a, 'b, 'c) Index.p =
-                 ('a, 'b, ('a, 'b, 'c) Arg.Inner.Index.p) Arg.Outer.Index.p
+      where type ('a, 'b) Index.t =
+                 ('a, ('a, 'b) Arg.Inner.Index.t) Arg.Outer.Index.t
       where type ('a, 'b) Index.s =
                  ('a, ('a, 'b) Arg.Inner.Index.s) Arg.Outer.Index.s
-      where type ('a, 'b) Index.t =
-                 ('a, ('a, 'b) Arg.Inner.Index.t) Arg.Outer.Index.t =
+      where type ('a, 'b, 'c) Index.p =
+                 ('a, 'b, ('a, 'b, 'c) Arg.Inner.Index.p) Arg.Outer.Index.p =
    JoinGenerics (Arg)
 (**
  * Joins two extensible generic functions.  As can be read from the where
