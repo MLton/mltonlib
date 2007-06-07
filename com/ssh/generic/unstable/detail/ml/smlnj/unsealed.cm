@@ -5,13 +5,14 @@
  *)
 
 group is
-   ../../generics.sml
-   ../../lifting.sml
-   ../../pair-generics.fun
-   ../../sml-syntax.sml
+   ../../../../../extended-basis/unstable/basis.cm
+   ../../../public/ext-generic-fun.sig
+   ../../../public/ext-generic-index.sig
+   ../../../public/ext-generic.sig
    ../../../public/generic-index.sig
-   ../../../public/generic-lifting.sig
    ../../../public/generic.sig
    ../../../public/generics.sig
-   ../../../public/lifting.sig
-   ../../../../../extended-basis/unstable/basis.cm
+   ../../ext-generic.fun
+   ../../generic.sml
+   ../../generics.sml
+   ../../sml-syntax.sml

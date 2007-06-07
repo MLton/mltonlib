@@ -23,12 +23,13 @@ in
          public/generic-index.sig
          public/generic.sig
 
-         public/lifting.sig
-         detail/lifting.sml
+         public/ext-generic-index.sig
+         public/ext-generic.sig
 
-         public/generic-lifting.sig
+         detail/generic.sml
 
-         detail/pair-generics.fun
+         public/ext-generic-fun.sig
+         detail/ext-generic.fun
       in
          public/export.sml
       end

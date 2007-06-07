@@ -7,6 +7,6 @@
 library
    source(-)
 is
+   ../../extended-basis/unstable/basis.cm
    detail/ml/smlnj/unsealed.cm
    public/export.sml
-   ../../extended-basis/unstable/basis.cm

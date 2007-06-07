@@ -6,20 +6,22 @@
 
 (** == Exported Signatures == *)
 
-signature GENERIC = GENERIC
 signature GENERICS = GENERICS
+
+signature GENERIC = GENERIC
 signature GENERIC_INDEX = GENERIC_INDEX
-signature GENERIC_LIFTING = GENERIC_LIFTING
-signature LIFTING = LIFTING
+
+signature EXT_GENERIC = EXT_GENERIC
+signature EXT_GENERIC_INDEX = EXT_GENERIC_INDEX
+
+signature EXT_GENERIC_COD = EXT_GENERIC_COD
+signature EXT_GENERIC_DOM = EXT_GENERIC_DOM
 
 (** == Exported Structures == *)
 
+structure Generic : EXT_GENERIC = Generic
 structure Generics : GENERICS = Generics
-structure Lifting : LIFTING = Lifting
 
 (** == Exported Functors == *)
 
-functor PairGenerics (Arg : sig
-                         structure F : GENERIC
-                         structure S : GENERIC
-                      end) : GENERIC = PairGenerics (Arg)
+functor ExtGeneric (Arg : EXT_GENERIC_DOM) : EXT_GENERIC_COD = ExtGeneric (Arg)
