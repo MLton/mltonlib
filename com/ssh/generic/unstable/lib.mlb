@@ -28,8 +28,11 @@ in
 
          detail/generic.sml
 
-         public/ext-generic-fun.sig
-         detail/ext-generic.fun
+         detail/ground-generic.fun
+         detail/lift-generic.fun
+
+         public/join-generics-fun.sig
+         detail/join-generics.fun
       in
          public/export.sml
       end

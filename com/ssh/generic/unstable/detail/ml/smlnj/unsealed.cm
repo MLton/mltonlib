@@ -6,13 +6,15 @@
 
 group is
    ../../../../../extended-basis/unstable/basis.cm
-   ../../../public/ext-generic-fun.sig
    ../../../public/ext-generic-index.sig
    ../../../public/ext-generic.sig
    ../../../public/generic-index.sig
    ../../../public/generic.sig
    ../../../public/generics.sig
-   ../../ext-generic.fun
+   ../../../public/join-generics-fun.sig
    ../../generic.sml
    ../../generics.sml
+   ../../ground-generic.fun
+   ../../join-generics.fun
+   ../../lift-generic.fun
    ../../sml-syntax.sml
