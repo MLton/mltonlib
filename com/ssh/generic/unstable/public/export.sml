@@ -8,6 +8,8 @@
 
 signature GENERICS = GENERICS
 
+signature GENERICS_UTIL = GENERICS_UTIL
+
 signature GENERIC = GENERIC
 signature GENERIC_INDEX = GENERIC_INDEX
 
@@ -20,6 +22,7 @@ signature JOIN_GENERICS_DOM = JOIN_GENERICS_DOM
 
 structure Generic : EXT_GENERIC = Generic
 structure Generics : GENERICS = Generics
+structure GenericsUtil : GENERICS_UTIL = GenericsUtil
 
 (** == Exported Functors == *)
 

@@ -10,9 +10,11 @@ group is
    ../../../public/ext-generic.sig
    ../../../public/generic-index.sig
    ../../../public/generic.sig
+   ../../../public/generics-util.sig
    ../../../public/generics.sig
    ../../../public/join-generics-fun.sig
    ../../generic.sml
+   ../../generics-util.sml
    ../../generics.sml
    ../../ground-generic.fun
    ../../join-generics.fun

@@ -20,6 +20,9 @@ in
             detail/generics.sml
          end
 
+         public/generics-util.sig
+         detail/generics-util.sml
+
          public/generic-index.sig
          public/generic.sig
 
