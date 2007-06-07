@@ -4,7 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor LiftGeneric (Arg : GENERIC) :> EXT_GENERIC = struct
+functor LiftGeneric (Arg : GENERIC) :>
+   EXT_GENERIC
+      where type ('a, 'x) Index.t = 'a Arg.Index.t * 'x
+      where type ('a, 'x) Index.s = 'a Arg.Index.s * 'x
+      where type ('a, 'k, 'x) Index.p = ('a, 'k) Arg.Index.p * 'x =
+struct
    (* <-- SML/NJ workaround *)
    open Fn
    (* SML/NJ workaround --> *)

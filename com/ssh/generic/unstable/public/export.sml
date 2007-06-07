@@ -23,10 +23,20 @@ structure Generics : GENERICS = Generics
 
 (** == Exported Functors == *)
 
-functor GroundGeneric (Arg : EXT_GENERIC) : GENERIC = GroundGeneric (Arg)
+functor GroundGeneric (Arg : EXT_GENERIC) :
+   GENERIC
+      where type 'a Index.t = ('a, Unit.t) Arg.Index.t
+      where type 'a Index.s = ('a, Unit.t) Arg.Index.s
+      where type ('a, 'k) Index.p = ('a, 'k, Unit.t) Arg.Index.p =
+   GroundGeneric (Arg)
 (** Grounds an extensible generic to an ordinary generic. *)
 
-functor LiftGeneric (Arg : GENERIC) : EXT_GENERIC = LiftGeneric (Arg)
+functor LiftGeneric (Arg : GENERIC) :
+   EXT_GENERIC
+      where type ('a, 'x) Index.t = 'a Arg.Index.t * 'x
+      where type ('a, 'x) Index.s = 'a Arg.Index.s * 'x
+      where type ('a, 'k, 'x) Index.p = ('a, 'k) Arg.Index.p * 'x =
+   LiftGeneric (Arg)
 (** Lifts an ordinary generic to an extensible generic. *)
 
 functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :

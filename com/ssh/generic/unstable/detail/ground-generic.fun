@@ -4,7 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor GroundGeneric (Arg : EXT_GENERIC) :> GENERIC = struct
+functor GroundGeneric (Arg : EXT_GENERIC) :>
+   GENERIC
+      where type 'a Index.t = ('a, Unit.t) Arg.Index.t
+      where type 'a Index.s = ('a, Unit.t) Arg.Index.s
+      where type ('a, 'k) Index.p = ('a, 'k, Unit.t) Arg.Index.p =
+struct
    (* <-- SML/NJ workaround *)
    open Fn
    (* SML/NJ workaround --> *)
