@@ -85,6 +85,9 @@ signature TIE = sig
 
    (** == Particular Tiers == *)
 
+   val unit : Unit.t t
+   (** NOP tier for unit values. *)
+
    val option : 'a Option.t t
    (** Tier for options. *)
 
