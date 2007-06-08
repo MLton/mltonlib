@@ -197,7 +197,7 @@ structure Show :> SHOW_GENERIC = struct
    fun show m t = Prettier.pretty m o layout t
 end
 
-functor WithShow (Outer : EXT_GENERIC) :> SHOW_GENERIC = struct
+functor WithShow (Outer : EXT_GENERIC) : SHOW_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = Show)
    open Joined
    fun layout ? = Show.layout (Outer.Index.getT ?)

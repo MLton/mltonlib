@@ -6,6 +6,8 @@
 
 group is
    ../../../../../extended-basis/unstable/basis.cm
+   ../../../../../prettier/unstable/lib.cm
+   ../../../../../random/unstable/lib.cm
    ../../../public/ext-generic-index.sig
    ../../../public/ext-generic.sig
    ../../../public/generic-index.sig
@@ -13,10 +15,22 @@ group is
    ../../../public/generics-util.sig
    ../../../public/generics.sig
    ../../../public/join-generics-fun.sig
-   ../../generic.sml
+   ../../../public/value/arbitrary.sig
+   ../../../public/value/dummy.sig
+   ../../../public/value/eq.sig
+   ../../../public/value/ord.sig
+   ../../../public/value/show.sig
+   ../../../public/value/type-info.sig
+   ../../ext-generic.sml
    ../../generics-util.sml
    ../../generics.sml
    ../../ground-generic.fun
    ../../join-generics.fun
    ../../lift-generic.fun
    ../../sml-syntax.sml
+   ../../value/arbitrary.sml
+   ../../value/dummy.sml
+   ../../value/eq.sml
+   ../../value/ord.sml
+   ../../value/show.sml
+   ../../value/type-info.sml

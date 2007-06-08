@@ -90,7 +90,7 @@ structure Eq :> EQ_GENERIC = struct
    fun notEq (eq, _) = negate eq
 end
 
-functor WithEq (Outer : EXT_GENERIC) :> EQ_GENERIC = struct
+functor WithEq (Outer : EXT_GENERIC) : EQ_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = Eq)
    open Eq Joined
    structure Eq = Index

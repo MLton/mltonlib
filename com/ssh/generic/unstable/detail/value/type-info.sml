@@ -153,7 +153,7 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
    fun canBeCyclic ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
 end
 
-functor WithTypeInfo (Outer : EXT_GENERIC) :> TYPE_INFO_GENERIC = struct
+functor WithTypeInfo (Outer : EXT_GENERIC) : TYPE_INFO_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = TypeInfo)
    open TypeInfo Joined
    structure TypeInfo = Index

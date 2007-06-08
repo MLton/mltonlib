@@ -16,13 +16,32 @@ signature GENERIC_INDEX = GENERIC_INDEX
 signature EXT_GENERIC = EXT_GENERIC
 signature EXT_GENERIC_INDEX = EXT_GENERIC_INDEX
 
-signature JOIN_GENERICS_DOM = JOIN_GENERICS_DOM
+(** === Value Signatures === *)
+
+signature ARBITRARY = ARBITRARY
+signature ARBITRARY_GENERIC = ARBITRARY_GENERIC
+
+signature DUMMY = DUMMY
+signature DUMMY_GENERIC = DUMMY_GENERIC
+
+signature EQ = EQ
+signature EQ_GENERIC = EQ_GENERIC
+
+signature ORD = ORD
+signature ORD_GENERIC = ORD_GENERIC
+
+signature SHOW = SHOW
+signature SHOW_GENERIC = SHOW_GENERIC
+
+signature TYPE_INFO = TYPE_INFO
+signature TYPE_INFO_GENERIC = TYPE_INFO_GENERIC
 
 (** == Exported Structures == *)
 
-structure Generic : EXT_GENERIC = Generic
 structure Generics : GENERICS = Generics
 structure GenericsUtil : GENERICS_UTIL = GenericsUtil
+
+structure ExtGeneric : EXT_GENERIC = ExtGeneric
 
 (** == Exported Functors == *)
 
@@ -42,6 +61,8 @@ functor LiftGeneric (Arg : GENERIC) :
    LiftGeneric (Arg)
 (** Lifts an ordinary generic to an extensible generic. *)
 
+signature JOIN_GENERICS_DOM = JOIN_GENERICS_DOM
+
 functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
    EXT_GENERIC
       where type ('a, 'b) Index.t =
@@ -56,3 +77,21 @@ functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
  * -constraints, the type-indices of the joined generic are compatible
  * with the type-indices of the {Outer} generic.
  *)
+
+(** === Value Functors === *)
+
+signature WITH_ARBITRARY_DOM = WITH_ARBITRARY_DOM
+
+functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC =
+   WithArbitrary (Arg)
+
+functor WithDummy (Arg : EXT_GENERIC) : DUMMY_GENERIC = WithDummy (Arg)
+
+functor WithEq (Arg : EXT_GENERIC) : EQ_GENERIC = WithEq (Arg)
+
+functor WithOrd (Arg : EXT_GENERIC) : ORD_GENERIC = WithOrd (Arg)
+
+functor WithShow (Arg : EXT_GENERIC) : SHOW_GENERIC = WithShow (Arg)
+
+functor WithTypeInfo (Arg : EXT_GENERIC) : TYPE_INFO_GENERIC =
+   WithTypeInfo (Arg)

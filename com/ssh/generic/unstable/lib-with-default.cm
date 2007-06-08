@@ -4,4 +4,11 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithShow (Outer : EXT_GENERIC) : SHOW_GENERIC = WithShow (Outer)
+library
+   library(lib.cm)
+   source(detail/default.sml)
+is
+   ../../extended-basis/unstable/basis.cm
+   ../../random/unstable/lib.cm
+   detail/default.sml
+   lib.cm

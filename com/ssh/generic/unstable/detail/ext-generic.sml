@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure Generic :> EXT_GENERIC = struct
+structure ExtGeneric :> EXT_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open Fn
    (* SML/NJ workaround --> *)

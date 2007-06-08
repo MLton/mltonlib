@@ -94,7 +94,7 @@ structure Ord :> ORD_GENERIC = struct
    val compare = Pair.fst
 end
 
-functor WithOrd (Outer : EXT_GENERIC) :> ORD_GENERIC = struct
+functor WithOrd (Outer : EXT_GENERIC) : ORD_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = Ord)
    open Ord Joined
    structure Ord = Index

@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) :> ARBITRARY_GENERIC = struct
+functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open Basic Fn Product Sum UnPr
    infix  7 *`
@@ -58,7 +58,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) :> ARBITRARY_GENERIC = struct
           (Pair.map (fn IN {cog, ...} => IN {gen = gen,cog = cog},
                      id))
 
-   fun iso' (IN {gen, cog}) (iso as (a2b, b2a)) =
+   fun iso' (IN {gen, cog}) (a2b, b2a) =
        IN {gen = map b2a gen, cog = cog o a2b}
 
    fun morph outer f = outer (fn (a, x) => fn i => (iso' a i, f x i))

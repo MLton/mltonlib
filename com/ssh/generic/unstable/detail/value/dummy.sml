@@ -92,7 +92,7 @@ structure Dummy :> DUMMY_GENERIC = struct
    fun noDummy (_, x) = (NONE, x)
 end
 
-functor WithDummy (Outer : EXT_GENERIC) :> DUMMY_GENERIC = struct
+functor WithDummy (Outer : EXT_GENERIC) : DUMMY_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = Dummy)
    open Dummy Joined
    structure Dummy = Index

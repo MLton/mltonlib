@@ -6,6 +6,8 @@
 
 local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+   $(MLTON_LIB)/com/ssh/prettier/unstable/lib.mlb
+   $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
 in
    ann
       "forceUsed"
@@ -29,13 +31,31 @@ in
          public/ext-generic-index.sig
          public/ext-generic.sig
 
-         detail/generic.sml
+         detail/ext-generic.sml
 
          detail/ground-generic.fun
          detail/lift-generic.fun
 
          public/join-generics-fun.sig
          detail/join-generics.fun
+
+         public/value/type-info.sig
+         detail/value/type-info.sml
+
+         public/value/arbitrary.sig
+         detail/value/arbitrary.sml
+
+         public/value/dummy.sig
+         detail/value/dummy.sml
+
+         public/value/eq.sig
+         detail/value/eq.sml
+
+         public/value/ord.sig
+         detail/value/ord.sml
+
+         public/value/show.sig
+         detail/value/show.sml
       in
          public/export.sml
       end
