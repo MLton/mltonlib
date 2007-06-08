@@ -121,7 +121,7 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
       val word   = base
 
       val word8  = base
-      val word16 = base
+   (* val word16 = base (* Word16 not provided by SML/NJ *) *)
       val word32 = base
       val word64 = base
 

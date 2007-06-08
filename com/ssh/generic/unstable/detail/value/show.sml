@@ -185,7 +185,7 @@ structure Show :> SHOW_GENERIC = struct
       val largeWord = mkWord LargeWord.toString
 
       val word8  = mkWord Word8.toString
-   (* val word16 = mkWord Word16.toString *)
+   (* val word16 = mkWord Word16.toString (* Word16 not provided by SML/NJ *) *)
       val word32 = mkWord Word32.toString
       val word64 = mkWord Word64.toString)
 

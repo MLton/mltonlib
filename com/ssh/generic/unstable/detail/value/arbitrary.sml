@@ -163,7 +163,8 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) :> ARBITRARY_GENERIC = struct
           nullary outer (iso' word' (Iso.<--> (Iso.swap W.isoLarge, large)))
    in
       fun word8  ? = mk Outer.word8  Word8.isoLarge  ?
-   (* fun word16 ? = mk Outer.word16 Word16.isoLarge ? *)
+   (* fun word16 ? = mk Outer.word16 Word16.isoLarge ?
+      (* Word16 not provided by SML/NJ *) *)
       fun word32 ? = mk Outer.word32 Word32.isoLarge ?
       fun word64 ? = mk Outer.word64 Word64.isoLarge ?
    end

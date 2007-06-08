@@ -64,7 +64,7 @@ structure Eq :> EQ_GENERIC = struct
       val largeWord = op =
 
       val word8  = op =
-   (* val word16 = op = *)
+   (* val word16 = op = (* Word16 not provided by SML/NJ *) *)
       val word32 = op =
       val word64 = op =
 

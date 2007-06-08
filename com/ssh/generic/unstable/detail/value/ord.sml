@@ -69,7 +69,7 @@ structure Ord :> ORD_GENERIC = struct
       val largeWord = LargeWord.compare
 
       val word8  = Word8.compare
-   (* val word16 = Word16.compare *)
+   (* val word16 = Word16.compare (* Word16 not provided by SML/NJ *) *)
       val word32 = Word32.compare
       val word64 = Word64.compare
 

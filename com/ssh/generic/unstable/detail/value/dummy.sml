@@ -61,7 +61,7 @@ structure Dummy :> DUMMY_GENERIC = struct
       val word   = SOME 0w0
 
       val word8  : Word8.t  Index.t = SOME 0w0
-   (* val word16 : Word16.t Index.t = SOME 0w0 *)
+   (* val word16 : Word16.t Index.t = SOME 0w0 (* Word16 not provided by SML/NJ *) *)
       val word32 : Word32.t Index.t = SOME 0w0
       val word64 : Word64.t Index.t = SOME 0w0
 
