@@ -20,6 +20,8 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
+   (* XXX separate datatype for sums, products, and whole indices *)
+
    datatype u =
       IN of {alts : Int.t,
              base : Bool.t,
@@ -157,9 +159,10 @@ functor WithTypeInfo (Outer : EXT_GENERIC) :> TYPE_INFO_GENERIC = struct
    structure TypeInfo = Index
    fun mk f = f o Outer.Index.getT
    val canBeCyclic        = fn ? => mk canBeCyclic        ?
-   val hasBaseCase        = fn ? => mk hasBaseCase        ?
    val hasExn             = fn ? => mk hasExn             ?
    val hasRecData         = fn ? => mk hasRecData         ?
    val isRefOrArray       = fn ? => mk isRefOrArray       ?
+   fun mk f = f o Outer.Index.getS
+   val hasBaseCase        = fn ? => mk hasBaseCase        ?
    val numConsecutiveAlts = fn ? => mk numConsecutiveAlts ?
 end

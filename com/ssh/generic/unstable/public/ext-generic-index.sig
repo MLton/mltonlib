@@ -10,8 +10,8 @@ signature EXT_GENERIC_INDEX = sig
    val mapT : 'x UnOp.t -> ('a, 'x) t UnOp.t
 
    type ('a, 'x) s
-   val getS : ('a, 'x) t -> 'x
-   val mapS : 'x UnOp.t -> ('a, 'x) t UnOp.t
+   val getS : ('a, 'x) s -> 'x
+   val mapS : 'x UnOp.t -> ('a, 'x) s UnOp.t
 
    type ('a, 'k, 'x) p
    val getP : ('a, 'k, 'x) p -> 'x

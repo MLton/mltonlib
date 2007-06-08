@@ -29,7 +29,7 @@ signature TYPE_INFO = sig
     * Note: Functions are not considered to form cycles.
     *)
 
-   val hasBaseCase : ('a, 'x) TypeInfo.t UnPr.t
+   val hasBaseCase : ('a, 'x) TypeInfo.s UnPr.t
    (** Returns true iff the type {'a} has a non-recursive variant. *)
 
    val hasExn : ('a, 'x) TypeInfo.t UnPr.t
@@ -47,7 +47,7 @@ signature TYPE_INFO = sig
     * the form {'b ref}.
     *)
 
-   val numConsecutiveAlts : ('a, 'x) TypeInfo.t -> Int.t
+   val numConsecutiveAlts : ('a, 'x) TypeInfo.s -> Int.t
    (**
     * Number of consecutive alternatives.
     *)
