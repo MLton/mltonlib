@@ -28,6 +28,9 @@ in
          public/generic-index.sig
          public/generic.sig
 
+         public/generic-with-convenience.sig
+         detail/with-convenience.fun
+
          public/ext-generic-index.sig
          public/ext-generic.sig
 

@@ -5,11 +5,9 @@
  *)
 
 structure Generic : sig
-   include GENERICS
-
    structure Ext : EXT_GENERIC
 
-   include GENERIC
+   include GENERIC_WITH_CONVENIENCE
       where type 'a Index.t = ('a, Unit.t) Ext.Index.t
       where type 'a Index.s = ('a, Unit.t) Ext.Index.s
       where type ('a, 'k) Index.p = ('a, 'k, Unit.t) Ext.Index.p
@@ -21,8 +19,6 @@ structure Generic : sig
    include SHOW      sharing Ext.Index = Show
    include TYPE_INFO sharing Ext.Index = TypeInfo
 end = struct
-   open Generics
-
    structure Ext = ExtGeneric
 
    structure Ext = WithShow      (Ext) open Ext
@@ -49,5 +45,5 @@ end = struct
    structure Show      = Ext.Index
    structure TypeInfo  = Ext.Index
 
-   structure Grounded = GroundGeneric (Ext) open Grounded
+   structure Grounded = WithConvenience (GroundGeneric (Ext)) open Grounded
 end

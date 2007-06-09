@@ -11,6 +11,7 @@ group is
    ../../../public/ext-generic-index.sig
    ../../../public/ext-generic.sig
    ../../../public/generic-index.sig
+   ../../../public/generic-with-convenience.sig
    ../../../public/generic.sig
    ../../../public/generics-util.sig
    ../../../public/generics.sig
@@ -34,3 +35,4 @@ group is
    ../../value/ord.sml
    ../../value/show.sml
    ../../value/type-info.sml
+   ../../with-convenience.fun

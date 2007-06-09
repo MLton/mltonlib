@@ -13,6 +13,8 @@ signature GENERICS_UTIL = GENERICS_UTIL
 signature GENERIC = GENERIC
 signature GENERIC_INDEX = GENERIC_INDEX
 
+signature GENERIC_WITH_CONVENIENCE = GENERIC_WITH_CONVENIENCE
+
 signature EXT_GENERIC = EXT_GENERIC
 signature EXT_GENERIC_INDEX = EXT_GENERIC_INDEX
 
@@ -76,6 +78,15 @@ functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
  * Joins two extensible generic functions.  As can be read from the where
  * -constraints, the type-indices of the joined generic are compatible
  * with the type-indices of the {Outer} generic.
+ *)
+
+functor WithConvenience (Arg : GENERIC) : GENERIC_WITH_CONVENIENCE =
+   WithConvenience (Arg)
+(**
+ * Implements a number of frequently used type-indices for convenience.
+ * As a side-effect, this functor also registers handlers for most
+ * standard exceptions.  The exact set of additional type-indices is
+ * likely to grow over time.
  *)
 
 (** === Value Functors === *)
