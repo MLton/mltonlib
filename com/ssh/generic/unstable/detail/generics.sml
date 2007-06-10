@@ -6,7 +6,7 @@
 
 structure Generics :> GENERICS = struct
    (* <-- SML/NJ workaround *)
-   open Basic Fn
+   open TopLevel
    (* SML/NJ workaround --> *)
 
    structure Label = struct

@@ -6,7 +6,7 @@
 
 structure TypeInfo :> TYPE_INFO_GENERIC = struct
    (* <-- SML/NJ workaround *)
-   open Basic Fn Product Sum UnPr
+   open TopLevel
    infix  7 *`
    infix  6 +`
    infixr 6 <^> <+>

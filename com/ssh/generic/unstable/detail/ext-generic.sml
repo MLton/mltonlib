@@ -6,7 +6,7 @@
 
 structure ExtGeneric :> EXT_GENERIC = struct
    (* <-- SML/NJ workaround *)
-   open Fn
+   open TopLevel
    (* SML/NJ workaround --> *)
 
    structure Index = struct

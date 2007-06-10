@@ -17,7 +17,7 @@ structure SmlSyntax :> sig
    val isNumLabel   : String.t UnPr.t
 end = struct
    (* <-- SML/NJ workaround *)
-   open Fn UnPr
+   open TopLevel
    infix  4 <\
    infixr 4 />
    infix  2 andAlso

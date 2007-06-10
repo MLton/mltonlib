@@ -11,7 +11,7 @@ functor GroundGeneric (Arg : EXT_GENERIC) :>
       where type ('a, 'k) Index.p = ('a, 'k, Unit.t) Arg.Index.p =
 struct
    (* <-- SML/NJ workaround *)
-   open Fn
+   open TopLevel
    (* SML/NJ workaround --> *)
 
    structure Index : GENERIC_INDEX = struct

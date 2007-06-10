@@ -6,7 +6,7 @@
 
 structure GenericsUtil :> GENERICS_UTIL = struct
    (* <-- SML/NJ workaround *)
-   open Basic
+   open TopLevel
    (* SML/NJ workaround --> *)
 
    val ` = Exn.name
