@@ -6,10 +6,9 @@
 
 structure Prettier :> PRETTIER = struct
    (* <-- SML/NJ workaround *)
-   open Basic Fn Lazy
+   open TopLevel
    infix  4 <\
    infixr 2 |<
-   val map = List.map
    (* SML/NJ workaround --> *)
 
    structure C = Char and S = String and SS = Substring
