@@ -24,7 +24,7 @@ structure NumericalRecipes :> sig
     *)
 end = struct
    (* <-- SML/NJ workarounds *)
-   open Fn
+   open TopLevel
    infix  7 >> <<
    infix  6 andb
    infix  5 xorb

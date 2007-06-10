@@ -9,7 +9,7 @@ functor MkRandomGen (RNG : RNG) :>
               where type RNG.Seed.t = RNG.Seed.t =
 struct
    (* <-- SML/NJ workarounds *)
-   open Basic Fn
+   open TopLevel
    infix  4 <\
    infixr 4 />
    infix  1 >>=

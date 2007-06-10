@@ -7,7 +7,7 @@
 structure RanQD1Gen :> RANDOM_GEN where type RNG.Seed.t = Word32.t =
    MkRandomGen
       ((* <-- SML/NJ workarounds *)
-       open Fn
+       open TopLevel
        infixr 4 />
        (* SML/NJ workarounds --> *)
        type t = Word32.t
