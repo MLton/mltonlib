@@ -4,8 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-signature CLOSED_GENERIC_WITH_CONVENIENCE = sig
-   include GENERICS CLOSED_GENERIC
+signature GENERIC_EXTRA = sig
+   include GENERICS GENERIC
 
    (** == Shorthands for Types with Labels or Constructors ==
     *
@@ -18,7 +18,8 @@ signature CLOSED_GENERIC_WITH_CONVENIENCE = sig
    val R' : String.t -> 'a Rep.t -> ('a, Generics.Record.t) Rep.p
 
    val regExn0 : Exn.t -> (Exn.t -> Unit.t Option.t) -> String.t Effect.t
-   val regExn1 : ('a -> Exn.t) -> (Exn.t -> 'a Option.t) -> String.t -> 'a Rep.t Effect.t
+   val regExn1 : ('a -> Exn.t) -> (Exn.t -> 'a Option.t) -> String.t
+                 -> 'a Rep.t Effect.t
 
    (** == Tuples == *)
 

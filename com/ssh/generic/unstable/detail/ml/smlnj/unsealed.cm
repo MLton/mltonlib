@@ -9,8 +9,9 @@ group is
    ../../../../../prettier/unstable/lib.cm
    ../../../../../random/unstable/lib.cm
    ../../../public/closed-generic-rep.sig
-   ../../../public/closed-generic-with-convenience.sig
    ../../../public/closed-generic.sig
+   ../../../public/generic-extra.sig
+   ../../../public/generic.sig
    ../../../public/generics-util.sig
    ../../../public/generics.sig
    ../../../public/join-generics-fun.sig
@@ -35,4 +36,4 @@ group is
    ../../value/ord.sml
    ../../value/show.sml
    ../../value/type-info.sml
-   ../../with-convenience.fun
+   ../../with-extra.fun

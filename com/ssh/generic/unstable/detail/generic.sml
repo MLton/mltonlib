@@ -5,13 +5,7 @@
  *)
 
 structure Generic : sig
-   structure Open : OPEN_GENERIC
-
-   include CLOSED_GENERIC_WITH_CONVENIENCE
-      where type 'a Rep.t = ('a, Unit.t) Open.Rep.t
-      where type 'a Rep.s = ('a, Unit.t) Open.Rep.s
-      where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Open.Rep.p
-
+   include GENERIC_EXTRA
    include ARBITRARY sharing Open.Rep = Arbitrary
    include DUMMY     sharing Open.Rep = Dummy
    include EQ        sharing Open.Rep = Eq
@@ -42,5 +36,11 @@ end = struct
    structure Show      = Open.Rep
    structure TypeInfo  = Open.Rep
 
-   structure Closed = WithConvenience (CloseGeneric (Open)) open Closed
+   structure Generic = struct
+      structure Open = Open
+      structure Closed = CloseGeneric (Open)
+      open Closed
+   end
+
+   structure Extra = WithExtra (Generic) open Extra
 end

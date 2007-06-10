@@ -15,6 +15,8 @@ in
       "warnUnused true"
    in
       local
+         (* Support *)
+
          public/generics.sig
          local
             detail/sml-syntax.sml
@@ -25,14 +27,20 @@ in
          public/generics-util.sig
          detail/generics-util.sml
 
+         (* Concepts *)
+
          public/closed-generic-rep.sig
          public/closed-generic.sig
 
-         public/closed-generic-with-convenience.sig
-         detail/with-convenience.fun
-
          public/open-generic-rep.sig
          public/open-generic.sig
+
+         public/generic.sig
+         public/generic-extra.sig
+
+         (* Framework *)
+
+         detail/with-extra.fun
 
          detail/root-generic.sml
 
@@ -41,6 +49,8 @@ in
 
          public/join-generics-fun.sig
          detail/join-generics.fun
+
+         (* Values *)
 
          public/value/type-info.sig
          detail/value/type-info.sml

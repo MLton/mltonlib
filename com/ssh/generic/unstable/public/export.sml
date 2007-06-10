@@ -16,7 +16,8 @@ signature CLOSED_GENERIC_REP = CLOSED_GENERIC_REP
 signature OPEN_GENERIC = OPEN_GENERIC
 signature OPEN_GENERIC_REP = OPEN_GENERIC_REP
 
-signature CLOSED_GENERIC_WITH_CONVENIENCE = CLOSED_GENERIC_WITH_CONVENIENCE
+signature GENERIC = GENERIC
+signature GENERIC_EXTRA = GENERIC_EXTRA
 
 (** === Value Signatures === *)
 
@@ -80,13 +81,12 @@ functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
  * with the type-indices of the {Outer} generic.
  *)
 
-functor WithConvenience (Arg : CLOSED_GENERIC) :
-   CLOSED_GENERIC_WITH_CONVENIENCE = WithConvenience (Arg)
+functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
 (**
  * Implements a number of frequently used type-indices for convenience.
  * As a side-effect, this functor also registers handlers for most
- * standard exceptions.  The exact set of additional type-indices is
- * likely to grow over time.
+ * standard exceptions.  The exact set of extra type-indices is likely to
+ * grow over time.
  *)
 
 (** === Value Functors === *)

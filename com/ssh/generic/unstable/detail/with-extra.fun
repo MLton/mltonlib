@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithConvenience (Arg : CLOSED_GENERIC) : CLOSED_GENERIC_WITH_CONVENIENCE = struct
+functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
