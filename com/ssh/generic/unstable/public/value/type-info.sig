@@ -5,7 +5,7 @@
  *)
 
 (**
- * Signature for a type-indexed family of type properties.
+ * Signature for generic type properties.
  *
  * These type properties can be useful for both optimizations and for
  * ensuring correctness.  As an optimization one could, for example,
@@ -14,9 +14,9 @@
  * infinite data structures or avoid performing non-terminating operations
  * on infinite data structures.
  *
- * This type-indexed function is unlikely to be directly useful in
- * application programs and is more likely to be used internally in the
- * implementation of some other type-indexed functions (e.g. pickling).
+ * This generic value is unlikely to be directly useful in application
+ * programs and is more likely to be used internally in the implementation
+ * of some other generic values (e.g. pickling).
  *)
 signature TYPE_INFO = sig
    structure TypeInfo : OPEN_GENERIC_REP

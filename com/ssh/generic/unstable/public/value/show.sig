@@ -5,7 +5,7 @@
  *)
 
 (**
- * Signature for a type-indexed function for pretty printing values of
+ * Signature for a generic function for pretty printing values of
  * arbitrary SML datatypes.  See [http://mlton.org/TypeRepedValues]
  * for further discussion.
  *)

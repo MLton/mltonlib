@@ -5,7 +5,7 @@
  *)
 
 (**
- * Signature for a type-indexed equality relation.  For equality types the
+ * Signature for a generic equality relation.  For equality types the
  * semantics is the same as SML's built-in equality.  User defined types,
  * exceptions, and reals are given a natural, structural, semantics of
  * equality.  Functions, obviously, can't be supported.

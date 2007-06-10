@@ -20,7 +20,7 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   (* XXX separate datatype for sums, products, and whole indices *)
+   (* XXX separate datatype for sums, products, and whole representations *)
 
    datatype u =
       IN of {alts : Int.t,

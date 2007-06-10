@@ -5,8 +5,8 @@
  *)
 
 (**
- * Signature for a type-indexed function for generating random values of
- * any type.  The design is inspired by the
+ * Signature for a generic function for generating random values of any
+ * type.  The design is inspired by the
  * [http://www.cs.chalmers.se/~rjmh/QuickCheck/ QuickCheck] library by
  * Koen Claessen and John Hughes.
  *)

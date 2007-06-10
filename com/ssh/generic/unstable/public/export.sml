@@ -76,17 +76,17 @@ functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
                  ('a, 'b, ('a, 'b, 'c) Arg.Inner.Rep.p) Arg.Outer.Rep.p =
    JoinGenerics (Arg)
 (**
- * Joins two extensible generic functions.  As can be read from the where
- * -constraints, the type-indices of the joined generic are compatible
- * with the type-indices of the {Outer} generic.
+ * Joins two open generic functions.  As can be read from the constraints,
+ * the representation of the joined generic is compatible with the
+ * representation of the {Outer} generic.
  *)
 
 functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
 (**
- * Implements a number of frequently used type-indices for convenience.
- * As a side-effect, this functor also registers handlers for most
- * standard exceptions.  The exact set of extra type-indices is likely to
- * grow over time.
+ * Implements a number of frequently used type representations for
+ * convenience.  As a side-effect, this functor also registers handlers
+ * for most standard exceptions.  The exact set of extra representations
+ * is likely to grow over time.
  *)
 
 (** === Value Functors === *)

@@ -4,12 +4,15 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(**
+ * Signature for frequently used derived type representations.
+ *)
 signature GENERIC_EXTRA = sig
    include GENERICS GENERIC
 
    (** == Shorthands for Types with Labels or Constructors ==
     *
-    * These should only be used for defining monomorphic type-indices.
+    * These should only be used for defining monomorphic representations.
     *)
 
    val C0' : String.t -> Unit.t Rep.s

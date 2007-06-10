@@ -4,6 +4,11 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(**
+ * Signature for open generic values.  This is basically derived from the
+ * {CLOSED_GENERIC} signature by parameterizing the representation to
+ * allow building extended representations.
+ *)
 signature OPEN_GENERIC = sig
    structure Rep : OPEN_GENERIC_REP
    val iso : ('y -> ('a, 'b) Iso.t -> 'x) -> ('b, 'y) Rep.t -> ('a, 'b) Iso.t -> ('a, 'x) Rep.t

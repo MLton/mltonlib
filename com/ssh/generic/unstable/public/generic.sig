@@ -4,6 +4,9 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(**
+ * Base signature for a module of directly usable generics.
+ *)
 signature GENERIC = sig
    structure Open : OPEN_GENERIC
 

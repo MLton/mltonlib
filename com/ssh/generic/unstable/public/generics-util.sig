@@ -5,7 +5,7 @@
  *)
 
 (**
- * Utilities for defining generic functions.
+ * Signature for utilities for defining generic values.
  *)
 signature GENERICS_UTIL = sig
    val failExn : Exn.t -> 'a

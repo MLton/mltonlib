@@ -5,15 +5,15 @@
  *)
 
 (**
- * Signature for the types of type-indices of generic functions.
+ * Signature for the closed representation types of generic values.
  *)
 signature CLOSED_GENERIC_REP = sig
    type 'a t
-   (** Type of complete type-indices. *)
+   (** Type of complete representations. *)
 
    type 'a s
-   (** Type of incomplete sum type-indices. *)
+   (** Type of incomplete sum representations. *)
 
    type ('a, 'k) p
-   (** Type of incomplete product type-indices. *)
+   (** Type of incomplete product representations. *)
 end

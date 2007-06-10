@@ -5,9 +5,9 @@
  *)
 
 (**
- * Signature for a type-indexed family of compare functions.  The idea is
- * that the compare functions just implement some arbitrary logical
- * ordering that you need for things such as search trees.
+ * Signature for a generic compare function.  The idea is that the compare
+ * functions just implement some arbitrary logical ordering that you need
+ * for things such as search trees.
  *
  * Note that comparison of functions is impossible and fails at run-time.
  * Comparison of exceptions only works when both exception constructors

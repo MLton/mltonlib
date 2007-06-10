@@ -5,13 +5,12 @@
  *)
 
 (**
- * A signature for a type-indexed family of dummy values.  In SML, dummy
- * values are needed for things such as computing fixpoints and building
- * cyclic values.
+ * A signature for a generic dummy value.  In SML, dummy values are needed
+ * for things such as computing fixpoints and building cyclic values.
  *
- * This type-indexed function is unlikely to be directly useful in
- * application programs and is more likely to be used internally in the
- * implementation of some other type-indexed functions (e.g. pickling).
+ * This generic value is unlikely to be directly useful in application
+ * programs and is more likely to be used internally in the implementation
+ * of some other generic values (e.g. pickling).
  *)
 signature DUMMY = sig
    structure Dummy : OPEN_GENERIC_REP
@@ -28,8 +27,8 @@ signature DUMMY = sig
 
    val noDummy : ('a, 'x) Dummy.t UnOp.t
    (**
-    * Removes the dummy value from the given type-index.  This can be used
-    * for encoding abstract types that can not be given dummy values.
+    * Removes the dummy value from the given representation.  This can be
+    * used for encoding abstract types that can not be given dummy values.
     *)
 end
 
