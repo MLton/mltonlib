@@ -13,8 +13,8 @@ structure Ord :> ORD_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Lifted = LiftGeneric
-     (structure Index = struct
+   structure Opened = OpenGeneric
+     (structure Rep = struct
          type 'a t = 'a Cmp.t
          type 'a s = 'a t
          type ('a, 'k) p = 'a t
@@ -38,7 +38,7 @@ structure Ord :> ORD_GENERIC = struct
       * a reasonable answer as long as at least one of the exception
       * variants (involved in a comparison) has been registered.
       *)
-      val exn : Exn.t Index.t Ref.t = ref GenericsUtil.failExnSq
+      val exn : Exn.t Rep.t Ref.t = ref GenericsUtil.failExnSq
       fun regExn t (_, prj) =
           Ref.modify (fn exn =>
                          fn (l, r) =>
@@ -87,16 +87,16 @@ structure Ord :> ORD_GENERIC = struct
       fun C1 _ = id
       val data = id)
 
-   open Lifted
+   open Opened
 
-   structure Ord = Index
+   structure Ord = Rep
 
    val compare = Pair.fst
 end
 
-functor WithOrd (Outer : EXT_GENERIC) : ORD_GENERIC = struct
+functor WithOrd (Outer : OPEN_GENERIC) : ORD_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = Ord)
    open Ord Joined
-   structure Ord = Index
-   val compare = fn ? => compare (Outer.Index.getT ?)
+   structure Ord = Rep
+   val compare = fn ? => compare (Outer.Rep.getT ?)
 end

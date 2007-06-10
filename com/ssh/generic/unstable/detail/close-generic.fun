@@ -4,20 +4,20 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor GroundGeneric (Arg : EXT_GENERIC) :>
-   GENERIC
-      where type 'a Index.t = ('a, Unit.t) Arg.Index.t
-      where type 'a Index.s = ('a, Unit.t) Arg.Index.s
-      where type ('a, 'k) Index.p = ('a, 'k, Unit.t) Arg.Index.p =
+functor CloseGeneric (Arg : OPEN_GENERIC) :>
+   CLOSED_GENERIC
+      where type 'a Rep.t = ('a, Unit.t) Arg.Rep.t
+      where type 'a Rep.s = ('a, Unit.t) Arg.Rep.s
+      where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Arg.Rep.p =
 struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   structure Index : GENERIC_INDEX = struct
-      type 'a t = ('a, Unit.t) Arg.Index.t
-      type 'a s = ('a, Unit.t) Arg.Index.s
-      type ('a, 'k) p = ('a, 'k, Unit.t) Arg.Index.p
+   structure Rep : CLOSED_GENERIC_REP = struct
+      type 'a t = ('a, Unit.t) Arg.Rep.t
+      type 'a s = ('a, Unit.t) Arg.Rep.s
+      type ('a, 'k) p = ('a, 'k, Unit.t) Arg.Rep.p
    end
 
    fun morph m = m (const ignore)

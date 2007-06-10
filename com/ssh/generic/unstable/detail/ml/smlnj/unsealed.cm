@@ -8,26 +8,26 @@ group is
    ../../../../../extended-basis/unstable/basis.cm
    ../../../../../prettier/unstable/lib.cm
    ../../../../../random/unstable/lib.cm
-   ../../../public/ext-generic-index.sig
-   ../../../public/ext-generic.sig
-   ../../../public/generic-index.sig
-   ../../../public/generic-with-convenience.sig
-   ../../../public/generic.sig
+   ../../../public/closed-generic-rep.sig
+   ../../../public/closed-generic-with-convenience.sig
+   ../../../public/closed-generic.sig
    ../../../public/generics-util.sig
    ../../../public/generics.sig
    ../../../public/join-generics-fun.sig
+   ../../../public/open-generic-rep.sig
+   ../../../public/open-generic.sig
    ../../../public/value/arbitrary.sig
    ../../../public/value/dummy.sig
    ../../../public/value/eq.sig
    ../../../public/value/ord.sig
    ../../../public/value/show.sig
    ../../../public/value/type-info.sig
-   ../../ext-generic.sml
+   ../../close-generic.fun
    ../../generics-util.sml
    ../../generics.sml
-   ../../ground-generic.fun
    ../../join-generics.fun
-   ../../lift-generic.fun
+   ../../open-generic.fun
+   ../../root-generic.sml
    ../../sml-syntax.sml
    ../../value/arbitrary.sml
    ../../value/dummy.sml

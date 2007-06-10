@@ -5,28 +5,28 @@
  *)
 
 functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :>
-   EXT_GENERIC
-      where type ('a, 'x) Index.t =
-                 ('a, ('a, 'x) Arg.Inner.Index.t) Arg.Outer.Index.t
-      where type ('a, 'x) Index.s =
-                 ('a, ('a, 'x) Arg.Inner.Index.s) Arg.Outer.Index.s
-      where type ('a, 'k, 'x) Index.p =
-                 ('a, 'k, ('a, 'k, 'x) Arg.Inner.Index.p) Arg.Outer.Index.p =
+   OPEN_GENERIC
+      where type ('a, 'x) Rep.t =
+                 ('a, ('a, 'x) Arg.Inner.Rep.t) Arg.Outer.Rep.t
+      where type ('a, 'x) Rep.s =
+                 ('a, ('a, 'x) Arg.Inner.Rep.s) Arg.Outer.Rep.s
+      where type ('a, 'k, 'x) Rep.p =
+                 ('a, 'k, ('a, 'k, 'x) Arg.Inner.Rep.p) Arg.Outer.Rep.p =
 struct
    open Arg
 
-   structure Index : EXT_GENERIC_INDEX = struct
-      type ('a, 'x) t = ('a, ('a, 'x) Inner.Index.t) Outer.Index.t
-      fun getT ? = Inner.Index.getT (Outer.Index.getT ?)
-      fun mapT ? = Outer.Index.mapT (Inner.Index.mapT ?)
+   structure Rep : OPEN_GENERIC_REP = struct
+      type ('a, 'x) t = ('a, ('a, 'x) Inner.Rep.t) Outer.Rep.t
+      fun getT ? = Inner.Rep.getT (Outer.Rep.getT ?)
+      fun mapT ? = Outer.Rep.mapT (Inner.Rep.mapT ?)
 
-      type ('a, 'x) s = ('a, ('a, 'x) Inner.Index.s) Outer.Index.s
-      fun getS ? = Inner.Index.getS (Outer.Index.getS ?)
-      fun mapS ? = Outer.Index.mapS (Inner.Index.mapS ?)
+      type ('a, 'x) s = ('a, ('a, 'x) Inner.Rep.s) Outer.Rep.s
+      fun getS ? = Inner.Rep.getS (Outer.Rep.getS ?)
+      fun mapS ? = Outer.Rep.mapS (Inner.Rep.mapS ?)
 
-      type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.Index.p) Outer.Index.p
-      fun getP ? = Inner.Index.getP (Outer.Index.getP ?)
-      fun mapP ? = Outer.Index.mapP (Inner.Index.mapP ?)
+      type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.Rep.p) Outer.Rep.p
+      fun getP ? = Inner.Rep.getP (Outer.Rep.getP ?)
+      fun mapP ? = Outer.Rep.mapP (Inner.Rep.mapP ?)
    end
 
    fun iso ? = Outer.iso (Inner.iso ?)

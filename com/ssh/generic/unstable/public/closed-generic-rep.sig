@@ -7,7 +7,7 @@
 (**
  * Signature for the types of type-indices of generic functions.
  *)
-signature GENERIC_INDEX = sig
+signature CLOSED_GENERIC_REP = sig
    type 'a t
    (** Type of complete type-indices. *)
 

@@ -11,7 +11,7 @@
  * Koen Claessen and John Hughes.
  *)
 signature ARBITRARY = sig
-   structure Arbitrary : EXT_GENERIC_INDEX
+   structure Arbitrary : OPEN_GENERIC_REP
 
    structure RandomGen : RANDOM_GEN
    (** The underlying random value generator. *)
@@ -24,13 +24,13 @@ signature ARBITRARY = sig
 end
 
 signature ARBITRARY_GENERIC = sig
-   include ARBITRARY EXT_GENERIC
-   sharing Arbitrary = Index
+   include ARBITRARY OPEN_GENERIC
+   sharing Arbitrary = Rep
 end
 
 signature WITH_ARBITRARY_DOM = sig
-   structure Outer : EXT_GENERIC
+   structure Outer : OPEN_GENERIC
    structure TypeInfo : TYPE_INFO
-   sharing Outer.Index = TypeInfo.TypeInfo
+   sharing Outer.Rep = TypeInfo.TypeInfo
    structure RandomGen : RANDOM_GEN
 end

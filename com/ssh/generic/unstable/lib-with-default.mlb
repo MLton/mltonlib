@@ -9,5 +9,5 @@ local
    $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
 in
    lib.mlb
-   detail/default.sml
+   detail/generic.sml
 end

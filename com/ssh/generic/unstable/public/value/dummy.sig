@@ -14,7 +14,7 @@
  * implementation of some other type-indexed functions (e.g. pickling).
  *)
 signature DUMMY = sig
-   structure Dummy : EXT_GENERIC_INDEX
+   structure Dummy : OPEN_GENERIC_REP
 
    exception Dummy
    (**
@@ -34,6 +34,6 @@ signature DUMMY = sig
 end
 
 signature DUMMY_GENERIC = sig
-   include DUMMY EXT_GENERIC
-   sharing Dummy = Index
+   include DUMMY OPEN_GENERIC
+   sharing Dummy = Rep
 end

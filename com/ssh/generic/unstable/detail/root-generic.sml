@@ -4,12 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure ExtGeneric :> EXT_GENERIC = struct
+structure RootGeneric :> OPEN_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   structure Index = struct
+   structure Rep = struct
       type ('a, 'x) t = 'x
       val getT = id
       val mapT = id

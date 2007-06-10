@@ -28,33 +28,33 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    datatype 'a u = IN of {gen : 'a G.t, cog : 'a -> Univ.t G.t UnOp.t}
    fun out (IN r) = r
 
-   structure Index : EXT_GENERIC_INDEX = struct
+   structure Rep : OPEN_GENERIC_REP = struct
       fun get get = Pair.snd o get
       fun map map f = map (Pair.map (id, f))
 
-      type ('a, 'x) t = ('a, 'a u * 'x) Outer.Index.t
-      fun getT ? = get Outer.Index.getT ?
-      fun mapT ? = map Outer.Index.mapT ?
+      type ('a, 'x) t = ('a, 'a u * 'x) Outer.Rep.t
+      fun getT ? = get Outer.Rep.getT ?
+      fun mapT ? = map Outer.Rep.mapT ?
 
-      type ('a, 'x) s = ('a, 'a u * 'x) Outer.Index.s
-      fun getS ? = get Outer.Index.getS ?
-      fun mapS ? = map Outer.Index.mapS ?
+      type ('a, 'x) s = ('a, 'a u * 'x) Outer.Rep.s
+      fun getS ? = get Outer.Rep.getS ?
+      fun mapS ? = map Outer.Rep.mapS ?
 
-      type ('a, 'k, 'x) p = ('a, 'k, 'a u * 'x) Outer.Index.p
-      fun getP ? = get Outer.Index.getP ?
-      fun mapP ? = map Outer.Index.mapP ?
+      type ('a, 'k, 'x) p = ('a, 'k, 'a u * 'x) Outer.Rep.p
+      fun getP ? = get Outer.Rep.getP ?
+      fun mapP ? = map Outer.Rep.mapP ?
    end
 
-   structure Arbitrary = Index
+   structure Arbitrary = Rep
 
    fun universally ? = G.mapUnOp (Univ.newIso ()) ?
 
    val map = G.Monad.map
    val op >>= = G.>>=
 
-   fun arbitrary ? = (#gen o out o Pair.fst o Outer.Index.getT) ? 
+   fun arbitrary ? = (#gen o out o Pair.fst o Outer.Rep.getT) ? 
    fun withGen gen =
-       Outer.Index.mapT
+       Outer.Rep.mapT
           (Pair.map (fn IN {cog, ...} => IN {gen = gen,cog = cog},
                      id))
 

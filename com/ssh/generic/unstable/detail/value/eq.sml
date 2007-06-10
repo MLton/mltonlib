@@ -13,8 +13,8 @@ structure Eq :> EQ_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Lifted = LiftGeneric
-     (structure Index = struct
+   structure Opened = OpenGeneric
+     (structure Rep = struct
          type 'a t = 'a BinPr.t
          type 'a s = 'a t
          type ('a, 'k) p = 'a t
@@ -33,7 +33,7 @@ structure Eq :> EQ_GENERIC = struct
          fun _ --> _ = raising e
       end
 
-      val exn : Exn.t Index.t Ref.t = ref GenericsUtil.failExnSq
+      val exn : Exn.t Rep.t Ref.t = ref GenericsUtil.failExnSq
       fun regExn t (_, prj) =
           Ref.modify (fn exn =>
                          fn (l, r) =>
@@ -82,19 +82,19 @@ structure Eq :> EQ_GENERIC = struct
       fun C1 _ = id
       val data = id)
 
-   open Lifted
+   open Opened
 
-   structure Eq = Index
+   structure Eq = Rep
 
    val eq = Pair.fst
    fun notEq (eq, _) = negate eq
 end
 
-functor WithEq (Outer : EXT_GENERIC) : EQ_GENERIC = struct
+functor WithEq (Outer : OPEN_GENERIC) : EQ_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = Eq)
    open Eq Joined
-   structure Eq = Index
-   fun mk f = f o Outer.Index.getT
+   structure Eq = Rep
+   fun mk f = f o Outer.Rep.getT
    val eq    = fn ? => mk eq    ?
    val notEq = fn ? => mk notEq ?
 end

@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-signature EXT_GENERIC_INDEX = sig
+signature OPEN_GENERIC_REP = sig
    type ('a, 'x) t
    val getT : ('a, 'x) t -> 'x
    val mapT : 'x UnOp.t -> ('a, 'x) t UnOp.t

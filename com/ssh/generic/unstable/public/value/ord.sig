@@ -18,13 +18,13 @@
  * is not necessarily the case that {a=b} evaluates to {true}.
  *)
 signature ORD = sig
-   structure Ord : EXT_GENERIC_INDEX
+   structure Ord : OPEN_GENERIC_REP
 
    val compare : ('a, 'x) Ord.t -> 'a Cmp.t
    (** Extracts the compare function. *)
 end
 
 signature ORD_GENERIC = sig
-   include ORD EXT_GENERIC
-   sharing Ord = Index
+   include ORD OPEN_GENERIC
+   sharing Ord = Rep
 end

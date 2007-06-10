@@ -11,7 +11,7 @@
  * equality.  Functions, obviously, can't be supported.
  *)
 signature EQ = sig
-   structure Eq : EXT_GENERIC_INDEX
+   structure Eq : OPEN_GENERIC_REP
 
    val eq : ('a, 'x) Eq.t -> 'a BinPr.t
    (**
@@ -24,6 +24,6 @@ signature EQ = sig
 end
 
 signature EQ_GENERIC = sig
-   include EQ EXT_GENERIC
-   sharing Eq = Index
+   include EQ OPEN_GENERIC
+   sharing Eq = Rep
 end

@@ -13,8 +13,8 @@ structure Dummy :> DUMMY_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Lifted = LiftGeneric
-     (structure Index = struct
+   structure Opened = OpenGeneric
+     (structure Rep = struct
          type 'a t = 'a Option.t
          type 'a s = 'a t
          type ('a, 'k) p = 'a t
@@ -46,9 +46,9 @@ structure Dummy :> DUMMY_GENERIC = struct
 
       fun vector _ = SOME (Vector.tabulate (0, undefined))
 
-      val largeInt  : LargeInt.t  Index.t = SOME 0
-      val largeReal : LargeReal.t Index.t = SOME 0.0
-      val largeWord : LargeWord.t Index.t = SOME 0w0
+      val largeInt  : LargeInt.t  Rep.t = SOME 0
+      val largeReal : LargeReal.t Rep.t = SOME 0.0
+      val largeWord : LargeWord.t Rep.t = SOME 0w0
 
       fun list _ = SOME []
 
@@ -60,10 +60,10 @@ structure Dummy :> DUMMY_GENERIC = struct
       val unit   = SOME ()
       val word   = SOME 0w0
 
-      val word8  : Word8.t  Index.t = SOME 0w0
-   (* val word16 : Word16.t Index.t = SOME 0w0 (* Word16 not provided by SML/NJ *) *)
-      val word32 : Word32.t Index.t = SOME 0w0
-      val word64 : Word64.t Index.t = SOME 0w0
+      val word8  : Word8.t  Rep.t = SOME 0w0
+   (* val word16 : Word16.t Rep.t = SOME 0w0 (* Word16 not provided by SML/NJ *) *)
+      val word32 : Word32.t Rep.t = SOME 0w0
+      val word64 : Word64.t Rep.t = SOME 0w0
 
       (* Trivialities *)
 
@@ -79,9 +79,9 @@ structure Dummy :> DUMMY_GENERIC = struct
       fun C1 _ = id
       val data = id)
 
-   open Lifted
+   open Opened
 
-   structure Dummy = Index
+   structure Dummy = Rep
    exception Dummy
 
    fun dummy (vo, _) =
@@ -92,10 +92,10 @@ structure Dummy :> DUMMY_GENERIC = struct
    fun noDummy (_, x) = (NONE, x)
 end
 
-functor WithDummy (Outer : EXT_GENERIC) : DUMMY_GENERIC = struct
+functor WithDummy (Outer : OPEN_GENERIC) : DUMMY_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = Dummy)
    open Dummy Joined
-   structure Dummy = Index
-   val dummy = fn ? => dummy (Outer.Index.getT ?)
-   val noDummy = fn ? => Outer.Index.mapT noDummy ?
+   structure Dummy = Rep
+   val dummy = fn ? => dummy (Outer.Rep.getT ?)
+   val noDummy = fn ? => Outer.Rep.mapT noDummy ?
 end

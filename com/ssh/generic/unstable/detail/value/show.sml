@@ -24,7 +24,7 @@ structure Show :> SHOW_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Lifted = LiftGeneric
+   structure Opened = OpenGeneric
      (local
          open Prettier
          type u = Bool.t * t
@@ -65,7 +65,7 @@ structure Show :> SHOW_GENERIC = struct
          val c2s = Con.toString
       end
 
-      structure Index = struct
+      structure Rep = struct
          type 'a t = exn list * 'a -> u
          type 'a s = 'a t
          type ('a, 'k) p = 'a t
@@ -103,7 +103,7 @@ structure Show :> SHOW_GENERIC = struct
 
       val Y = Tie.function
 
-      val exn : Exn.t Index.t ref =
+      val exn : Exn.t Rep.t ref =
           ref (txt o "#" <\ op ^ o General.exnName o #2)
       fun regExn t (_, prj) =
           Ref.modify (fn exn => fn (env, e) =>
@@ -169,7 +169,7 @@ structure Show :> SHOW_GENERIC = struct
                                                   (#"\n" <\ op =) s)))})
       end
 
-      fun mk toS : 'a Index.t = txt o toS o Pair.snd
+      fun mk toS : 'a Rep.t = txt o toS o Pair.snd
       fun enc l r toS x = concat [l, toS x, r]
       fun mkWord toString = mk ("0wx" <\ op ^ o toString)
 
@@ -189,18 +189,18 @@ structure Show :> SHOW_GENERIC = struct
       val word32 = mkWord Word32.toString
       val word64 = mkWord Word64.toString)
 
-   open Lifted
+   open Opened
 
-   structure Show = Index
+   structure Show = Rep
 
    fun layout (t, _) x = Pair.snd (t ([], x))
    fun show m t = Prettier.pretty m o layout t
 end
 
-functor WithShow (Outer : EXT_GENERIC) : SHOW_GENERIC = struct
+functor WithShow (Outer : OPEN_GENERIC) : SHOW_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = Show)
    open Joined
-   fun layout ? = Show.layout (Outer.Index.getT ?)
-   fun show m = Show.show m o Outer.Index.getT
-   structure Show = Index
+   fun layout ? = Show.layout (Outer.Rep.getT ?)
+   fun show m = Show.show m o Outer.Rep.getT
+   structure Show = Rep
 end

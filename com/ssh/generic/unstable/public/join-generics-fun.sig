@@ -5,6 +5,6 @@
  *)
 
 signature JOIN_GENERICS_DOM = sig
-   structure Outer : EXT_GENERIC
-   structure Inner : EXT_GENERIC
+   structure Outer : OPEN_GENERIC
+   structure Inner : OPEN_GENERIC
 end

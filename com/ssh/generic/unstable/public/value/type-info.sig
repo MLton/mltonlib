@@ -19,7 +19,7 @@
  * implementation of some other type-indexed functions (e.g. pickling).
  *)
 signature TYPE_INFO = sig
-   structure TypeInfo : EXT_GENERIC_INDEX
+   structure TypeInfo : OPEN_GENERIC_REP
 
    val canBeCyclic : ('a, 'x) TypeInfo.t UnPr.t
    (**
@@ -54,6 +54,6 @@ signature TYPE_INFO = sig
 end
 
 signature TYPE_INFO_GENERIC = sig
-   include TYPE_INFO EXT_GENERIC
-   sharing TypeInfo = Index
+   include TYPE_INFO OPEN_GENERIC
+   sharing TypeInfo = Rep
 end

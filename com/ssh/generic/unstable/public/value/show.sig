@@ -6,11 +6,11 @@
 
 (**
  * Signature for a type-indexed function for pretty printing values of
- * arbitrary SML datatypes.  See [http://mlton.org/TypeIndexedValues]
+ * arbitrary SML datatypes.  See [http://mlton.org/TypeRepedValues]
  * for further discussion.
  *)
 signature SHOW = sig
-   structure Show : EXT_GENERIC_INDEX
+   structure Show : OPEN_GENERIC_REP
 
    val layout : ('a, 'x) Show.t -> 'a -> Prettier.t
    (** Extracts the prettifying function. *)
@@ -20,6 +20,6 @@ signature SHOW = sig
 end
 
 signature SHOW_GENERIC = sig
-   include SHOW EXT_GENERIC
-   sharing Show = Index
+   include SHOW OPEN_GENERIC
+   sharing Show = Rep
 end

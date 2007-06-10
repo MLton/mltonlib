@@ -6,9 +6,9 @@
 
 library
    library(lib.cm)
-   source(detail/default.sml)
+   source(detail/generic.sml)
 is
    ../../extended-basis/unstable/basis.cm
    ../../random/unstable/lib.cm
-   detail/default.sml
+   detail/generic.sml
    lib.cm

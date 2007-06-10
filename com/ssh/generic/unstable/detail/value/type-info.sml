@@ -54,8 +54,8 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
       List.revAppend (lp ([], ys))
    end
 
-   structure Lifted = LiftGeneric
-     (structure Index = struct
+   structure Opened = OpenGeneric
+     (structure Rep = struct
          type 'a t = u
          type 'a s = u
          type ('a, 'k) p = u
@@ -139,9 +139,9 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
       fun C1 _ = id
       val data = id)
 
-   open Lifted
+   open Opened
 
-   structure TypeInfo = Index
+   structure TypeInfo = Rep
 
    fun out (IN t, _) = t
 
@@ -153,16 +153,16 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
    fun canBeCyclic ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
 end
 
-functor WithTypeInfo (Outer : EXT_GENERIC) : TYPE_INFO_GENERIC = struct
+functor WithTypeInfo (Outer : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
    structure Joined = JoinGenerics (structure Outer = Outer and Inner = TypeInfo)
    open TypeInfo Joined
-   structure TypeInfo = Index
-   fun mk f = f o Outer.Index.getT
+   structure TypeInfo = Rep
+   fun mk f = f o Outer.Rep.getT
    val canBeCyclic        = fn ? => mk canBeCyclic        ?
    val hasExn             = fn ? => mk hasExn             ?
    val hasRecData         = fn ? => mk hasRecData         ?
    val isRefOrArray       = fn ? => mk isRefOrArray       ?
-   fun mk f = f o Outer.Index.getS
+   fun mk f = f o Outer.Rep.getS
    val hasBaseCase        = fn ? => mk hasBaseCase        ?
    val numConsecutiveAlts = fn ? => mk numConsecutiveAlts ?
 end

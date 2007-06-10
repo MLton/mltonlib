@@ -25,19 +25,19 @@ in
          public/generics-util.sig
          detail/generics-util.sml
 
-         public/generic-index.sig
-         public/generic.sig
+         public/closed-generic-rep.sig
+         public/closed-generic.sig
 
-         public/generic-with-convenience.sig
+         public/closed-generic-with-convenience.sig
          detail/with-convenience.fun
 
-         public/ext-generic-index.sig
-         public/ext-generic.sig
+         public/open-generic-rep.sig
+         public/open-generic.sig
 
-         detail/ext-generic.sml
+         detail/root-generic.sml
 
-         detail/ground-generic.fun
-         detail/lift-generic.fun
+         detail/close-generic.fun
+         detail/open-generic.fun
 
          public/join-generics-fun.sig
          detail/join-generics.fun

@@ -4,29 +4,29 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor LiftGeneric (Arg : GENERIC) :>
-   EXT_GENERIC
-      where type ('a, 'x) Index.t = 'a Arg.Index.t * 'x
-      where type ('a, 'x) Index.s = 'a Arg.Index.s * 'x
-      where type ('a, 'k, 'x) Index.p = ('a, 'k) Arg.Index.p * 'x =
+functor OpenGeneric (Arg : CLOSED_GENERIC) :>
+   OPEN_GENERIC
+      where type ('a, 'x) Rep.t = 'a Arg.Rep.t * 'x
+      where type ('a, 'x) Rep.s = 'a Arg.Rep.s * 'x
+      where type ('a, 'k, 'x) Rep.p = ('a, 'k) Arg.Rep.p * 'x =
 struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   structure Index : EXT_GENERIC_INDEX = struct
+   structure Rep : OPEN_GENERIC_REP = struct
       val get = Pair.snd
       fun map f = Pair.map (id, f)
 
-      type ('a, 'x) t = 'a Arg.Index.t * 'x
+      type ('a, 'x) t = 'a Arg.Rep.t * 'x
       val getT = get
       val mapT = map
 
-      type ('a, 'x) s = 'a Arg.Index.s * 'x
+      type ('a, 'x) s = 'a Arg.Rep.s * 'x
       val getS = get
       val mapS = map
 
-      type ('a, 'k, 'x) p = ('a, 'k) Arg.Index.p * 'x
+      type ('a, 'k, 'x) p = ('a, 'k) Arg.Rep.p * 'x
       val getP = get
       val mapP = map
    end
