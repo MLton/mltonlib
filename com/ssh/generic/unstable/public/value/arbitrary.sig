@@ -29,8 +29,7 @@ signature ARBITRARY_GENERIC = sig
 end
 
 signature WITH_ARBITRARY_DOM = sig
-   structure Outer : OPEN_GENERIC
-   structure TypeInfo : TYPE_INFO
-   sharing Outer.Rep = TypeInfo.TypeInfo
+   include OPEN_GENERIC TYPE_INFO
+   sharing Rep = TypeInfo
    structure RandomGen : RANDOM_GEN
 end

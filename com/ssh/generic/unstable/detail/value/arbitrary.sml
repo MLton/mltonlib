@@ -20,10 +20,9 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   open Arg
+   structure RandomGen = Arg.RandomGen
 
    structure G = RandomGen and I = Int and R = Real and W = Word
-         and Typ = TypeInfo
 
    datatype 'a u = IN of {gen : 'a G.t, cog : 'a -> Univ.t G.t UnOp.t}
    fun out (IN r) = r
@@ -32,17 +31,17 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
       fun get get = Pair.snd o get
       fun map map f = map (Pair.map (id, f))
 
-      type ('a, 'x) t = ('a, 'a u * 'x) Outer.Rep.t
-      fun getT ? = get Outer.Rep.getT ?
-      fun mapT ? = map Outer.Rep.mapT ?
+      type ('a, 'x) t = ('a, 'a u * 'x) Arg.Rep.t
+      fun getT ? = get Arg.Rep.getT ?
+      fun mapT ? = map Arg.Rep.mapT ?
 
-      type ('a, 'x) s = ('a, 'a u * 'x) Outer.Rep.s
-      fun getS ? = get Outer.Rep.getS ?
-      fun mapS ? = map Outer.Rep.mapS ?
+      type ('a, 'x) s = ('a, 'a u * 'x) Arg.Rep.s
+      fun getS ? = get Arg.Rep.getS ?
+      fun mapS ? = map Arg.Rep.mapS ?
 
-      type ('a, 'k, 'x) p = ('a, 'k, 'a u * 'x) Outer.Rep.p
-      fun getP ? = get Outer.Rep.getP ?
-      fun mapP ? = map Outer.Rep.mapP ?
+      type ('a, 'k, 'x) p = ('a, 'k, 'a u * 'x) Arg.Rep.p
+      fun getP ? = get Arg.Rep.getP ?
+      fun mapP ? = map Arg.Rep.mapP ?
    end
 
    structure Arbitrary = Rep
@@ -52,9 +51,9 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    val map = G.Monad.map
    val op >>= = G.>>=
 
-   fun arbitrary ? = (#gen o out o Pair.fst o Outer.Rep.getT) ? 
+   fun arbitrary ? = (#gen o out o Pair.fst o Arg.Rep.getT) ? 
    fun withGen gen =
-       Outer.Rep.mapT
+       Arg.Rep.mapT
           (Pair.map (fn IN {cog, ...} => IN {gen = gen,cog = cog},
                      id))
 
@@ -66,44 +65,44 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    fun binop outer f g = outer (Pair.map (f, g) o Pair.swizzle)
    fun unary outer f g = outer (Pair.map (f, g))
 
-   fun iso ? = morph Outer.iso ?
-   fun isoProduct ? = morph Outer.isoProduct ?
-   fun isoSum ? = morph Outer.isoSum ?
+   fun iso ? = morph Arg.iso ?
+   fun isoProduct ? = morph Arg.isoProduct ?
+   fun isoSum ? = morph Arg.isoSum ?
 
    val unit' = IN {gen = G.return (), cog = const (G.variant 0)}
-   fun unit ? = nullary Outer.unit unit' ?
+   fun unit ? = nullary Arg.unit unit' ?
    fun bool ? =
-       nullary Outer.bool (IN {gen = G.bool, cog = G.variant o Bool.toInt}) ?
+       nullary Arg.bool (IN {gen = G.bool, cog = G.variant o Bool.toInt}) ?
 
    val int' = IN {gen = map (fn w => W.toIntX (w - G.RNG.maxValue div 0w2))
-                            (* XXX result may not fit an Int.int *)
+                            (* XXX result may not fit an Int.t *)
                             (G.lift G.RNG.value),
                   cog = G.variant}
-   fun int ? = nullary Outer.int int' ?
+   fun int ? = nullary Arg.int int' ?
 
    val word' = IN {gen = G.lift G.RNG.value, cog = G.variant o W.toIntX}
-   fun word ? = nullary Outer.word word' ?
+   fun word ? = nullary Arg.word word' ?
 
-   fun Y y = Outer.Y (let open Tie in iso (G.Y *` function *` y) end
-                         (fn (IN {gen = a, cog = b}, c) => a & b & c,
-                          fn a & b & c => (IN {gen = a, cog = b}, c)))
+   fun Y y = Arg.Y (let open Tie in iso (G.Y *` function *` y) end
+                       (fn (IN {gen = a, cog = b}, c) => a & b & c,
+                        fn a & b & c => (IN {gen = a, cog = b}, c)))
 
-   fun op *` ? = binop Outer.*`
+   fun op *` ? = binop Arg.*`
                        (fn (IN {gen = aGen, cog = aCog},
                             IN {gen = bGen, cog = bCog}) =>
                            IN {gen = G.Monad.>>& (aGen, bGen),
                                cog = fn a & b => aCog a o bCog b}) ?
 
    fun op +` xy2z (a, b) =
-       binop Outer.+`
+       binop Arg.+`
              (fn (IN {gen = aGen, cog = aCog}, IN {gen = bGen, cog = bCog}) =>
                  let
                     val aGen = map INL aGen
                     val bGen = map INR bGen
-                    val gen = G.frequency [(Typ.numConsecutiveAlts a, aGen),
-                                           (Typ.numConsecutiveAlts b, bGen)]
+                    val gen = G.frequency [(Arg.numConsecutiveAlts a, aGen),
+                                           (Arg.numConsecutiveAlts b, bGen)]
                     val gen0 =
-                        case Typ.hasBaseCase a & Typ.hasBaseCase b of
+                        case Arg.hasBaseCase a & Arg.hasBaseCase b of
                            true & false => aGen
                          | false & true => bGen
                          | _            => gen
@@ -114,7 +113,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
                  end) xy2z (a, b)
 
    fun op --> ? =
-       binop Outer.-->
+       binop Arg.-->
              (fn (IN {gen = aGen, cog = aCog}, IN {gen = bGen, cog = bCog}) =>
                  IN {gen = G.promote (fn a => universally (aCog a) bGen),
                      cog = fn f => fn g =>
@@ -123,10 +122,10 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    fun exn ? = let
       val e = Fail "Arbitrary.exn not supported yet"
    in
-      nullary Outer.exn (IN {gen = G.return Empty, cog = raising e})
+      nullary Arg.exn (IN {gen = G.return Empty, cog = raising e})
    end ?
 
-   fun regExn ef = Outer.regExn (ef o Pair.snd)
+   fun regExn ef = Arg.regExn (ef o Pair.snd)
 
    fun list' (IN {gen = xGen, cog = xCog}) = let
       val xsGen = G.sized (0 <\ G.intInRange) >>= G.list xGen
@@ -136,46 +135,46 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    in
       IN {gen = xsGen, cog = xsCog}
    end
-   fun list ? = unary Outer.list list' ?
+   fun list ? = unary Arg.list list' ?
    val char' = IN {gen = map chr (G.intInRange (0, Char.maxOrd)),
                    cog = G.variant o ord}
-   fun char ? = nullary Outer.char char' ?
+   fun char ? = nullary Arg.char char' ?
    val string' as IN {cog = stringCog', ...} = iso' (list' char') String.isoList
-   fun string ? = nullary Outer.string string' ?
+   fun string ? = nullary Arg.string string' ?
 
-   fun array ? = unary Outer.array (fn a => iso' (list' a) Array.isoList) ?
-   fun refc ? = unary Outer.refc (fn a => iso' a (!, ref)) ?
-   fun vector ? = unary Outer.vector (fn a => iso' (list' a) Vector.isoList) ?
+   fun array ? = unary Arg.array (fn a => iso' (list' a) Array.isoList) ?
+   fun refc ? = unary Arg.refc (fn a => iso' a (!, ref)) ?
+   fun vector ? = unary Arg.vector (fn a => iso' (list' a) Vector.isoList) ?
 
-   fun largeInt  ? = nullary Outer.largeInt  (iso' int'  (Iso.swap I.isoLarge)) ?
-   fun largeWord ? = nullary Outer.largeWord (iso' word' (Iso.swap W.isoLarge)) ?
+   fun largeInt  ? = nullary Arg.largeInt  (iso' int'  (Iso.swap I.isoLarge)) ?
+   fun largeWord ? = nullary Arg.largeWord (iso' word' (Iso.swap W.isoLarge)) ?
 
    val real' = IN {gen = G.sized ((fn r => G.realInRange (~r, r)) o real),
-                   cog = stringCog' o Real.toString} (* XXX Real cog *)
+                   cog = stringCog' o R.toString} (* XXX Real cog *)
 
-   fun real ? = nullary Outer.real real' ?
+   fun real ? = nullary Arg.real real' ?
    fun largeReal ? =
-       nullary Outer.largeReal
+       nullary Arg.largeReal
                (iso' real' (Iso.swap (R.isoLarge IEEEReal.TO_NEAREST))) ?
 
    local
       fun mk outer large =
           nullary outer (iso' word' (Iso.<--> (Iso.swap W.isoLarge, large)))
    in
-      fun word8  ? = mk Outer.word8  Word8.isoLarge  ?
-   (* fun word16 ? = mk Outer.word16 Word16.isoLarge ?
+      fun word8  ? = mk Arg.word8  Word8.isoLarge  ?
+   (* fun word16 ? = mk Arg.word16 Word16.isoLarge ?
       (* Word16 not provided by SML/NJ *) *)
-      fun word32 ? = mk Outer.word32 Word32.isoLarge ?
-      fun word64 ? = mk Outer.word64 Word64.isoLarge ?
+      fun word32 ? = mk Arg.word32 Word32.isoLarge ?
+      fun word64 ? = mk Arg.word64 Word64.isoLarge ?
    end
 
    (* Trivialities *)
 
-   fun T ? = unary Outer.T id ?
-   fun R f = Outer.R (fn l => Pair.map (id, f l))
-   fun tuple ? = unary Outer.tuple id ?
-   fun record ? = unary Outer.record id ?
-   fun C0 f = Outer.C0 (fn l => (unit', f l))
-   fun C1 f = Outer.C1 (fn l => Pair.map (id, f l))
-   fun data ? = unary Outer.data id ?
+   fun T ? = unary Arg.T id ?
+   fun R f = Arg.R (fn l => Pair.map (id, f l))
+   fun tuple ? = unary Arg.tuple id ?
+   fun record ? = unary Arg.record id ?
+   fun C0 f = Arg.C0 (fn l => (unit', f l))
+   fun C1 f = Arg.C1 (fn l => Pair.map (id, f l))
+   fun data ? = unary Arg.data id ?
 end

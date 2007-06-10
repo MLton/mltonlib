@@ -28,11 +28,8 @@ end = struct
    structure Open = WithDummy     (Open) open Open
 
    structure Open = struct
-      structure Outer = Open
-      structure TypeInfo = struct
-         open TypeInfo
-         structure TypeInfo = Outer.Rep
-      end
+      open TypeInfo Open
+      structure TypeInfo = Rep
       structure RandomGen = RanQD1Gen
    end
 
