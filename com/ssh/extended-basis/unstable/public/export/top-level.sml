@@ -4,82 +4,89 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(** == Top-Level Bindings == *)
+(**
+ * Structure defining bindings intended to be available at the top-level.
+ * This structure exists for the benefit of Standard ML implementations
+ * that do not support introducing new top-level bindings.
+ *
+ * See also: <infixes.sml>
+ *)
+structure TopLevel = struct
+   (** == Basic == *)
 
-(** === Basic === *)
+   val eq = Basic.eq
+   val notEq = Basic.notEq
+   val fail = Basic.fail
+   val failing = Basic.failing
+   val raising = Basic.raising
+   val recur = Basic.recur
+   val repeat = Basic.repeat
+   val undefined = Basic.undefined
 
-val eq = Basic.eq
-val notEq = Basic.notEq
-val fail = Basic.fail
-val failing = Basic.failing
-val raising = Basic.raising
-val recur = Basic.recur
-val repeat = Basic.repeat
-val undefined = Basic.undefined
+   (** == Exn == *)
 
-(** === Exn === *)
+   val finally = Exn.finally
+   val try = Exn.try
 
-val finally = Exn.finally
-val try = Exn.try
+   (** == Fn == *)
 
-(** === Fn === *)
+   val const = Fn.const
+   val curry = Fn.curry
+   val flip = Fn.flip
+   val id = Fn.id
+   val pass = Fn.pass
+   val seal = Fn.seal
+   val uncurry = Fn.uncurry
 
-val const = Fn.const
-val curry = Fn.curry
-val flip = Fn.flip
-val id = Fn.id
-val pass = Fn.pass
-val seal = Fn.seal
-val uncurry = Fn.uncurry
+   val op /> = Fn./>
+   val op </ = Fn.</
+   val op <\ = Fn.<\
+   val op >| = Fn.>|
+   val op \> = Fn.\>
+   val op |< = Fn.|<
 
-val op /> = Fn./>
-val op </ = Fn.</
-val op <\ = Fn.<\
-val op >| = Fn.>|
-val op \> = Fn.\>
-val op |< = Fn.|<
+   (** == Fold == *)
 
-(** === Fold === *)
+   val $ = Fold.$
 
-val $ = Fold.$
+   (** == Lazy == *)
 
-(** === Lazy === *)
+   type 'a lazy = 'a Lazy.t
+   val delay = Lazy.delay
+   val eager = Lazy.eager
+   val force = Lazy.force
+   val lazy = Lazy.lazy
+   val memo = Lazy.memo
 
-type 'a lazy = 'a Lazy.t
-val delay = Lazy.delay
-val eager = Lazy.eager
-val force = Lazy.force
-val lazy = Lazy.lazy
-val memo = Lazy.memo
+   (** == Option == *)
 
-(** === Option === *)
+   val isNone = Option.isNone
 
-val isNone = Option.isNone
+   (** == Product == *)
 
-(** === Product === *)
+   datatype product = datatype Product.product
 
-datatype product = datatype Product.product
+   (** == Ref == *)
 
-(** === Ref === *)
+   val op :=: = Ref.:=:
 
-val op :=: = Ref.:=:
+   (** == Sum == *)
 
-(** === Sum === *)
+   datatype sum = datatype Sum.sum
 
-datatype sum = datatype Sum.sum
+   (** == TextIO == *)
 
-(** === TextIO === *)
+   val println = TextIO.println
 
-val println = TextIO.println
+   (** == UnPr == *)
 
-(** === UnPr === *)
+   val negate = UnPr.negate
 
-val negate = UnPr.negate
+   val op andAlso = UnPr.andAlso
+   val op orElse = UnPr.orElse
 
-val op andAlso = UnPr.andAlso
-val op orElse = UnPr.orElse
+   (** == Void == *)
 
-(** === Void === *)
-
-type void = Void.t
-val void = Void.void
+   type void = Void.t
+   val void = Void.void
+end

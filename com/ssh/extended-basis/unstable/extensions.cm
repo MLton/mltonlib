@@ -10,3 +10,4 @@ is
    detail/ml/smlnj/unsealed.cm
    public/export/common.sml
    public/export/smlnj.sml
+   public/export/top-level.sml
