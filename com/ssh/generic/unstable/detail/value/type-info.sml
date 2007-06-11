@@ -154,7 +154,7 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
    fun canBeCyclic ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
 
    fun outS (INS r, _) = r
-   fun numConsecutiveAlts ? = (#alts o outS) ?
+   fun numAlts ? = (#alts o outS) ?
    fun hasBaseCase ? = (#base o outS) ?
 end
 
@@ -163,11 +163,11 @@ functor WithTypeInfo (Outer : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
    open TypeInfo Joined
    structure TypeInfo = Rep
    fun mk f = f o Outer.Rep.getT
-   val canBeCyclic        = fn ? => mk canBeCyclic        ?
-   val hasExn             = fn ? => mk hasExn             ?
-   val hasRecData         = fn ? => mk hasRecData         ?
-   val isRefOrArray       = fn ? => mk isRefOrArray       ?
+   val canBeCyclic  = fn ? => mk canBeCyclic  ?
+   val hasExn       = fn ? => mk hasExn       ?
+   val hasRecData   = fn ? => mk hasRecData   ?
+   val isRefOrArray = fn ? => mk isRefOrArray ?
    fun mk f = f o Outer.Rep.getS
-   val hasBaseCase        = fn ? => mk hasBaseCase        ?
-   val numConsecutiveAlts = fn ? => mk numConsecutiveAlts ?
+   val hasBaseCase  = fn ? => mk hasBaseCase  ?
+   val numAlts      = fn ? => mk numAlts      ?
 end

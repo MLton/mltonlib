@@ -47,9 +47,9 @@ signature TYPE_INFO = sig
     * the form {'b ref}.
     *)
 
-   val numConsecutiveAlts : ('a, 'x) TypeInfo.s -> Int.t
+   val numAlts : ('a, 'x) TypeInfo.s -> Int.t
    (**
-    * Number of consecutive alternatives.
+    * Number of alternatives in the given incomplete sum.
     *)
 end
 

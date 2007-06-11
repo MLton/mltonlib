@@ -99,8 +99,8 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
                  let
                     val aGen = map INL aGen
                     val bGen = map INR bGen
-                    val gen = G.frequency [(Arg.numConsecutiveAlts a, aGen),
-                                           (Arg.numConsecutiveAlts b, bGen)]
+                    val gen = G.frequency [(Arg.numAlts a, aGen),
+                                           (Arg.numAlts b, bGen)]
                     val gen0 =
                         case Arg.hasBaseCase a & Arg.hasBaseCase b of
                            true & false => aGen
