@@ -26,6 +26,10 @@ About Library Organization
       (export*.sml).  The contents of this directory should be sufficient
       to understand how to use the functionality provided by this library.
 
+   example/
+
+      This directory contains examples related to this library.
+
    lib.mlb
 
       This build file defines the library.  See the file for further
