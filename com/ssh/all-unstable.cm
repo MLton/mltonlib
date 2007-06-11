@@ -1,0 +1,21 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+(* NOTE: This is mostly for the convenience of library developers.  Actual
+ * applications and libraries should only include the libraries that are
+ * really needed.
+ *)
+
+library
+   library(extended-basis/unstable/basis.cm)
+   library(generic/unstable/lib-with-default.cm)
+   library(prettier/unstable/lib.cm)
+   library(random/unstable/lib.cm)
+is
+   extended-basis/unstable/basis.cm
+   generic/unstable/lib-with-default.cm
+   prettier/unstable/lib.cm
+   random/unstable/lib.cm
