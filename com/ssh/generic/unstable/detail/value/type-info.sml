@@ -9,8 +9,6 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
    open TopLevel
    infix  7 *`
    infix  6 +`
-   infixr 6 <^> <+>
-   infixr 5 <$> <$$> </> <//>
    infix  4 <\ \>
    infixr 4 </ />
    infix  2 >| andAlso
@@ -20,14 +18,18 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   (* XXX separate datatype for sums, products, and whole representations *)
+   datatype t =
+      INT of {base : Bool.t,
+              exn : Bool.t,
+              pure : Bool.t,
+              recs : Int.t List.t}
 
-   datatype u =
-      IN of {alts : Int.t,
-             base : Bool.t,
-             exn : Bool.t,
-             pure : Bool.t,
-             recs : Int.t List.t}
+   datatype s =
+      INS of {alts : Int.t,
+              base : Bool.t,
+              exn : Bool.t,
+              pure : Bool.t,
+              recs : Int.t List.t}
 
    fun revMerge (xs, ys) = let
       fun lp ([], ys, zs) = (ys, zs)
@@ -56,27 +58,28 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
 
    structure Opened = OpenGeneric
      (structure Rep = struct
-         type 'a t = u
-         type 'a s = u
-         type ('a, 'k) p = u
+         type 'a t = t
+         type 'a s = s
+         type ('a, 'k) p = 'a t
       end
 
-      val base = IN {alts = 1, base = true, exn = false, pure = true, recs = []}
-      fun pure (IN {exn, recs, ...}) =
-          IN {alts = 1, base = true, exn = exn, pure = true, recs = recs}
+      val base = INT {base = true, exn = false, pure = true, recs = []}
+      fun pure (INT {exn, recs, ...}) =
+          INT {base = true, exn = exn, pure = true, recs = recs}
 
-      fun iso (IN {base, exn, pure, recs, ...}) =
-          const (IN {alts = 1, base = base, exn = exn, pure = pure, recs = recs})
+      val iso = const
+      val isoProduct = const
+      val isoSum = const
 
-      fun (IN {base = bl, exn = hl, recs = rl, ...}) *`
-          (IN {base = br, exn = hr, recs = rr, ...}) =
-          IN {alts = 1, base = bl andalso br, exn = hl orelse hr, pure = true,
-              recs = merge (rl, rr)}
+      fun (INT {base = bl, exn = hl, recs = rl, ...}) *`
+          (INT {base = br, exn = hr, recs = rr, ...}) =
+          INT {base = bl andalso br, exn = hl orelse hr, pure = true,
+               recs = merge (rl, rr)}
 
-      fun (IN {alts = al, base = bl, exn = hl, recs = rl, ...}) +`
-          (IN {alts = ar, base = br, exn = hr, recs = rr, ...}) =
-          IN {alts = al + ar, base = bl orelse br, exn = hl orelse hr, pure = true,
-              recs = merge (rl, rr)}
+      fun (INS {alts = al, base = bl, exn = hl, recs = rl, ...}) +`
+          (INS {alts = ar, base = br, exn = hr, recs = rr, ...}) =
+          INS {alts = al + ar, base = bl orelse br, exn = hl orelse hr,
+               pure = true, recs = merge (rl, rr)}
 
       val unit = base
 
@@ -88,22 +91,23 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
                 (fn () => let
                        val this = !id before id := !id + 1
                     in
-                       (IN {alts = 1, base = false, exn = false, pure = true, recs = [this]},
-                        fn IN {alts, base, exn, pure, recs} =>
-                           IN {alts = alts, base = base, exn = exn, pure = pure,
+                       (INT {base = false, exn = false, pure = true,
+                             recs = [this]},
+                        fn INT {base, exn, pure, recs} =>
+                           INT {base = base, exn = exn, pure = pure,
                                recs = remove this recs})
                     end) ?
       end
 
       fun _ --> _ = base
 
-      val exn = IN {alts = 1, base = true, exn = true, pure = true, recs = []}
+      val exn = INT {base = true, exn = true, pure = true, recs = []}
       fun regExn _ _ = ()
 
-      fun array (IN {exn, recs, ...}) =
-          IN {alts = 1, base = true, exn = exn, pure = false, recs = recs}
-      fun refc (IN {base, exn, recs, ...}) =
-          IN {alts = 1, base = base, exn = exn, pure = false, recs = recs}
+      fun array (INT {exn, recs, ...}) =
+          INT {base = true, exn = exn, pure = false, recs = recs}
+      fun refc (INT {base, exn, recs, ...}) =
+          INT {base = base, exn = exn, pure = false, recs = recs}
 
       val vector = pure
 
@@ -127,30 +131,31 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
 
       (* Trivialities *)
 
-      val isoProduct = iso
-      val isoSum = iso
-
       val T = id
       fun R _ = id
       val tuple = id
       val record = id
 
-      fun C0 _ = unit
-      fun C1 _ = id
-      val data = id)
+      fun C0 _ = INS {alts = 1, base = true, exn = false, pure = true, recs = []}
+      fun C1 _ (INT {base, exn, pure, recs}) =
+          INS {alts = 1, base = base, exn = exn, pure = pure, recs = recs}
+      fun data (INS {alts, base, exn, pure, recs}) =
+          INT {base = base, exn = exn, pure = pure, recs = recs})
 
    open Opened
 
    structure TypeInfo = Rep
 
-   fun out (IN t, _) = t
+   fun outT (INT r, _) = r
 
-   fun hasBaseCase ? = (#base o out) ?
-   fun hasExn ? = (#exn o out) ?
-   fun hasRecData ? = (not o null o #recs o out) ?
-   fun isRefOrArray ? = (not o #pure o out) ?
-   fun numConsecutiveAlts ? = (#alts o out) ?
+   fun hasExn ? = (#exn o outT) ?
+   fun hasRecData ? = (not o null o #recs o outT) ?
+   fun isRefOrArray ? = (not o #pure o outT) ?
    fun canBeCyclic ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
+
+   fun outS (INS r, _) = r
+   fun numConsecutiveAlts ? = (#alts o outS) ?
+   fun hasBaseCase ? = (#base o outS) ?
 end
 
 functor WithTypeInfo (Outer : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
