@@ -10,6 +10,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <aclapi.h>
 
 /************************************************************************/
 
@@ -108,4 +109,37 @@ win_FormatErrorLocalAlloc(DWORD error)
                 FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL, error, 0, (LPTSTR)&msg, 0, NULL);
   return msg;
+}
+
+LPSECURITY_ATTRIBUTES win_CreateAllAccessForWorldSA(void)
+{
+  static LPSECURITY_ATTRIBUTES sa = NULL;
+  PSECURITY_DESCRIPTOR sd = NULL;
+
+  if (sa)
+    return sa;
+
+  if (!(sd = LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH)))
+    goto failure;
+
+  if (!InitializeSecurityDescriptor(sd, SECURITY_DESCRIPTOR_REVISION))
+    goto failure;
+
+  if (!SetSecurityDescriptorDacl(sd, TRUE, NULL, FALSE))
+    goto failure;
+
+  if (!(sa = LocalAlloc(LPTR, sizeof (SECURITY_ATTRIBUTES))))
+    goto failure;
+
+  sa->nLength = sizeof (SECURITY_ATTRIBUTES);
+  sa->lpSecurityDescriptor = sd;
+  sa->bInheritHandle = FALSE;
+
+  return sa;
+
+failure:
+  if (sa) LocalFree(sa);
+  if (sd) LocalFree(sd);
+
+  return NULL;
 }

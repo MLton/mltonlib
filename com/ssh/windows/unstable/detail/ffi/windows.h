@@ -242,4 +242,6 @@ WIN_FUNCTION(OutputDebugString, void, 1, (LPCTSTR))
 
 C_CODE(LPTSTR win_FormatErrorLocalAlloc(DWORD error))
 
+C_CODE(LPSECURITY_ATTRIBUTES win_CreateAllAccessForWorldSA(void))
+
 #endif

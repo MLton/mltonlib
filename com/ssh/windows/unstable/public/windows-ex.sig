@@ -14,6 +14,11 @@ signature WINDOWS_EX = sig
       structure SID : sig
          type t
       end
+
+      structure SA : sig
+         type t
+         val allAccessForWorld : t (* XXX: BAD IDEA: FULL ACCESS FOR EVERYONE *)
+      end
    end
 
    structure EventLog : sig
@@ -71,7 +76,10 @@ signature WINDOWS_EX = sig
 
    structure Semaphore : sig
       type t
-      val create : {init : Int32.t, max : Int32.t, name : String.t Option.t} -> t
+      val create : {init : Int32.t,
+                    max : Int32.t,
+                    name : String.t Option.t,
+                    secAttr : Authorization.SA.t Option.t} -> t
       val close : t Effect.t
       val release : t * Int32.t -> Int32.t
       val toWait : t -> Wait.t
@@ -79,7 +87,9 @@ signature WINDOWS_EX = sig
 
    structure Mutex : sig
       type t
-      val create : {name : String.t Option.t, own : Bool.t} -> t
+      val create : {name : String.t Option.t,
+                    own : Bool.t,
+                    secAttr : Authorization.SA.t Option.t} -> t
       val close : t Effect.t
       val release : t Effect.t
       val toWait : t -> Wait.t
@@ -87,7 +97,9 @@ signature WINDOWS_EX = sig
 
    structure Timer : sig
       type t
-      val create : {manual : Bool.t, name : String.t Option.t} -> t
+      val create : {manual : Bool.t,
+                    name : String.t Option.t,
+                    secAttr : Authorization.SA.t Option.t} -> t
       val close : t Effect.t
       val setAbs : {timer : t,
                     due : Time.time,

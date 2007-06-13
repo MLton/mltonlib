@@ -313,6 +313,17 @@ structure Windows :> WINDOWS_EX = struct
       structure SID = struct
          type t = C.voidptr
       end
+
+      structure SA = struct
+         type t = C.voidptr
+         val allAccessForWorld = let
+            val result = F_win_CreateAllAccessForWorldSA.f' ()
+         in
+            if not (C.Ptr.isNull' result) then result
+            else fail "Failed to initialize\
+                      \ Windows.Authorization.SA.allAccessForWorld"
+         end
+      end
    end
 
    structure EventLog = struct
@@ -466,13 +477,15 @@ structure Windows :> WINDOWS_EX = struct
 
    structure Semaphore = struct
       type t = C.voidptr
-      fun create {init, max, name} =
+      fun create {init, max, name, secAttr} =
           one (withOpt withZs name)
               (fn name' =>
                   raiseOnNull
                      (fn () => F"Semaphore.create"
-                                [A int init, A int max, A (opt str) name])
-                     F_win_CreateSemaphore.f' (null, init, max, name'))
+                                [A int init, A int max, A (opt str) name,
+                                 A (opt ptr) secAttr])
+                     F_win_CreateSemaphore.f'
+                     (getOpt (secAttr, null), init, max, name'))
       val close = ptrToBool "Semaphore.close" F_win_CloseHandle.f'
       fun release (s, n) =
           one withLong
@@ -486,12 +499,14 @@ structure Windows :> WINDOWS_EX = struct
 
    structure Mutex = struct
       type t = C.voidptr
-      fun create {name, own} =
+      fun create {name, own, secAttr} =
           one (withOpt withZs name)
               (fn name' =>
                   raiseOnNull
-                     (fn () => F"Mutex.create"[A (opt str) name, A bool own])
-                     F_win_CreateMutex.f' (null, toCBool own, name'))
+                     (fn () => F"Mutex.create" [A (opt str) name, A bool own,
+                                                A (opt ptr) secAttr])
+                     F_win_CreateMutex.f'
+                     (getOpt (secAttr, null), toCBool own, name'))
       val close = ptrToBool "Mutex.close" F_win_CloseHandle.f'
       val release = ptrToBool "Mutex.release" F_win_ReleaseMutex.f'
       val toWait = id
@@ -499,12 +514,14 @@ structure Windows :> WINDOWS_EX = struct
 
    structure Timer = struct
       type t = C.voidptr
-      fun create {manual, name} =
+      fun create {manual, name, secAttr} =
           one (withOpt withZs name)
               (fn n' =>
                   raiseOnNull
-                     (fn () => F"Timer.create"[A bool manual, A (opt str) name])
-                     F_win_CreateWaitableTimer.f' (null, toCBool manual, n'))
+                     (fn () => F"Timer.create" [A bool manual, A (opt str) name,
+                                                A (opt ptr) secAttr])
+                     F_win_CreateWaitableTimer.f'
+                     (getOpt (secAttr, null), toCBool manual, n'))
       val close = ptrToBool "Timer.close" F_win_CloseHandle.f'
       fun mk name toDue {timer, due, period} = let
          val due' = toDue o Int64.fromLarge
