@@ -30,6 +30,9 @@ signature DUMMY_GENERIC = DUMMY_GENERIC
 signature EQ = EQ
 signature EQ_GENERIC = EQ_GENERIC
 
+signature HASH = HASH
+signature HASH_GENERIC = HASH_GENERIC
+
 signature ORD = ORD
 signature ORD_GENERIC = ORD_GENERIC
 

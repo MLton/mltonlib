@@ -20,6 +20,7 @@ group is
    ../../../public/value/arbitrary.sig
    ../../../public/value/dummy.sig
    ../../../public/value/eq.sig
+   ../../../public/value/hash.sig
    ../../../public/value/ord.sig
    ../../../public/value/show.sig
    ../../../public/value/type-info.sig

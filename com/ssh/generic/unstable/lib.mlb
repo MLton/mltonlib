@@ -69,6 +69,8 @@ in
 
          public/value/show.sig
          detail/value/show.sml
+
+         public/value/hash.sig
       in
          public/export.sml
       end
