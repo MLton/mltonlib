@@ -31,6 +31,13 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
               pure : Bool.t,
               recs : Int.t List.t}
 
+   datatype p =
+      INP of {base : Bool.t,
+              elems : Int.t,
+              exn : Bool.t,
+              pure : Bool.t,
+              recs : Int.t List.t}
+
    fun revMerge (xs, ys) = let
       fun lp ([], ys, zs) = (ys, zs)
         | lp (xs, [], zs) = (xs, zs)
@@ -60,7 +67,7 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
      (structure Rep = struct
          type 'a t = t
          type 'a s = s
-         type ('a, 'k) p = 'a t
+         type ('a, 'k) p = p
       end
 
       val base = INT {base = true, exn = false, pure = true, recs = []}
@@ -71,10 +78,10 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
       val isoProduct = const
       val isoSum = const
 
-      fun (INT {base = bl, exn = hl, recs = rl, ...}) *`
-          (INT {base = br, exn = hr, recs = rr, ...}) =
-          INT {base = bl andalso br, exn = hl orelse hr, pure = true,
-               recs = merge (rl, rr)}
+      fun (INP {base = bl, elems = el, exn = hl, recs = rl, ...}) *`
+          (INP {base = br, elems = er, exn = hr, recs = rr, ...}) =
+          INP {base = bl andalso br, elems = el + er, exn = hl orelse hr,
+               pure = true, recs = merge (rl, rr)}
 
       fun (INS {alts = al, base = bl, exn = hl, recs = rl, ...}) +`
           (INS {alts = ar, base = br, exn = hr, recs = rr, ...}) =
@@ -131,10 +138,13 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
 
       (* Trivialities *)
 
-      val T = id
-      fun R _ = id
-      val tuple = id
-      val record = id
+      fun T (INT {base, exn, pure, recs}) =
+          INP {base = base, elems = 1, exn = exn, pure = pure, recs = recs}
+      fun R _ = T
+
+      fun tuple (INP {base, exn, pure, recs, ...}) =
+          INT {base = base, exn = exn, pure = pure, recs = recs}
+      val record = tuple
 
       fun C0 _ = INS {alts = 1, base = true, exn = false, pure = true, recs = []}
       fun C1 _ (INT {base, exn, pure, recs}) =
@@ -146,16 +156,19 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
 
    structure TypeInfo = Rep
 
-   fun outT (INT r, _) = r
+   fun out (INT r, _) = r
 
-   fun hasExn ? = (#exn o outT) ?
-   fun hasRecData ? = (not o null o #recs o outT) ?
-   fun isRefOrArray ? = (not o #pure o outT) ?
+   fun hasExn ? = (#exn o out) ?
+   fun hasRecData ? = (not o null o #recs o out) ?
+   fun isRefOrArray ? = (not o #pure o out) ?
    fun canBeCyclic ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
 
-   fun outS (INS r, _) = r
-   fun numAlts ? = (#alts o outS) ?
-   fun hasBaseCase ? = (#base o outS) ?
+   fun out (INS r, _) = r
+   fun numAlts ? = (#alts o out) ?
+   fun hasBaseCase ? = (#base o out) ?
+
+   fun out (INP r, _) = r
+   fun numElems ? = (#elems o out) ?
 end
 
 functor WithTypeInfo (Outer : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
@@ -170,4 +183,6 @@ functor WithTypeInfo (Outer : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
    fun mk f = f o Outer.Rep.getS
    val hasBaseCase  = fn ? => mk hasBaseCase  ?
    val numAlts      = fn ? => mk numAlts      ?
+   fun mk f = f o Outer.Rep.getP
+   val numElems     = fn ? => mk numElems     ?
 end

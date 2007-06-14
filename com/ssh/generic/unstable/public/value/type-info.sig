@@ -48,9 +48,10 @@ signature TYPE_INFO = sig
     *)
 
    val numAlts : ('a, 'x) TypeInfo.s -> Int.t
-   (**
-    * Number of alternatives in the given incomplete sum.
-    *)
+   (** Number of alternatives in the given incomplete sum. *)
+
+   val numElems : ('a, 'k, 'x) TypeInfo.p -> Int.t
+   (** Number of elements in the given incomplete product. *)
 end
 
 signature TYPE_INFO_GENERIC = sig
