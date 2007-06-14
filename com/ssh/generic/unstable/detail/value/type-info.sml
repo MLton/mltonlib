@@ -139,7 +139,7 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
       fun C0 _ = INS {alts = 1, base = true, exn = false, pure = true, recs = []}
       fun C1 _ (INT {base, exn, pure, recs}) =
           INS {alts = 1, base = base, exn = exn, pure = pure, recs = recs}
-      fun data (INS {alts, base, exn, pure, recs}) =
+      fun data (INS {base, exn, pure, recs, ...}) =
           INT {base = base, exn = exn, pure = pure, recs = recs})
 
    open Opened
