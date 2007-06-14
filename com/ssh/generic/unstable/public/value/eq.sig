@@ -15,7 +15,7 @@ signature EQ = sig
 
    val eq : ('a, 'x) Eq.t -> 'a BinPr.t
    (**
-    * Extracs the equality relation.  Note that the type parameter {'a}
+    * Extracts the equality relation.  Note that the type parameter {'a}
     * isn't an equality type variable.
     *)
 
