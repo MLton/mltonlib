@@ -21,6 +21,8 @@
 signature TYPE_INFO = sig
    structure TypeInfo : OPEN_GENERIC_REP
 
+   (** == Types == *)
+
    val canBeCyclic : ('a, 'x) TypeInfo.t UnPr.t
    (**
     * Returns true iff {'a} is of the form {'b ref} or {'b array} and
@@ -28,9 +30,6 @@ signature TYPE_INFO = sig
     *
     * Note: Functions are not considered to form cycles.
     *)
-
-   val hasBaseCase : ('a, 'x) TypeInfo.s UnPr.t
-   (** Returns true iff the type {'a} has a non-recursive variant. *)
 
    val hasExn : ('a, 'x) TypeInfo.t UnPr.t
    (** Returns true iff the type {'a} contains the type {exn}. *)
@@ -47,8 +46,15 @@ signature TYPE_INFO = sig
     * the form {'b ref}.
     *)
 
+   (** == Sums == *)
+
+   val hasBaseCase : ('a, 'x) TypeInfo.s UnPr.t
+   (** Returns true iff the type {'a} has a non-recursive variant. *)
+
    val numAlts : ('a, 'x) TypeInfo.s -> Int.t
    (** Number of alternatives in the given incomplete sum. *)
+
+   (** == Products == *)
 
    val numElems : ('a, 'k, 'x) TypeInfo.p -> Int.t
    (** Number of elements in the given incomplete product. *)

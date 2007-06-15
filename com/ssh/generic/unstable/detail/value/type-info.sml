@@ -28,14 +28,12 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
       INS of {alts : Int.t,
               base : Bool.t,
               exn : Bool.t,
-              pure : Bool.t,
               recs : Int.t List.t}
 
    datatype p =
       INP of {base : Bool.t,
               elems : Int.t,
               exn : Bool.t,
-              pure : Bool.t,
               recs : Int.t List.t}
 
    fun revMerge (xs, ys) = let
@@ -81,12 +79,12 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
       fun (INP {base = bl, elems = el, exn = hl, recs = rl, ...}) *`
           (INP {base = br, elems = er, exn = hr, recs = rr, ...}) =
           INP {base = bl andalso br, elems = el + er, exn = hl orelse hr,
-               pure = true, recs = merge (rl, rr)}
+               recs = merge (rl, rr)}
 
       fun (INS {alts = al, base = bl, exn = hl, recs = rl, ...}) +`
           (INS {alts = ar, base = br, exn = hr, recs = rr, ...}) =
           INS {alts = al + ar, base = bl orelse br, exn = hl orelse hr,
-               pure = true, recs = merge (rl, rr)}
+               recs = merge (rl, rr)}
 
       val unit = base
 
@@ -138,19 +136,19 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
 
       (* Trivialities *)
 
-      fun T (INT {base, exn, pure, recs}) =
-          INP {base = base, elems = 1, exn = exn, pure = pure, recs = recs}
+      fun T (INT {base, exn, recs, ...}) =
+          INP {base = base, elems = 1, exn = exn, recs = recs}
       fun R _ = T
 
-      fun tuple (INP {base, exn, pure, recs, ...}) =
-          INT {base = base, exn = exn, pure = pure, recs = recs}
+      fun tuple (INP {base, exn, recs, ...}) =
+          INT {base = base, exn = exn, pure = true, recs = recs}
       val record = tuple
 
-      fun C0 _ = INS {alts = 1, base = true, exn = false, pure = true, recs = []}
-      fun C1 _ (INT {base, exn, pure, recs}) =
-          INS {alts = 1, base = base, exn = exn, pure = pure, recs = recs}
-      fun data (INS {base, exn, pure, recs, ...}) =
-          INT {base = base, exn = exn, pure = pure, recs = recs})
+      fun C0 _ = INS {alts = 1, base = true, exn = false, recs = []}
+      fun C1 _ (INT {base, exn, recs, ...}) =
+          INS {alts = 1, base = base, exn = exn, recs = recs}
+      fun data (INS {base, exn, recs, ...}) =
+          INT {base = base, exn = exn, pure = true, recs = recs})
 
    open Opened
 
