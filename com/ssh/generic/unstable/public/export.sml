@@ -95,13 +95,15 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
 (** === Value Functors === *)
 
 signature WITH_ARBITRARY_DOM = WITH_ARBITRARY_DOM
-
 functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC =
    WithArbitrary (Arg)
 
 functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = WithDummy (Arg)
 
 functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = WithEq (Arg)
+
+signature WITH_HASH_DOM = WITH_HASH_DOM
+functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = WithHash (Arg)
 
 functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = WithOrd (Arg)
 

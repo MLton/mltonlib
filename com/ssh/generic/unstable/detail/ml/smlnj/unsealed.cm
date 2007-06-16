@@ -34,6 +34,7 @@ group is
    ../../value/arbitrary.sml
    ../../value/dummy.sml
    ../../value/eq.sml
+   ../../value/hash.sml
    ../../value/ord.sml
    ../../value/show.sml
    ../../value/type-info.sml

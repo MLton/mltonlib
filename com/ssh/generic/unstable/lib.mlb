@@ -24,9 +24,6 @@ in
             detail/generics.sml
          end
 
-         public/generics-util.sig
-         detail/generics-util.sml
-
          (* Concepts *)
 
          public/closed-generic-rep.sig
@@ -37,6 +34,11 @@ in
 
          public/generic.sig
          public/generic-extra.sig
+
+         (* Utilities *)
+
+         public/generics-util.sig
+         detail/generics-util.sml
 
          (* Framework *)
 
@@ -71,6 +73,7 @@ in
          detail/value/show.sml
 
          public/value/hash.sig
+         detail/value/hash.sml
       in
          public/export.sml
       end

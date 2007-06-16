@@ -9,6 +9,7 @@ structure Generic : sig
    include ARBITRARY sharing Open.Rep = Arbitrary
    include DUMMY     sharing Open.Rep = Dummy
    include EQ        sharing Open.Rep = Eq
+   include HASH      sharing Open.Rep = Hash
    include ORD       sharing Open.Rep = Ord
    include SHOW      sharing Open.Rep = Show
    include TYPE_INFO sharing Open.Rep = TypeInfo
@@ -29,9 +30,17 @@ end = struct
 
    structure Open = WithArbitrary (Open) open Open
 
+   structure Open = struct
+      open TypeInfo Open
+      structure TypeInfo = Rep
+   end
+
+   structure Open = WithHash      (Open) open Open
+
    structure Arbitrary = Open.Rep
    structure Dummy     = Open.Rep
    structure Eq        = Open.Rep
+   structure Hash      = Open.Rep
    structure Ord       = Open.Rep
    structure Show      = Open.Rep
    structure TypeInfo  = Open.Rep
