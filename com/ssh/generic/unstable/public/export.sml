@@ -36,6 +36,9 @@ signature HASH_GENERIC = HASH_GENERIC
 signature ORD = ORD
 signature ORD_GENERIC = ORD_GENERIC
 
+signature PICKLE = PICKLE
+signature PICKLE_GENERIC = PICKLE_GENERIC
+
 signature PRETTY = PRETTY
 signature PRETTY_GENERIC = PRETTY_GENERIC
 
@@ -106,6 +109,9 @@ signature WITH_HASH_DOM = WITH_HASH_DOM
 functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = WithHash (Arg)
 
 functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = WithOrd (Arg)
+
+signature WITH_PICKLE_DOM = WITH_PICKLE_DOM
+functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_GENERIC = WithPickle (Arg)
 
 functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = WithPretty (Arg)
 

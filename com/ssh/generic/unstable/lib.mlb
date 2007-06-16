@@ -66,14 +66,17 @@ in
          public/value/eq.sig
          detail/value/eq.sml
 
+         public/value/hash.sig
+         detail/value/hash.sml
+
          public/value/ord.sig
          detail/value/ord.sml
 
+         public/value/pickle.sig
+         detail/value/pickle.sml
+
          public/value/pretty.sig
          detail/value/pretty.sml
-
-         public/value/hash.sig
-         detail/value/hash.sml
       in
          public/export.sml
       end
