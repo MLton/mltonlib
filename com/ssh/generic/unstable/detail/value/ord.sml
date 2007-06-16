@@ -4,17 +4,16 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure Ord :> ORD_GENERIC = struct
+local
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
    infix  6 +`
    infix  0 &
-   infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Opened = OpenGeneric
-     (structure Rep = struct
+   structure Ord : CLOSED_GENERIC = struct
+      structure Rep = struct
          type 'a t = 'a Cmp.t
          type 'a s = 'a t
          type ('a, 'k) p = 'a t
@@ -28,11 +27,7 @@ structure Ord :> ORD_GENERIC = struct
 
       val Y = Tie.function
 
-      local
-         val e = Fail "Compare.--> not supported"
-      in
-         fun _ --> _ = raising e
-      end
+      fun op --> _ = failing "Compare.--> unsupported"
 
      (* XXX It is also possible to implement exn so that compare provides
       * a reasonable answer as long as at least one of the exception
@@ -85,18 +80,21 @@ structure Ord :> ORD_GENERIC = struct
 
       fun C0 _ = unit
       fun C1 _ = id
-      val data = id)
+      val data = id
+   end
 
-   open Opened
-
-   structure Ord = Rep
-
-   val compare = Pair.fst
+   structure Ord : OPEN_GENERIC = OpenGeneric (Ord)
+in
+   structure Ord :> ORD_GENERIC = struct
+      open Ord
+      structure Ord = Rep
+      val compare : ('a, 'x) Ord.t -> 'a Cmp.t = Pair.fst
+   end
 end
 
-functor WithOrd (Outer : OPEN_GENERIC) : ORD_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Outer and Inner = Ord)
+functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
+   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Ord)
    open Ord Joined
    structure Ord = Rep
-   val compare = fn ? => compare (Outer.Rep.getT ?)
+   val compare = fn ? => compare (Arg.Rep.getT ?)
 end

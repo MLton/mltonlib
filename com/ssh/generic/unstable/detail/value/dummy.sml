@@ -4,17 +4,16 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure Dummy :> DUMMY_GENERIC = struct
+local
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
    infix  6 +`
    infix  0 &
-   infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Opened = OpenGeneric
-     (structure Rep = struct
+   structure Dummy : CLOSED_GENERIC = struct
+      structure Rep = struct
          type 'a t = 'a Option.t
          type 'a s = 'a t
          type ('a, 'k) p = 'a t
@@ -32,11 +31,7 @@ structure Dummy :> DUMMY_GENERIC = struct
 
       fun Y ? = Tie.pure (const (NONE, id)) ?
 
-      local
-         val e = Fail "Dummy.-->"
-      in
-         fun _ --> _ = SOME (raising e)
-      end
+      fun op --> _ = SOME (failing "Dummy.-->")
 
       val exn = SOME Empty
       fun regExn _ _ = ()
@@ -77,25 +72,29 @@ structure Dummy :> DUMMY_GENERIC = struct
 
       fun C0 _ = unit
       fun C1 _ = id
-      val data = id)
+      val data = id
+   end
 
-   open Opened
+   structure Dummy : OPEN_GENERIC = OpenGeneric (Dummy)
+in
+   structure Dummy :> DUMMY_GENERIC = struct
+      open Dummy
 
-   structure Dummy = Rep
-   exception Dummy
+      structure Dummy = Rep
+      exception Dummy
 
-   fun dummy (vo, _) =
-       case vo of
-          SOME v => v
-        | NONE   => raise Dummy
+      val dummy : ('a, 'x) Dummy.t -> 'a =
+          fn (SOME v, _) => v
+           | (NONE,   _) => raise Dummy
 
-   fun noDummy (_, x) = (NONE, x)
+      fun noDummy (_, x) = (NONE, x)
+   end
 end
 
-functor WithDummy (Outer : OPEN_GENERIC) : DUMMY_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Outer and Inner = Dummy)
+functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = struct
+   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Dummy)
    open Dummy Joined
    structure Dummy = Rep
-   val dummy = fn ? => dummy (Outer.Rep.getT ?)
-   val noDummy = fn ? => Outer.Rep.mapT noDummy ?
+   val dummy = fn ? => dummy (Arg.Rep.getT ?)
+   val noDummy = fn ? => Arg.Rep.mapT noDummy ?
 end

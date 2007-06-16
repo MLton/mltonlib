@@ -4,17 +4,16 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure Eq :> EQ_GENERIC = struct
+local
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
    infix  6 +`
    infix  0 &
-   infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Opened = OpenGeneric
-     (structure Rep = struct
+   structure Eq : CLOSED_GENERIC = struct
+      structure Rep = struct
          type 'a t = 'a BinPr.t
          type 'a s = 'a t
          type ('a, 'k) p = 'a t
@@ -27,11 +26,7 @@ structure Eq :> EQ_GENERIC = struct
 
       val Y = Tie.function
 
-      local
-         val e = Fail "Eq.--> not supported"
-      in
-         fun _ --> _ = raising e
-      end
+      fun op --> _ = failing "Eq.--> unsupported"
 
       val exn : Exn.t Rep.t Ref.t = ref GenericsUtil.failExnSq
       fun regExn t (_, prj) =
@@ -80,21 +75,24 @@ structure Eq :> EQ_GENERIC = struct
 
       fun C0 _ = unit
       fun C1 _ = id
-      val data = id)
+      val data = id
+   end
 
-   open Opened
-
-   structure Eq = Rep
-
-   val eq = Pair.fst
-   fun notEq (eq, _) = negate eq
+   structure Eq : OPEN_GENERIC = OpenGeneric (Eq)
+in
+   structure Eq :> EQ_GENERIC = struct
+      open Eq
+      structure Eq = Rep
+      val eq : ('a, 'x) Eq.t -> 'a BinPr.t = Pair.fst
+      fun notEq (eq, _) = negate eq
+   end
 end
 
-functor WithEq (Outer : OPEN_GENERIC) : EQ_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Outer and Inner = Eq)
+functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
+   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Eq)
    open Eq Joined
    structure Eq = Rep
-   fun mk f = f o Outer.Rep.getT
+   fun mk f = f o Arg.Rep.getT
    val eq    = fn ? => mk eq    ?
    val notEq = fn ? => mk notEq ?
 end

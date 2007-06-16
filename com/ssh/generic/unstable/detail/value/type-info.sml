@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure TypeInfo :> TYPE_INFO_GENERIC = struct
+local
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
@@ -61,8 +61,8 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
       List.revAppend (lp ([], ys))
    end
 
-   structure Opened = OpenGeneric
-     (structure Rep = struct
+   structure TypeInfo : CLOSED_GENERIC = struct
+      structure Rep = struct
          type 'a t = t
          type 'a s = s
          type ('a, 'k) p = p
@@ -148,39 +148,43 @@ structure TypeInfo :> TYPE_INFO_GENERIC = struct
       fun C1 _ (INT {base, exn, recs, ...}) =
           INS {alts = 1, base = base, exn = exn, recs = recs}
       fun data (INS {base, exn, recs, ...}) =
-          INT {base = base, exn = exn, pure = true, recs = recs})
+          INT {base = base, exn = exn, pure = true, recs = recs}
+   end
 
-   open Opened
+   structure TypeInfo : OPEN_GENERIC = OpenGeneric (TypeInfo)
+in
+   structure TypeInfo :> TYPE_INFO_GENERIC = struct
+      open TypeInfo
 
-   structure TypeInfo = Rep
+      structure TypeInfo = Rep
 
-   fun out (INT r, _) = r
+      fun out (INT r, _) = r
+      fun hasExn       ? = (#exn o out) ?
+      fun hasRecData   ? = (not o null o #recs o out) ?
+      fun isRefOrArray ? = (not o #pure o out) ?
+      fun canBeCyclic  ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
 
-   fun hasExn ? = (#exn o out) ?
-   fun hasRecData ? = (not o null o #recs o out) ?
-   fun isRefOrArray ? = (not o #pure o out) ?
-   fun canBeCyclic ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
+      fun out (INS r, _) = r
+      fun hasBaseCase  ? = (#base o out) ?
+      fun numAlts      ? = (#alts o out) ?
 
-   fun out (INS r, _) = r
-   fun numAlts ? = (#alts o out) ?
-   fun hasBaseCase ? = (#base o out) ?
-
-   fun out (INP r, _) = r
-   fun numElems ? = (#elems o out) ?
+      fun out (INP r, _) = r
+      fun numElems     ? = (#elems o out) ?
+   end
 end
 
-functor WithTypeInfo (Outer : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Outer and Inner = TypeInfo)
+functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
+   structure Joined = JoinGenerics (structure Outer = Arg and Inner = TypeInfo)
    open TypeInfo Joined
    structure TypeInfo = Rep
-   fun mk f = f o Outer.Rep.getT
+   fun mk f = f o Arg.Rep.getT
    val canBeCyclic  = fn ? => mk canBeCyclic  ?
    val hasExn       = fn ? => mk hasExn       ?
    val hasRecData   = fn ? => mk hasRecData   ?
    val isRefOrArray = fn ? => mk isRefOrArray ?
-   fun mk f = f o Outer.Rep.getS
+   fun mk f = f o Arg.Rep.getS
    val hasBaseCase  = fn ? => mk hasBaseCase  ?
    val numAlts      = fn ? => mk numAlts      ?
-   fun mk f = f o Outer.Rep.getP
+   fun mk f = f o Arg.Rep.getP
    val numElems     = fn ? => mk numElems     ?
 end

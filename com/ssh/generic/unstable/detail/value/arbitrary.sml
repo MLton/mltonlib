@@ -119,11 +119,9 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
                      cog = fn f => fn g =>
                               aGen >>= (fn a => universally (bCog (f a)) g)}) ?
 
-   fun exn ? = let
-      val e = Fail "Arbitrary.exn not supported yet"
-   in
-      nullary Arg.exn (IN {gen = G.return Empty, cog = raising e})
-   end ?
+   fun exn ? =
+       nullary Arg.exn (IN {gen = G.return Empty,
+                            cog = failing "Arbitrary.exn unsupported"}) ?
 
    fun regExn ef = Arg.regExn (ef o Pair.snd)
 

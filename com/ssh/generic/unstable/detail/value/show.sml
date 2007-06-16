@@ -9,7 +9,7 @@
 (* XXX parameters for pretty printing? *)
 (* XXX parameters for depth, length, etc... for showing only partial data *)
 
-structure Show :> SHOW_GENERIC = struct
+local
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
@@ -24,8 +24,8 @@ structure Show :> SHOW_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Opened = OpenGeneric
-     (local
+   structure Show : CLOSED_GENERIC = struct
+      local
          open Prettier
          type u = Bool.t * t
          fun atomic    doc = (true,  doc)
@@ -187,20 +187,24 @@ structure Show :> SHOW_GENERIC = struct
       val word8  = mkWord Word8.toString
    (* val word16 = mkWord Word16.toString (* Word16 not provided by SML/NJ *) *)
       val word32 = mkWord Word32.toString
-      val word64 = mkWord Word64.toString)
+      val word64 = mkWord Word64.toString
+   end
 
-   open Opened
-
-   structure Show = Rep
-
-   fun layout (t, _) x = Pair.snd (t ([], x))
-   fun show m t = Prettier.pretty m o layout t
+   structure Show : OPEN_GENERIC = OpenGeneric (Show)
+in
+   structure Show :> SHOW_GENERIC = struct
+      open Show
+      structure Show = Rep
+      val layout : ('a, 'x) Show.t -> 'a -> Prettier.t =
+          fn (t, _) => Pair.snd o [] <\ t
+      fun show m t = Prettier.pretty m o layout t
+   end
 end
 
-functor WithShow (Outer : OPEN_GENERIC) : SHOW_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Outer and Inner = Show)
+functor WithShow (Arg : OPEN_GENERIC) : SHOW_GENERIC = struct
+   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Show)
    open Joined
-   fun layout ? = Show.layout (Outer.Rep.getT ?)
-   fun show m = Show.show m o Outer.Rep.getT
+   fun layout ? = Show.layout (Arg.Rep.getT ?)
+   fun show m = Show.show m o Arg.Rep.getT
    structure Show = Rep
 end
