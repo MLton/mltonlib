@@ -18,7 +18,9 @@ in
 
          detail/mk-random-gen.fun
 
+         public/numerical-recipes.sig
          detail/numerical-recipes.sml
+
          detail/ranqd1-gen.sml
 
          detail/ml/$(SML_COMPILER)/random-dev.mlb

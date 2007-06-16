@@ -6,6 +6,7 @@
 
 group is
   ../../../../../extended-basis/unstable/basis.cm
+  ../../../public/numerical-recipes.sig
   ../../../public/random-dev.sig
   ../../../public/random-gen.sig
   ../../../public/rng.sig

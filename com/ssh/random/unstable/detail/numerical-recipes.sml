@@ -4,25 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure NumericalRecipes :> sig
-   val ranqd1 : Word32.t UnOp.t
-   (**
-    * This implements the quick-and-dirty linear congruential pseudo
-    * random number generator described on page 284 of the book Numerical
-    * Recipes in C.  Perhaps the most important feature of this generator
-    * is that it cycles through all 32-bit words.  This is useful if you
-    * want to generate unique 32-bit identifiers.
-    *
-    * Warning: If you need a high-quality pseudo random number generator
-    * for simulation purposes, then this isn't for you.
-    *)
-
-   val psdes : Word32.t Sq.t UnOp.t
-   (**
-    * This implements the "Pseudo-DES" algorithm described in section 7.5
-    * of the book Numerical Recipes in C.
-    *)
-end = struct
+structure NumericalRecipes :> NUMERICAL_RECIPES = struct
    (* <-- SML/NJ workarounds *)
    open TopLevel
    infix  7 >> <<
