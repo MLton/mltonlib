@@ -13,48 +13,43 @@ local
    (* SML/NJ workaround --> *)
 
    structure Dummy : CLOSED_GENERIC = struct
-      structure Rep = MkClosedGenericRep (type 'a t = 'a Option.t)
+      structure Rep = MkClosedGenericRep (Thunk)
 
-      fun iso b = flip Option.map b o Iso.from
+      fun iso b (_, b2a) = b2a o b
 
-      fun a *` b = case a & b of
-                      SOME a & SOME b => SOME (a & b)
-                    | _ => NONE
+      fun a *` b = fn () => a () & b ()
+      fun a +` b = fn () => INL (a ()) handle _ => INR (b ())
 
-      fun a +` b = case a of
-                      SOME a => SOME (INL a)
-                    | NONE => Option.map INR b
+      val Y = Tie.function
 
-      fun Y ? = Tie.pure (const (NONE, id)) ?
+      fun op --> _ = fn () => failing "Dummy.-->"
 
-      fun op --> _ = SOME (failing "Dummy.-->")
-
-      val exn = SOME Empty
+      val exn = fn () => Empty
       fun regExn _ _ = ()
 
-      fun array _ = SOME (Array.tabulate (0, undefined))
-      fun refc ? = Option.map ref ?
+      fun array _ = fn () => Array.tabulate (0, undefined)
+      fun refc a = ref o a
 
-      fun vector _ = SOME (Vector.tabulate (0, undefined))
+      fun vector _ = fn () => Vector.tabulate (0, undefined)
 
-      val largeInt  : LargeInt.t  Rep.t = SOME 0
-      val largeReal : LargeReal.t Rep.t = SOME 0.0
-      val largeWord : LargeWord.t Rep.t = SOME 0w0
+      val largeInt  = fn () => 0   : LargeInt.t
+      val largeReal = fn () => 0.0 : LargeReal.t
+      val largeWord = fn () => 0w0 : LargeWord.t
 
-      fun list _ = SOME []
+      fun list _ = fn () => []
 
-      val bool   = SOME false
-      val char   = SOME #"\000"
-      val int    = SOME 0
-      val real   = SOME 0.0
-      val string = SOME ""
-      val unit   = SOME ()
-      val word   = SOME 0w0
+      val bool   = fn () => false
+      val char   = fn () => #"\000"
+      val int    = fn () => 0
+      val real   = fn () => 0.0
+      val string = fn () => ""
+      val unit   = fn () => ()
+      val word   = fn () => 0w0
 
-      val word8  : Word8.t  Rep.t = SOME 0w0
-   (* val word16 : Word16.t Rep.t = SOME 0w0 (* Word16 not provided by SML/NJ *) *)
-      val word32 : Word32.t Rep.t = SOME 0w0
-      val word64 : Word64.t Rep.t = SOME 0w0
+      val word8  = fn () => 0w0 : Word8.t
+   (* val word16 = fn () => 0w0 : Word16.t (* Word16 not provided by SML/NJ *) *)
+      val word32 = fn () => 0w0 : Word32.t
+      val word64 = fn () => 0w0 : Word64.t
 
       (* Trivialities *)
 
@@ -80,10 +75,9 @@ in
       exception Dummy of Exn.t
 
       val dummy : ('a, 'x) Dummy.t -> 'a =
-          fn (SOME v, _) => v
-           | (NONE,   _) => raise Dummy Option
+          fn (a, _) => a () handle e => raise Dummy e
 
-      fun withDummy v (_, x) = (v, x)
+      fun withDummy v (_, x) = (fn () => valOf v, x)
    end
 end
 
