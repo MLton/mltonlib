@@ -20,6 +20,8 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
+   open GenericsUtil
+
    structure W = Word
 
    type 'a t = 'a -> {maxWidth : Int.t, maxDepth : Int.t} -> Word.t UnOp.t
@@ -47,17 +49,12 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
 
    fun iso' bH (a2b, _) = bH o a2b
 
-   fun morph outer f = outer (fn (a, x) => fn i => (iso' a i, f x i))
-   fun nullary outer t x = outer (t, x)
-   fun bop outer f g = outer (Pair.map (f, g) o Pair.swizzle)
-   fun uop outer f g = outer (Pair.map (f, g))
-
-   fun iso ? = morph Arg.iso ?
-   fun isoProduct ? = morph Arg.isoProduct ?
-   fun isoSum ? = morph Arg.isoSum ?
+   fun iso ? = morph Arg.iso iso' ?
+   fun isoProduct ? = morph Arg.isoProduct iso' ?
+   fun isoSum ? = morph Arg.isoSum iso' ?
 
    fun op *` xy2z (aT, bT) =
-       bop Arg.*`
+       op2 Arg.*`
            (fn (aH, bH) =>
                fn a & b => fn {maxWidth, maxDepth} => let
                   val aN = Arg.numElems aT
@@ -71,22 +68,22 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
            xy2z (aT, bT)
 
    fun op +` ? =
-       bop Arg.+`
+       op2 Arg.+`
            (Sum.sum o
             Pair.map (HC.withConst 0wx96BA232,
                       HC.withConst 0wxCF2465)) ?
 
-   fun Y y = Arg.Y (Tie.tuple2 (Tie.function, y))
+   fun Y ? = y Arg.Y Tie.function ?
 
-   fun op --> ? = bop Arg.--> (fn _ => failing "Hash.--> unsupported") ?
+   fun op --> ? = op2 Arg.--> (fn _ => failing "Hash.--> unsupported") ?
 
-   fun exn ? = nullary Arg.exn (failing "Hash.exn unsupported") ?
-   fun regExn ef = Arg.regExn (ef o Pair.snd)
+   fun exn ? = op0 Arg.exn (failing "Hash.exn unsupported") ?
+   fun regExn ? = re Arg.regExn (const ignore) ?
 
-   fun refc ? = uop Arg.refc (HC.withConst 0wx178A2346 o HC.map !) ?
+   fun refc ? = op1 Arg.refc (HC.withConst 0wx178A2346 o HC.map !) ?
 
    fun list ? =
-       uop Arg.list
+       op1 Arg.list
            (fn hX => fn xs => fn {maxWidth, maxDepth} => fn h => let
                val m = Int.quot (maxWidth, 2)
                fun len n []      = n
@@ -115,20 +112,20 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
          end
    end
 
-   fun array ? = uop Arg.array (hashSeq Array.length Array.sub) ?
-   fun vector ? = uop Arg.vector (hashSeq Vector.length Vector.sub) ?
+   fun array ? = op1 Arg.array (hashSeq Array.length Array.sub) ?
+   fun vector ? = op1 Arg.vector (hashSeq Vector.length Vector.sub) ?
 
    val char' = HC.lift (Word.fromInt o ord)
-   fun char ? = nullary Arg.char char' ?
+   fun char ? = op0 Arg.char char' ?
 
    val string' = hashSeq String.length String.sub char'
-   fun string ? = nullary Arg.string string' ?
+   fun string ? = op0 Arg.string string' ?
 
    val unit' = HC.lift (Thunk.mk 0wx2F785)
-   fun unit ? = nullary Arg.unit unit' ?
+   fun unit ? = op0 Arg.unit unit' ?
 
    local
-      fun mk outer toWord ? = nullary outer (HC.lift toWord) ?
+      fun mk outer toWord ? = op0 outer (HC.lift toWord) ?
    in
       fun largeInt ? =
           mk Arg.largeInt
@@ -147,26 +144,26 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
    end
 
    (* XXX SML/NJ does not provide a function to convert a real to bits *)
-   fun largeReal ? = nullary Arg.largeReal (HC.map LargeReal.toString string') ?
-   fun real ? = nullary Arg.real (HC.map Real.toString string') ?
+   fun largeReal ? = op0 Arg.largeReal (HC.map LargeReal.toString string') ?
+   fun real ? = op0 Arg.real (HC.map Real.toString string') ?
 
    (* Trivialities *)
 
-   fun T ? = uop Arg.T id ?
-   fun R f = Arg.R (fn l => Pair.map (id, f l))
+   fun T ? = t Arg.T id ?
+   fun R ? = r Arg.R (const id) ?
 
    local
       fun width h : 'a t =
           fn a => fn p => if #maxWidth p = 0 then id else h a p
    in
-      fun tuple ? = uop Arg.tuple width ?
-      fun record ? = uop Arg.record width ?
+      fun tuple ? = op1 Arg.tuple width ?
+      fun record ? = op1 Arg.record width ?
    end
 
-   fun C0 f = Arg.C0 (fn l => (unit', f l))
-   fun C1 f = Arg.C1 (fn l => Pair.map (id, f l))
+   fun C0 ? = c0 Arg.C0 (const unit') ?
+   fun C1 ? = c1 Arg.C1 (const id) ?
    fun data ? =
-       uop Arg.data
+       op1 Arg.data
            (fn h => fn a => fn {maxDepth, maxWidth} =>
                if maxDepth = 0 then id
                else h a {maxDepth = maxDepth - 1,
