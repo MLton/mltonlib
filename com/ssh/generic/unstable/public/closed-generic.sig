@@ -33,8 +33,7 @@ signature CLOSED_GENERIC = sig
 
    (** == Support for Tuples and Records == *)
 
-   val *` :
-       ('a, 'k) Rep.p * ('b, 'k) Rep.p -> (('a, 'b) Product.t, 'k) Rep.p
+   val *` : ('a, 'k) Rep.p * ('b, 'k) Rep.p -> (('a, 'b) Product.t, 'k) Rep.p
    (**
     * Given representations for fields of type {'a} and {'b} of the same
     * kind {'k} (tuple or record), returns a representation for the
