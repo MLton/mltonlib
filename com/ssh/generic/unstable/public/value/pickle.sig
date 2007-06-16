@@ -23,6 +23,6 @@ signature PICKLE_GENERIC = sig
 end
 
 signature WITH_PICKLE_DOM = sig
-   include OPEN_GENERIC EQ HASH TYPE_INFO
-   sharing Rep = Eq = Hash = TypeInfo
+   include OPEN_GENERIC EQ DUMMY HASH TYPE_INFO
+   sharing Rep = Eq = Dummy = Hash = TypeInfo
 end
