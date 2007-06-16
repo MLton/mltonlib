@@ -36,8 +36,8 @@ signature HASH_GENERIC = HASH_GENERIC
 signature ORD = ORD
 signature ORD_GENERIC = ORD_GENERIC
 
-signature SHOW = SHOW
-signature SHOW_GENERIC = SHOW_GENERIC
+signature PRETTY = PRETTY
+signature PRETTY_GENERIC = PRETTY_GENERIC
 
 signature TYPE_INFO = TYPE_INFO
 signature TYPE_INFO_GENERIC = TYPE_INFO_GENERIC
@@ -107,7 +107,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = WithHash (Arg)
 
 functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = WithOrd (Arg)
 
-functor WithShow (Arg : OPEN_GENERIC) : SHOW_GENERIC = WithShow (Arg)
+functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = WithPretty (Arg)
 
 functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC =
    WithTypeInfo (Arg)

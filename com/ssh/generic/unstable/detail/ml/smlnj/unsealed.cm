@@ -22,7 +22,7 @@ group is
    ../../../public/value/eq.sig
    ../../../public/value/hash.sig
    ../../../public/value/ord.sig
-   ../../../public/value/show.sig
+   ../../../public/value/pretty.sig
    ../../../public/value/type-info.sig
    ../../close-generic.fun
    ../../generics-util.sml
@@ -36,6 +36,6 @@ group is
    ../../value/eq.sml
    ../../value/hash.sml
    ../../value/ord.sml
-   ../../value/show.sml
+   ../../value/pretty.sml
    ../../value/type-info.sml
    ../../with-extra.fun

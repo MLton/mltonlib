@@ -24,7 +24,7 @@ local
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Show : CLOSED_GENERIC = struct
+   structure Pretty : CLOSED_GENERIC = struct
       local
          open Prettier
          type u = Bool.t * t
@@ -186,21 +186,21 @@ local
       val word64 = mkWord Word64.toString
    end
 
-   structure Show : OPEN_GENERIC = OpenGeneric (Show)
+   structure Pretty : OPEN_GENERIC = OpenGeneric (Pretty)
 in
-   structure Show :> SHOW_GENERIC = struct
-      open Show
-      structure Show = Rep
-      val layout : ('a, 'x) Show.t -> 'a -> Prettier.t =
+   structure Pretty :> PRETTY_GENERIC = struct
+      open Pretty
+      structure Pretty = Rep
+      val layout : ('a, 'x) Pretty.t -> 'a -> Prettier.t =
           fn (t, _) => Pair.snd o [] <\ t
-      fun show m t = Prettier.pretty m o layout t
+      fun pretty m t = Prettier.pretty m o layout t
    end
 end
 
-functor WithShow (Arg : OPEN_GENERIC) : SHOW_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Show)
+functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = struct
+   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Pretty)
    open Joined
-   fun layout ? = Show.layout (Arg.Rep.getT ?)
-   fun show m = Show.show m o Arg.Rep.getT
-   structure Show = Rep
+   fun layout ? = Pretty.layout (Arg.Rep.getT ?)
+   fun pretty m = Pretty.pretty m o Arg.Rep.getT
+   structure Pretty = Rep
 end

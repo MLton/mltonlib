@@ -69,8 +69,8 @@ in
          public/value/ord.sig
          detail/value/ord.sml
 
-         public/value/show.sig
-         detail/value/show.sml
+         public/value/pretty.sig
+         detail/value/pretty.sml
 
          public/value/hash.sig
          detail/value/hash.sml
