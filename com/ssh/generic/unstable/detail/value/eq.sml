@@ -13,11 +13,7 @@ local
    (* SML/NJ workaround --> *)
 
    structure Eq : CLOSED_GENERIC = struct
-      structure Rep = struct
-         type 'a t = 'a BinPr.t
-         type 'a s = 'a t
-         type ('a, 'k) p = 'a t
-      end
+      structure Rep = MkClosedGenericRep (type 'a t = 'a BinPr.t)
 
       fun iso b (a2b, _) = b o Pair.map (Sq.mk a2b)
 

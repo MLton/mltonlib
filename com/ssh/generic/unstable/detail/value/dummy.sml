@@ -13,11 +13,7 @@ local
    (* SML/NJ workaround --> *)
 
    structure Dummy : CLOSED_GENERIC = struct
-      structure Rep = struct
-         type 'a t = 'a Option.t
-         type 'a s = 'a t
-         type ('a, 'k) p = 'a t
-      end
+      structure Rep = MkClosedGenericRep (type 'a t = 'a Option.t)
 
       fun iso b = flip Option.map b o Iso.from
 
@@ -81,13 +77,13 @@ in
       open Dummy
 
       structure Dummy = Rep
-      exception Dummy
+      exception Dummy of Exn.t
 
       val dummy : ('a, 'x) Dummy.t -> 'a =
           fn (SOME v, _) => v
-           | (NONE,   _) => raise Dummy
+           | (NONE,   _) => raise Dummy Option
 
-      fun noDummy (_, x) = (NONE, x)
+      fun withDummy v (_, x) = (v, x)
    end
 end
 
@@ -96,5 +92,5 @@ functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = struct
    open Dummy Joined
    structure Dummy = Rep
    val dummy = fn ? => dummy (Arg.Rep.getT ?)
-   val noDummy = fn ? => Arg.Rep.mapT noDummy ?
+   val withDummy = fn v => fn ? => Arg.Rep.mapT (withDummy v) ?
 end

@@ -65,11 +65,7 @@ local
          val c2s = Con.toString
       end
 
-      structure Rep = struct
-         type 'a t = exn list * 'a -> u
-         type 'a s = 'a t
-         type ('a, 'k) p = 'a t
-      end
+      structure Rep = MkClosedGenericRep (type 'a t = exn list * 'a -> u)
 
       fun inj b a2b = b o Pair.map (id, a2b)
       fun iso b = inj b o Iso.to

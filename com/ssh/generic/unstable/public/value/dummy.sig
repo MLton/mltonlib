@@ -15,7 +15,7 @@
 signature DUMMY = sig
    structure Dummy : OPEN_GENERIC_REP
 
-   exception Dummy
+   exception Dummy of Exn.t
    (**
     * This is raised when trying to extract the dummy value in case of
     * unfounded recursion or an abstract type that has not been given a
@@ -25,10 +25,11 @@ signature DUMMY = sig
    val dummy : ('a, 'x) Dummy.t -> 'a
    (** Extracts the dummy value or raises {Dummy}. *)
 
-   val noDummy : ('a, 'x) Dummy.t UnOp.t
+   val withDummy : 'a Option.t -> ('a, 'x) Dummy.t UnOp.t
    (**
-    * Removes the dummy value from the given representation.  This can be
-    * used for encoding abstract types that can not be given dummy values.
+    * {withDummy NONE t} removes the dummy value from the given
+    * representation {t} and {withDummy (SOME v) t} sets the dummy value
+    * to {v} in the given representation {t}.
     *)
 end
 
