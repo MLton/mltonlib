@@ -4,6 +4,35 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+signature JOIN_GENERIC_REPS_DOM = sig
+   structure Outer : OPEN_GENERIC_REP
+   structure Inner : OPEN_GENERIC_REP
+end
+
+functor JoinGenericReps (Arg : JOIN_GENERIC_REPS_DOM) :
+   OPEN_GENERIC_REP
+      where type ('a, 'x) t =
+                 ('a, ('a, 'x) Arg.Inner.t) Arg.Outer.t
+      where type ('a, 'x) s =
+                 ('a, ('a, 'x) Arg.Inner.s) Arg.Outer.s
+      where type ('a, 'k, 'x) p =
+                 ('a, 'k, ('a, 'k, 'x) Arg.Inner.p) Arg.Outer.p =
+struct
+   open Arg
+
+   type ('a, 'x) t = ('a, ('a, 'x) Inner.t) Outer.t
+   fun getT ? = Inner.getT (Outer.getT ?)
+   fun mapT ? = Outer.mapT (Inner.mapT ?)
+
+   type ('a, 'x) s = ('a, ('a, 'x) Inner.s) Outer.s
+   fun getS ? = Inner.getS (Outer.getS ?)
+   fun mapS ? = Outer.mapS (Inner.mapS ?)
+
+   type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.p) Outer.p
+   fun getP ? = Inner.getP (Outer.getP ?)
+   fun mapP ? = Outer.mapP (Inner.mapP ?)
+end
+
 functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :>
    OPEN_GENERIC
       where type ('a, 'x) Rep.t =
@@ -14,21 +43,8 @@ functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :>
                  ('a, 'k, ('a, 'k, 'x) Arg.Inner.Rep.p) Arg.Outer.Rep.p =
 struct
    open Arg
-
-   structure Rep : OPEN_GENERIC_REP = struct
-      type ('a, 'x) t = ('a, ('a, 'x) Inner.Rep.t) Outer.Rep.t
-      fun getT ? = Inner.Rep.getT (Outer.Rep.getT ?)
-      fun mapT ? = Outer.Rep.mapT (Inner.Rep.mapT ?)
-
-      type ('a, 'x) s = ('a, ('a, 'x) Inner.Rep.s) Outer.Rep.s
-      fun getS ? = Inner.Rep.getS (Outer.Rep.getS ?)
-      fun mapS ? = Outer.Rep.mapS (Inner.Rep.mapS ?)
-
-      type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.Rep.p) Outer.Rep.p
-      fun getP ? = Inner.Rep.getP (Outer.Rep.getP ?)
-      fun mapP ? = Outer.Rep.mapP (Inner.Rep.mapP ?)
-   end
-
+   structure Rep = JoinGenericReps (structure Outer = Outer.Rep
+                                    structure Inner = Inner.Rep)
    fun iso ? = Outer.iso (Inner.iso ?)
    fun isoProduct ? = Outer.isoProduct (Inner.isoProduct ?)
    fun isoSum ? = Outer.isoSum (Inner.isoSum ?)

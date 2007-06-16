@@ -4,6 +4,28 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+functor OpenGenericRep (Arg : CLOSED_GENERIC_REP) :
+   OPEN_GENERIC_REP
+      where type ('a, 'x) t = 'a Arg.t * 'x
+      where type ('a, 'x) s = 'a Arg.s * 'x
+      where type ('a, 'k, 'x) p = ('a, 'k) Arg.p * 'x =
+struct
+   val get = Pair.snd
+   fun map f = Pair.map (Fn.id, f)
+
+   type ('a, 'x) t = 'a Arg.t * 'x
+   val getT = get
+   val mapT = map
+
+   type ('a, 'x) s = 'a Arg.s * 'x
+   val getS = get
+   val mapS = map
+
+   type ('a, 'k, 'x) p = ('a, 'k) Arg.p * 'x
+   val getP = get
+   val mapP = map
+end
+
 functor OpenGeneric (Arg : CLOSED_GENERIC) :>
    OPEN_GENERIC
       where type ('a, 'x) Rep.t = 'a Arg.Rep.t * 'x
@@ -14,22 +36,7 @@ struct
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   structure Rep : OPEN_GENERIC_REP = struct
-      val get = Pair.snd
-      fun map f = Pair.map (id, f)
-
-      type ('a, 'x) t = 'a Arg.Rep.t * 'x
-      val getT = get
-      val mapT = map
-
-      type ('a, 'x) s = 'a Arg.Rep.s * 'x
-      val getS = get
-      val mapS = map
-
-      type ('a, 'k, 'x) p = ('a, 'k) Arg.Rep.p * 'x
-      val getP = get
-      val mapP = map
-   end
+   structure Rep = OpenGenericRep (Arg.Rep)
 
    fun unary arg fx = Pair.map (arg, fx)
    fun binary arg fxy x = Pair.map (arg x, fxy x)

@@ -24,25 +24,14 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
 
    structure G = RandomGen and I = Int and R = Real and W = Word
 
-   datatype 'a u = IN of {gen : 'a G.t, cog : 'a -> Univ.t G.t UnOp.t}
+   datatype 'a t = IN of {gen : 'a G.t, cog : 'a -> Univ.t G.t UnOp.t}
    fun out (IN r) = r
 
-   structure Rep : OPEN_GENERIC_REP = struct
-      fun get get = Pair.snd o get
-      fun map map f = map (Pair.map (id, f))
-
-      type ('a, 'x) t = ('a, 'a u * 'x) Arg.Rep.t
-      fun getT ? = get Arg.Rep.getT ?
-      fun mapT ? = map Arg.Rep.mapT ?
-
-      type ('a, 'x) s = ('a, 'a u * 'x) Arg.Rep.s
-      fun getS ? = get Arg.Rep.getS ?
-      fun mapS ? = map Arg.Rep.mapS ?
-
-      type ('a, 'k, 'x) p = ('a, 'k, 'a u * 'x) Arg.Rep.p
-      fun getP ? = get Arg.Rep.getP ?
-      fun mapP ? = map Arg.Rep.mapP ?
-   end
+   structure Rep =
+      JoinGenericReps
+         (structure Outer = Arg.Rep
+          structure Inner =
+             OpenGenericRep (MkClosedGenericRep (type 'a t = 'a t)))
 
    structure Arbitrary = Rep
 
