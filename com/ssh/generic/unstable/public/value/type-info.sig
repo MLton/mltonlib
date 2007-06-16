@@ -61,6 +61,6 @@ signature TYPE_INFO = sig
 end
 
 signature TYPE_INFO_GENERIC = sig
-   include TYPE_INFO OPEN_GENERIC
-   sharing TypeInfo = Rep
+   include OPEN_GENERIC TYPE_INFO
+   sharing Rep = TypeInfo
 end

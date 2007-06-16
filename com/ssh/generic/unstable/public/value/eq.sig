@@ -24,6 +24,6 @@ signature EQ = sig
 end
 
 signature EQ_GENERIC = sig
-   include EQ OPEN_GENERIC
-   sharing Eq = Rep
+   include OPEN_GENERIC EQ
+   sharing Rep = Eq
 end

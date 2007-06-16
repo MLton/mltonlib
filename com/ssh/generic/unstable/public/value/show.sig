@@ -20,6 +20,6 @@ signature SHOW = sig
 end
 
 signature SHOW_GENERIC = sig
-   include SHOW OPEN_GENERIC
-   sharing Show = Rep
+   include OPEN_GENERIC SHOW
+   sharing Rep = Show
 end

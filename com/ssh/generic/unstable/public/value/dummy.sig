@@ -33,6 +33,6 @@ signature DUMMY = sig
 end
 
 signature DUMMY_GENERIC = sig
-   include DUMMY OPEN_GENERIC
-   sharing Dummy = Rep
+   include OPEN_GENERIC DUMMY
+   sharing Rep = Dummy
 end

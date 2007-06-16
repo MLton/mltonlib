@@ -25,6 +25,6 @@ signature ORD = sig
 end
 
 signature ORD_GENERIC = sig
-   include ORD OPEN_GENERIC
-   sharing Ord = Rep
+   include OPEN_GENERIC ORD
+   sharing Rep = Ord
 end

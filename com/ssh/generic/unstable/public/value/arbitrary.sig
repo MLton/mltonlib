@@ -24,12 +24,11 @@ signature ARBITRARY = sig
 end
 
 signature ARBITRARY_GENERIC = sig
-   include ARBITRARY OPEN_GENERIC
-   sharing Arbitrary = Rep
+   include OPEN_GENERIC ARBITRARY
+   sharing Rep = Arbitrary
 end
 
 signature WITH_ARBITRARY_DOM = sig
-   include OPEN_GENERIC TYPE_INFO
-   sharing Rep = TypeInfo
+   include TYPE_INFO_GENERIC
    structure RandomGen : RANDOM_GEN
 end

@@ -15,6 +15,8 @@ signature HASH = sig
 end
 
 signature HASH_GENERIC = sig
-   include HASH OPEN_GENERIC
-   sharing Hash = Rep
+   include OPEN_GENERIC HASH
+   sharing Rep = Hash
 end
+
+signature WITH_HASH_DOM = TYPE_INFO_GENERIC
