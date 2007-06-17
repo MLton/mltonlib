@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure Generic : sig
+structure Generic :> sig
    include GENERIC_EXTRA
    include ARBITRARY sharing Open.Rep = Arbitrary
    include DUMMY     sharing Open.Rep = Dummy

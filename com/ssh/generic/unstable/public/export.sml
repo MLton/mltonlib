@@ -64,10 +64,6 @@ functor CloseGeneric (Arg : OPEN_GENERIC) :
    CloseGeneric (Arg)
 (** Closes an open generic. *)
 
-functor OpenGeneric (Arg : CLOSED_GENERIC) : OPENED_GENERIC =
-   OpenGeneric (Arg)
-(** Opens a closed generic. *)
-
 signature JOIN_GENERICS_DOM = JOIN_GENERICS_DOM
 
 functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :

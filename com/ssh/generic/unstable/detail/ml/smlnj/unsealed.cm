@@ -34,7 +34,6 @@ group is
    ../../generics.sml
    ../../join-generics.fun
    ../../layer-generic.fun
-   ../../open-generic.fun
    ../../root-generic.sml
    ../../sml-syntax.sml
    ../../value/arbitrary.sml

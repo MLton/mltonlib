@@ -9,7 +9,7 @@ signature JOIN_GENERIC_REPS_DOM = sig
    structure Inner : OPEN_GENERIC_REP
 end
 
-functor JoinGenericReps (Arg : JOIN_GENERIC_REPS_DOM) :
+functor JoinGenericReps (Arg : JOIN_GENERIC_REPS_DOM) :>
    OPEN_GENERIC_REP
       where type ('a, 'x) t =
                  ('a, ('a, 'x) Arg.Inner.t) Arg.Outer.t
