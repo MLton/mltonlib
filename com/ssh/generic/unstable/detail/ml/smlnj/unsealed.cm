@@ -15,7 +15,10 @@ group is
    ../../../public/generics-util.sig
    ../../../public/generics.sig
    ../../../public/join-generics-fun.sig
+   ../../../public/layer-dep-generic-fun.sig
    ../../../public/layer-generic-fun.sig
+   ../../../public/layer-generic-rep-fun.sig
+   ../../../public/layered-generic-rep.sig
    ../../../public/open-generic-rep.sig
    ../../../public/open-generic.sig
    ../../../public/value/arbitrary.sig
