@@ -151,25 +151,25 @@ local
           INT {base = base, exn = exn, pure = true, recs = recs}
    end
 
-   structure TypeInfo : OPEN_GENERIC = OpenGeneric (TypeInfo)
+   structure TypeInfo : OPENED_GENERIC = OpenGeneric (TypeInfo)
 in
    structure TypeInfo :> TYPE_INFO_GENERIC = struct
       open TypeInfo
 
       structure TypeInfo = Rep
 
-      fun out (INT r, _) = r
-      fun hasExn       ? = (#exn o out) ?
-      fun hasRecData   ? = (not o null o #recs o out) ?
-      fun isRefOrArray ? = (not o #pure o out) ?
+      fun out (INT r) = r
+      fun hasExn       ? = (#exn o out o This.getT) ?
+      fun hasRecData   ? = (not o null o #recs o out o This.getT) ?
+      fun isRefOrArray ? = (not o #pure o out o This.getT) ?
       fun canBeCyclic  ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
 
-      fun out (INS r, _) = r
-      fun hasBaseCase  ? = (#base o out) ?
-      fun numAlts      ? = (#alts o out) ?
+      fun out (INS r) = r
+      fun hasBaseCase  ? = (#base o out o This.getS) ?
+      fun numAlts      ? = (#alts o out o This.getS) ?
 
-      fun out (INP r, _) = r
-      fun numElems     ? = (#elems o out) ?
+      fun out (INP r) = r
+      fun numElems     ? = (#elems o out o This.getP) ?
    end
 end
 

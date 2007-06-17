@@ -4,62 +4,101 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+signature THIS_GENERIC_REP = sig
+   structure Rep : OPEN_GENERIC_REP
+   structure Closed : CLOSED_GENERIC_REP
+   val getT : ('a, 'x) Rep.t -> 'a Closed.t
+   val getS : ('a, 'x) Rep.s -> 'a Closed.s
+   val getP : ('a, 'k, 'x) Rep.p -> ('a, 'k) Closed.p
+   val mapT : 'a Closed.t UnOp.t -> ('a, 'x) Rep.t UnOp.t
+   val mapS : 'a Closed.s UnOp.t -> ('a, 'x) Rep.s UnOp.t
+   val mapP : ('a, 'k) Closed.p UnOp.t -> ('a, 'k, 'x) Rep.p UnOp.t
+end
+
+signature OPENED_GENERIC_REP = sig
+   include OPEN_GENERIC_REP
+   structure This : THIS_GENERIC_REP
+   sharing type t = This.Rep.t
+   sharing type s = This.Rep.s
+   sharing type p = This.Rep.p
+end
+
 functor OpenGenericRep (Arg : CLOSED_GENERIC_REP) :
-   OPEN_GENERIC_REP
-      where type ('a, 'x) t = 'a Arg.t * 'x
-      where type ('a, 'x) s = 'a Arg.s * 'x
-      where type ('a, 'k, 'x) p = ('a, 'k) Arg.p * 'x =
+   OPENED_GENERIC_REP
+      where type 'a This.Closed.t = 'a Arg.t
+      where type 'a This.Closed.s = 'a Arg.s
+      where type ('a, 'k) This.Closed.p = ('a, 'k) Arg.p =
 struct
-   val get = Pair.snd
-   fun map f = Pair.map (Fn.id, f)
+   structure This = struct
+      structure Rep = struct
+         type ('a, 'x) t = 'a Arg.t * 'x
+         type ('a, 'x) s = 'a Arg.s * 'x
+         type ('a, 'k, 'x) p = ('a, 'k) Arg.p * 'x
+         val getT = Pair.snd
+         val getS = Pair.snd
+         val getP = Pair.snd
+         val mapT = Pair.mapSnd
+         val mapS = Pair.mapSnd
+         val mapP = Pair.mapSnd
+      end
+      structure Closed = Arg
+      val getT = Pair.fst
+      val getS = Pair.fst
+      val getP = Pair.fst
+      val mapT = Pair.mapFst
+      val mapS = Pair.mapFst
+      val mapP = Pair.mapFst
+   end
+   open This.Rep
+end
 
-   type ('a, 'x) t = 'a Arg.t * 'x
-   val getT = get
-   val mapT = map
-
-   type ('a, 'x) s = 'a Arg.s * 'x
-   val getS = get
-   val mapS = map
-
-   type ('a, 'k, 'x) p = ('a, 'k) Arg.p * 'x
-   val getP = get
-   val mapP = map
+signature OPENED_GENERIC = sig
+   include OPEN_GENERIC
+   structure This : THIS_GENERIC_REP
+   sharing Rep = This.Rep
 end
 
 functor OpenGeneric (Arg : CLOSED_GENERIC) :>
-   OPEN_GENERIC
-      where type ('a, 'x) Rep.t = 'a Arg.Rep.t * 'x
-      where type ('a, 'x) Rep.s = 'a Arg.Rep.s * 'x
-      where type ('a, 'k, 'x) Rep.p = ('a, 'k) Arg.Rep.p * 'x =
+   OPENED_GENERIC
+      where type 'a This.Closed.t = 'a Arg.Rep.t
+      where type 'a This.Closed.s = 'a Arg.Rep.s
+      where type ('a, 'k) This.Closed.p = ('a, 'k) Arg.Rep.p =
 struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
 
    structure Rep = OpenGenericRep (Arg.Rep)
+   structure This = Rep.This
 
-   fun op0 ? = GenericsUtil.op0 id ?
-   fun op1 ? = GenericsUtil.op1 id ?
-   fun op2 ? = GenericsUtil.op2 id ?
-   fun morph ? = GenericsUtil.morph id ?
+   fun op0 t x = (t, x)
+   fun op1 f g = Pair.map (f, g)
+   fun op2 f g = Pair.map (f, g) o Pair.swizzle
+   fun morph iso' f (a, x) i = (iso' a i, f x i)
+   val t = op1
+   fun r lt2p lx2y = Pair.map o Pair.map (lt2p, lx2y) o Sq.mk
+   fun c0 l2s l2x = Pair.map (l2s, l2x) o Sq.mk
+   val c1 = r
+   fun y x y = Tie.tuple2 (x, y)
+   fun re ex ey (x, y) e = (ex x e : Unit.t ; ey y e : Unit.t)
 
    fun iso ? = morph Arg.iso ?
    fun isoProduct ? = morph Arg.isoProduct ?
    fun isoSum ? = morph Arg.isoSum ?
    fun op *` ? = op2 Arg.*` ?
-   fun T ? = GenericsUtil.t id Arg.T ?
-   fun R ? = GenericsUtil.r id Arg.R ?
+   fun T ? = t Arg.T ?
+   fun R ? = r Arg.R ?
    fun tuple ? = op1 Arg.tuple ?
    fun record ? = op1 Arg.record ?
    fun op +` ? = op2 Arg.+` ?
-   fun C0 ? = GenericsUtil.c0 id Arg.C0 ?
-   fun C1 ? = GenericsUtil.c1 id Arg.C1 ?
+   fun C0 ? = c0 Arg.C0 ?
+   fun C1 ? = c1 Arg.C1 ?
    fun data ? = op1 Arg.data ?
    fun unit ? = op0 Arg.unit ?
-   fun Y ? = GenericsUtil.y id Arg.Y ?
+   fun Y ? = y Arg.Y ?
    fun op --> ? = op2 Arg.--> ?
    fun exn ? = op0 Arg.exn ?
-   fun regExn ? = GenericsUtil.re id Arg.regExn ?
+   fun regExn ? = re Arg.regExn ?
    fun array ? = op1 Arg.array ?
    fun refc ? = op1 Arg.refc ?
    fun vector ? = op1 Arg.vector ?

@@ -52,6 +52,9 @@ in
          public/join-generics-fun.sig
          detail/join-generics.fun
 
+         public/layer-generic-fun.sig
+         detail/layer-generic.fun
+
          (* Values *)
 
          public/value/type-info.sig

@@ -66,18 +66,15 @@ local
       val data = id
    end
 
-   structure Dummy : OPEN_GENERIC = OpenGeneric (Dummy)
+   structure Dummy : OPENED_GENERIC = OpenGeneric (Dummy)
 in
    structure Dummy :> DUMMY_GENERIC = struct
       open Dummy
-
       structure Dummy = Rep
       exception Dummy of Exn.t
-
       val dummy : ('a, 'x) Dummy.t -> 'a =
-          fn (a, _) => a () handle e => raise Dummy e
-
-      fun withDummy v (_, x) = (fn () => valOf v, x)
+          fn a => This.getT a () handle e => raise Dummy e
+      fun withDummy v = This.mapT (const (fn () => valOf v))
    end
 end
 

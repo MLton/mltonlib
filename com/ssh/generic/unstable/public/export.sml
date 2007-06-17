@@ -62,11 +62,7 @@ functor CloseGeneric (Arg : OPEN_GENERIC) :
    CloseGeneric (Arg)
 (** Closes an open generic. *)
 
-functor OpenGeneric (Arg : CLOSED_GENERIC) :
-   OPEN_GENERIC
-      where type ('a, 'x) Rep.t = 'a Arg.Rep.t * 'x
-      where type ('a, 'x) Rep.s = 'a Arg.Rep.s * 'x
-      where type ('a, 'k, 'x) Rep.p = ('a, 'k) Arg.Rep.p * 'x =
+functor OpenGeneric (Arg : CLOSED_GENERIC) : OPENED_GENERIC =
    OpenGeneric (Arg)
 (** Opens a closed generic. *)
 
@@ -85,6 +81,19 @@ functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
  * Joins two open generic functions.  As can be read from the constraints,
  * the representation of the joined generic is compatible with the
  * representation of the {Outer} generic.
+ *)
+
+signature LAYER_GENERIC_DOM = LAYER_GENERIC_DOM
+
+functor LayerGeneric (Arg : LAYER_GENERIC_DOM) :
+   OPEN_GENERIC
+      where type ('a, 'x) Rep.t = ('a, 'x) Arg.Result.t
+      where type ('a, 'x) Rep.s = ('a, 'x) Arg.Result.s
+      where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
+   LayerGeneric (Arg)
+(**
+ * Joins an outer open generic function and a closed generic function that
+ * depends on the outer generic function.
  *)
 
 functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)

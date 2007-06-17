@@ -15,6 +15,7 @@ group is
    ../../../public/generics-util.sig
    ../../../public/generics.sig
    ../../../public/join-generics-fun.sig
+   ../../../public/layer-generic-fun.sig
    ../../../public/open-generic-rep.sig
    ../../../public/open-generic.sig
    ../../../public/value/arbitrary.sig
@@ -29,6 +30,7 @@ group is
    ../../generics-util.sml
    ../../generics.sml
    ../../join-generics.fun
+   ../../layer-generic.fun
    ../../open-generic.fun
    ../../root-generic.sml
    ../../sml-syntax.sml

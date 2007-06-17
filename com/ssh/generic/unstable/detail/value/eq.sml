@@ -74,13 +74,13 @@ local
       val data = id
    end
 
-   structure Eq : OPEN_GENERIC = OpenGeneric (Eq)
+   structure Eq : OPENED_GENERIC = OpenGeneric (Eq)
 in
    structure Eq :> EQ_GENERIC = struct
       open Eq
       structure Eq = Rep
-      val eq : ('a, 'x) Eq.t -> 'a BinPr.t = Pair.fst
-      fun notEq (eq, _) = negate eq
+      val eq : ('a, 'x) Eq.t -> 'a BinPr.t = This.getT
+      fun notEq ? = negate (eq ?)
    end
 end
 

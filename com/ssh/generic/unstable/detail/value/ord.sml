@@ -79,12 +79,12 @@ local
       val data = id
    end
 
-   structure Ord : OPEN_GENERIC = OpenGeneric (Ord)
+   structure Ord : OPENED_GENERIC = OpenGeneric (Ord)
 in
    structure Ord :> ORD_GENERIC = struct
       open Ord
       structure Ord = Rep
-      val compare : ('a, 'x) Ord.t -> 'a Cmp.t = Pair.fst
+      val compare : ('a, 'x) Ord.t -> 'a Cmp.t = This.getT
    end
 end
 

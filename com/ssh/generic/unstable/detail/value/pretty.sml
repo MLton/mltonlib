@@ -186,13 +186,13 @@ local
       val word64 = mkWord Word64.toString
    end
 
-   structure Pretty : OPEN_GENERIC = OpenGeneric (Pretty)
+   structure Pretty : OPENED_GENERIC = OpenGeneric (Pretty)
 in
    structure Pretty :> PRETTY_GENERIC = struct
       open Pretty
       structure Pretty = Rep
       val layout : ('a, 'x) Pretty.t -> 'a -> Prettier.t =
-          fn (t, _) => Pair.snd o [] <\ t
+          fn t => Pair.snd o [] <\ This.getT t
       fun pretty m t = Prettier.pretty m o layout t
    end
 end
