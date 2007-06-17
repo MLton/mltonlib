@@ -20,8 +20,6 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   open GenericsUtil
-
    structure W = Word
 
    type 'a t = 'a -> {maxWidth : Int.t, maxDepth : Int.t} -> Word.t UnOp.t
@@ -36,14 +34,16 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
       fun lift toWord a _ r = r * 0w19 + toWord a
    end
 
-   structure Closed = MkClosedGenericRep (type 'a t = 'a t)
-   structure Hash = LayerGenericRep (structure Outer = Arg.Rep and Rep = Closed)
+   structure Hash =
+      LayerGenericRep (structure Outer = Arg.Rep
+                       structure Closed = MkClosedGenericRep (type 'a t = 'a t))
+
    open Hash.This
 
    fun hash t v = getT t v {maxWidth = 200, maxDepth = 10} 0wx2CA4B13
 
-   structure Layered = LayerGeneric
-     (structure Rep = Closed and Outer = Arg and Result = Hash
+   structure Layered = LayerDepGeneric
+     (structure Outer = Arg and Result = Hash
       fun iso' bH (a2b, _) = bH o a2b
       fun iso ? = iso' (getT ?)
       fun isoProduct ? = iso' (getP ?)

@@ -29,9 +29,9 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    datatype 'a t = IN of {gen : 'a G.t, cog : 'a -> Univ.t G.t UnOp.t}
    fun out (IN r) = r
 
-   structure Closed = MkClosedGenericRep (type 'a t = 'a t)
    structure Arbitrary =
-      LayerGenericRep (structure Outer = Arg.Rep and Rep = Closed)
+      LayerGenericRep (structure Outer = Arg.Rep
+                       structure Closed = MkClosedGenericRep (type 'a t = 'a t))
 
    open Arbitrary.This
 
@@ -41,8 +41,8 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    fun arbitrary ? = #gen (out (getT ?))
    fun withGen gen = mapT (fn IN {cog, ...} => IN {gen = gen, cog = cog})
 
-   structure Layered = LayerGeneric
-     (structure Rep = Closed and Outer = Arg and Result = Arbitrary
+   structure Layered = LayerDepGeneric
+     (structure Outer = Arg and Result = Arbitrary
       fun iso' (IN {gen, cog}) (a2b, b2a) =
           IN {gen = map b2a gen, cog = cog o a2b}
       fun iso ? = iso' (getT ?)

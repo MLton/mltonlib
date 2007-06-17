@@ -52,7 +52,10 @@ in
          public/join-generics-fun.sig
          detail/join-generics.fun
 
+         public/layered-generic-rep.sig
+         public/layer-dep-generic-fun.sig
          public/layer-generic-fun.sig
+         public/layer-generic-rep-fun.sig
          detail/layer-generic.fun
 
          (* Values *)

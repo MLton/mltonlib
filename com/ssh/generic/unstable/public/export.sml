@@ -16,6 +16,8 @@ signature CLOSED_GENERIC_REP = CLOSED_GENERIC_REP
 signature OPEN_GENERIC = OPEN_GENERIC
 signature OPEN_GENERIC_REP = OPEN_GENERIC_REP
 
+signature LAYERED_GENERIC_REP = LAYERED_GENERIC_REP
+
 signature GENERIC = GENERIC
 signature GENERIC_EXTRA = GENERIC_EXTRA
 
@@ -83,6 +85,23 @@ functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
  * representation of the {Outer} generic.
  *)
 
+signature LAYER_GENERIC_REP_DOM = LAYER_GENERIC_REP_DOM
+
+functor LayerGenericRep (Arg : LAYER_GENERIC_REP_DOM) :>
+   LAYERED_GENERIC_REP
+      where type  'a      Closed.t =  'a      Arg.Closed.t
+      where type  'a      Closed.s =  'a      Arg.Closed.s
+      where type ('a, 'k) Closed.p = ('a, 'k) Arg.Closed.p
+
+      where type ('a,     'x) Outer.t = ('a,     'x) Arg.Outer.t
+      where type ('a,     'x) Outer.s = ('a,     'x) Arg.Outer.s
+      where type ('a, 'k, 'x) Outer.p = ('a, 'k, 'x) Arg.Outer.p =
+   LayerGenericRep (Arg)
+(**
+ * Creates a layered representation for {LayerGeneric} and
+ * {LayerDepGeneric}.
+ *)
+
 signature LAYER_GENERIC_DOM = LAYER_GENERIC_DOM
 
 functor LayerGeneric (Arg : LAYER_GENERIC_DOM) :
@@ -92,8 +111,20 @@ functor LayerGeneric (Arg : LAYER_GENERIC_DOM) :
       where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
    LayerGeneric (Arg)
 (**
+ * Joins an outer open generic function and a closed generic function.
+ *)
+
+signature LAYER_DEP_GENERIC_DOM = LAYER_DEP_GENERIC_DOM
+
+functor LayerDepGeneric (Arg : LAYER_DEP_GENERIC_DOM) :>
+   OPEN_GENERIC
+      where type ('a,     'x) Rep.t = ('a,     'x) Arg.Result.t
+      where type ('a,     'x) Rep.s = ('a,     'x) Arg.Result.s
+      where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
+   LayerDepGeneric (Arg)
+(**
  * Joins an outer open generic function and a closed generic function that
- * depends on the outer generic function.
+ * depends on the outer generic.
  *)
 
 functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
