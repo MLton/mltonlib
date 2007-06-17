@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-local
+functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
@@ -17,24 +17,6 @@ local
    infix  0 &
    infixr 0 -->
    (* SML/NJ workaround --> *)
-
-   datatype t =
-      INT of {base : Bool.t,
-              exn : Bool.t,
-              pure : Bool.t,
-              recs : Int.t List.t}
-
-   datatype s =
-      INS of {alts : Int.t,
-              base : Bool.t,
-              exn : Bool.t,
-              recs : Int.t List.t}
-
-   datatype p =
-      INP of {base : Bool.t,
-              elems : Int.t,
-              exn : Bool.t,
-              recs : Int.t List.t}
 
    fun revMerge (xs, ys) = let
       fun lp ([], ys, zs) = (ys, zs)
@@ -61,12 +43,51 @@ local
       List.revAppend (lp ([], ys))
    end
 
-   structure TypeInfo : CLOSED_GENERIC = struct
-      structure Rep = struct
-         type 'a t = t
-         type 'a s = s
-         type ('a, 'k) p = p
-      end
+   datatype t =
+      INT of {base : Bool.t,
+              exn : Bool.t,
+              pure : Bool.t,
+              recs : Int.t List.t}
+
+   datatype s =
+      INS of {alts : Int.t,
+              base : Bool.t,
+              exn : Bool.t,
+              recs : Int.t List.t}
+
+   datatype p =
+      INP of {base : Bool.t,
+              elems : Int.t,
+              exn : Bool.t,
+              recs : Int.t List.t}
+
+   structure TypeInfo =
+      LayerGenericRep
+        (structure Outer = Arg.Rep
+         structure Closed = struct
+            type 'a t = t
+            type 'a s = s
+            type ('a, 'k) p = p
+         end)
+
+   open TypeInfo.This
+
+   fun outT (INT r) = r
+   fun outS (INS r) = r
+   fun outP (INP r) = r
+
+   fun hasExn       ? = (#exn o outT o getT) ?
+   fun hasRecData   ? = (not o null o #recs o outT o getT) ?
+   fun isRefOrArray ? = (not o #pure o outT o getT) ?
+   fun canBeCyclic  ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
+
+   fun hasBaseCase  ? = (#base o outS o getS) ?
+   fun numAlts      ? = (#alts o outS o getS) ?
+
+   fun numElems     ? = (#elems o outP o getP) ?
+
+   structure Layered = LayerGeneric
+     (structure Outer = Arg and Result = TypeInfo and Rep = TypeInfo.Closed
 
       val base = INT {base = true, exn = false, pure = true, recs = []}
       fun pure (INT {exn, recs, ...}) =
@@ -148,43 +169,7 @@ local
       fun C1 _ (INT {base, exn, recs, ...}) =
           INS {alts = 1, base = base, exn = exn, recs = recs}
       fun data (INS {base, exn, recs, ...}) =
-          INT {base = base, exn = exn, pure = true, recs = recs}
-   end
+          INT {base = base, exn = exn, pure = true, recs = recs})
 
-   structure TypeInfo : OPENED_GENERIC = OpenGeneric (TypeInfo)
-in
-   structure TypeInfo :> TYPE_INFO_GENERIC = struct
-      open TypeInfo
-
-      structure TypeInfo = Rep
-
-      fun out (INT r) = r
-      fun hasExn       ? = (#exn o out o This.getT) ?
-      fun hasRecData   ? = (not o null o #recs o out o This.getT) ?
-      fun isRefOrArray ? = (not o #pure o out o This.getT) ?
-      fun canBeCyclic  ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
-
-      fun out (INS r) = r
-      fun hasBaseCase  ? = (#base o out o This.getS) ?
-      fun numAlts      ? = (#alts o out o This.getS) ?
-
-      fun out (INP r) = r
-      fun numElems     ? = (#elems o out o This.getP) ?
-   end
-end
-
-functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Arg and Inner = TypeInfo)
-   open TypeInfo Joined
-   structure TypeInfo = Rep
-   fun mk f = f o Arg.Rep.getT
-   val canBeCyclic  = fn ? => mk canBeCyclic  ?
-   val hasExn       = fn ? => mk hasExn       ?
-   val hasRecData   = fn ? => mk hasRecData   ?
-   val isRefOrArray = fn ? => mk isRefOrArray ?
-   fun mk f = f o Arg.Rep.getS
-   val hasBaseCase  = fn ? => mk hasBaseCase  ?
-   val numAlts      = fn ? => mk numAlts      ?
-   fun mk f = f o Arg.Rep.getP
-   val numElems     = fn ? => mk numElems     ?
+   open Layered
 end

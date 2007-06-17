@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-local
+functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
@@ -12,8 +12,16 @@ local
    infix  0 &
    (* SML/NJ workaround --> *)
 
-   structure Ord : CLOSED_GENERIC = struct
-      structure Rep = MkClosedGenericRep (Cmp)
+   structure Ord =
+      LayerGenericRep (structure Outer = Arg.Rep
+                       structure Closed = MkClosedGenericRep (Cmp))
+
+   open Ord.This
+
+   val compare = getT
+
+   structure Layered = LayerGeneric
+     (structure Outer = Arg and Result = Ord and Rep = Ord.Closed
 
       fun inj b a2b = b o Pair.map (Sq.mk a2b)
       fun iso b = inj b o Iso.to
@@ -25,10 +33,10 @@ local
 
       fun op --> _ = failing "Compare.--> unsupported"
 
-     (* XXX It is also possible to implement exn so that compare provides
-      * a reasonable answer as long as at least one of the exception
-      * variants (involved in a comparison) has been registered.
-      *)
+      (* XXX It is also possible to implement exn so that compare provides
+       * a reasonable answer as long as at least one of the exception
+       * variants (involved in a comparison) has been registered.
+       *)
       val exn : Exn.t Rep.t Ref.t = ref GenericsUtil.failExnSq
       fun regExn t (_, prj) =
           Ref.modify (fn exn =>
@@ -76,21 +84,7 @@ local
 
       fun C0 _ = unit
       fun C1 _ = id
-      val data = id
-   end
+      val data = id)
 
-   structure Ord : OPENED_GENERIC = OpenGeneric (Ord)
-in
-   structure Ord :> ORD_GENERIC = struct
-      open Ord
-      structure Ord = Rep
-      val compare : ('a, 'x) Ord.t -> 'a Cmp.t = This.getT
-   end
-end
-
-functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Ord)
-   open Ord Joined
-   structure Ord = Rep
-   val compare = fn ? => compare (Arg.Rep.getT ?)
+   open Layered
 end

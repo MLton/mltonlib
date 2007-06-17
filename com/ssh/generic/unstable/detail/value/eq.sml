@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-local
+functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
@@ -12,8 +12,17 @@ local
    infix  0 &
    (* SML/NJ workaround --> *)
 
-   structure Eq : CLOSED_GENERIC = struct
-      structure Rep = MkClosedGenericRep (BinPr)
+   structure Eq =
+      LayerGenericRep (structure Outer = Arg.Rep
+                       structure Closed = MkClosedGenericRep (BinPr))
+
+   open Eq.This
+
+   val eq = getT
+   fun notEq ? = negate (getT ?)
+
+   structure Layered = LayerGeneric
+     (structure Outer = Arg and Result = Eq and Rep = Eq.Closed
 
       fun iso b (a2b, _) = b o Pair.map (Sq.mk a2b)
 
@@ -71,24 +80,7 @@ local
 
       fun C0 _ = unit
       fun C1 _ = id
-      val data = id
-   end
+      val data = id)
 
-   structure Eq : OPENED_GENERIC = OpenGeneric (Eq)
-in
-   structure Eq :> EQ_GENERIC = struct
-      open Eq
-      structure Eq = Rep
-      val eq : ('a, 'x) Eq.t -> 'a BinPr.t = This.getT
-      fun notEq ? = negate (eq ?)
-   end
-end
-
-functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Eq)
-   open Eq Joined
-   structure Eq = Rep
-   fun mk f = f o Arg.Rep.getT
-   val eq    = fn ? => mk eq    ?
-   val notEq = fn ? => mk notEq ?
+   open Layered
 end

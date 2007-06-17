@@ -9,7 +9,7 @@
 (* XXX parameters for pretty printing? *)
 (* XXX parameters for depth, length, etc... for showing only partial data *)
 
-local
+functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
@@ -24,38 +24,50 @@ local
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   structure Pretty : CLOSED_GENERIC = struct
-      local
-         open Prettier
-         type u = Bool.t * t
-         fun atomic    doc = (true,  doc)
-         fun nonAtomic doc = (false, doc)
-         val uop : t UnOp.t -> u UnOp.t = id <\ Pair.map
-         val bop : t BinOp.t -> u BinOp.t =
-             fn f => nonAtomic o f o Pair.map (Sq.mk Pair.snd)
-      in
-         type u = u
+   local
+      open Prettier
+      type u = Bool.t * t
+      fun atomic    doc = (true,  doc)
+      fun nonAtomic doc = (false, doc)
+      val uop : t UnOp.t -> u UnOp.t = id <\ Pair.map
+      val bop : t BinOp.t -> u BinOp.t =
+          fn f => nonAtomic o f o Pair.map (Sq.mk Pair.snd)
+   in
+      type u = u
 
-         val parens       = (1, (lparen,   rparen))
-         val hashParens   = (2, (txt "#(", rparen))
-         val braces       = (1, (lbrace,   rbrace))
-         val brackets     = (1, (lbracket, rbracket))
-         val hashBrackets = (2, (txt "#[", rbracket))
+      val parens       = (1, (lparen,   rparen))
+      val hashParens   = (2, (txt "#(", rparen))
+      val braces       = (1, (lbrace,   rbrace))
+      val brackets     = (1, (lbracket, rbracket))
+      val hashBrackets = (2, (txt "#[", rbracket))
 
-         val comma  = atomic comma
-         val equals = atomic equals
+      val comma  = atomic comma
+      val equals = atomic equals
 
-         val txt = atomic o txt
-         fun surround (n, p) = atomic o group o nest n o enclose p o Pair.snd
-         fun atomize (d as (a, _)) = if a then d else surround parens d
-         val punctuate = fn (_, s) => punctuate s o List.map Pair.snd
-         val fill = fn ? => nonAtomic (vsep ?)
-         val group = uop group
-         val nest = uop o nest
-         val op <^> = fn ((al, dl), (ar, dr)) => (al andalso ar, dl <^> dr)
-         val op <$> = bop op <$>
-         val op </> = bop op </>
-      end
+      val txt = atomic o txt
+      fun surround (n, p) = atomic o group o nest n o enclose p o Pair.snd
+      fun atomize (d as (a, _)) = if a then d else surround parens d
+      val punctuate = fn (_, s) => punctuate s o List.map Pair.snd
+      val fill = fn ? => nonAtomic (vsep ?)
+      val group = uop group
+      val nest = uop o nest
+      val op <^> = fn ((al, dl), (ar, dr)) => (al andalso ar, dl <^> dr)
+      val op <$> = bop op <$>
+      val op </> = bop op </>
+   end
+
+   structure Pretty =
+      LayerGenericRep
+         (structure Outer = Arg.Rep
+          structure Closed = MkClosedGenericRep (type 'a t = exn list * 'a -> u))
+
+   open Pretty.This
+
+   fun layout t = Pair.snd o [] <\ getT t
+   fun pretty m t = Prettier.pretty m o layout t
+
+   structure Layered = LayerGeneric
+     (structure Outer = Arg and Result = Pretty and Rep = Pretty.Closed
 
       local
          open Generics
@@ -64,8 +76,6 @@ local
          val l2s = Label.toString
          val c2s = Con.toString
       end
-
-      structure Rep = MkClosedGenericRep (type 'a t = exn list * 'a -> u)
 
       fun inj b a2b = b o Pair.map (id, a2b)
       fun iso b = inj b o Iso.to
@@ -183,24 +193,7 @@ local
       val word8  = mkWord Word8.toString
    (* val word16 = mkWord Word16.toString (* Word16 not provided by SML/NJ *) *)
       val word32 = mkWord Word32.toString
-      val word64 = mkWord Word64.toString
-   end
+      val word64 = mkWord Word64.toString)
 
-   structure Pretty : OPENED_GENERIC = OpenGeneric (Pretty)
-in
-   structure Pretty :> PRETTY_GENERIC = struct
-      open Pretty
-      structure Pretty = Rep
-      val layout : ('a, 'x) Pretty.t -> 'a -> Prettier.t =
-          fn t => Pair.snd o [] <\ This.getT t
-      fun pretty m t = Prettier.pretty m o layout t
-   end
-end
-
-functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Pretty)
-   open Joined
-   fun layout ? = Pretty.layout (Arg.Rep.getT ?)
-   fun pretty m = Pretty.pretty m o Arg.Rep.getT
-   structure Pretty = Rep
+   open Layered
 end

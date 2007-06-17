@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-local
+functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
@@ -12,8 +12,19 @@ local
    infix  0 &
    (* SML/NJ workaround --> *)
 
-   structure Dummy : CLOSED_GENERIC = struct
-      structure Rep = MkClosedGenericRep (Thunk)
+   structure Dummy =
+      LayerGenericRep (structure Outer = Arg.Rep
+                       structure Closed = MkClosedGenericRep (Thunk))
+
+   open Dummy.This
+
+   exception Dummy of Exn.t
+
+   fun dummy a = getT a () handle e => raise Dummy e
+   fun withDummy v = mapT (const (fn () => valOf v))
+
+   structure Layered = LayerGeneric
+     (structure Outer = Arg and Result = Dummy and Rep = Dummy.Closed
 
       fun iso b (_, b2a) = b2a o b
 
@@ -63,25 +74,7 @@ local
 
       fun C0 _ = unit
       fun C1 _ = id
-      val data = id
-   end
+      val data = id)
 
-   structure Dummy : OPENED_GENERIC = OpenGeneric (Dummy)
-in
-   structure Dummy :> DUMMY_GENERIC = struct
-      open Dummy
-      structure Dummy = Rep
-      exception Dummy of Exn.t
-      val dummy : ('a, 'x) Dummy.t -> 'a =
-          fn a => This.getT a () handle e => raise Dummy e
-      fun withDummy v = This.mapT (const (fn () => valOf v))
-   end
-end
-
-functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = struct
-   structure Joined = JoinGenerics (structure Outer = Arg and Inner = Dummy)
-   open Dummy Joined
-   structure Dummy = Rep
-   val dummy = fn ? => dummy (Arg.Rep.getT ?)
-   val withDummy = fn v => fn ? => Arg.Rep.mapT (withDummy v) ?
+   open Layered
 end
