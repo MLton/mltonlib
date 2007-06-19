@@ -16,7 +16,7 @@
  *
  * This generic value is unlikely to be directly useful in application
  * programs and is more likely to be used internally in the implementation
- * of some other generic values (e.g. pickling).
+ * of some other generics (e.g. pickling).
  *)
 signature TYPE_INFO = sig
    structure TypeInfo : OPEN_GENERIC_REP

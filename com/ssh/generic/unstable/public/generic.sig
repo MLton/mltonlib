@@ -11,7 +11,7 @@ signature GENERIC = sig
    structure Open : OPEN_GENERIC
 
    include CLOSED_GENERIC
-      where type 'a Rep.t = ('a, Unit.t) Open.Rep.t
-      where type 'a Rep.s = ('a, Unit.t) Open.Rep.s
+      where type  'a      Rep.t = ('a,     Unit.t) Open.Rep.t
+      where type  'a      Rep.s = ('a,     Unit.t) Open.Rep.s
       where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Open.Rep.p
 end

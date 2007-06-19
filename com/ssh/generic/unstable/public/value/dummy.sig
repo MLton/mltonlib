@@ -8,9 +8,9 @@
  * A signature for a generic dummy value.  In SML, dummy values are needed
  * for things such as computing fixpoints and building cyclic values.
  *
- * This generic value is unlikely to be directly useful in application
- * programs and is more likely to be used internally in the implementation
- * of some other generic values (e.g. pickling).
+ * This generic is unlikely to be directly useful in application programs
+ * and is more likely to be used internally in the implementation of some
+ * other generics (e.g. pickling).
  *)
 signature DUMMY = sig
    structure Dummy : OPEN_GENERIC_REP

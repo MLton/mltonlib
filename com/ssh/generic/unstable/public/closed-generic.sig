@@ -5,7 +5,7 @@
  *)
 
 (**
- * Signature for closed generic values.
+ * Signature for closed generics.
  *)
 signature CLOSED_GENERIC = sig
    structure Rep : CLOSED_GENERIC_REP

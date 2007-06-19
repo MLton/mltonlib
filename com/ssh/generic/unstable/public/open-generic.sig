@@ -5,7 +5,7 @@
  *)
 
 (**
- * Signature for open generic values.  This is basically derived from the
+ * Signature for open generics.  This is basically derived from the
  * {CLOSED_GENERIC} signature by parameterizing the representation to
  * allow building extended representations.
  *)

@@ -5,7 +5,7 @@
  *)
 
 (**
- * Signature for utilities for defining generic values.
+ * Signature for utilities for defining generics.
  *)
 signature GENERICS_UTIL = sig
    (** == For Defining Closed Generic Functions == *)

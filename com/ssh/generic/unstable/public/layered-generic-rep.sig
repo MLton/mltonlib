@@ -5,7 +5,7 @@
  *)
 
 (**
- * Signature for the layered representation types of generic values.
+ * Signature for the layered representation types of generics.
  *)
 signature LAYERED_GENERIC_REP = sig
    structure Outer : OPEN_GENERIC_REP
