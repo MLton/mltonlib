@@ -5,14 +5,24 @@
  *)
 
 structure Tie :> TIE = struct
+   open Product
+   infix &
    type 'a dom = Unit.t
-   type 'a cod = 'a * 'a UnOp.t
+   type 'a cod = ('a * 'a UnOp.t) Thunk.t
    type 'a t = 'a dom -> 'a cod
-   fun fix a f = let val (a, ta) = a () in ta (f a) end
-   val pure = Fn.id
-   fun iso tb iso = Pair.map (Iso.from iso, Fn.map iso) o tb
-   fun op *` ab = Pair.map (Product.&, Product.map) o
-                  Pair.swizzle o Pair.map ab o Sq.mk
+   fun fix aT f = let val (a, ta) = aT () () in ta (f a) end
+   val pure = Thunk.mk
+   fun iso bT (iso as (_, b2a)) () () = let
+      val (b, fB) = bT () ()
+   in
+      (b2a b, Fn.map iso fB)
+   end
+   fun op *` (aT, bT) () () = let
+      val (a, fA) = aT () ()
+      val (b, fB) = bT () ()
+   in
+      (a & b, Product.map (fA, fB))
+   end
    (* The rest are not primitive operations. *)
    fun tuple2 ab = iso (op *` ab) Product.isoTuple2
    fun tier th = pure ((fn (a, ua) => (a, Fn.const a o ua)) o th)
