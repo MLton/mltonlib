@@ -30,15 +30,8 @@ struct
       val mapS = Pair.mapSnd
       val mapP = Pair.mapSnd
    end
-   type ('a,     'x) t = ('a,     ('a,     'x) Inner.t) Outer.t
-   type ('a,     'x) s = ('a,     ('a,     'x) Inner.s) Outer.s
-   type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.p) Outer.p
-   fun getT ? = Inner.getT (Outer.getT ?)
-   fun getS ? = Inner.getS (Outer.getS ?)
-   fun getP ? = Inner.getP (Outer.getP ?)
-   fun mapT ? = Outer.mapT (Inner.mapT ?)
-   fun mapS ? = Outer.mapS (Inner.mapS ?)
-   fun mapP ? = Outer.mapP (Inner.mapP ?)
+   structure Result = JoinGenericReps (structure Outer=Outer and Inner=Inner)
+   open Result
    structure This = struct
       fun getT ? = Pair.fst (Outer.getT ?)
       fun getS ? = Pair.fst (Outer.getS ?)
@@ -57,7 +50,7 @@ functor LayerDepGeneric (Arg : LAYER_DEP_GENERIC_DOM) :>
 struct
    structure Rep = Arg.Result
 
-   structure Inner = Arg.Result.Inner
+   structure Inner = Rep.Inner
    structure Outer = Arg.Outer
 
    fun op1 mk get outer this x2y a = outer (fn x => mk (this a, x2y (get x))) a
