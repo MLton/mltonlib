@@ -5,12 +5,8 @@
  *)
 
 structure Array : ARRAY = struct
-   local
-      structure Common = MkSeqCommonExt (Array)
-   in
-      open Array Common
-   end
-   fun empty () = tabulate (0, Basic.undefined)
+   structure Common = MkSeqCommonExt (Array)
+   open Common Array
    fun duplicate a = tabulate (length a, fn i => sub (a, i))
    val toVector = vector
    fun fromVector v = tabulate (Vector.length v, fn i => Vector.sub (v, i))

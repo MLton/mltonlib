@@ -11,6 +11,9 @@ signature VECTOR = sig
    type 'a t = 'a vector
    (** Convenience alias. *)
 
+   val empty : 'a t Thunk.t
+   (** Returns an empty vector. *)
+
    val unfoldi : (Int.t * 'b -> 'a * 'b) -> Int.t * 'b -> 'a t * 'b
    (**
     * {unfoldi f (n, b)} constructs a vector {v} of a length {n}, whose

@@ -11,6 +11,9 @@ signature MONO_VECTOR = sig
    type t = vector
    (** Convenience alias. *)
 
+   val empty : t Thunk.t
+   (** Returns an empty vector. *)
+
    val unfoldi : (Int.t * 'a -> elem * 'a) -> Int.t * 'a -> t * 'a
    (**
     * {unfoldi f (n, b)} constructs a vector {v} of a length {n}, whose

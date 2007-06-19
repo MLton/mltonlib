@@ -5,9 +5,6 @@
  *)
 
 structure Vector : VECTOR = struct
-   local
-      structure Common = MkSeqCommonExt (Vector)
-   in
-      open Vector Common
-   end
+   structure Common = MkSeqCommonExt (Vector)
+   open Common Vector
 end
