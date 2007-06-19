@@ -11,15 +11,15 @@ structure RootGeneric :> OPEN_GENERIC = struct
 
    structure Rep = struct
       type ('a, 'x) t = 'x
-      val getT = id
-      val mapT = id
-
       type ('a, 'x) s = 'x
-      val getS = id
-      val mapS = id
-
       type ('a, 'k, 'x) p = 'x
+
+      val getT = id
+      val getS = id
       val getP = id
+
+      val mapT = id
+      val mapS = id
       val mapP = id
    end
 

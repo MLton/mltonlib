@@ -58,8 +58,8 @@ structure RootGeneric : OPEN_GENERIC = RootGeneric
 
 functor CloseGeneric (Arg : OPEN_GENERIC) :
    CLOSED_GENERIC
-      where type 'a Rep.t = ('a, Unit.t) Arg.Rep.t
-      where type 'a Rep.s = ('a, Unit.t) Arg.Rep.s
+      where type  'a      Rep.t = ('a,     Unit.t) Arg.Rep.t
+      where type  'a      Rep.s = ('a,     Unit.t) Arg.Rep.s
       where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Arg.Rep.p =
    CloseGeneric (Arg)
 (** Closes an open generic. *)
@@ -68,12 +68,9 @@ signature JOIN_GENERICS_DOM = JOIN_GENERICS_DOM
 
 functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
    OPEN_GENERIC
-      where type ('a, 'b) Rep.t =
-                 ('a, ('a, 'b) Arg.Inner.Rep.t) Arg.Outer.Rep.t
-      where type ('a, 'b) Rep.s =
-                 ('a, ('a, 'b) Arg.Inner.Rep.s) Arg.Outer.Rep.s
-      where type ('a, 'b, 'c) Rep.p =
-                 ('a, 'b, ('a, 'b, 'c) Arg.Inner.Rep.p) Arg.Outer.Rep.p =
+      where type ('a,   'x) Rep.t = ('a,   ('a,   'x) Arg.Inner.Rep.t) Arg.Outer.Rep.t
+      where type ('a,   'x) Rep.s = ('a,   ('a,   'x) Arg.Inner.Rep.s) Arg.Outer.Rep.s
+      where type ('a,'k,'x) Rep.p = ('a,'k,('a,'k,'x) Arg.Inner.Rep.p) Arg.Outer.Rep.p =
    JoinGenerics (Arg)
 (**
  * Joins two open generic functions.  As can be read from the constraints,
@@ -102,8 +99,8 @@ signature LAYER_GENERIC_DOM = LAYER_GENERIC_DOM
 
 functor LayerGeneric (Arg : LAYER_GENERIC_DOM) :
    OPEN_GENERIC
-      where type ('a, 'x) Rep.t = ('a, 'x) Arg.Result.t
-      where type ('a, 'x) Rep.s = ('a, 'x) Arg.Result.s
+      where type ('a,     'x) Rep.t = ('a,     'x) Arg.Result.t
+      where type ('a,     'x) Rep.s = ('a,     'x) Arg.Result.s
       where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
    LayerGeneric (Arg)
 (**

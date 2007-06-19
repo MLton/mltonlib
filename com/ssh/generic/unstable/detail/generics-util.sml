@@ -16,7 +16,7 @@ structure GenericsUtil :> GENERICS_UTIL = struct
 end
 
 functor MkClosedGenericRep (type 'a t) : CLOSED_GENERIC_REP = struct
-   type 'a t = 'a t
-   type 'a s = 'a t
+   type  'a      t = 'a t
+   type  'a      s = 'a t
    type ('a, 'k) p = 'a t
 end
