@@ -23,39 +23,51 @@ functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
    structure Layered = LayerGeneric
      (structure Outer = Arg and Result = Ord and Rep = Ord.Closed
 
-      fun inj b a2b = b o Pair.map (Sq.mk a2b)
-      fun iso b = inj b o Iso.to
+      fun iso b (a2b, _) = b o Pair.map (Sq.mk a2b)
+      val isoProduct = iso
+      val isoSum     = iso
 
-      val op *` = Product.collate
+      val op *`  = Product.collate
+      val T      = id
+      fun R _    = id
+      val tuple  = id
+      val record = id
+
       val op +` = Sum.collate
+      val unit  = fn ((), ()) => EQUAL
+      fun C0 _  = unit
+      fun C1 _  = id
+      val data  = id
 
       val Y = Tie.function
 
       fun op --> _ = failing "Compare.--> unsupported"
 
-      (* XXX It is also possible to implement exn so that compare provides
-       * a reasonable answer as long as at least one of the exception
-       * variants (involved in a comparison) has been registered.
-       *)
-      val exn : Exn.t Rep.t Ref.t = ref GenericsUtil.failExnSq
-      fun regExn t (_, prj) =
-          Ref.modify (fn exn =>
-                         fn (l, r) =>
-                            case prj l & prj r of
-                               SOME l & SOME r => t (l, r)
-                             | SOME _ & NONE   => GREATER
-                             | NONE   & SOME _ => LESS
-                             | NONE   & NONE   => exn (l, r)) exn
-      val exn = fn ? => !exn ?
+      val exns : (Exn.t Sq.t -> Order.t Option.t) Buffer.t = Buffer.new ()
+      fun exn lr =
+          recur 0 (fn lp =>
+             fn i =>
+                if i = Buffer.length exns then
+                   GenericsUtil.failExnSq lr
+                else
+                   case Buffer.sub (exns, i) lr of
+                      SOME r => r
+                    | NONE   => lp (i+1))
+      fun regExn cA (_, e2a) =
+          (Buffer.push exns)
+             (fn (l, r) =>
+                 case e2a l & e2a r of
+                    SOME l & SOME r => SOME (cA (l, r))
+                  | SOME _ & NONE   => SOME GREATER
+                  | NONE   & SOME _ => SOME LESS
+                  | NONE   & NONE   => NONE)
 
+      val list   = List.collate
       val array  = Array.collate
-      fun refc ? = inj ? !
-
       val vector = Vector.collate
 
-      val list = List.collate
+      fun refc t = iso t (!, ref)
 
-      val unit   = fn ((), ()) => EQUAL
       val bool   = Bool.compare
       val char   = Char.compare
       val int    = Int.compare
@@ -68,23 +80,8 @@ functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
       val largeWord = LargeWord.compare
 
       val word8  = Word8.compare
-   (* val word16 = Word16.compare (* Word16 not provided by SML/NJ *) *)
       val word32 = Word32.compare
-      val word64 = Word64.compare
-
-      (* Trivialities *)
-
-      val isoProduct = iso
-      val isoSum = iso
-
-      val T = id
-      fun R _ = id
-      val tuple = id
-      val record = id
-
-      fun C0 _ = unit
-      fun C1 _ = id
-      val data = id)
+      val word64 = Word64.compare)
 
    open Layered
 end
