@@ -27,9 +27,20 @@ functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = struct
      (structure Outer = Arg and Result = Dummy and Rep = Dummy.Closed
 
       fun iso b (_, b2a) = b2a o b
+      val isoProduct = iso
+      val isoSum     = iso
 
-      fun a *` b = fn () => a () & b ()
+      val op *`  = Product.thunk
+      val T      = id
+      fun R _    = id
+      val tuple  = id
+      val record = id
+
       fun a +` b = fn () => INL (a ()) handle _ => INR (b ())
+      val unit = fn () => ()
+      fun C0 _ = unit
+      fun C1 _ = id
+      val data = id
 
       val Y = Tie.function
 
@@ -38,43 +49,26 @@ functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = struct
       val exn = fn () => Empty
       fun regExn _ _ = ()
 
-      fun array _ = fn () => Array.tabulate (0, undefined)
-      fun refc a = ref o a
+      fun array  _ = Array.empty
+      fun vector _ = Vector.empty
+      fun list   _ = fn () => []
 
-      fun vector _ = fn () => Vector.tabulate (0, undefined)
+      fun refc a = ref o a
 
       val largeInt  = fn () => 0   : LargeInt.t
       val largeReal = fn () => 0.0 : LargeReal.t
       val largeWord = fn () => 0w0 : LargeWord.t
-
-      fun list _ = fn () => []
 
       val bool   = fn () => false
       val char   = fn () => #"\000"
       val int    = fn () => 0
       val real   = fn () => 0.0
       val string = fn () => ""
-      val unit   = fn () => ()
       val word   = fn () => 0w0
 
       val word8  = fn () => 0w0 : Word8.t
-   (* val word16 = fn () => 0w0 : Word16.t (* Word16 not provided by SML/NJ *) *)
       val word32 = fn () => 0w0 : Word32.t
-      val word64 = fn () => 0w0 : Word64.t
-
-      (* Trivialities *)
-
-      val isoProduct = iso
-      val isoSum = iso
-
-      val T = id
-      fun R _ = id
-      val tuple = id
-      val record = id
-
-      fun C0 _ = unit
-      fun C1 _ = id
-      val data = id)
+      val word64 = fn () => 0w0 : Word64.t)
 
    open Layered
 end
