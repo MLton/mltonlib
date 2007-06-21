@@ -5,10 +5,22 @@
  *)
 
 (**
- * Signature for a generic equality relation.  For equality types the
- * semantics is the same as SML's built-in equality.  User defined types,
- * exceptions, and reals are given a natural, structural, semantics of
- * equality.  Functions, obviously, can't be supported.
+ * Signature for a generic equality relation.
+ *
+ * For equality types the semantics is the same as SML's equality.  For
+ * mutable types (refs and arrays) this means that two objects are
+ * considered equal if they have the same identity.  User defined
+ * datatypes and exceptions are given a structural semantics of equality.
+ * Specifically, two datatypes or exceptions are considered equal if they
+ * have the same constructor and the arguments of the constructors are
+ * considered equal.
+ *
+ * Currently, the equality of reals is the same as the {LargeReal.==}
+ * function.  This differs disturbingly from the equality for other types.
+ * In particular, {~0.0} and {0.0} are considered equal even though they
+ * are different values and {nan} is not considered equal to any value,
+ * including itself.  This is problematic for a number of important
+ * non-numerical applications such as serialization.
  *)
 signature EQ = sig
    structure Eq : OPEN_GENERIC_REP

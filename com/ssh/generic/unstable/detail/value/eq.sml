@@ -7,8 +7,6 @@
 functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix  7 *`
-   infix  6 +`
    infix  0 &
    (* SML/NJ workaround --> *)
 
@@ -25,62 +23,67 @@ functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
      (structure Outer = Arg and Result = Eq and Rep = Eq.Closed
 
       fun iso b (a2b, _) = b o Pair.map (Sq.mk a2b)
+      val isoProduct = iso
+      val isoSum     = iso
 
-      val op *` = Product.equal
+      val op *`  = Product.equal
+      val T      = id
+      fun R _    = id
+      val tuple  = id
+      val record = id
+
       val op +` = Sum.equal
+      val unit  = op =
+      fun C0 _  = unit
+      fun C1 _  = id
+      val data  = id
 
       val Y = Tie.function
 
       fun op --> _ = failing "Eq.--> unsupported"
 
       val exn : Exn.t Rep.t Ref.t = ref GenericsUtil.failExnSq
-      fun regExn t (_, prj) =
+      fun regExn t (_, e2to) =
           Ref.modify (fn exn =>
                          fn (l, r) =>
-                            case prj l & prj r of
-                               SOME l & SOME r => t (l, r)
-                             | SOME _ & NONE   => false
+                            case e2to l & e2to r of
+                               NONE   & NONE   => exn (l, r)
                              | NONE   & SOME _ => false
-                             | NONE   & NONE   => exn (l, r)) exn
+                             | SOME _ & NONE   => false
+                             | SOME l & SOME r => t (l, r)) exn
       val exn = fn ? => !exn ?
-
-      fun array _ = op =
-      fun refc _ = op =
 
       val list = ListPair.allEq
 
-      fun vector eq = iso (list eq) Vector.isoList (* XXX can be optimized *)
+      fun seq length sub eq (l, r) = let
+         val lL = length l
+         val lR = length r
+         fun lp i = i = lL
+                    orelse eq (sub (l, i), sub (r, i))
+                           andalso lp (i+1)
+      in
+         lL = lR andalso lp 0
+      end
+
+      fun vector ? = seq Vector.length Vector.sub ?
+      fun array _ = op =
+
+      fun refc _ = op =
+
+      val largeInt  = op =
+      val largeReal = LargeReal.==
+      val largeWord = op =
 
       val bool   = op =
       val char   = op =
       val int    = op =
       val real   = Real.==
       val string = op =
-      val unit   = op =
       val word   = op =
 
-      val largeInt  = op =
-      val largeReal = LargeReal.==
-      val largeWord = op =
-
       val word8  = op =
-   (* val word16 = op = (* Word16 not provided by SML/NJ *) *)
       val word32 = op =
-      val word64 = op =
-
-      (* Trivialities *)
-
-      val isoProduct = iso
-      val isoSum = iso
-
-      val T = id
-      fun R _ = id
-      val tuple = id
-      val record = id
-
-      fun C0 _ = unit
-      fun C1 _ = id
-      val data = id)
+      val word64 = op =)
 
    open Layered
 end
