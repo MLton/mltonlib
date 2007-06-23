@@ -45,3 +45,4 @@ group is
    ../../value/pretty.sml
    ../../value/type-info.sml
    ../../with-extra.fun
+   extensions.cm

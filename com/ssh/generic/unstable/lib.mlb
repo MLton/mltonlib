@@ -15,6 +15,9 @@ in
       "warnUnused true"
    in
       local
+         (* Extensions *)
+         detail/ml/$(SML_COMPILER)/extensions.mlb
+
          (* Support *)
 
          public/generics.sig

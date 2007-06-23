@@ -71,15 +71,17 @@ functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
       fun refc _ = op =
 
       val largeInt  = op =
-      val largeReal = LargeReal.==
       val largeWord = op =
 
       val bool   = op =
       val char   = op =
       val int    = op =
-      val real   = Real.==
       val string = op =
       val word   = op =
+
+      fun mk cast = BinPr.map cast op =
+      val largeReal = mk CastLargeReal.castToWord
+      val      real = mk      CastReal.castToWord
 
       val word8  = op =
       val word32 = op =
