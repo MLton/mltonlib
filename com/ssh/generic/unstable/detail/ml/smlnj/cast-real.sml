@@ -9,17 +9,18 @@ structure CastReal : CAST_REAL where type t = Real.t = struct
    structure Word = Word64
    local
       fun cast {size=sizeF, set=setF, get=_   }
-               {size=sizeT, set=_,    get=getT} vF =
+               {size=sizeT, set=_,    get=getT} =
           if C.S.toWord sizeF <> C.S.toWord sizeT then
              raise Fail "CastReal: sizes do not match"
-          else let
-                val objF = C.new' sizeF
-                val objT =
-                    let open C.Ptr in |*! (cast' (inject' (|&! objF))) end
-             in
-                setF (objF, vF)
-              ; getT objT before C.discard' objF
-             end
+          else
+             fn vF => let
+                   open C.Ptr
+                   val objF = C.new' sizeF
+                   val objT = |*! (cast' (inject' (|&! objF)))
+                in
+                   setF (objF, vF)
+                 ; getT objT before C.discard' objF
+                end
       val word64 = {size = C.S.ulonglong,
                     set = C.Set.ulonglong',
                     get = C.Get.ulonglong'}
