@@ -1,0 +1,5 @@
+;; -*- emacs-lisp -*-
+
+(bg-build
+ :name  "Misc Util"
+ :shell "nice -n5 make all check")
