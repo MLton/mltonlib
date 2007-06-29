@@ -6,11 +6,12 @@
 
 (*
  * This is basically an implementation of the Cheap Concurrency toy
- * benchmark, from the "Computer Language Benchmarks Game", using a library
- * for portable asynchronous programming in SML.  This implementation was
- * inspired by a Haskell implementation by Einar Karttunen, Simon Marlow,
- * and Don Stewart.  The Async library does not use threads or processes
- * of any kind.  Measure the performance yourself!
+ * benchmark, from the ``Computer Language Benchmarks Game'', using a
+ * library for portable asynchronous programming in SML.  This
+ * implementation was inspired by a Haskell implementation by Einar
+ * Karttunen, Simon Marlow, and Don Stewart.  The Async library does not
+ * use threads or processes of any kind.  Measure the performance
+ * yourself!
  *)
 
 open Async

@@ -6,10 +6,10 @@
 
 (*
  * This is basically a translation of a Chameneos toy benchmark
- * implementation by Tom Pledger for Haskell, from the Computer Language
- * Benchmarks Game, using a library for portable asynchronous programming
- * in SML.  The Async library does not use threads or processes of any
- * kind.  Measure the performance yourself!
+ * implementation by Tom Pledger for Haskell, from the ``Computer Language
+ * Benchmarks Game'', using a library for portable asynchronous
+ * programming in SML.  The Async library does not use threads or
+ * processes of any kind.  Measure the performance yourself!
  *)
 
 open Async
