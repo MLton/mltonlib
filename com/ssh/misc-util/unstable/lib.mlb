@@ -45,14 +45,15 @@ in
    int-obj.sig
 
    cache.sig
+   mk-int-obj-cache.fun
+   ref-cache.sml
+
    local
       $(SML_LIB)/mlnlffi-lib/mlnlffi-lib.mlb
       generated/$(TARGET_ARCH)-$(TARGET_OS)/nlffi/lib.mlb
    in
       cache.sml
-      mk-int-obj-cache.fun
       ptr-cache.sml
-      ref-cache.sml
    end
 
    (* SML *)
