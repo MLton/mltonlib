@@ -15,7 +15,6 @@ structure Queue :> sig
    include QUEUE
    val filter : 'a UnPr.t -> 'a t Effect.t
    val filterOut : 'a UnPr.t -> 'a t Effect.t
-   val appClear : 'a Effect.t -> 'a t Effect.t
 end = struct
    datatype 'a t = T of {back : 'a Node.p Ref.t, front : 'a Node.p Ref.t}
 
