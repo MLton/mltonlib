@@ -15,10 +15,8 @@ mlb-path-map := $(gen-dir)/mlb-path-map
 
 exe := $(gen-dir)/$(name)
 
-ifeq ($(target-os),mingw)
-link-opt :=
-else
-link-opt := -link-opt -ldl
+ifneq ($(target-os),mingw)
+link-opts += -ldl
 endif
 
 ##########################################################################
@@ -57,8 +55,10 @@ $(exe) : $(name).mlb $(mlb-path-map)
 	mlton -mlb-path-map $(mlb-path-map)                  \
 	      -prefer-abs-paths true                         \
 	      -show-def-use $@.du                            \
-	      $(link-opt)                                    \
+	      -inline 10000                                  \
+	      -link-opt '$(link-opts)'                       \
 	      -output $@                                     \
+	      $(mlton-opts)                                  \
 	      $<
 
 ##########################################################################
