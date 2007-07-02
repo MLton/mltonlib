@@ -19,7 +19,7 @@ open Async
 fun handler im = let
    val om = MVar.new ()
 in
-   every (MVar.take im) (fn x => (MVar.fill om (x+1)))
+   every (MVar.take im) (fn x => MVar.fill om (x+1))
  ; om
 end
 
