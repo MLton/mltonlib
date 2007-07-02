@@ -8,6 +8,11 @@ local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    $(MLTON_LIB)/com/ssh/async/unstable/lib.mlb
 
-   chameneos.sml
+   ann
+      "sequenceNonUnit error"
+      "warnUnused true"
+   in
+      chameneos.sml
+   end
 in
 end

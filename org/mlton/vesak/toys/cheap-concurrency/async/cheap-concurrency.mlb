@@ -8,6 +8,11 @@ local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    $(MLTON_LIB)/com/ssh/async/unstable/lib.mlb
 
-   cheap-concurrency.sml
+   ann
+      "sequenceNonUnit error"
+      "warnUnused true"
+   in
+      cheap-concurrency.sml
+   end
 in
 end
