@@ -9,7 +9,7 @@
 functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix  7 *`
+   infix  7 *` >>
    infix  6 +`
    infix  4 <\ \>
    infixr 4 </ />
@@ -44,10 +44,11 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
 
    structure Layered = LayerDepGeneric
      (structure Outer = Arg and Result = Hash
+
       fun iso' bH (a2b, _) = bH o a2b
-      fun iso ? = iso' (getT ?)
+      fun iso        ? = iso' (getT ?)
       fun isoProduct ? = iso' (getP ?)
-      fun isoSum ? = iso' (getS ?)
+      fun isoSum     ? = iso' (getS ?)
 
       fun op *` (aT, bT) (a & b) {maxWidth, maxDepth} = let
          val aN = Arg.numElems aT
@@ -58,10 +59,22 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
          getP bT b {maxWidth = bW, maxDepth = maxDepth} o
          getP aT a {maxWidth = aW, maxDepth = maxDepth}
       end
+      val T   = getT
+      fun R _ = getT
+      fun product' aP a p = if #maxWidth p = 0 then id else (getP aP) a p
+      val tuple  = product'
+      val record = product'
 
       fun op +` ? =
           Sum.sum (Pair.map (HC.withConst 0wx96BA232 o getS,
                              HC.withConst 0wxCF24651 o getS) ?)
+      val unit = HC.lift (Thunk.mk 0wx2F785)
+      fun C0 _ = unit
+      fun C1 _ = getT
+      fun data aS a {maxDepth, maxWidth} =
+          if maxDepth = 0 then id
+          else getS aS a {maxDepth = maxDepth - 1,
+                          maxWidth = Int.quot (maxWidth, 2)}
 
       val Y = Tie.function
 
@@ -100,43 +113,30 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
             end
       end
 
-      fun array aT = hashSeq Array.length Array.sub (getT aT)
+      fun array  aT = hashSeq Array.length  Array.sub  (getT aT)
       fun vector aT = hashSeq Vector.length Vector.sub (getT aT)
 
       val char = HC.lift (Word.fromInt o ord)
       val string = hashSeq String.length String.sub char
-      val unit = HC.lift (Thunk.mk 0wx2F785)
 
-      val largeInt =
-          HC.lift (W.fromLargeInt o LargeInt.rem /> W.toLargeInt W.maxValue)
-      val largeWord =
-          HC.lift (W.fromLarge o LargeWord.mod /> W.toLarge W.maxValue)
-      val word8 = HC.lift Word8.toWord
-   (* val word16 = HC.lift Word16.toWord (* Word16 not provided by SML/NJ *) *)
-      val word32 = HC.lift (Word.fromLarge o Word32.toLarge)
-      val word64 = HC.lift (Word.fromLarge o Word64.toLarge)
       val bool = HC.lift (fn true => 0wx2DA745 | false => 0wx3C24A62)
-      val int = HC.lift Word.fromInt
+      val int  = HC.lift Word.fromInt
       val word = HC.lift id
 
-      (* XXX SML/NJ does not provide a function to convert a real to bits *)
-      val largeReal = HC.map LargeReal.toString string
-      val real = HC.map Real.toString string
+      fun mk x2V op mod (v2w, w2v) =
+          HC.map (fn x => v2w (x2V x mod w2v Word.maxValue)) word
 
-      (* Trivialities *)
+      val largeInt  = mk id LargeInt.mod  (Iso.swap Word.isoLargeInt)
+      val largeWord = mk id LargeWord.mod LargeWord.isoWord
 
-      val T = getT
-      fun R _= getT
-      fun tuple aP a p = if #maxWidth p = 0 then id else (getP aP) a p
-      val record = tuple
+      val largeReal =
+          let open CastLargeReal open Word in mk castToWord op mod isoWord end
+      val real =
+          let open CastReal      open Word in mk castToWord op mod isoWord end
 
-      fun C0 _ = unit
-      fun C1 _ = getT
-
-      fun data aS a {maxDepth, maxWidth} =
-          if maxDepth = 0 then id
-          else getS aS a {maxDepth = maxDepth - 1,
-                          maxWidth = Int.quot (maxWidth, 2)})
+      val word8  = HC.lift Word8.toWord
+      val word32 = HC.lift Word32.toWord
+      val word64 = mk id Word64.mod Word64.isoWord)
 
    open Layered
 end
