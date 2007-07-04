@@ -5,7 +5,14 @@
  *)
 
 structure RandomDev : RANDOM_DEV = struct
-   (* XXX implement reasonable seed/useed for SML/NJ *)
-   fun seed () = raise Fail "not implemented"
+   (* XXX implement better seed/useed for SML/NJ *)
+   val cnt = ref 0w0
+   fun seed () =
+       SOME (Word.xorb
+                (Word.fromLargeInt
+                    (Time.toNanoseconds (Time.now ()) mod
+                     Word.toLargeInt Word.maxValue),
+                 !cnt)
+             before cnt := !cnt + 0w1)
    val useed = seed
 end
