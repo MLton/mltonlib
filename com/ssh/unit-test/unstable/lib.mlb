@@ -1,0 +1,39 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+local
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+   $(MLTON_LIB)/com/ssh/generic/unstable/lib.mlb
+   $(MLTON_LIB)/com/ssh/prettier/unstable/lib.mlb
+   $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
+in
+   ann
+      "forceUsed"
+      "sequenceNonUnit warn"
+      "warnUnused true"
+   in
+      local
+         public/unit-test.sig
+
+         public/mk-unit-test-fun.sig
+         local
+            ann
+               "forceUsed"
+               "sequenceNonUnit warn"
+               "warnUnused true"
+            in
+               detail/fru.sml
+               detail/maybe.sml
+               detail/sorted-list.sml
+            end
+         in
+            detail/mk-unit-test.fun
+         end
+      in
+         public/export.sml
+      end
+   end
+end

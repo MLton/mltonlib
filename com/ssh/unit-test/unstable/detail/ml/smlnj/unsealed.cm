@@ -1,0 +1,17 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+group is
+   ../../../../../extended-basis/unstable/basis.cm
+   ../../../../../generic/unstable/lib.cm
+   ../../../../../prettier/unstable/lib.cm
+   ../../../../../random/unstable/lib.cm
+   ../../../public/mk-unit-test-fun.sig
+   ../../../public/unit-test.sig
+   ../../fru.sml
+   ../../maybe.sml
+   ../../mk-unit-test.fun
+   ../../sorted-list.sml
