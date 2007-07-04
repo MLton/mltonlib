@@ -14,6 +14,9 @@ signature RNG = sig
    structure Seed : sig
       type t
       (** The type of RNG seed. *)
+
+      val fromWord : Word.t -> t
+      (** Creates a seed from a given word. *)
    end
 
    val make : Seed.t -> t
