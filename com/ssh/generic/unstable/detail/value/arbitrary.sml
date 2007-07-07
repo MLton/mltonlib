@@ -71,10 +71,10 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
               | _            => gen
       in
          IN {gen = G.sized (fn 0 => gen0 | _ => gen),
-             cog = fn INL a => G.variant 0 o cogS aS a
-                    | INR b => G.variant 1 o cogS bS b}
+             cog = fn INL a => G.variant 0w0 o cogS aS a
+                    | INR b => G.variant 0w1 o cogS bS b}
       end
-      val unit = IN {gen = G.return (), cog = const (G.variant 0)}
+      val unit = IN {gen = G.return (), cog = const (G.variant 0w0)}
       fun C0 _ = unit
       fun C1 _ = getT
       val data = getS
@@ -95,9 +95,9 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
 
       fun list' (IN {gen = xGen, cog = xCog}) = let
          val xsGen = G.sized (0 <\ G.intInRange) >>= G.list xGen
-         fun xsCog [] = G.variant 0
+         fun xsCog [] = G.variant 0w0
            | xsCog (x::xs) =
-             universally (xCog x) o G.variant 1 o universally (xsCog xs)
+             universally (xCog x) o G.variant 0w1 o universally (xsCog xs)
       in
          IN {gen = xsGen, cog = xsCog}
       end
@@ -109,16 +109,16 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
       fun refc a = iso' (getT a) (!, ref)
 
       val char = IN {gen = map chr (G.intInRange (0, Char.maxOrd)),
-                     cog = G.variant o ord}
+                     cog = G.variant o W.fromInt o ord}
       val string as IN {cog = stringCog, ...} = iso' (list' char) String.isoList
 
-      val bool = IN {gen = G.bool, cog = G.variant o Bool.toInt}
+      val bool = IN {gen = G.bool, cog = G.variant o W.fromInt o Bool.toInt}
 
       val int = IN {gen = map (fn w => W.toIntX (w - G.RNG.maxValue div 0w2))
                               (* XXX result may not fit an Int.t *)
                               (G.lift G.RNG.value),
-                    cog = G.variant}
-      val word = IN {gen = G.lift G.RNG.value, cog = G.variant o W.toIntX}
+                    cog = G.variant o W.fromInt}
+      val word = IN {gen = G.lift G.RNG.value, cog = G.variant}
       val real = IN {gen = G.sized ((fn r => G.realInRange (~r, r)) o real),
                      cog = stringCog o R.toString} (* XXX Real cog *)
 

@@ -27,7 +27,7 @@ signature RANDOM_GEN = sig
 
    val Y : 'a t Tie.t
 
-   val variant : Int.t -> 'a t UnOp.t
+   val variant : Word.t -> 'a t UnOp.t
    val mapUnOp : ('a, 'b) Iso.t -> 'b t UnOp.t -> 'a t UnOp.t
 
    val sized : (Int.t -> 'a t) -> 'a t

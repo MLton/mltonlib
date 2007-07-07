@@ -41,7 +41,7 @@ struct
 
    fun promote a2b (n, r) a = a2b a (n, r)
 
-   fun variant v m = m o Pair.map (id, RNG.split (W.fromInt v + 0w1))
+   fun variant v m = m o Pair.map (id, RNG.split v)
 
    fun mapUnOp (to, from) eG2eG = let
       fun map f g = f o g
