@@ -51,7 +51,7 @@ signature UNIT_TEST = sig
    val testRaises : Exn.t -> 'a Thunk.t -> 'b s
    (**
     * Tests that the thunk raises an exception equal to the given one.
-    * The exception constructor must be registered with {Type.regExn}.
+    * The exception constructor must be registered with {regExn}.
     *)
 
    (** == RANDOM TESTING INTERFACE == *)

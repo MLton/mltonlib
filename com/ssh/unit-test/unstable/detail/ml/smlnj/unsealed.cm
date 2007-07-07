@@ -14,4 +14,4 @@ group is
    ../../fru.sml
    ../../maybe.sml
    ../../mk-unit-test.fun
-   ../../sorted-list.sml
+   ../../sorted-list.cm

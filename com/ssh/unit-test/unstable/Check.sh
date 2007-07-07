@@ -5,7 +5,7 @@
 # This code is released under the MLton license, a BSD-style license.
 # See the LICENSE file or http://mlton.org/License for details.
 
-name=lib
+name=lib-with-default
 
 set -e
 set -x

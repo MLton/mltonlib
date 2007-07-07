@@ -1,0 +1,13 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+library
+   library(lib.cm)
+   source(detail/unit-test.sml)
+is
+   ../../generic/unstable/lib-with-default.cm
+   detail/unit-test.sml
+   lib.cm

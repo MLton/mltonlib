@@ -1,0 +1,18 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+local
+   lib-with-default.mlb (* This should preferably be the first *)
+
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+   $(MLTON_LIB)/com/ssh/generic/unstable/lib-with-default.mlb
+   $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
+
+   detail/sorted-list.sml
+
+   example/qc-test-example.sml
+in
+end

@@ -1,0 +1,13 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+group is
+   ../../extended-basis/unstable/basis.cm
+   ../../generic/unstable/lib-with-default.cm
+   ../../random/unstable/lib.cm
+   detail/sorted-list.cm
+   example/qc-test-example.sml
+   lib-with-default.cm
