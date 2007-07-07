@@ -4,10 +4,15 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-group is
+group
+   library(../../extended-basis/unstable/basis.cm)
+   library(../../generic/unstable/lib-with-default.cm)
+   library(../../random/unstable/lib.cm)
+   library(detail/sorted-list.cm)
+   library(lib-with-default.cm)
+is
    ../../extended-basis/unstable/basis.cm
    ../../generic/unstable/lib-with-default.cm
    ../../random/unstable/lib.cm
    detail/sorted-list.cm
-   example/qc-test-example.sml
    lib-with-default.cm

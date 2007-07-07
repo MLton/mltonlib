@@ -13,6 +13,7 @@ local
 
    detail/sorted-list.sml
 
-   example/qc-test-example.sml
+   example/assoc-test.sml
+   example/qc-test.sml
 in
 end

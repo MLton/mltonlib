@@ -10,37 +10,7 @@
  * are from the QuickCheck paper by Koen Claessen and John Hughes.
  *)
 
-(*
- * Note that a top-level module declaration is only required due to
- * the limitations of SML/NJ's CM and is not necessary with MLTon.
- * Specifically, the line
- *
- *> structure QCTestExample : sig end = struct
- *
- * could be replaced by a simple
- *
- *> let
- *
- * and the line
- *
- *> val () = unitTests
- *
- * by
- *
- *> in unitTests
- *
- * Also note that opening the {TopLevel} module and duplication of
- * fixity declarations is only required due to the limitations of
- * SML/NJ's CM.
- *)
-
-structure QCTestExample : sig end = struct
-   (* <-- SML/NJ workaround *)
-   open TopLevel
-   infix & &`
-   infixr |<
-   (* SML/NJ workaround --> *)
-
+val () = let
    open Generic UnitTest
 
    local
@@ -64,8 +34,8 @@ structure QCTestExample : sig end = struct
    (* Note that one can (of course) make local auxiliary definitions, like
     * here, to help with testing.
     *)
-
-   val () = unitTests
+in
+   unitTests
       (title "Reverse")
 
       (chk (all int
@@ -153,7 +123,7 @@ structure QCTestExample : sig end = struct
       (* Above we use a custom test data generator for sorted (or ordered)
        * lists.  In contrast to QuickCheck/Haskell, the custom data
        * generator needs to be injected into a type-index (recall the use
-       * of {withGen} in the implementation of sortedList above).
+       * of {withGen} in the implementation of {sortedList} above).
        *)
 
       $
