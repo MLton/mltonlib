@@ -32,6 +32,9 @@ signature WORD = sig
     * is always equal to {(wordSize + 7) quot 8}.
     *)
 
+   val largestPrime : t
+   (** Largest prime that fits in the word. *)
+
    (** == Conversions == *)
 
    val fromBigBytes : Word8Vector.t -> t

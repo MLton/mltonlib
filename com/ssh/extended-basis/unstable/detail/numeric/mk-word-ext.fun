@@ -21,6 +21,27 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
       type shiftable = t
       type stringable = t
       type wordable = t
+      val largestPrime =
+          (~ o fromInt)
+             (case wordSize of
+                 1  =>   1 | 2  =>   1 | 3  =>   1 | 4  =>   3
+               | 5  =>   1 | 6  =>   3 | 7  =>   1 | 8  =>   5
+               | 9  =>   3 | 10 =>   3 | 11 =>   9 | 12 =>   3
+               | 13 =>   1 | 14 =>   3 | 15 =>  19 | 16 =>  15
+               | 17 =>   1 | 18 =>   5 | 19 =>   1 | 20 =>   3
+               | 21 =>   9 | 22 =>   3 | 23 =>  15 | 24 =>   3
+               | 25 =>  39 | 26 =>   5 | 27 =>  39 | 28 =>  57
+               | 29 =>   3 | 30 =>  35 | 31 =>   1 | 32 =>   5
+               | 33 =>   9 | 34 =>  41 | 35 =>  31 | 36 =>   5
+               | 37 =>  25 | 38 =>  45 | 39 =>   7 | 40 =>  87
+               | 41 =>  21 | 42 =>  11 | 43 =>  57 | 44 =>  17
+               | 45 =>  55 | 46 =>  21 | 47 => 115 | 48 =>  59
+               | 49 =>  81 | 50 =>  27 | 51 => 129 | 52 =>  47
+               | 53 => 111 | 54 =>  33 | 55 =>  55 | 56 =>   5
+               | 57 =>  13 | 58 =>  27 | 59 =>  55 | 60 =>  93
+               | 61 =>   1 | 62 =>  57 | 63 =>  25 | 64 =>  59
+               | _  => raise Fail ("largestPrime less than pow (2, "^
+                                   BasisInt.toString wordSize^") not known"))
       val bounds = (fromInt 0, fromInt~1)
       val numBytes = BasisInt.quot (BasisInt.+ (wordSize, 7), 8)
       local
