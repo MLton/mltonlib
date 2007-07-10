@@ -7,23 +7,19 @@
 functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix  7 *`
-   infix  6 +`
-   infix  0 &
+   infix 0 &
    (* SML/NJ workaround --> *)
 
    structure Ord =
       LayerGenericRep (structure Outer = Arg.Rep
                        structure Closed = MkClosedGenericRep (Cmp))
 
-   open Ord.This
-
-   val compare = getT
+   val compare = Ord.This.getT
 
    structure Layered = LayerGeneric
      (structure Outer = Arg and Result = Ord and Rep = Ord.Closed
 
-      fun iso b (a2b, _) = b o Pair.map (Sq.mk a2b)
+      fun iso b (a2b, _) = Cmp.map a2b b
       val isoProduct = iso
       val isoSum     = iso
 
@@ -66,18 +62,20 @@ functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
       val array  = Array.collate
       val vector = Vector.collate
 
-      fun refc t = iso t (!, ref)
+      fun refc t = Cmp.map ! t
 
       val bool   = Bool.compare
       val char   = Char.compare
       val int    = Int.compare
-      val real   = Real.compare
       val string = String.compare
       val word   = Word.compare
 
       val largeInt  = LargeInt.compare
-      val largeReal = LargeReal.compare
       val largeWord = LargeWord.compare
+
+      fun mk cast = Cmp.map cast
+      val largeReal = mk CastLargeReal.castToWord CastLargeReal.Word.compare
+      val real      = mk      CastReal.castToWord      CastReal.Word.compare
 
       val word8  = Word8.compare
       val word32 = Word32.compare

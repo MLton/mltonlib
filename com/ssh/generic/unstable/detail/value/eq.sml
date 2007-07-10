@@ -48,9 +48,8 @@ functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
                          fn (l, r) =>
                             case e2to l & e2to r of
                                NONE   & NONE   => exn (l, r)
-                             | NONE   & SOME _ => false
-                             | SOME _ & NONE   => false
-                             | SOME l & SOME r => t (l, r)) exn
+                             | SOME l & SOME r => t (l, r)
+                             | _               => false) exn
       val exn = fn ? => !exn ?
 
       val list = ListPair.allEq
@@ -58,11 +57,14 @@ functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
       fun seq length sub eq (l, r) = let
          val lL = length l
          val lR = length r
-         fun lp i = i = lL
-                    orelse eq (sub (l, i), sub (r, i))
-                           andalso lp (i+1)
+         fun lp i = let
+            val i = i-1
+         in
+            i < 0 orelse eq (sub (l, i), sub (r, i))
+                         andalso lp i
+         end
       in
-         lL = lR andalso lp 0
+         lL = lR andalso lp lL
       end
 
       fun vector ? = seq Vector.length Vector.sub ?
