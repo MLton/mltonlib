@@ -6,6 +6,20 @@
 
 (**
  * Signature for a generic hash function.
+ *
+ * Standard ML does not provide a means to extract the identity of a
+ * mutable object as a hashable value.  This means that, regardless of
+ * identity, two structurally equivalent mutable objects always hash to
+ * the same word, which can degrade the asymptotic time complexity of
+ * algorithms that hash mutable objects.
+ *
+ * Interestingly, hashing pure functions is possible.  More precisely, it
+ * is possible to implement a non-trivial mapping - whose range is not a
+ * singleton - of pure functions to words in such a way that equivalent
+ * functions map to equal words.  This requires the ability to generate
+ * values from the domains of functions.  However, it makes little sense
+ * to provide such functionality solely for the purpose of hashing
+ * functions, because it is impossible to compare functions for equality.
  *)
 signature HASH = sig
    structure Hash : OPEN_GENERIC_REP
