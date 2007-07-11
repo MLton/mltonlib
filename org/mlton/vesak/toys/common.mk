@@ -42,7 +42,7 @@ run : $(exe)
 
 $(mlb-path-map) : Makefile
 	mkdir -p $(@D)
-	echo 'MLTON_LIB $(shell cd ../../../../../.. && pwd)' > $@
+	echo 'MLTON_LIB $(shell cd $(root) && pwd)' > $@
 	echo 'SML_COMPILER mlton' >> $@
 
 $(exe) : $(name).mlb $(mlb-path-map)

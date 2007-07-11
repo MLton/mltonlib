@@ -6,4 +6,6 @@
 name := chameneos
 args := 5000000
 
+root := ../../../../../..
+
 include ../../common.mk

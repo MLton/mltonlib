@@ -6,4 +6,6 @@
 name := cheap-concurrency
 args := 15000
 
+root := ../../../../../..
+
 include ../../common.mk
