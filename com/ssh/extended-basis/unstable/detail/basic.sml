@@ -11,6 +11,11 @@ structure Basic :> BASIC = struct
    fun failing m _ = fail m
    fun raising e _ = raise e
    fun recur x = Fn.flip Fn.fix x
-   fun repeat f n x = if n = 0 then x else repeat f (n-1) (f x)
+   fun repeat f n x =
+       if n < 0
+       then raise Domain
+       else recur (Word.fromInt n, x) (fn lp =>
+               fn (0w0, x) => x
+                | (n,   x) => lp (n-0w1, f x))
    fun undefined _ = fail "undefined"
 end
