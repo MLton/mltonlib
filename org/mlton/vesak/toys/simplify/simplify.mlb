@@ -11,7 +11,9 @@ local
       "sequenceNonUnit error"
       "warnUnused true"
    in
+      rational.sml
       simplify.sml
+      bench.sml
    end
 in
 end

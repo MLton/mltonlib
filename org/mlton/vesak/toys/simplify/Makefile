@@ -4,7 +4,7 @@
 # See the LICENSE file or http://mlton.org/License for details.
 
 name := simplify
-args := 1000000
+args := 10000000
 
 root := ../../../../..
 
