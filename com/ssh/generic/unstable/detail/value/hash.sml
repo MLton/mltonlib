@@ -7,15 +7,7 @@
 functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix  7 *` >>
-   infix  6 +`
-   infix  4 <\ \>
-   infixr 4 </ />
-   infix  2 >| andAlso
-   infixr 2 |<
-   infix  1 orElse >>=
    infix  0 &
-   infixr 0 -->
    (* SML/NJ workaround --> *)
 
    type 'a t = 'a -> {totWidth : Int.t, maxDepth : Int.t} -> Word.t

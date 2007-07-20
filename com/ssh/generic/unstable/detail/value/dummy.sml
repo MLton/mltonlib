@@ -7,9 +7,6 @@
 functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix  7 *`
-   infix  6 +`
-   infix  0 &
    (* SML/NJ workaround --> *)
 
    structure Dummy =
@@ -36,7 +33,7 @@ functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = struct
       val tuple  = id
       val record = id
 
-      fun a +` b = fn () => INL (a ()) handle _ => INR (b ())
+      fun op +` (a, b) = fn () => INL (a ()) handle _ => INR (b ())
       val unit = fn () => ()
       fun C0 _ = unit
       fun C1 _ = id

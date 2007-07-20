@@ -7,15 +7,8 @@
 functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix  7 *`
-   infix  6 +`
-   infix  4 <\ \>
-   infixr 4 </ />
-   infix  2 >| andAlso
-   infixr 2 |<
+   infix  2 andAlso
    infix  1 orElse
-   infix  0 &
-   infixr 0 -->
    (* SML/NJ workaround --> *)
 
    fun revMerge (xs, ys) = let
@@ -97,13 +90,13 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
       val isoProduct = const
       val isoSum = const
 
-      fun (INP {base = bl, elems = el, exn = hl, recs = rl, ...}) *`
-          (INP {base = br, elems = er, exn = hr, recs = rr, ...}) =
+      fun op *` (INP {base = bl, elems = el, exn = hl, recs = rl, ...},
+                 INP {base = br, elems = er, exn = hr, recs = rr, ...}) =
           INP {base = bl andalso br, elems = el + er, exn = hl orelse hr,
                recs = merge (rl, rr)}
 
-      fun (INS {alts = al, base = bl, exn = hl, recs = rl, ...}) +`
-          (INS {alts = ar, base = br, exn = hr, recs = rr, ...}) =
+      fun op +` (INS {alts = al, base = bl, exn = hl, recs = rl, ...},
+                 INS {alts = ar, base = br, exn = hr, recs = rr, ...}) =
           INS {alts = al + ar, base = bl orelse br, exn = hl orelse hr,
                recs = merge (rl, rr)}
 
@@ -125,7 +118,7 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
                     end) ?
       end
 
-      fun _ --> _ = base
+      fun op --> _ = base
 
       val exn = INT {base = true, exn = true, pure = true, recs = []}
       fun regExn _ _ = ()
