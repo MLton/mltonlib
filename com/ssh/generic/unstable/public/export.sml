@@ -26,9 +26,6 @@ signature GENERIC_EXTRA = GENERIC_EXTRA
 signature ARBITRARY = ARBITRARY
 signature ARBITRARY_GENERIC = ARBITRARY_GENERIC
 
-signature DUMMY = DUMMY
-signature DUMMY_GENERIC = DUMMY_GENERIC
-
 signature EQ = EQ
 signature EQ_GENERIC = EQ_GENERIC
 
@@ -43,6 +40,9 @@ signature PICKLE_GENERIC = PICKLE_GENERIC
 
 signature PRETTY = PRETTY
 signature PRETTY_GENERIC = PRETTY_GENERIC
+
+signature SOME = SOME
+signature SOME_GENERIC = SOME_GENERIC
 
 signature TYPE_INFO = TYPE_INFO
 signature TYPE_INFO_GENERIC = TYPE_INFO_GENERIC
@@ -134,8 +134,6 @@ signature WITH_ARBITRARY_DOM = WITH_ARBITRARY_DOM
 functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC =
    WithArbitrary (Arg)
 
-functor WithDummy (Arg : OPEN_GENERIC) : DUMMY_GENERIC = WithDummy (Arg)
-
 functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = WithEq (Arg)
 
 signature WITH_HASH_DOM = WITH_HASH_DOM
@@ -147,6 +145,9 @@ signature WITH_PICKLE_DOM = WITH_PICKLE_DOM
 functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_GENERIC = WithPickle (Arg)
 
 functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = WithPretty (Arg)
+
+signature WITH_SOME_DOM = WITH_SOME_DOM
+functor WithSome (Arg : WITH_SOME_DOM) : SOME_GENERIC = WithSome (Arg)
 
 functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC =
    WithTypeInfo (Arg)

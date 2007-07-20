@@ -65,11 +65,11 @@ in
          public/value/type-info.sig
          detail/value/type-info.sml
 
+         public/value/some.sig
+         detail/value/some.sml
+
          public/value/arbitrary.sig
          detail/value/arbitrary.sml
-
-         public/value/dummy.sig
-         detail/value/dummy.sml
 
          public/value/eq.sig
          detail/value/eq.sml
