@@ -11,55 +11,30 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
    infix  1 orElse
    (* SML/NJ workaround --> *)
 
-   fun revMerge (xs, ys) = let
-      fun lp ([], ys, zs) = (ys, zs)
-        | lp (xs, [], zs) = (xs, zs)
-        | lp (x::xs, y::ys, zs) =
-          case Int.compare (x, y) of
-             LESS => lp (xs, y::ys, x::zs)
-           | EQUAL => lp (xs, ys, x::zs)
-           | GREATER => lp (x::xs, ys, y::zs)
-   in
-      lp (xs, ys, [])
-   end
+   type recs = Unit.t Ref.t List.t
 
-   val merge = List.revAppend o Pair.swap o revMerge
+   fun rem x : recs UnOp.t =
+    fn []  => []
+     | [y] => if x = y then [] else [y]
+     | ys  => List.filter (notEq x) ys
 
-   fun remove x ys = let
-      fun lp (zs, []) = (zs, [])
-        | lp (zs, y::ys) =
-          case Int.compare (x, y) of
-             LESS => (zs, y::ys)
-           | EQUAL => (zs, ys)
-           | GREATER => lp (y::zs, ys)
-   in
-      List.revAppend (lp ([], ys))
-   end
+   val merge : recs BinOp.t =
+    fn ([], ys)   => ys
+     | (xs, [])   => xs
+     | ([x], [y]) => if x = y then [x] else [x, y]
+     | (xs, ys)   =>
+       foldl (fn (x, ys) => if List.exists (eq x) ys then ys else x::ys) ys xs
 
-   datatype t =
-      INT of {base : Bool.t,
-              exn : Bool.t,
-              pure : Bool.t,
-              recs : Int.t List.t}
-
-   datatype s =
-      INS of {alts : Int.t,
-              base : Bool.t,
-              exn : Bool.t,
-              recs : Int.t List.t}
-
-   datatype p =
-      INP of {base : Bool.t,
-              elems : Int.t,
-              exn : Bool.t,
-              recs : Int.t List.t}
+   datatype t = INT of {base : Bool.t, exn : Bool.t, recs : recs, pure : Bool.t}
+   datatype s = INS of {base : Bool.t, exn : Bool.t, recs : recs, alts : Int.t}
+   datatype p = INP of {base : Bool.t, exn : Bool.t, recs : recs, elems : Int.t}
 
    structure TypeInfo =
       LayerGenericRep
         (structure Outer = Arg.Rep
          structure Closed = struct
-            type 'a t = t
-            type 'a s = s
+            type  'a      t = t
+            type  'a      s = s
             type ('a, 'k) p = p
          end)
 
@@ -86,37 +61,43 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
       fun pure (INT {exn, recs, ...}) =
           INT {base = true, exn = exn, pure = true, recs = recs}
 
-      val iso = const
+      val iso        = const
       val isoProduct = const
-      val isoSum = const
+      val isoSum     = const
 
-      fun op *` (INP {base = bl, elems = el, exn = hl, recs = rl, ...},
-                 INP {base = br, elems = er, exn = hr, recs = rr, ...}) =
-          INP {base = bl andalso br, elems = el + er, exn = hl orelse hr,
-               recs = merge (rl, rr)}
+      fun op *` (INP l, INP r) =
+          INP {base  = #base l andalso #base r,
+               elems = #elems l + #elems r,
+               exn   = #exn l orelse #exn r,
+               recs  = merge (#recs l, #recs r)}
+      fun T (INT {base, exn, recs, ...}) =
+          INP {base = base, elems = 1, exn = exn, recs = recs}
+      fun R _ = T
+      fun tuple (INP {base, exn, recs, ...}) =
+          INT {base = base, exn = exn, pure = true, recs = recs}
+      val record = tuple
 
-      fun op +` (INS {alts = al, base = bl, exn = hl, recs = rl, ...},
-                 INS {alts = ar, base = br, exn = hr, recs = rr, ...}) =
-          INS {alts = al + ar, base = bl orelse br, exn = hl orelse hr,
-               recs = merge (rl, rr)}
-
+      fun op +` (INS l, INS r) =
+          INS {alts = #alts l + #alts r,
+               base = #base l orelse #base r,
+               exn  = #exn l orelse #exn r,
+               recs = merge (#recs l, #recs r)}
       val unit = base
+      fun C0 _ = INS {alts = 1, base = true, exn = false, recs = []}
+      fun C1 _ (INT {base, exn, recs, ...}) =
+          INS {alts = 1, base = base, exn = exn, recs = recs}
+      fun data (INS {base, exn, recs, ...}) =
+          INT {base = base, exn = exn, pure = true, recs = recs}
 
-      local
-         val id = ref 0
-      in
-         fun Y ? =
-             Tie.pure
-                (fn () => let
-                       val this = !id before id := !id + 1
-                    in
-                       (INT {base = false, exn = false, pure = true,
-                             recs = [this]},
-                        fn INT {base, exn, pure, recs} =>
-                           INT {base = base, exn = exn, pure = pure,
-                               recs = remove this recs})
-                    end) ?
-      end
+      fun Y ? =
+          Tie.pure
+             (fn () => let
+                    val me = ref ()
+                 in
+                    (INT {base=false, exn=false, pure=true, recs=[me]},
+                     fn INT {base, exn, pure, recs} =>
+                        INT {base=base, exn=exn, pure=pure, recs=rem me recs})
+                 end) ?
 
       fun op --> _ = base
 
@@ -129,12 +110,11 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
           INT {base = base, exn = exn, pure = false, recs = recs}
 
       val vector = pure
+      val list   = pure
 
       val largeInt  = base
       val largeReal = base
       val largeWord = base
-
-      val list = pure
 
       val bool   = base
       val char   = base
@@ -144,25 +124,8 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
       val word   = base
 
       val word8  = base
-   (* val word16 = base (* Word16 not provided by SML/NJ *) *)
       val word32 = base
-      val word64 = base
-
-      (* Trivialities *)
-
-      fun T (INT {base, exn, recs, ...}) =
-          INP {base = base, elems = 1, exn = exn, recs = recs}
-      fun R _ = T
-
-      fun tuple (INP {base, exn, recs, ...}) =
-          INT {base = base, exn = exn, pure = true, recs = recs}
-      val record = tuple
-
-      fun C0 _ = INS {alts = 1, base = true, exn = false, recs = []}
-      fun C1 _ (INT {base, exn, recs, ...}) =
-          INS {alts = 1, base = base, exn = exn, recs = recs}
-      fun data (INS {base, exn, recs, ...}) =
-          INT {base = base, exn = exn, pure = true, recs = recs})
+      val word64 = base)
 
    open Layered
 end
