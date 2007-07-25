@@ -112,4 +112,55 @@ structure List : LIST = struct
    fun nubByEq eq =
        rev o foldl (fn (x, ys) =>
                        if exists (Fn.curry eq x) ys then ys else x::ys) []
+   fun revMerge compare (xs, ys) = let
+      fun lp ([],       ys, zs) = (ys, zs)
+        | lp (xs,       [], zs) = (xs, zs)
+        | lp (x::xs, y::ys, zs) =
+          case compare (x, y) of
+             LESS    => lp (xs, y::ys, x::zs)
+           | EQUAL   => lp (x::xs, ys, y::zs)
+           | GREATER => lp (x::xs, ys, y::zs)
+   in
+      revAppend (lp (xs, ys, []))
+   end
+   fun stableSort compare xs = let
+      (* This optimized implementation of merge sort tries to minimize
+       * list reversals by performing reverse merges and flipping the
+       * compare direction as appropriate.
+       *)
+      fun revOdd (w, l) = if Word.isEven w then l else rev l
+      fun merge (r, xsys) =
+          (r+0w1,
+           if Word.isEven r
+           then revMerge compare xsys
+           else revMerge (compare o Pair.swap) (Pair.swap xsys))
+      val finish =
+          fn []    => []
+           | e::es =>
+             revOdd
+                (foldl
+                    (fn ((r1, l1), (r0, l0)) =>
+                        merge (r1, (revOdd (r1-r0, l0), l1)))
+                    e es)
+      fun build (args as ((r0, l0)::(r1, l1)::rest, xs)) =
+          if r0 = r1 then build (merge (r1, (l0, l1))::rest, xs) else push args
+        | build args = push args
+      and push (stack,    []) = finish stack
+        | push (stack, x::xs) = let
+             fun lp (y, ys,    []) = finish ((0w1, y::ys)::stack)
+               | lp (y, ys, x::xs) =
+                 case compare (x, y)
+                  of GREATER => lp (x, y::ys, xs)
+                   | EQUAL   => lp (x, y::ys, xs)
+                   | LESS    =>
+                     build (if null ys
+                            then ((0w1, [y, x])::stack, xs)
+                            else ((0w1, y::ys)::stack, x::xs))
+          in
+             lp (x, [], xs)
+          end
+   in
+      push ([], xs)
+   end
+   val sort = stableSort
 end

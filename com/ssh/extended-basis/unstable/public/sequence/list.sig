@@ -93,7 +93,7 @@ signature LIST = sig
    val unfoldr : ('a -> ('b * 'a) Option.t) -> 'a -> 'b t
    val unfoldr' : ('a -> ('b * 'a) Option.t) -> 'a -> 'b t * 'a
 
-   (** == Extracting sublists == *)
+   (** == Extracting Sublists == *)
 
    val split : 'a t * Int.t -> 'a t Sq.t
    (**
@@ -119,6 +119,14 @@ signature LIST = sig
 
    val contains : ''a t -> ''a UnPr.t
    (** {contains l x = exists (x <\ op =) l} *)
+
+   (** == Sorted Lists == *)
+
+   val sort : 'a Cmp.t -> 'a t UnOp.t
+   (** Sorts given list to ascending order with respect to given ordering. *)
+
+   val stableSort : 'a Cmp.t -> 'a t UnOp.t
+   (** Like {sort}, but retains the relative ordering of equal elements. *)
 
    (** == Equality == *)
 

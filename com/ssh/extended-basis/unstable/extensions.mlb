@@ -212,6 +212,20 @@ in
          public/data/option.sig
          detail/data/option.sml
 
+         (* Scalars *)
+         public/numeric/integer.sig
+         public/numeric/int-inf.sig
+         public/numeric/real.sig
+         public/numeric/word.sig
+         detail/numeric/mk-integer-ext.fun
+         detail/numeric/mk-int-inf-ext.fun
+         detail/numeric/mk-real-ext.fun
+         detail/numeric/mk-word-ext.fun
+         detail/ml/common/scalars.sml
+         detail/ml/$(SML_COMPILER)/ints.sml
+         detail/ml/$(SML_COMPILER)/reals.sml
+         detail/ml/$(SML_COMPILER)/words.sml
+
          (* List *)
          public/sequence/list.sig
          detail/sequence/list.sml
@@ -236,20 +250,6 @@ in
          (* Exit *)
          public/control/exit.sig
          detail/control/exit.sml
-
-         (* Scalars *)
-         public/numeric/integer.sig
-         public/numeric/int-inf.sig
-         public/numeric/real.sig
-         public/numeric/word.sig
-         detail/numeric/mk-integer-ext.fun
-         detail/numeric/mk-int-inf-ext.fun
-         detail/numeric/mk-real-ext.fun
-         detail/numeric/mk-word-ext.fun
-         detail/ml/common/scalars.sml
-         detail/ml/$(SML_COMPILER)/ints.sml
-         detail/ml/$(SML_COMPILER)/reals.sml
-         detail/ml/$(SML_COMPILER)/words.sml
 
          (* MonoSeqs *)
          public/sequence/mono-vector.sig
