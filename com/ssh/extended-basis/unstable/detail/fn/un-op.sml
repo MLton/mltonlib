@@ -6,4 +6,5 @@
 
 structure UnOp :> UN_OP = struct
    open UnOp
+   val map = Fn.map
 end

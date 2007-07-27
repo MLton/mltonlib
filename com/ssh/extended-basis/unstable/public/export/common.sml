@@ -112,12 +112,13 @@ signature WRITER = WRITER
 
 (*
  * These structures are mentioned separately here, rather than in the
- * below list sorted alphabetically, because otherwise SML/NJ (v110.62)
+ * below list sorted alphabetically, because otherwise SML/NJ (v110.65)
  * barfs.
  *)
 structure Sq : SQ = Sq
 structure Sum : SUM = Sum
 structure Thunk : THUNK = Thunk
+structure UnOp : UN_OP = UnOp
 structure UnPr : UN_PR = UnPr
 structure Univ : UNIV = Univ
 structure Vector : VECTOR = Vector
@@ -168,7 +169,6 @@ structure Substring : SUBSTRING = Substring
 structure Text : TEXT = Text
 structure TextIO : TEXT_IO = TextIO
 structure Tie : TIE = Tie
-structure UnOp : UN_OP = UnOp
 structure Unit : UNIT = Unit
 structure VectorSlice : VECTOR_SLICE = VectorSlice
 structure Void : VOID = Void

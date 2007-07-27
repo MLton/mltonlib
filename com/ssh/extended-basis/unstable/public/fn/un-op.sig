@@ -8,4 +8,7 @@
 signature UN_OP = sig
    type 'a t = 'a -> 'a
    (** Type of unary operators (e.g. {~, rev, ...}). *)
+
+   val map : ('a, 'b) Iso.t -> 'b t -> 'a t
+   (** Change the sort of a unary operator. *)
 end
