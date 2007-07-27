@@ -37,12 +37,12 @@ structure Product : PRODUCT = struct
       fun mk p (fA, fB) (a & b) = let
          val a = fA a
       in
-         if p a then a else fB b
+         if p a then fB b else a
       end
    in
-      fun all     ? = mk Bool.isFalse  ?
-      fun exists  ? = mk Bool.isTrue   ?
-      fun equal   ? = mk Bool.isFalse  ? o swizzle
+      fun all     ? = mk Bool.isTrue   ?
+      fun exists  ? = mk Bool.isFalse  ?
+      fun equal   ? = mk Bool.isTrue   ? o swizzle
       fun collate ? = mk Order.isEqual ? o swizzle
    end
 
