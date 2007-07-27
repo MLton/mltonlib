@@ -7,4 +7,5 @@
 structure Thunk :> THUNK = struct
    open Thunk
    val mk = Fn.const
+   val iso = (mk, fn th => th ())
 end

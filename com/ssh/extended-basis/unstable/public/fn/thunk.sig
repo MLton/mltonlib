@@ -11,4 +11,7 @@ signature THUNK = sig
 
    val mk : 'a -> 'a t
    (** Constant thunk ({thunk x = let val x = x in fn () => x end}). *)
+
+   val iso : ('a, 'a t) Iso.t
+   (** The trivial isomorphism between values and thunks. *)
 end

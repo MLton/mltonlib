@@ -8,4 +8,7 @@
 signature UNIT = sig
    type t = unit
    (** The unit type. *)
+
+   val compare : t Cmp.t
+   (** The trivial compare function. *)
 end

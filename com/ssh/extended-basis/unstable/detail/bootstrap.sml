@@ -9,7 +9,7 @@
 structure Void = struct abstype t = T with fun void T = void T end end
 structure Exn = struct type t = exn end
 structure Fn = struct type ('a, 'b) t = 'a -> 'b end
-structure Unit = struct type t = unit end
+structure Unit = struct type t = unit fun compare ((), ()) = EQUAL end
 structure Bool = struct
    open BasisBool
    type t = bool
