@@ -5,7 +5,19 @@
  *)
 
 (**
- * Signature for a basic universal type.
+ * Signature for a basic, non-structural, universal type.
+ *
+ * It is important to understand that the universal type is not
+ * structural.  Consider the following code:
+ *
+ *> val a : (Int.t, Univ.t) Emb.t = Univ.newEmb ()
+ *> val b : (Int.t, Univ.t) Emb.t = Univ.newEmb ()
+ *
+ *> val x : Univ.t = Emb.to a 5
+ *
+ * Now {Emb.from a x} is {SOME 5}, but {Emb.from b x} is {NONE}.  The
+ * embeddings {a} and {b} have different identity.  Each time {newEmb} or
+ * {newIso} is called, a new identity is created.
  *
  * See also: [http://mlton.org/UniversalType]
  *)
