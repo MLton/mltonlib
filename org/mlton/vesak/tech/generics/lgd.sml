@@ -83,13 +83,13 @@ structure Type = struct
     | FIX  of t Ref.t * t
     | VAR  of t Ref.t
 
-   fun Y ? =
+   val Y =
        Tie.pure
           (fn () => let
                  val r = ref UNIT
               in
                  (VAR r, fn t => let val t = FIX (r, t) in r := t ; t end)
-              end) ?
+              end)
 end
 
 (*
