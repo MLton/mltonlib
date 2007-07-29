@@ -22,6 +22,7 @@ group is
    ../../../public/open-generic-rep.sig
    ../../../public/open-generic.sig
    ../../../public/value/arbitrary.sig
+   ../../../public/value/dynamic.sig
    ../../../public/value/eq.sig
    ../../../public/value/hash.sig
    ../../../public/value/ord.sig
@@ -37,6 +38,7 @@ group is
    ../../root-generic.sml
    ../../sml-syntax.sml
    ../../value/arbitrary.sml
+   ../../value/dynamic.sml
    ../../value/eq.sml
    ../../value/hash.sml
    ../../value/ord.sml

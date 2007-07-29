@@ -26,6 +26,9 @@ signature GENERIC_EXTRA = GENERIC_EXTRA
 signature ARBITRARY = ARBITRARY
 signature ARBITRARY_GENERIC = ARBITRARY_GENERIC
 
+signature DYNAMIC = DYNAMIC
+signature DYNAMIC_GENERIC = DYNAMIC_GENERIC
+
 signature EQ = EQ
 signature EQ_GENERIC = EQ_GENERIC
 
@@ -133,6 +136,8 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
 signature WITH_ARBITRARY_DOM = WITH_ARBITRARY_DOM
 functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC =
    WithArbitrary (Arg)
+
+functor WithDynamic (Arg : OPEN_GENERIC) : DYNAMIC_GENERIC = WithDynamic (Arg)
 
 functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = WithEq (Arg)
 

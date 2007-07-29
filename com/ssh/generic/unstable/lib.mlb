@@ -71,6 +71,9 @@ in
          public/value/arbitrary.sig
          detail/value/arbitrary.sml
 
+         public/value/dynamic.sig
+         detail/value/dynamic.sml
+
          public/value/eq.sig
          detail/value/eq.sml
 
