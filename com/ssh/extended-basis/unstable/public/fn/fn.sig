@@ -27,6 +27,9 @@ signature FN = sig
    val id : 'a -> 'a
    (** I-combinator ({id x = x}). *)
 
+   val iso : ('a, 'c) Iso.t * ('b, 'd) Iso.t -> (('a, 'b) t, ('c, 'd) t) Iso.t
+   (** Lifts isos between elements to an iso between arrows. *)
+
    val uncurry : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
    (** Uncurrying ({uncurry f (x, y) = f x y}). *)
 

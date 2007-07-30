@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -50,4 +50,6 @@ structure Product : PRODUCT = struct
    fun foldr (fA, fB) (a & b, s) = fA (a, fB (b, s))
 
    fun thunk (nA, nB) () = nA () & nB ()
+
+   fun iso isos = Pair.map (map, map) (Pair.swizzle isos)
 end

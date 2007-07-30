@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -20,4 +20,9 @@ signature OPTION = sig
     * NONE)}; {LESS} if given {(NONE, SOME _)}; for {(SOME _, SOME _)} it
     * uses the provided comparison function.
     *)
+
+   (** == Generic Programming == *)
+
+   val iso : ('a, 'b) Iso.t -> ('a t, 'b t) Iso.t
+   (** Lifts an iso between elements to an iso between options. *)
 end

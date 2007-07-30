@@ -18,13 +18,4 @@ structure Iso :> ISO = struct
    fun (a2b, b2a) <--> (c2a, a2c) = (a2b o c2a, a2c o b2a)
 
    fun map (l, r) iso = r <--> iso <--> l
-
-   local
-      fun mk map = Pair.map map o Pair.swizzle
-   in
-      fun op --> ? = mk (Fn.map, Fn.map) ?
-      fun op  +` ? = mk (Sum.map, Sum.map) ?
-      fun op  *` ? = mk (Product.map, Product.map) ?
-      fun pair   ? = mk (Pair.map, Pair.map) ?
-   end
 end

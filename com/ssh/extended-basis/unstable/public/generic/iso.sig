@@ -30,28 +30,4 @@ signature ISO = sig
 
    val <--> : ('a, 'b) t * ('c, 'a) t -> ('c, 'b) t
    (** Isomorphism composition. *)
-
-   val --> : ('c, 'a) t * ('b, 'd) t -> (('a, 'b) Fn.t, ('c, 'd) Fn.t) t
-   (**
-    * Creates an isomorphism between functions given isomorphisms between
-    * domains and ranges.
-    *)
-
-   val +` : ('a, 'c) t * ('b, 'd) t -> (('a, 'b) Sum.t, ('c, 'd) Sum.t) t
-   (**
-    * Creates an isomorphism between sums given isomorphisms between
-    * elements.
-    *)
-
-   val *` : ('a, 'c) t * ('b, 'd) t -> (('a, 'b) Product.t, ('c, 'd) Product.t) t
-   (**
-    * Creates an isomorphism between products given isomorphisms between
-    * elements.
-    *)
-
-   val pair : ('a, 'c) t * ('b, 'd) t -> ('a * 'b, 'c * 'd) t
-   (**
-    * Creates an isomorphism between pairs given isomorphisms between
-    * elements.
-    *)
 end

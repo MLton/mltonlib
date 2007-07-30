@@ -12,6 +12,7 @@ structure Fn :> FN = struct
    fun flip f x y = f y x
    fun id x = x
    fun map (f, g) h = g o h o f
+   fun iso ((a2c, c2a), (b2d, d2b)) = (map (c2a, b2d), map (a2c, d2b))
    fun pass x f = f x
    fun seal f x () = f x
    fun uncurry f (x, y) = f x y

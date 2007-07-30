@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -164,4 +164,9 @@ signature LIST = sig
     * equivalence class specified by {eq}.  It preserves the ordering of
     * the elements in {xs}.
     *)
+
+   (** == Generic Programming == *)
+
+   val iso : ('a, 'b) Iso.t -> ('a t, 'b t) Iso.t
+   (** Lifts an iso between elements to an iso between lists. *)
 end

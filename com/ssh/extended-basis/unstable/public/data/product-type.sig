@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -66,4 +66,9 @@ signature PRODUCT_TYPE = sig
    val foldr : ('a * 'y -> 'z) * ('b * 'x -> 'y) -> ('a, 'b) t * 'x -> 'z
 
    val thunk : 'a Thunk.t * 'b Thunk.t -> ('a, 'b) t Thunk.t
+
+   (** == Generic Programming == *)
+
+   val iso : ('a, 'c) Iso.t * ('b, 'd) Iso.t -> (('a, 'b) t, ('c, 'd) t) Iso.t
+   (** Lifts isos between elements to an iso between products. *)
 end
