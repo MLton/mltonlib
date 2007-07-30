@@ -53,21 +53,18 @@ functor WithDynamic (Arg : OPEN_GENERIC) : DYNAMIC_GENERIC = struct
    structure Layered = LayerGeneric
      (structure Outer = Arg and Result = Dynamic and Rep = Dynamic.Closed
 
-      fun iso bId aIb = Iso.<--> (bId, aIb)
+      fun iso bId aIb = bId <--> aIb
       val isoProduct = iso
       val isoSum     = iso
 
-      fun op *` ((l2d, d2l), (r2d, d2r)) =
-          (PRODUCT, fn PRODUCT ? => ? | _ => raise Dyn) <-->
-          (Product.map (l2d, r2d), Product.map (d2l, d2r))
+      fun op *` is =
+          (PRODUCT, fn PRODUCT ? => ? | _ => raise Dyn) <--> Product.iso is
       val T      = id
       fun R _    = id
       val tuple  = id
       val record = id
 
-      fun op +` ((l2d, d2l), (r2d, d2r)) =
-          (SUM, fn SUM ? => ? | _ => raise Dyn) <-->
-          (Sum.map (l2d, r2d), Sum.map (d2l, d2r))
+      fun op +` is = (SUM, fn SUM ? => ? | _ => raise Dyn) <--> Sum.iso is
       val unit  = (fn () => UNIT, fn UNIT => () | _ => raise Dyn)
       fun C0 _  = unit
       fun C1 _  = id
@@ -75,19 +72,13 @@ functor WithDynamic (Arg : OPEN_GENERIC) : DYNAMIC_GENERIC = struct
 
       fun Y ? = let open Tie in tuple2 (function, function) end ?
 
-      fun op --> ((a2d, d2a), (b2d, d2b)) =
-          (ARROW, fn ARROW ? => ? | _ => raise Dyn) <-->
-          (Fn.map (d2a, b2d), Fn.map (a2d, d2b))
+      fun op --> is = (ARROW, fn ARROW ? => ? | _ => raise Dyn) <--> Fn.iso is
 
       val exn = (EXN, fn EXN ? => ? | _ => raise Dyn)
       fun regExn _ _ = ()
 
-      fun list (x2d, d2x) =
-          (LIST, fn LIST ? => ? | _ => raise Dyn) <-->
-          (List.map x2d, List.map d2x)
-      fun vector (x2d, d2x) =
-          (VECTOR, fn VECTOR ? => ? | _ => raise Dyn) <-->
-          (Vector.map x2d, Vector.map d2x)
+      fun list i = (LIST, fn LIST ? => ? | _ => raise Dyn) <--> List.iso i
+      fun vector i = (VECTOR, fn VECTOR ? => ? | _ => raise Dyn) <--> Vector.iso i
 
       fun array _ = isoUnsupported "Dyn.array unsupported"
       fun refc  _ = isoUnsupported "Dyn.refc unsupported"
