@@ -22,7 +22,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
 
    structure G = RandomGen and I = Int and R = Real and W = Word
 
-   fun universally ? = G.mapUnOp (Univ.newIso ()) ?
+   fun universally ? = G.mapUnOp (Univ.Iso.new ()) ?
    val map = G.Monad.map
    val op >>= = G.>>=
 

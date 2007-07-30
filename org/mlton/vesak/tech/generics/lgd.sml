@@ -43,12 +43,9 @@
  *)
 
 
-(* First a couple of shorthands. *)
+(* First a shorthand. *)
 
 val op <--> = Iso.<-->
-
-type u = Univ.t
-type 'a e = ('a, u) Iso.t
 
 
 (* Signature for "structural cases". *)
@@ -112,12 +109,16 @@ end
 
 structure Type (* : CASES -- Sealed later! *) = struct
    open Type
-   datatype 'a t = T of Type.t * 'a e
+   datatype 'a t = T of Type.t * 'a Univ.Iso.t
 
-   val isoUnit : Unit.t e                   = Univ.newIso ()
-   val isoInt  : Int.t e                    = Univ.newIso ()
-   val isoSum  : (u, u) Sum.t Thunk.t e     = Univ.newIso ()
-   val isoProd : (u, u) Product.t Thunk.t e = Univ.newIso ()
+   local
+      open Univ.Iso
+   in
+      val isoUnit : Unit.t t                             = new ()
+      val isoInt  : Int.t t                              = new ()
+      val isoSum  : (Univ.t, Univ.t) Sum.t Thunk.t t     = new ()
+      val isoProd : (Univ.t, Univ.t) Product.t Thunk.t t = new ()
+   end
 
    val unit = T (UNIT, isoUnit)
    val int = T (INT, isoInt)
@@ -144,9 +145,9 @@ structure Type (* : CASES -- Sealed later! *) = struct
 end
 
 (*
- * The universal type {u} and isomorphism {e} above implement the "poor
- * man's existentials" mentioned at the beginning.  See [1] for the
- * (trivial) Haskell version using existentials.
+ * The universal type and isomorphisms above implement the "poor man's
+ * existentials" mentioned at the beginning.  See [1] for the (trivial)
+ * Haskell version using existentials.
  *
  * Note the thunks in the sum and product cases.  The idea is to perform
  * coercions lazily.  For example, if you evaluate

@@ -22,7 +22,7 @@ structure Reader :> READER = struct
    open Monad
 
    fun polymorphically aM2bM = let
-      val (to, from) = Univ.newIso ()
+      val (to, from) = Univ.Iso.new ()
       fun map f = Option.map (Pair.map (Fn.id, f))
    in
       Fn.map (to, map from) o aM2bM o Fn.map (from, map to)

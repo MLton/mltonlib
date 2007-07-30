@@ -60,4 +60,3 @@ structure Iso = struct type ('a, 'b) t = ('a -> 'b) * ('b -> 'a) end
 structure ShiftOp = struct type 'a t = 'a * Word.t -> 'a end
 structure BinFn = struct type ('a, 'b) t = 'a Sq.t -> 'b end
 structure IEEEReal = BasisIEEEReal
-structure Univ = struct exception Univ end

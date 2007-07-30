@@ -1,30 +1,33 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * MLton is released under a BSD-style license.
  * See the file MLton-LICENSE for details.
  *)
 
 structure UnivRef :> UNIV = struct
-   open Univ
+   exception Univ
 
    datatype t =
       IN of {clear : Unit.t Effect.t,
              store : Unit.t Effect.t}
 
-   local
-      fun mk deref = let
-         val r = ref NONE
-      in
-         (fn a =>
-             IN {clear = fn () => r := NONE,
-                 store = fn () => r := SOME a},
-          fn IN {clear, store} =>
-             deref ((store () ; !r) before clear ()))
-      end
+   fun mk deref = let
+      val r = ref NONE
    in
-      fun newIso () = mk (fn SOME ? => ? | NONE => raise Univ)
-      fun newEmb () = mk Fn.id
+      (fn a =>
+          IN {clear = fn () => r := NONE,
+              store = fn () => r := SOME a},
+       fn IN {clear, store} =>
+          deref ((store () ; !r) before clear ()))
+   end
+
+   structure Iso = struct
+      type 'a t = ('a, t) Iso.t
+      fun new () = mk (fn SOME ? => ? | NONE => raise Univ)
+   end
+
+   structure Emb = struct
+      type 'a t = ('a, t) Emb.t
+      fun new () = mk Fn.id
    end
 end
-
-structure Univ :> UNIV = UnivRef

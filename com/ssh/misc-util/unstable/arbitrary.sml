@@ -45,7 +45,7 @@ end = struct
               typ : 'a Typ.t}
    type 'a arbitrary_t = 'a t
 
-   fun universally ? = G.mapUnOp (Univ.newIso ()) ?
+   fun universally ? = G.mapUnOp (Univ.Iso.new ()) ?
 
    val map = G.Monad.map
    val op >>= = G.>>=

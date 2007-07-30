@@ -12,7 +12,7 @@ structure Writer :> WRITER = struct
    fun map b2a wA = wA o Pair.map (b2a, Fn.id)
 
    fun polymorphically uA2uB = let
-      val (to, from) = Univ.newIso ()
+      val (to, from) = Univ.Iso.new ()
       fun map f = Pair.map (Fn.id, f)
    in
       Fn.map (map to, from) o uA2uB o Fn.map (map from, to)
