@@ -14,6 +14,11 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
 
    fun prim f : 'a t = const o f
 
+   fun viaWord x2V op mod (v2w, w2v) =
+       prim (fn x => v2w (x2V x mod w2v Word.largestPrime))
+
+   fun iso' bH (a2b, _) = bH o a2b
+
    structure Hash =
       LayerGenericRep (structure Outer = Arg.Rep
                        structure Closed = MkClosedGenericRep (type 'a t = 'a t))
@@ -30,7 +35,6 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
    structure Layered = LayerDepGeneric
      (structure Outer = Arg and Result = Hash
 
-      fun iso' bH (a2b, _) = bH o a2b
       fun iso        ? = iso' (getT ?)
       fun isoProduct ? = iso' (getP ?)
       fun isoSum     ? = iso' (getS ?)
@@ -75,14 +79,18 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
          val m = Int.quot (totWidth, 2)
          fun len n []      = n
            | len n (_::xs) = if m <= n then n else len (n+1) xs
-         val n = len 0 xs
-         val p = {totWidth = Int.quot (totWidth, n),
-                  maxDepth = maxDepth - 1}
-         fun lp h _ []      = h
-           | lp h n (x::xs) =
-             if n = 0 then h else lp (h * 0w17 + getT xT x p) (n-1) xs
       in
-         lp (Word.fromInt n) n xs
+         case len 0 xs of
+            0 => 0wx2A4C7A
+          | n => let
+               val p = {totWidth = Int.quot (totWidth, n),
+                        maxDepth = maxDepth - 1}
+               fun lp h _ []      = h
+                 | lp h n (x::xs) =
+                   if n = 0 then h else lp (h * 0w17 + getT xT x p) (n-1) xs
+            in
+               lp (Word.fromInt n) n xs
+            end
       end
 
       fun hashSeq length sub hashElem s {totWidth, maxDepth} = let
@@ -111,22 +119,18 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
       fun regExn _ _ = ()
 
       val bool = prim (fn true => 0wx2DA745 | false => 0wx3C24A62)
+      val real =
+          let open CastReal in viaWord (#1 isoBits) op mod Bits.isoWord end
       val word = const
 
-      fun mk x2V op mod (v2w, w2v) =
-          prim (fn x => v2w (x2V x mod w2v Word.largestPrime))
-
-      val largeInt  = mk id op mod (Iso.swap Word.isoLargeInt)
-      val largeWord = mk id op mod LargeWord.isoWord
-
+      val largeInt  = viaWord id op mod (Iso.swap Word.isoLargeInt)
       val largeReal =
-          let open CastLargeReal open Word in mk castToWord op mod isoWord end
-      val real =
-          let open CastReal      open Word in mk castToWord op mod isoWord end
+          let open CastLargeReal in viaWord (#1 isoBits) op mod Bits.isoWord end
+      val largeWord = viaWord id op mod LargeWord.isoWord
 
       val word8  = prim Word8.toWord
       val word32 = prim Word32.toWord
-      val word64 = mk id op mod Word64.isoWord)
+      val word64 = viaWord id op mod Word64.isoWord)
 
    open Layered
 end

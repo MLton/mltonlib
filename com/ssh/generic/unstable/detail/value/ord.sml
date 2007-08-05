@@ -14,7 +14,10 @@ functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
       LayerGenericRep (structure Outer = Arg.Rep
                        structure Closed = MkClosedGenericRep (Cmp))
 
-   val compare = Ord.This.getT
+   open Ord.This
+
+   val ord = getT
+   fun withOrd cmp = mapT (const cmp)
 
    structure Layered = LayerGeneric
      (structure Outer = Arg and Result = Ord and Rep = Ord.Closed
@@ -37,18 +40,17 @@ functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
 
       val Y = Tie.function
 
-      fun op --> _ = failing "Compare.--> unsupported"
+      fun op --> _ = failing "Ord.--> unsupported"
 
       val exns : (Exn.t Sq.t -> Order.t Option.t) Buffer.t = Buffer.new ()
       fun exn lr =
           recur 0 (fn lp =>
              fn i =>
-                if i = Buffer.length exns then
-                   GenericsUtil.failExnSq lr
-                else
-                   case Buffer.sub (exns, i) lr of
-                      SOME r => r
-                    | NONE   => lp (i+1))
+                if i = Buffer.length exns
+                then GenericsUtil.failExnSq lr
+                else case Buffer.sub (exns, i) lr of
+                        SOME r => r
+                      | NONE   => lp (i+1))
       fun regExn cA (_, e2a) =
           (Buffer.push exns)
              (fn (l, r) =>
@@ -58,24 +60,22 @@ functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
                   | NONE   & SOME _ => SOME LESS
                   | NONE   & NONE   => NONE)
 
-      val list   = List.collate
       val array  = Array.collate
+      val list   = List.collate
       val vector = Vector.collate
 
       fun refc t = Cmp.map ! t
 
+      val largeInt  = LargeInt.compare
+      val largeWord = LargeWord.compare
+      val largeReal = iso CastLargeReal.Bits.compare CastLargeReal.isoBits
+
       val bool   = Bool.compare
       val char   = Char.compare
       val int    = Int.compare
+      val real   = iso CastReal.Bits.compare CastReal.isoBits
       val string = String.compare
       val word   = Word.compare
-
-      val largeInt  = LargeInt.compare
-      val largeWord = LargeWord.compare
-
-      fun mk cast = Cmp.map cast
-      val largeReal = mk CastLargeReal.castToWord CastLargeReal.Word.compare
-      val real      = mk      CastReal.castToWord      CastReal.Word.compare
 
       val word8  = Word8.compare
       val word32 = Word32.compare

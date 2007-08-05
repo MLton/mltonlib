@@ -6,7 +6,8 @@
 
 structure CastReal : CAST_REAL where type t = Real.t = struct
    open Real64 MLton.Real64
-   structure Word = Word64
+   structure Bits = Word64
+   val isoBits = (castToWord, castFromWord)
 end
 
 structure CastLargeReal : CAST_REAL where type t = LargeReal.t = CastReal

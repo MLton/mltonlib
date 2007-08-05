@@ -6,7 +6,7 @@
 
 structure CastReal : CAST_REAL where type t = Real.t = struct
    type t = Real64.t
-   structure Word = Word64
+   structure Bits = Word64
    local
       fun cast {size=sizeF, set=setF, get=_   }
                {size=sizeT, set=_,    get=getT} =
@@ -28,8 +28,7 @@ structure CastReal : CAST_REAL where type t = Real.t = struct
                     set = C.Set.double',
                     get = C.Get.double'}
    in
-      val castToWord   = cast real64 word64
-      val castFromWord = cast word64 real64
+      val isoBits = (cast real64 word64, cast word64 real64)
    end
 end
 

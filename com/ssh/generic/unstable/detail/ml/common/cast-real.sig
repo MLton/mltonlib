@@ -6,7 +6,6 @@
 
 signature CAST_REAL = sig
    type t
-   structure Word : WORD
-   val castToWord : t -> Word.t
-   val castFromWord : Word.t -> t
+   structure Bits : WORD
+   val isoBits : (t, Bits.t) Iso.t
 end

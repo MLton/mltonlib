@@ -23,15 +23,15 @@ functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
       lL = lR andalso lp lL
    end
 
-   fun viaCast cast = BinPr.map cast op =
-
    structure Eq =
       LayerGenericRep (structure Outer = Arg.Rep
                        structure Closed = MkClosedGenericRep (BinPr))
 
-   val eq = Eq.This.getT
+   open Eq.This
+
+   val eq = getT
    fun notEq t = not o eq t
-   fun withEq eq = Eq.This.mapT (const eq)
+   fun withEq eq = mapT (const eq)
 
    structure Layered = LayerGeneric
      (structure Outer = Arg and Result = Eq and Rep = Eq.Closed
@@ -74,13 +74,13 @@ functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
       fun refc  _ = op =
 
       val largeInt  = op =
-      val largeReal = viaCast CastLargeReal.castToWord
+      val largeReal = iso op = CastLargeReal.isoBits
       val largeWord = op =
 
       val bool   = op =
       val char   = op =
       val int    = op =
-      val real   = viaCast CastReal.castToWord
+      val real   = iso op = CastReal.isoBits
       val string = op =
       val word   = op =
 
