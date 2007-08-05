@@ -108,7 +108,6 @@ signature CLOSED_GENERIC = sig
    (** == Support for Binary Data == *)
 
    val word8  : Word8.t  Rep.t
-(* val word16 : Word16.t Rep.t (* Word16 not provided by SML/NJ *) *)
    val word32 : Word32.t Rep.t
    val word64 : Word64.t Rep.t
 

@@ -35,7 +35,6 @@ signature LAYER_DEP_GENERIC_DOM = sig
    val largeReal : LargeReal.t Result.Closed.t
    val largeWord : LargeWord.t Result.Closed.t
    val word8 : Word8.t  Result.Closed.t
-(* val word16 : Word16.t Result.Closed.t (* Word16 not provided by SML/NJ *) *)
    val word32 : Word32.t Result.Closed.t
    val word64 : Word64.t Result.Closed.t
    val list : ('a, 'x) Result.t -> 'a List.t Result.Closed.t

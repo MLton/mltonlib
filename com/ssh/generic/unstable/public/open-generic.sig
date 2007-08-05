@@ -35,7 +35,6 @@ signature OPEN_GENERIC = sig
    val largeReal : 'x -> (LargeReal.t, 'x) Rep.t
    val largeWord : 'x -> (LargeWord.t, 'x) Rep.t
    val word8 : 'x -> (Word8.t, 'x) Rep.t
-(* val word16 : 'x -> (Word16.t, 'x) Rep.t (* Word16 not provided by SML/NJ *) *)
    val word32 : 'x -> (Word32.t, 'x) Rep.t
    val word64 : 'x -> (Word64.t, 'x) Rep.t
    val list : ('x -> 'y) -> ('a, 'x) Rep.t -> ('a List.t, 'y) Rep.t

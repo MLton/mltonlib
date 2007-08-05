@@ -47,7 +47,6 @@ structure RootGeneric :> OPEN_GENERIC = struct
    val largeReal = id
    val largeWord = id
    val word8 = id
-(* val word16 = id (* Word16 not provided by SML/NJ *) *)
    val word32 = id
    val word64 = id
    val list = id

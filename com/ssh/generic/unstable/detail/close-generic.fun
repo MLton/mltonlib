@@ -53,7 +53,6 @@ struct
    val largeReal = Arg.largeReal ()
    val largeWord = Arg.largeWord ()
    val word8 = Arg.word8 ()
-(* val word16 = Arg.word16 () (* Word16 not provided by SML/NJ *) *)
    val word32 = Arg.word32 ()
    val word64 = Arg.word64 ()
    fun list ? = Arg.list ignore ?
