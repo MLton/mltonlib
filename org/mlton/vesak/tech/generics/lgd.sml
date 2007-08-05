@@ -43,9 +43,10 @@
  *)
 
 
-(* First a shorthand. *)
+(* First shorthands. *)
 
 val op <--> = Iso.<-->
+val swap = Iso.swap
 
 
 (* Signature for "structural cases". *)
@@ -184,11 +185,11 @@ functor Generic (C : CASES) : GENERIC = struct
    fun lookup r = Option.map Pair.snd o List.find (eq r o Pair.fst) o !
    fun insert (r, g) p = if isSome (lookup r p) then () else List.push p (r, g)
 
-   val unit = iso unit (Iso.swap isoUnit)
-   val int  = iso int  (Iso.swap isoInt)
+   val unit = iso unit (swap isoUnit)
+   val int  = iso int  (swap isoInt)
 
-   val isoSum  = Iso.swap (isoSum  <--> Thunk.iso)
-   val isoProd = Iso.swap (isoProd <--> Thunk.iso)
+   val isoSum  = swap (isoSum  <--> swap Thunk.isoValue)
+   val isoProd = swap (isoProd <--> swap Thunk.isoValue)
 
    fun mk (p, t) =
        case t

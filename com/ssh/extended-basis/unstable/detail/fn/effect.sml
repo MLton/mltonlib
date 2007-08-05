@@ -11,4 +11,6 @@ structure Effect :> EFFECT = struct
    fun obs ef x = (ef x : Unit.t ; x)
    fun past ef x = (ef () : Unit.t ; x)
    fun tabulate n ef = ignore (Basic.repeat (fn i => (ef i : Unit.t ; i+1)) n 0)
+   fun map b2a a = a o b2a
+   fun iso (a2b, b2a) = (map b2a, map a2b)
 end

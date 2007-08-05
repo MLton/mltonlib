@@ -32,4 +32,10 @@ signature EFFECT = sig
 
    val tabulate : Int.t -> Int.t t t
    (** {tabulate n f == (f 0; ... ; f (n - 1))} *)
+
+   val map : ('b -> 'a) -> 'a t -> 'b t
+   (** Change the type of an effect. *)
+
+   val iso : ('a, 'b) Iso.t -> ('a t, 'b t) Iso.t
+   (** Lifts an iso between values to an iso between effects. *)
 end

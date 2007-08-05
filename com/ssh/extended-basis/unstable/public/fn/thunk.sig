@@ -12,6 +12,12 @@ signature THUNK = sig
    val mk : 'a -> 'a t
    (** Constant thunk ({thunk x = let val x = x in fn () => x end}). *)
 
-   val iso : ('a, 'a t) Iso.t
+   val map : ('a -> 'b) -> 'a t -> 'b t
+   (** Change the type of a thunk. *)
+
+   val isoValue : ('a t, 'a) Iso.t
    (** The trivial isomorphism between values and thunks. *)
+
+   val iso : ('a, 'b) Iso.t -> ('a t, 'b t) Iso.t
+   (** Lifts an iso between values to an iso between thunks. *)
 end
