@@ -25,7 +25,7 @@ functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
 
    structure Eq =
       LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedGenericRep (BinPr))
+                       structure Closed = MkClosedRep (BinPr))
 
    open Eq.This
 

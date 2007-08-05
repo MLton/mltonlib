@@ -43,7 +43,7 @@ functor WithDynamic (Arg : OPEN_GENERIC) : DYNAMIC_GENERIC = struct
    structure Dynamic =
       LayerGenericRep
          (structure Outer = Arg.Rep
-          structure Closed = MkClosedGenericRep (type 'a t = ('a, t) Iso.t))
+          structure Closed = MkClosedRep (type 'a t = ('a, t) Iso.t))
 
    open Dynamic.This
 

@@ -21,7 +21,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
 
    structure Hash =
       LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedGenericRep (type 'a t = 'a t))
+                       structure Closed = MkClosedRep (type 'a t = 'a t))
 
    open Hash.This
 

@@ -11,7 +11,7 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_GENERIC = struct
 
    structure Some =
       LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedGenericRep (Thunk))
+                       structure Closed = MkClosedRep (Thunk))
 
    open Some.This
 

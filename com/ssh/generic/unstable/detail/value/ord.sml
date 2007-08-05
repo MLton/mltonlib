@@ -12,7 +12,7 @@ functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
 
    structure Ord =
       LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedGenericRep (Cmp))
+                       structure Closed = MkClosedRep (Cmp))
 
    open Ord.This
 

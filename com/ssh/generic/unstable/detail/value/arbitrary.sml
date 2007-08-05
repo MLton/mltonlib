@@ -31,7 +31,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
 
    structure Arbitrary =
       LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedGenericRep (type 'a t = 'a t))
+                       structure Closed = MkClosedRep (type 'a t = 'a t))
 
    open Arbitrary.This
 

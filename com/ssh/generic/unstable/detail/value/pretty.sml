@@ -59,7 +59,7 @@ functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = struct
    structure Pretty =
       LayerGenericRep
          (structure Outer = Arg.Rep
-          structure Closed = MkClosedGenericRep (type 'a t = exn list * 'a -> u))
+          structure Closed = MkClosedRep (type 'a t = exn list * 'a -> u))
 
    open Pretty.This
 
