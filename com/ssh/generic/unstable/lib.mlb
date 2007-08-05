@@ -65,6 +65,9 @@ in
          public/value/type-info.sig
          detail/value/type-info.sml
 
+         public/value/data-rec-info.sig
+         detail/value/data-rec-info.sml
+
          public/value/some.sig
          detail/value/some.sml
 

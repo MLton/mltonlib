@@ -8,43 +8,17 @@
  * Signature for generic type properties.
  *
  * These type properties can be useful for both optimizations and for
- * ensuring correctness.  As an optimization one could, for example,
- * determine whether one needs to handle cyclic values (which can be
- * costly) or not.  As a correctness issue, one can avoid generating
- * infinite data structures or avoid performing non-terminating operations
- * on infinite data structures.
+ * ensuring correctness.  Using {numAlts} and {numElems} one can balance
+ * resources across sums and products.  Using {hasBaseCase}, one can avoid
+ * generating infinite data structures or avoid performing non-terminating
+ * operations on infinite data structures.
  *
  * This generic value is unlikely to be directly useful in application
  * programs and is more likely to be used internally in the implementation
- * of some other generics (e.g. pickling).
+ * of some other generics (e.g. hashing).
  *)
 signature TYPE_INFO = sig
    structure TypeInfo : OPEN_GENERIC_REP
-
-   (** == Types == *)
-
-   val canBeCyclic : ('a, 'x) TypeInfo.t UnPr.t
-   (**
-    * Returns true iff {'a} is of the form {'b ref} or {'b array} and
-    * it can not be ruled out that values of the type can form cycles.
-    *
-    * Note: Functions are not considered to form cycles.
-    *)
-
-   val hasExn : ('a, 'x) TypeInfo.t UnPr.t
-   (** Returns true iff the type {'a} contains the type {exn}. *)
-
-   val hasRecData : ('a, 'x) TypeInfo.t UnPr.t
-   (**
-    * Returns true iff the type {'a} contains recursive references to
-    * datatypes.
-    *)
-
-   val isRefOrArray : ('a, 'x) TypeInfo.t UnPr.t
-   (**
-    * Returns true iff the type {'a} is of the form {'b array} or of
-    * the form {'b ref}.
-    *)
 
    (** == Sums == *)
 

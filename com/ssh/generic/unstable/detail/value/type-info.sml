@@ -7,27 +7,14 @@
 functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix  2 andAlso
-   infix  1 orElse
    (* SML/NJ workaround --> *)
 
-   type recs = Unit.t Ref.t List.t
+   datatype t = INT of {base : Bool.t}
+   datatype s = INS of {base : Bool.t, alts : Int.t}
+   datatype p = INP of {base : Bool.t, elems : Int.t}
 
-   fun rem x : recs UnOp.t =
-    fn []  => []
-     | [y] => if x = y then [] else [y]
-     | ys  => List.filter (notEq x) ys
-
-   val merge : recs BinOp.t =
-    fn ([], ys)   => ys
-     | (xs, [])   => xs
-     | ([x], [y]) => if x = y then [x] else [x, y]
-     | (xs, ys)   =>
-       foldl (fn (x, ys) => if List.exists (eq x) ys then ys else x::ys) ys xs
-
-   datatype t = INT of {base : Bool.t, exn : Bool.t, recs : recs, pure : Bool.t}
-   datatype s = INS of {base : Bool.t, exn : Bool.t, recs : recs, alts : Int.t}
-   datatype p = INP of {base : Bool.t, exn : Bool.t, recs : recs, elems : Int.t}
+   val base = INT {base = true}
+   fun pure (INT {...}) = INT {base = true}
 
    structure TypeInfo =
       LayerGenericRep
@@ -40,14 +27,8 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
 
    open TypeInfo.This
 
-   fun outT (INT r) = r
    fun outS (INS r) = r
    fun outP (INP r) = r
-
-   fun hasExn       ? = (#exn o outT o getT) ?
-   fun hasRecData   ? = (not o null o #recs o outT o getT) ?
-   fun isRefOrArray ? = (not o #pure o outT o getT) ?
-   fun canBeCyclic  ? = (isRefOrArray andAlso (hasExn orElse hasRecData)) ?
 
    fun hasBaseCase  ? = (#base o outS o getS) ?
    fun numAlts      ? = (#alts o outS o getS) ?
@@ -57,57 +38,33 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
    structure Layered = LayerGeneric
      (structure Outer = Arg and Result = TypeInfo and Rep = TypeInfo.Closed
 
-      val base = INT {base = true, exn = false, pure = true, recs = []}
-      fun pure (INT {exn, recs, ...}) =
-          INT {base = true, exn = exn, pure = true, recs = recs}
-
       val iso        = const
       val isoProduct = const
       val isoSum     = const
 
       fun op *` (INP l, INP r) =
-          INP {base  = #base l andalso #base r,
-               elems = #elems l + #elems r,
-               exn   = #exn l orelse #exn r,
-               recs  = merge (#recs l, #recs r)}
-      fun T (INT {base, exn, recs, ...}) =
-          INP {base = base, elems = 1, exn = exn, recs = recs}
+          INP {base  = #base l andalso #base r, elems = #elems l + #elems r}
+      fun T (INT {base, ...}) = INP {base = base, elems = 1}
       fun R _ = T
-      fun tuple (INP {base, exn, recs, ...}) =
-          INT {base = base, exn = exn, pure = true, recs = recs}
+      fun tuple (INP {base, ...}) = INT {base = base}
       val record = tuple
 
       fun op +` (INS l, INS r) =
-          INS {alts = #alts l + #alts r,
-               base = #base l orelse #base r,
-               exn  = #exn l orelse #exn r,
-               recs = merge (#recs l, #recs r)}
+          INS {alts = #alts l + #alts r, base = #base l orelse #base r}
       val unit = base
-      fun C0 _ = INS {alts = 1, base = true, exn = false, recs = []}
-      fun C1 _ (INT {base, exn, recs, ...}) =
-          INS {alts = 1, base = base, exn = exn, recs = recs}
-      fun data (INS {base, exn, recs, ...}) =
-          INT {base = base, exn = exn, pure = true, recs = recs}
+      fun C0 _ = INS {alts = 1, base = true}
+      fun C1 _ (INT {base, ...}) = INS {alts = 1, base = base}
+      fun data (INS {base, ...}) = INT {base = base}
 
-      fun Y ? =
-          Tie.pure
-             (fn () => let
-                    val me = ref ()
-                 in
-                    (INT {base=false, exn=false, pure=true, recs=[me]},
-                     fn INT {base, exn, pure, recs} =>
-                        INT {base=base, exn=exn, pure=pure, recs=rem me recs})
-                 end) ?
+      fun Y ? = Tie.pure (fn () => (INT {base = false}, id)) ?
 
       fun op --> _ = base
 
-      val exn = INT {base = true, exn = true, pure = true, recs = []}
+      val exn = INT {base = true}
       fun regExn _ _ = ()
 
-      fun array (INT {exn, recs, ...}) =
-          INT {base = true, exn = exn, pure = false, recs = recs}
-      fun refc (INT {base, exn, recs, ...}) =
-          INT {base = base, exn = exn, pure = false, recs = recs}
+      fun array (INT {...}) = INT {base = true}
+      fun refc (INT {base, ...}) = INT {base = base}
 
       val vector = pure
       val list   = pure

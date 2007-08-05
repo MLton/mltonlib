@@ -26,6 +26,9 @@ signature GENERIC_EXTRA = GENERIC_EXTRA
 signature ARBITRARY = ARBITRARY
 signature ARBITRARY_GENERIC = ARBITRARY_GENERIC
 
+signature DATA_REC_INFO = DATA_REC_INFO
+signature DATA_REC_INFO_GENERIC = DATA_REC_INFO_GENERIC
+
 signature DYNAMIC = DYNAMIC
 signature DYNAMIC_GENERIC = DYNAMIC_GENERIC
 
@@ -136,6 +139,9 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
 signature WITH_ARBITRARY_DOM = WITH_ARBITRARY_DOM
 functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC =
    WithArbitrary (Arg)
+
+functor WithDataRecInfo (Arg : OPEN_GENERIC) : DATA_REC_INFO_GENERIC =
+   WithDataRecInfo (Arg)
 
 functor WithDynamic (Arg : OPEN_GENERIC) : DYNAMIC_GENERIC = WithDynamic (Arg)
 
