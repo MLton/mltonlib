@@ -6,6 +6,10 @@
 
 structure Generic :> sig
    include GENERIC_EXTRA
+      where type Label.t = Generics.Label.t
+      where type Con.t = Generics.Con.t
+      where type Record.t = Generics.Record.t
+      where type Tuple.t = Generics.Tuple.t
    include ARBITRARY sharing Open.Rep = Arbitrary
    include EQ        sharing Open.Rep = Eq
    include HASH      sharing Open.Rep = Hash
@@ -16,47 +20,48 @@ structure Generic :> sig
 end = struct
    structure Open = RootGeneric
 
-   structure Open = WithTypeInfo  (Open) open Open structure TypeInfo = Open
+   (* Add generics not depending on any other generic: *)
+   structure Open = WithEq          (Open) open Open
+   structure Open = WithOrd         (Open) open Open
+   structure Open = WithPretty      (Open) open Open
+   structure Open = WithTypeInfo    (Open) open Open structure TypeInfo=Open
 
-   structure Open = WithPretty    (Open) open Open
-   structure Open = WithEq        (Open) open Open
-   structure Open = WithOrd       (Open) open Open
-
-   structure Open = struct
-      open TypeInfo Open
-      structure TypeInfo = Rep
-   end
-
-   structure Open = WithSome      (Open) open Open
-
+   (* Add generics depending on other generics: *)
    structure Open = struct
       open TypeInfo Open
       structure TypeInfo = Rep
       structure RandomGen = RanQD1Gen
    end
-
-   structure Open = WithArbitrary (Open) open Open
+   structure Open = WithArbitrary   (Open) open Open
 
    structure Open = struct
       open TypeInfo Open
       structure TypeInfo = Rep
    end
+   structure Open = WithHash        (Open) open Open
 
-   structure Open = WithHash      (Open) open Open
+   structure Open = struct
+      open TypeInfo Open
+      structure TypeInfo = Rep
+   end
+   structure Open = WithSome        (Open) open Open
 
-   structure Arbitrary = Rep
-   structure Some      = Rep
-   structure Eq        = Rep
-   structure Hash      = Rep
-   structure Ord       = Rep
-   structure Pretty    = Rep
-   structure TypeInfo  = Rep
+   (* Make type representations equal: *)
+   structure Arbitrary   = Rep
+   structure Eq          = Rep
+   structure Hash        = Rep
+   structure Ord         = Rep
+   structure Pretty      = Rep
+   structure Some        = Rep
+   structure TypeInfo    = Rep
 
+   (* Close the combination for use: *)
    structure Generic = struct
       structure Open = Open
       structure Closed = CloseGeneric (Open)
       open Closed
    end
 
+   (* Add extra type representation constructors: *)
    structure Extra = WithExtra (Generic) open Extra
 end
