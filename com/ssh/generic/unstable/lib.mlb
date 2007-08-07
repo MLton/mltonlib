@@ -94,6 +94,9 @@ in
 
          public/value/reduce.sig
          detail/value/reduce.sml
+
+         public/value/transform.sig
+         detail/value/transform.sml
       in
          public/export.sml
       end

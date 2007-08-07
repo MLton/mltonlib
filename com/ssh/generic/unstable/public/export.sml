@@ -53,6 +53,9 @@ signature REDUCE_GENERIC = REDUCE_GENERIC
 signature SOME = SOME
 signature SOME_GENERIC = SOME_GENERIC
 
+signature TRANSFORM = TRANSFORM
+signature TRANSFORM_GENERIC = TRANSFORM_GENERIC
+
 signature TYPE_INFO = TYPE_INFO
 signature TYPE_INFO_GENERIC = TYPE_INFO_GENERIC
 
@@ -164,6 +167,9 @@ functor WithReduce (Arg : OPEN_GENERIC) : REDUCE_GENERIC = WithReduce (Arg)
 
 signature WITH_SOME_DOM = WITH_SOME_DOM
 functor WithSome (Arg : WITH_SOME_DOM) : SOME_GENERIC = WithSome (Arg)
+
+functor WithTransform (Arg : OPEN_GENERIC) : TRANSFORM_GENERIC =
+   WithTransform (Arg)
 
 functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC =
    WithTypeInfo (Arg)
