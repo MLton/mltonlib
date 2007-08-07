@@ -149,6 +149,14 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC =
 functor WithDataRecInfo (Arg : OPEN_GENERIC) : DATA_REC_INFO_GENERIC =
    WithDataRecInfo (Arg)
 
+functor WithDebug (Arg : OPEN_GENERIC) : OPEN_GENERIC = WithDebug (Arg)
+(**
+ * Checks dynamically that
+ * - labels are unique within each record,
+ * - constructors are unique within each datatype, and
+ * - exception constructors are globally unique.
+ *)
+
 functor WithDynamic (Arg : OPEN_GENERIC) : DYNAMIC_GENERIC = WithDynamic (Arg)
 
 functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = WithEq (Arg)

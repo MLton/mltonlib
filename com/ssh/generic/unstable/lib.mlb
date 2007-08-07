@@ -74,6 +74,8 @@ in
          public/value/arbitrary.sig
          detail/value/arbitrary.sml
 
+         detail/value/debug.sml
+
          public/value/dynamic.sig
          detail/value/dynamic.sml
 

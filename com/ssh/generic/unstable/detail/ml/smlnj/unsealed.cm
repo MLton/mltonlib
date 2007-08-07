@@ -42,6 +42,7 @@ group is
    ../../sml-syntax.sml
    ../../value/arbitrary.sml
    ../../value/data-rec-info.sml
+   ../../value/debug.sml
    ../../value/dynamic.sml
    ../../value/eq.sml
    ../../value/hash.sml
