@@ -26,8 +26,7 @@ structure Tie :> TIE = struct
    (* The rest are not primitive operations. *)
    fun tuple2 ab = iso (op *` ab) Product.isoTuple2
    fun tier th = pure ((fn (a, ua) => (a, Fn.const a o ua)) o th)
-   val unit = pure (Thunk.mk ((), Effect.nop))
-   fun option ? = pure (Fn.const (NONE, Fn.id)) ?
+   fun id x = pure (Fn.const (x, Fn.id))
    fun function ? =
        pure (fn () => let
                    val r = ref (Basic.raising Fix.Fix)

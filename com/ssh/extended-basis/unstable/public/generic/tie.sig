@@ -61,6 +61,9 @@ signature TIE = sig
     * procedure for "tying" it.
     *)
 
+   val id : 'a -> 'a t
+   (** {id x} is equivalent to {pure (const (x, id))}. *)
+
    (** == Combining Existing Tiers == *)
 
    val iso : 'b t -> ('a, 'b) Iso.t -> 'a t
@@ -84,12 +87,6 @@ signature TIE = sig
     *)
 
    (** == Particular Tiers == *)
-
-   val unit : Unit.t t
-   (** NOP tier for unit values. *)
-
-   val option : 'a Option.t t
-   (** Tier for options. *)
 
    val function : ('a -> 'b) t
    (** Tier for functions. *)

@@ -42,7 +42,7 @@ struct
    fun C1 ? = Arg.C1 (const ignore) ?
    fun data ? = Arg.data ignore ?
    val unit = Arg.unit ()
-   fun Y ? = Arg.Y Tie.unit ?
+   fun Y ? = Arg.Y (Tie.id ()) ?
    fun op --> ? = Arg.--> ignore ?
    val exn = Arg.exn ()
    fun regExn ? = Arg.regExn (const ignore) ?
