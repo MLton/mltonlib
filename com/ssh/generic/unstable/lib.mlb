@@ -91,6 +91,9 @@ in
 
          public/value/pretty.sig
          detail/value/pretty.sml
+
+         public/value/reduce.sig
+         detail/value/reduce.sml
       in
          public/export.sml
       end

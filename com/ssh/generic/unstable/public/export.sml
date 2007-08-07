@@ -47,6 +47,9 @@ signature PICKLE_GENERIC = PICKLE_GENERIC
 signature PRETTY = PRETTY
 signature PRETTY_GENERIC = PRETTY_GENERIC
 
+signature REDUCE = REDUCE
+signature REDUCE_GENERIC = REDUCE_GENERIC
+
 signature SOME = SOME
 signature SOME_GENERIC = SOME_GENERIC
 
@@ -156,6 +159,8 @@ signature WITH_PICKLE_DOM = WITH_PICKLE_DOM
 functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_GENERIC = WithPickle (Arg)
 
 functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = WithPretty (Arg)
+
+functor WithReduce (Arg : OPEN_GENERIC) : REDUCE_GENERIC = WithReduce (Arg)
 
 signature WITH_SOME_DOM = WITH_SOME_DOM
 functor WithSome (Arg : WITH_SOME_DOM) : SOME_GENERIC = WithSome (Arg)
