@@ -7,6 +7,15 @@
 (**
  * A generic for making reduce operations.
  *
+ * Examples:
+ *
+ *> - makeReduce 0 op + id int list [1, 2, 3] ;
+ *> val it = 6 : Int.t
+ *
+ *> - makeReduce 0 op + id int (fn t => tuple (T t *` T int *` T t))
+ *> = (1 & 3 & 7) ;
+ *> val it = 8 : int
+ *
  * This design is experimental.
  *)
 signature REDUCE = sig
