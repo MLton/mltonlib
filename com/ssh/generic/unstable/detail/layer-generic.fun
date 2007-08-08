@@ -4,32 +4,6 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-signature JOIN_REPS_DOM = sig
-   structure Outer : OPEN_REP
-   structure Inner : OPEN_REP
-end
-
-functor JoinReps (Arg : JOIN_REPS_DOM) :>
-   OPEN_REP
-      where type ('a,   'x) t = ('a,   ('a,   'x) Arg.Inner.t) Arg.Outer.t
-      where type ('a,   'x) s = ('a,   ('a,   'x) Arg.Inner.s) Arg.Outer.s
-      where type ('a,'k,'x) p = ('a,'k,('a,'k,'x) Arg.Inner.p) Arg.Outer.p =
-struct
-   open Arg
-
-   type ('a,     'x) t = ('a,     ('a,     'x) Inner.t) Outer.t
-   type ('a,     'x) s = ('a,     ('a,     'x) Inner.s) Outer.s
-   type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.p) Outer.p
-
-   fun getT ? = Inner.getT (Outer.getT ?)
-   fun getS ? = Inner.getS (Outer.getS ?)
-   fun getP ? = Inner.getP (Outer.getP ?)
-
-   fun mapT ? = Outer.mapT (Inner.mapT ?)
-   fun mapS ? = Outer.mapS (Inner.mapS ?)
-   fun mapP ? = Outer.mapP (Inner.mapP ?)
-end
-
 functor LayerRep (Arg : LAYER_REP_DOM) :>
    LAYERED_REP
       where type  'a      Closed.t =  'a      Arg.Closed.t
@@ -56,8 +30,15 @@ struct
       val mapS = Pair.mapSnd
       val mapP = Pair.mapSnd
    end
-   structure Result = JoinReps (structure Outer=Outer and Inner=Inner)
-   open Result
+   type ('a,     'x) t = ('a,     ('a,     'x) Inner.t) Outer.t
+   type ('a,     'x) s = ('a,     ('a,     'x) Inner.s) Outer.s
+   type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.p) Outer.p
+   fun getT ? = Inner.getT (Outer.getT ?)
+   fun getS ? = Inner.getS (Outer.getS ?)
+   fun getP ? = Inner.getP (Outer.getP ?)
+   fun mapT ? = Outer.mapT (Inner.mapT ?)
+   fun mapS ? = Outer.mapS (Inner.mapS ?)
+   fun mapP ? = Outer.mapP (Inner.mapP ?)
    structure This = struct
       fun getT ? = Pair.fst (Outer.getT ?)
       fun getS ? = Pair.fst (Outer.getS ?)
@@ -123,7 +104,6 @@ struct
    fun largeReal ? = op0t Outer.largeReal Arg.largeReal ?
    fun largeWord ? = op0t Outer.largeWord Arg.largeWord ?
    fun word8 ? = op0t Outer.word8 Arg.word8 ?
-(* val word16 ? = op0t Outer.word16 Arg.word16 ? (* Word16 not provided by SML/NJ *) *)
    fun word32 ? = op0t Outer.word32 Arg.word32 ?
    fun word64 ? = op0t Outer.word64 Arg.word64 ?
    fun list ? = op1t Outer.list Arg.list ?

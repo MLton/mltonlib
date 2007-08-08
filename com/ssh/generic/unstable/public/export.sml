@@ -4,11 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(** == Exported Signatures == *)
-
-signature GENERICS = GENERICS
-
-signature GENERICS_UTIL = GENERICS_UTIL
+(** == Abstract Signatures == *)
 
 signature CLOSED_CASES = CLOSED_CASES
 signature CLOSED_REP = CLOSED_REP
@@ -19,54 +15,18 @@ signature OPEN_REP = OPEN_REP
 signature LAYERED_REP = LAYERED_REP
 
 signature GENERIC = GENERIC
-signature GENERIC_EXTRA = GENERIC_EXTRA
 
-(** === Value Signatures === *)
+(** == Auxiliary Modules == *)
 
-signature ARBITRARY = ARBITRARY
-signature ARBITRARY_CASES = ARBITRARY_CASES
-
-signature DATA_REC_INFO = DATA_REC_INFO
-signature DATA_REC_INFO_CASES = DATA_REC_INFO_CASES
-
-signature DYNAMIC = DYNAMIC
-signature DYNAMIC_CASES = DYNAMIC_CASES
-
-signature EQ = EQ
-signature EQ_CASES = EQ_CASES
-
-signature HASH = HASH
-signature HASH_CASES = HASH_CASES
-
-signature ORD = ORD
-signature ORD_CASES = ORD_CASES
-
-signature PICKLE = PICKLE
-signature PICKLE_CASES = PICKLE_CASES
-
-signature PRETTY = PRETTY
-signature PRETTY_CASES = PRETTY_CASES
-
-signature REDUCE = REDUCE
-signature REDUCE_CASES = REDUCE_CASES
-
-signature SOME = SOME
-signature SOME_CASES = SOME_CASES
-
-signature TRANSFORM = TRANSFORM
-signature TRANSFORM_CASES = TRANSFORM_CASES
-
-signature TYPE_INFO = TYPE_INFO
-signature TYPE_INFO_CASES = TYPE_INFO_CASES
-
-(** == Exported Structures == *)
-
+signature GENERICS = GENERICS
 structure Generics : GENERICS = Generics
+
+signature GENERICS_UTIL = GENERICS_UTIL
 structure GenericsUtil : GENERICS_UTIL = GenericsUtil
 
 structure RootGeneric : OPEN_CASES = RootGeneric
 
-(** == Exported Functors == *)
+(** == Framework Functors == *)
 
 functor CloseCases (Arg : OPEN_CASES) :
    CLOSED_CASES
@@ -74,7 +34,7 @@ functor CloseCases (Arg : OPEN_CASES) :
       where type  'a      Rep.s = ('a,     Unit.t) Arg.Rep.s
       where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Arg.Rep.p =
    CloseCases (Arg)
-(** Closes an open generic. *)
+(** Closes open structural cases. *)
 
 signature LAYER_REP_DOM = LAYER_REP_DOM
 
@@ -89,8 +49,7 @@ functor LayerRep (Arg : LAYER_REP_DOM) :>
       where type ('a, 'k, 'x) Outer.p = ('a, 'k, 'x) Arg.Outer.p =
    LayerRep (Arg)
 (**
- * Creates a layered representation for {LayerGeneric} and
- * {LayerDepGeneric}.
+ * Creates a layered representation for {LayerCases} and {LayerDepCases}.
  *)
 
 signature LAYER_CASES_DOM = LAYER_CASES_DOM
@@ -118,6 +77,7 @@ functor LayerDepCases (Arg : LAYER_DEP_CASES_DOM) :>
  * depends on the outer generic.
  *)
 
+signature GENERIC_EXTRA = GENERIC_EXTRA
 functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
 (**
  * Implements a number of frequently used type representations for
@@ -126,12 +86,10 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
  * is likely to grow over time.
  *)
 
-(** === Value Functors === *)
+(** == Auxiliary Generics == *)
 
-signature WITH_ARBITRARY_DOM = WITH_ARBITRARY_DOM
-functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES =
-   WithArbitrary (Arg)
-
+signature DATA_REC_INFO = DATA_REC_INFO
+signature DATA_REC_INFO_CASES = DATA_REC_INFO_CASES
 functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES =
    WithDataRecInfo (Arg)
 
@@ -143,27 +101,53 @@ functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = WithDebug (Arg)
  * - exception constructors are globally unique.
  *)
 
+signature TYPE_INFO = TYPE_INFO
+signature TYPE_INFO_CASES = TYPE_INFO_CASES
+functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = WithTypeInfo (Arg)
+
+(** == Generics == *)
+
+signature ARBITRARY = ARBITRARY
+signature ARBITRARY_CASES = ARBITRARY_CASES
+signature WITH_ARBITRARY_DOM = WITH_ARBITRARY_DOM
+functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES =
+   WithArbitrary (Arg)
+
+signature DYNAMIC = DYNAMIC
+signature DYNAMIC_CASES = DYNAMIC_CASES
 functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = WithDynamic (Arg)
 
+signature EQ = EQ
+signature EQ_CASES = EQ_CASES
 functor WithEq (Arg : OPEN_CASES) : EQ_CASES = WithEq (Arg)
 
+signature HASH = HASH
+signature HASH_CASES = HASH_CASES
 signature WITH_HASH_DOM = WITH_HASH_DOM
 functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = WithHash (Arg)
 
+signature ORD = ORD
+signature ORD_CASES = ORD_CASES
 functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = WithOrd (Arg)
 
+signature PICKLE = PICKLE
+signature PICKLE_CASES = PICKLE_CASES
 signature WITH_PICKLE_DOM = WITH_PICKLE_DOM
 functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = WithPickle (Arg)
 
+signature PRETTY = PRETTY
+signature PRETTY_CASES = PRETTY_CASES
 functor WithPretty (Arg : OPEN_CASES) : PRETTY_CASES = WithPretty (Arg)
 
+signature REDUCE = REDUCE
+signature REDUCE_CASES = REDUCE_CASES
 functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = WithReduce (Arg)
 
+signature SOME = SOME
+signature SOME_CASES = SOME_CASES
 signature WITH_SOME_DOM = WITH_SOME_DOM
 functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = WithSome (Arg)
 
-functor WithTransform (Arg : OPEN_CASES) : TRANSFORM_CASES =
-   WithTransform (Arg)
-
-functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES =
-   WithTypeInfo (Arg)
+signature TRANSFORM = TRANSFORM
+signature TRANSFORM_CASES = TRANSFORM_CASES
+functor WithTransform (Arg : OPEN_CASES) : TRANSFORM_CASES = WithTransform (Arg)
