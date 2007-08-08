@@ -7,6 +7,8 @@
 structure Reader :> READER = struct
    open Reader
 
+   fun mapState (s2t, t2s) = Fn.map (s2t, Option.map (Pair.map (Fn.id, t2s)))
+
    infix >>= <|>
 
    type 'a monad_dom = Univ.t and 'a monad_cod = ('a * Univ.t) Option.t

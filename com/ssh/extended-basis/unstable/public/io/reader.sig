@@ -8,6 +8,8 @@
 signature READER = sig
    type ('a, 's) t = 's -> ('a * 's) Option.t
 
+   val mapState : ('s, 't) Iso.t -> ('a, 't) t -> ('a, 's) t
+
    (** == Monad Interface == *)
 
    type 'a monad_dom and 'a monad_cod

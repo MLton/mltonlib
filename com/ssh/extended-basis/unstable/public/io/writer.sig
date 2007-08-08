@@ -8,6 +8,8 @@
 signature WRITER = sig
    type ('a, 's) t = 'a * 's -> 's
 
+   val mapState : ('s, 't) Iso.t -> ('a, 't) t -> ('a, 's) t
+
    (** == Functor Interface == *)
 
    type 'a func_dom and 'a func_cod
