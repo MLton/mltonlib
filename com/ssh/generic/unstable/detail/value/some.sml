@@ -4,14 +4,14 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithSome (Arg : WITH_SOME_DOM) : SOME_GENERIC = struct
+functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   structure Some =
-      LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedRep (Thunk))
+   structure Some = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = MkClosedRep (Thunk))
 
    open Some.This
 
@@ -21,7 +21,7 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_GENERIC = struct
    fun withNone ? = mapT (const (raising Option)) ?
    fun withSome v = mapT (const (const v))
 
-   structure Layered = LayerDepGeneric
+   structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Some
 
       fun iso' b (_, b2a) = b2a o b

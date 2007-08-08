@@ -8,9 +8,9 @@
  * Base signature for a module of directly usable generics.
  *)
 signature GENERIC = sig
-   structure Open : OPEN_GENERIC
+   structure Open : OPEN_CASES
 
-   include CLOSED_GENERIC
+   include CLOSED_CASES
       where type  'a      Rep.t = ('a,     Unit.t) Open.Rep.t
       where type  'a      Rep.s = ('a,     Unit.t) Open.Rep.s
       where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Open.Rep.p

@@ -8,7 +8,7 @@
  * Signature for a simple unit testing framework.
  *)
 signature UNIT_TEST = sig
-   structure Rep : OPEN_GENERIC_REP
+   structure Rep : OPEN_REP
    (** Substructure specifying the representation of generics. *)
 
    type t

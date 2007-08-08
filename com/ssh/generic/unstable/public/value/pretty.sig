@@ -9,7 +9,7 @@
  * arbitrary SML datatypes.
  *)
 signature PRETTY = sig
-   structure Pretty : OPEN_GENERIC_REP
+   structure Pretty : OPEN_REP
 
    val layout : ('a, 'x) Pretty.t -> 'a -> Prettier.t
    (** Extracts the prettifying function. *)
@@ -18,7 +18,7 @@ signature PRETTY = sig
    (** {pretty m t = Prettier.pretty m o layout t} *)
 end
 
-signature PRETTY_GENERIC = sig
-   include OPEN_GENERIC PRETTY
+signature PRETTY_CASES = sig
+   include OPEN_CASES PRETTY
    sharing Rep = Pretty
 end

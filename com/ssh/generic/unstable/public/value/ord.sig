@@ -32,7 +32,7 @@
  * Comparison of functions is impossible and fails at run-time.
  *)
 signature ORD = sig
-   structure Ord : OPEN_GENERIC_REP
+   structure Ord : OPEN_REP
 
    val ord : ('a, 'x) Ord.t -> 'a Cmp.t
    (** Extracts the linear ordering. *)
@@ -41,7 +41,7 @@ signature ORD = sig
    (** Functionally updates the comparison function. *)
 end
 
-signature ORD_GENERIC = sig
-   include OPEN_GENERIC ORD
+signature ORD_CASES = sig
+   include OPEN_CASES ORD
    sharing Rep = Ord
 end

@@ -7,18 +7,18 @@
 (**
  * Signature for the layered representation types of generics.
  *)
-signature LAYERED_GENERIC_REP = sig
-   structure Outer : OPEN_GENERIC_REP
-   structure Closed : CLOSED_GENERIC_REP
+signature LAYERED_REP = sig
+   structure Outer : OPEN_REP
+   structure Closed : CLOSED_REP
    structure Inner : sig
-      include OPEN_GENERIC_REP
+      include OPEN_REP
       val mkT :  'a      Closed.t * 'x -> ('a,     'x) t
       val mkS :  'a      Closed.s * 'x -> ('a,     'x) s
       val mkP : ('a, 'k) Closed.p * 'x -> ('a, 'k, 'x) p
 
       val mkY : 'a Closed.t Tie.t * 'x Tie.t -> ('a, 'x) t Tie.t
    end
-   include OPEN_GENERIC_REP
+   include OPEN_REP
       where type ('a,     'x) t = ('a,     ('a,     'x) Inner.t) Outer.t
       where type ('a,     'x) s = ('a,     ('a,     'x) Inner.s) Outer.s
       where type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.p) Outer.p

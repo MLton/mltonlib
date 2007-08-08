@@ -5,11 +5,11 @@
  *)
 
 (**
- * Signature for the domain of the {LayerDepGeneric} functor.
+ * Signature for the domain of the {LayerDepCases} functor.
  *)
-signature LAYER_DEP_GENERIC_DOM = sig
-   structure Outer : OPEN_GENERIC
-   structure Result : LAYERED_GENERIC_REP
+signature LAYER_DEP_CASES_DOM = sig
+   structure Outer : OPEN_CASES
+   structure Result : LAYERED_REP
    sharing Outer.Rep = Result.Outer
    val iso : ('b, 'y) Result.t -> ('a, 'b) Iso.t -> 'a Result.Closed.t
    val isoProduct : ('b, 'k, 'y) Result.p -> ('a, 'b) Iso.t -> ('a, 'k) Result.Closed.p

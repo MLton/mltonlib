@@ -11,7 +11,7 @@
  * Koen Claessen and John Hughes.
  *)
 signature ARBITRARY = sig
-   structure Arbitrary : OPEN_GENERIC_REP
+   structure Arbitrary : OPEN_REP
 
    structure RandomGen : RANDOM_GEN
    (** The underlying random value generator. *)
@@ -23,12 +23,12 @@ signature ARBITRARY = sig
    (** Functionally updates the random value generator. *)
 end
 
-signature ARBITRARY_GENERIC = sig
-   include OPEN_GENERIC ARBITRARY
+signature ARBITRARY_CASES = sig
+   include OPEN_CASES ARBITRARY
    sharing Rep = Arbitrary
 end
 
 signature WITH_ARBITRARY_DOM = sig
-   include TYPE_INFO_GENERIC
+   include TYPE_INFO_CASES
    structure RandomGen : RANDOM_GEN
 end

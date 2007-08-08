@@ -19,7 +19,7 @@
  * This design is experimental.
  *)
 signature REDUCE = sig
-   structure Reduce : OPEN_GENERIC_REP
+   structure Reduce : OPEN_REP
 
    val makeReduce :
        'r
@@ -31,7 +31,7 @@ signature REDUCE = sig
    (** Creates a reduce operation. *)
 end
 
-signature REDUCE_GENERIC = sig
-   include OPEN_GENERIC REDUCE
+signature REDUCE_CASES = sig
+   include OPEN_CASES REDUCE
    sharing Rep = Reduce
 end

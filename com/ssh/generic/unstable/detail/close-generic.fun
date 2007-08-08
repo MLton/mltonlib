@@ -4,8 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor CloseGenericRep (Arg : OPEN_GENERIC_REP) :>
-   CLOSED_GENERIC_REP
+functor CloseRep (Arg : OPEN_REP) :>
+   CLOSED_REP
       where type  'a      t = ('a,     Unit.t) Arg.t
       where type  'a      s = ('a,     Unit.t) Arg.s
       where type ('a, 'k) p = ('a, 'k, Unit.t) Arg.p =
@@ -15,8 +15,8 @@ struct
    type ('a, 'k) p = ('a, 'k, Unit.t) Arg.p
 end
 
-functor CloseGeneric (Arg : OPEN_GENERIC) :>
-   CLOSED_GENERIC
+functor CloseCases (Arg : OPEN_CASES) :>
+   CLOSED_CASES
       where type  'a      Rep.t = ('a,     Unit.t) Arg.Rep.t
       where type  'a      Rep.s = ('a,     Unit.t) Arg.Rep.s
       where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Arg.Rep.p =
@@ -25,7 +25,7 @@ struct
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   structure Rep = CloseGenericRep (Arg.Rep)
+   structure Rep = CloseRep (Arg.Rep)
 
    fun morph m = m (const ignore)
 

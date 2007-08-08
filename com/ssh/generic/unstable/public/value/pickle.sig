@@ -8,7 +8,7 @@
  * Signature for a generic pickle/unpickle function.
  *)
 signature PICKLE = sig
-   structure Pickle : OPEN_GENERIC_REP
+   structure Pickle : OPEN_REP
 
    val pickle : ('a, 'x) Pickle.t -> (Char.t, 'b) Writer.t -> ('a, 'b) Writer.t
    (** Extracts the pickling function. *)
@@ -17,12 +17,12 @@ signature PICKLE = sig
    (** Extracts the unpickling function. *)
 end
 
-signature PICKLE_GENERIC = sig
-   include OPEN_GENERIC PICKLE
+signature PICKLE_CASES = sig
+   include OPEN_CASES PICKLE
    sharing Rep = Pickle
 end
 
 signature WITH_PICKLE_DOM = sig
-   include OPEN_GENERIC EQ HASH SOME TYPE_INFO
-   sharing Rep = Eq = Hash = Some = TypeInfo
+   include OPEN_CASES DATA_REC_INFO EQ HASH SOME TYPE_INFO
+   sharing Rep = DataRecInfo = Eq = Hash = Some = TypeInfo
 end

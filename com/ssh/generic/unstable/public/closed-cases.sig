@@ -7,8 +7,8 @@
 (**
  * Signature for closed generics.
  *)
-signature CLOSED_GENERIC = sig
-   structure Rep : CLOSED_GENERIC_REP
+signature CLOSED_CASES = sig
+   structure Rep : CLOSED_REP
 
    (** == Support for User-Defined Types == *)
 

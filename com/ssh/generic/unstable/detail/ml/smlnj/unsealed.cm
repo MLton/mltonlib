@@ -8,19 +8,18 @@ group is
    ../../../../../extended-basis/unstable/basis.cm
    ../../../../../prettier/unstable/lib.cm
    ../../../../../random/unstable/lib.cm
-   ../../../public/closed-generic-rep.sig
-   ../../../public/closed-generic.sig
+   ../../../public/closed-cases.sig
+   ../../../public/closed-rep.sig
    ../../../public/generic-extra.sig
    ../../../public/generic.sig
    ../../../public/generics-util.sig
    ../../../public/generics.sig
-   ../../../public/join-generics-fun.sig
-   ../../../public/layer-dep-generic-fun.sig
-   ../../../public/layer-generic-fun.sig
-   ../../../public/layer-generic-rep-fun.sig
-   ../../../public/layered-generic-rep.sig
-   ../../../public/open-generic-rep.sig
-   ../../../public/open-generic.sig
+   ../../../public/layer-cases-fun.sig
+   ../../../public/layer-dep-cases-fun.sig
+   ../../../public/layer-rep-fun.sig
+   ../../../public/layered-rep.sig
+   ../../../public/open-cases.sig
+   ../../../public/open-rep.sig
    ../../../public/value/arbitrary.sig
    ../../../public/value/data-rec-info.sig
    ../../../public/value/dynamic.sig

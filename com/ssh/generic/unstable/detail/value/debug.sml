@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithDebug (Arg : OPEN_GENERIC) : OPEN_GENERIC = struct
+functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
@@ -20,15 +20,15 @@ functor WithDebug (Arg : OPEN_GENERIC) : OPEN_GENERIC = struct
 
    fun addN kind (xs, ys) = foldl (add1 kind) xs ys
 
-   structure Check =
-      LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = struct
-                          type 'a t = Unit.t
-                          type 'a s = String.t List.t
-                          type ('a, 'k) p = String.t List.t
-                       end)
+   structure Check = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = struct
+         type 'a t = Unit.t
+         type 'a s = String.t List.t
+         type ('a, 'k) p = String.t List.t
+      end)
 
-   structure Layered = LayerGeneric
+   structure Layered = LayerCases
      (structure Outer = Arg and Result = Check and Rep = Check.Closed
 
       val iso        = const

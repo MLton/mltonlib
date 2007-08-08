@@ -4,12 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithTransform (Arg : OPEN_GENERIC) : TRANSFORM_GENERIC = struct
+functor WithTransform (Arg : OPEN_CASES) : TRANSFORM_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   structure Transform = LayerGenericRep
+   structure Transform = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (UnOp))
 
@@ -20,7 +20,7 @@ functor WithTransform (Arg : OPEN_GENERIC) : TRANSFORM_GENERIC = struct
       Transform.This.getT tB
    end
 
-   structure Layered = LayerGeneric
+   structure Layered = LayerCases
      (structure Outer = Arg and Result = Transform and Rep = Transform.Closed
 
       fun iso rB aIb = Fn.map aIb rB

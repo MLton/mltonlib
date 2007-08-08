@@ -7,7 +7,7 @@
 (**
  * Signature for the closed representation types of generics.
  *)
-signature CLOSED_GENERIC_REP = sig
+signature CLOSED_REP = sig
    type  'a      t   (** Type of complete representations. *)
    type  'a      s   (** Type of incomplete sum representations. *)
    type ('a, 'k) p   (** Type of incomplete product representations. *)

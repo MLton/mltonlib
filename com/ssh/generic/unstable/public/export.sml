@@ -10,13 +10,13 @@ signature GENERICS = GENERICS
 
 signature GENERICS_UTIL = GENERICS_UTIL
 
-signature CLOSED_GENERIC = CLOSED_GENERIC
-signature CLOSED_GENERIC_REP = CLOSED_GENERIC_REP
+signature CLOSED_CASES = CLOSED_CASES
+signature CLOSED_REP = CLOSED_REP
 
-signature OPEN_GENERIC = OPEN_GENERIC
-signature OPEN_GENERIC_REP = OPEN_GENERIC_REP
+signature OPEN_CASES = OPEN_CASES
+signature OPEN_REP = OPEN_REP
 
-signature LAYERED_GENERIC_REP = LAYERED_GENERIC_REP
+signature LAYERED_REP = LAYERED_REP
 
 signature GENERIC = GENERIC
 signature GENERIC_EXTRA = GENERIC_EXTRA
@@ -24,76 +24,62 @@ signature GENERIC_EXTRA = GENERIC_EXTRA
 (** === Value Signatures === *)
 
 signature ARBITRARY = ARBITRARY
-signature ARBITRARY_GENERIC = ARBITRARY_GENERIC
+signature ARBITRARY_CASES = ARBITRARY_CASES
 
 signature DATA_REC_INFO = DATA_REC_INFO
-signature DATA_REC_INFO_GENERIC = DATA_REC_INFO_GENERIC
+signature DATA_REC_INFO_CASES = DATA_REC_INFO_CASES
 
 signature DYNAMIC = DYNAMIC
-signature DYNAMIC_GENERIC = DYNAMIC_GENERIC
+signature DYNAMIC_CASES = DYNAMIC_CASES
 
 signature EQ = EQ
-signature EQ_GENERIC = EQ_GENERIC
+signature EQ_CASES = EQ_CASES
 
 signature HASH = HASH
-signature HASH_GENERIC = HASH_GENERIC
+signature HASH_CASES = HASH_CASES
 
 signature ORD = ORD
-signature ORD_GENERIC = ORD_GENERIC
+signature ORD_CASES = ORD_CASES
 
 signature PICKLE = PICKLE
-signature PICKLE_GENERIC = PICKLE_GENERIC
+signature PICKLE_CASES = PICKLE_CASES
 
 signature PRETTY = PRETTY
-signature PRETTY_GENERIC = PRETTY_GENERIC
+signature PRETTY_CASES = PRETTY_CASES
 
 signature REDUCE = REDUCE
-signature REDUCE_GENERIC = REDUCE_GENERIC
+signature REDUCE_CASES = REDUCE_CASES
 
 signature SOME = SOME
-signature SOME_GENERIC = SOME_GENERIC
+signature SOME_CASES = SOME_CASES
 
 signature TRANSFORM = TRANSFORM
-signature TRANSFORM_GENERIC = TRANSFORM_GENERIC
+signature TRANSFORM_CASES = TRANSFORM_CASES
 
 signature TYPE_INFO = TYPE_INFO
-signature TYPE_INFO_GENERIC = TYPE_INFO_GENERIC
+signature TYPE_INFO_CASES = TYPE_INFO_CASES
 
 (** == Exported Structures == *)
 
 structure Generics : GENERICS = Generics
 structure GenericsUtil : GENERICS_UTIL = GenericsUtil
 
-structure RootGeneric : OPEN_GENERIC = RootGeneric
+structure RootGeneric : OPEN_CASES = RootGeneric
 
 (** == Exported Functors == *)
 
-functor CloseGeneric (Arg : OPEN_GENERIC) :
-   CLOSED_GENERIC
+functor CloseCases (Arg : OPEN_CASES) :
+   CLOSED_CASES
       where type  'a      Rep.t = ('a,     Unit.t) Arg.Rep.t
       where type  'a      Rep.s = ('a,     Unit.t) Arg.Rep.s
       where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Arg.Rep.p =
-   CloseGeneric (Arg)
+   CloseCases (Arg)
 (** Closes an open generic. *)
 
-signature JOIN_GENERICS_DOM = JOIN_GENERICS_DOM
+signature LAYER_REP_DOM = LAYER_REP_DOM
 
-functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :
-   OPEN_GENERIC
-      where type ('a,   'x) Rep.t = ('a,   ('a,   'x) Arg.Inner.Rep.t) Arg.Outer.Rep.t
-      where type ('a,   'x) Rep.s = ('a,   ('a,   'x) Arg.Inner.Rep.s) Arg.Outer.Rep.s
-      where type ('a,'k,'x) Rep.p = ('a,'k,('a,'k,'x) Arg.Inner.Rep.p) Arg.Outer.Rep.p =
-   JoinGenerics (Arg)
-(**
- * Joins two open generic functions.  As can be read from the constraints,
- * the representation of the joined generic is compatible with the
- * representation of the {Outer} generic.
- *)
-
-signature LAYER_GENERIC_REP_DOM = LAYER_GENERIC_REP_DOM
-
-functor LayerGenericRep (Arg : LAYER_GENERIC_REP_DOM) :>
-   LAYERED_GENERIC_REP
+functor LayerRep (Arg : LAYER_REP_DOM) :>
+   LAYERED_REP
       where type  'a      Closed.t =  'a      Arg.Closed.t
       where type  'a      Closed.s =  'a      Arg.Closed.s
       where type ('a, 'k) Closed.p = ('a, 'k) Arg.Closed.p
@@ -101,32 +87,32 @@ functor LayerGenericRep (Arg : LAYER_GENERIC_REP_DOM) :>
       where type ('a,     'x) Outer.t = ('a,     'x) Arg.Outer.t
       where type ('a,     'x) Outer.s = ('a,     'x) Arg.Outer.s
       where type ('a, 'k, 'x) Outer.p = ('a, 'k, 'x) Arg.Outer.p =
-   LayerGenericRep (Arg)
+   LayerRep (Arg)
 (**
  * Creates a layered representation for {LayerGeneric} and
  * {LayerDepGeneric}.
  *)
 
-signature LAYER_GENERIC_DOM = LAYER_GENERIC_DOM
+signature LAYER_CASES_DOM = LAYER_CASES_DOM
 
-functor LayerGeneric (Arg : LAYER_GENERIC_DOM) :
-   OPEN_GENERIC
+functor LayerCases (Arg : LAYER_CASES_DOM) :
+   OPEN_CASES
       where type ('a,     'x) Rep.t = ('a,     'x) Arg.Result.t
       where type ('a,     'x) Rep.s = ('a,     'x) Arg.Result.s
       where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
-   LayerGeneric (Arg)
+   LayerCases (Arg)
 (**
  * Joins an outer open generic function and a closed generic function.
  *)
 
-signature LAYER_DEP_GENERIC_DOM = LAYER_DEP_GENERIC_DOM
+signature LAYER_DEP_CASES_DOM = LAYER_DEP_CASES_DOM
 
-functor LayerDepGeneric (Arg : LAYER_DEP_GENERIC_DOM) :>
-   OPEN_GENERIC
+functor LayerDepCases (Arg : LAYER_DEP_CASES_DOM) :>
+   OPEN_CASES
       where type ('a,     'x) Rep.t = ('a,     'x) Arg.Result.t
       where type ('a,     'x) Rep.s = ('a,     'x) Arg.Result.s
       where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
-   LayerDepGeneric (Arg)
+   LayerDepCases (Arg)
 (**
  * Joins an outer open generic function and a closed generic function that
  * depends on the outer generic.
@@ -143,13 +129,13 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
 (** === Value Functors === *)
 
 signature WITH_ARBITRARY_DOM = WITH_ARBITRARY_DOM
-functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC =
+functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES =
    WithArbitrary (Arg)
 
-functor WithDataRecInfo (Arg : OPEN_GENERIC) : DATA_REC_INFO_GENERIC =
+functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES =
    WithDataRecInfo (Arg)
 
-functor WithDebug (Arg : OPEN_GENERIC) : OPEN_GENERIC = WithDebug (Arg)
+functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = WithDebug (Arg)
 (**
  * Checks dynamically that
  * - labels are unique within each record,
@@ -157,27 +143,27 @@ functor WithDebug (Arg : OPEN_GENERIC) : OPEN_GENERIC = WithDebug (Arg)
  * - exception constructors are globally unique.
  *)
 
-functor WithDynamic (Arg : OPEN_GENERIC) : DYNAMIC_GENERIC = WithDynamic (Arg)
+functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = WithDynamic (Arg)
 
-functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = WithEq (Arg)
+functor WithEq (Arg : OPEN_CASES) : EQ_CASES = WithEq (Arg)
 
 signature WITH_HASH_DOM = WITH_HASH_DOM
-functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = WithHash (Arg)
+functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = WithHash (Arg)
 
-functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = WithOrd (Arg)
+functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = WithOrd (Arg)
 
 signature WITH_PICKLE_DOM = WITH_PICKLE_DOM
-functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_GENERIC = WithPickle (Arg)
+functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = WithPickle (Arg)
 
-functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = WithPretty (Arg)
+functor WithPretty (Arg : OPEN_CASES) : PRETTY_CASES = WithPretty (Arg)
 
-functor WithReduce (Arg : OPEN_GENERIC) : REDUCE_GENERIC = WithReduce (Arg)
+functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = WithReduce (Arg)
 
 signature WITH_SOME_DOM = WITH_SOME_DOM
-functor WithSome (Arg : WITH_SOME_DOM) : SOME_GENERIC = WithSome (Arg)
+functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = WithSome (Arg)
 
-functor WithTransform (Arg : OPEN_GENERIC) : TRANSFORM_GENERIC =
+functor WithTransform (Arg : OPEN_CASES) : TRANSFORM_CASES =
    WithTransform (Arg)
 
-functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC =
+functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES =
    WithTypeInfo (Arg)

@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithDynamic (Arg : OPEN_GENERIC) : DYNAMIC_GENERIC = struct
+functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix <-->
@@ -40,17 +40,16 @@ functor WithDynamic (Arg : OPEN_GENERIC) : DYNAMIC_GENERIC = struct
 
    fun isoUnsupported text = (failing text, failing text)
 
-   structure Dynamic =
-      LayerGenericRep
-         (structure Outer = Arg.Rep
-          structure Closed = MkClosedRep (type 'a t = ('a, t) Iso.t))
+   structure Dynamic = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = MkClosedRep (type 'a t = ('a, t) Iso.t))
 
    open Dynamic.This
 
    fun toDyn t = Iso.to (getT t)
    fun fromDyn t d = SOME (Iso.from (getT t) d) handle Dyn.Dyn => NONE
 
-   structure Layered = LayerGeneric
+   structure Layered = LayerCases
      (structure Outer = Arg and Result = Dynamic and Rep = Dynamic.Closed
 
       fun iso bId aIb = bId <--> aIb

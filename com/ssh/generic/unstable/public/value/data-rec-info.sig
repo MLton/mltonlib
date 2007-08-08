@@ -25,7 +25,7 @@
  * of some other generics (e.g. pickling).
  *)
 signature DATA_REC_INFO = sig
-   structure DataRecInfo : OPEN_GENERIC_REP
+   structure DataRecInfo : OPEN_REP
 
    val mayBeCyclic : ('a, 'x) DataRecInfo.t UnPr.t
    (**
@@ -55,7 +55,7 @@ signature DATA_REC_INFO = sig
     *)
 end
 
-signature DATA_REC_INFO_GENERIC = sig
-   include OPEN_GENERIC DATA_REC_INFO
+signature DATA_REC_INFO_CASES = sig
+   include OPEN_CASES DATA_REC_INFO
    sharing Rep = DataRecInfo
 end

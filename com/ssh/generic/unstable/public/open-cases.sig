@@ -9,8 +9,8 @@
  * {CLOSED_GENERIC} signature by parameterizing the representation to
  * allow building extended representations.
  *)
-signature OPEN_GENERIC = sig
-   structure Rep : OPEN_GENERIC_REP
+signature OPEN_CASES = sig
+   structure Rep : OPEN_REP
    val iso : ('y -> ('a, 'b) Iso.t -> 'x) -> ('b, 'y) Rep.t -> ('a, 'b) Iso.t -> ('a, 'x) Rep.t
    val isoProduct : ('y -> ('a, 'b) Iso.t -> 'x) -> ('b, 'k, 'y) Rep.p -> ('a, 'b) Iso.t -> ('a, 'k, 'x) Rep.p
    val isoSum : ('y -> ('a, 'b) Iso.t -> 'x) -> ('b, 'y) Rep.s -> ('a, 'b) Iso.t -> ('a, 'x) Rep.s

@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithDataRecInfo (Arg : OPEN_GENERIC) : DATA_REC_INFO_GENERIC = struct
+functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  2 andAlso
@@ -34,14 +34,13 @@ functor WithDataRecInfo (Arg : OPEN_GENERIC) : DATA_REC_INFO_GENERIC = struct
    fun mutable (INT {exn, recs, ...}) =
        INT {exn = exn, pure = false, recs = recs}
 
-   structure DataRecInfo =
-      LayerGenericRep
-        (structure Outer = Arg.Rep
-         structure Closed = struct
-            type  'a      t = t
-            type  'a      s = s
-            type ('a, 'k) p = p
-         end)
+   structure DataRecInfo = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = struct
+         type  'a      t = t
+         type  'a      s = s
+         type ('a, 'k) p = p
+      end)
 
    open DataRecInfo.This
 
@@ -53,7 +52,7 @@ functor WithDataRecInfo (Arg : OPEN_GENERIC) : DATA_REC_INFO_GENERIC = struct
    fun mayBeCyclic   ? =
        (isMutableType andAlso (mayContainExn orElse mayBeRecData)) ?
 
-   structure Layered = LayerGeneric
+   structure Layered = LayerCases
      (structure Outer=Arg and Result=DataRecInfo and Rep=DataRecInfo.Closed
 
       val iso        = const

@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
+functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
@@ -29,9 +29,9 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    datatype 'a t = IN of {gen : 'a G.t, cog : 'a -> Univ.t G.t UnOp.t}
    fun out (IN r) = r
 
-   structure Arbitrary =
-      LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedRep (type 'a t = 'a t))
+   structure Arbitrary = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = MkClosedRep (type 'a t = 'a t))
 
    open Arbitrary.This
 
@@ -41,7 +41,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_GENERIC = struct
    fun arbitrary ? = #gen (out (getT ?))
    fun withGen gen = mapT (fn IN {cog, ...} => IN {gen = gen, cog = cog})
 
-   structure Layered = LayerDepGeneric
+   structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Arbitrary
 
       fun iso' (IN {gen, cog}) (a2b, b2a) =

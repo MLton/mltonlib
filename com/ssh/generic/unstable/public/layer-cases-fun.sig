@@ -7,10 +7,10 @@
 (**
  * Signature for the domain of the {LayerGeneric} functor.
  *)
-signature LAYER_GENERIC_DOM = sig
-   structure Outer : OPEN_GENERIC
-   structure Result : LAYERED_GENERIC_REP
+signature LAYER_CASES_DOM = sig
+   structure Outer : OPEN_CASES
+   structure Result : LAYERED_REP
    sharing Outer.Rep = Result.Outer
-   include CLOSED_GENERIC
+   include CLOSED_CASES
    sharing Rep = Result.Closed
 end

@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
+functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  0 &
@@ -19,9 +19,9 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
 
    fun iso' bH (a2b, _) = bH o a2b
 
-   structure Hash =
-      LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedRep (type 'a t = 'a t))
+   structure Hash = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = MkClosedRep (type 'a t = 'a t))
 
    open Hash.This
 
@@ -32,7 +32,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_GENERIC = struct
 
    fun hash t = hashParam t {totWidth = 200, maxDepth = 10}
 
-   structure Layered = LayerDepGeneric
+   structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Hash
 
       fun iso        ? = iso' (getT ?)

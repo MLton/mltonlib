@@ -7,7 +7,7 @@
 (**
  * Signature for the open representation types of generics.
  *)
-signature OPEN_GENERIC_REP = sig
+signature OPEN_REP = sig
    (** == Complete Representations == *)
    type ('a, 'x) t
    val getT : ('a, 'x) t -> 'x

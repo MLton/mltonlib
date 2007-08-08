@@ -34,7 +34,7 @@
  * Comparison of functions is impossible and fails at run-time.
  *)
 signature EQ = sig
-   structure Eq : OPEN_GENERIC_REP
+   structure Eq : OPEN_REP
 
    val eq : ('a, 'x) Eq.t -> 'a BinPr.t
    (** Extracts the equality relation. *)
@@ -46,7 +46,7 @@ signature EQ = sig
    (** Functionally updates the equality predicate. *)
 end
 
-signature EQ_GENERIC = sig
-   include OPEN_GENERIC EQ
+signature EQ_CASES = sig
+   include OPEN_CASES EQ
    sharing Rep = Eq
 end

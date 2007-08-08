@@ -22,7 +22,7 @@
  * functions, because it is impossible to compare functions for equality.
  *)
 signature HASH = sig
-   structure Hash : OPEN_GENERIC_REP
+   structure Hash : OPEN_REP
 
    val hashParam :
        ('a, 'x) Hash.t -> {totWidth : Int.t, maxDepth : Int.t} -> 'a -> Word.t
@@ -39,9 +39,9 @@ signature HASH = sig
    (** Returns the default hash function. *)
 end
 
-signature HASH_GENERIC = sig
-   include OPEN_GENERIC HASH
+signature HASH_CASES = sig
+   include OPEN_CASES HASH
    sharing Rep = Hash
 end
 
-signature WITH_HASH_DOM = TYPE_INFO_GENERIC
+signature WITH_HASH_DOM = TYPE_INFO_CASES

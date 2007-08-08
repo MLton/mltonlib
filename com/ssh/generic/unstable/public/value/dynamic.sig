@@ -49,7 +49,7 @@
  * registering exception constructors.
  *)
 signature DYNAMIC = sig
-   structure Dynamic : OPEN_GENERIC_REP
+   structure Dynamic : OPEN_REP
 
    structure Dyn : sig
       type t
@@ -60,7 +60,7 @@ signature DYNAMIC = sig
    val fromDyn : ('a, 'x) Dynamic.t -> Dyn.t -> 'a Option.t
 end
 
-signature DYNAMIC_GENERIC = sig
-   include OPEN_GENERIC DYNAMIC
+signature DYNAMIC_CASES = sig
+   include OPEN_CASES DYNAMIC
    sharing Rep = Dynamic
 end

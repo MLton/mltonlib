@@ -13,7 +13,7 @@
  * other generics (e.g. pickling).
  *)
 signature SOME = sig
-   structure Some : OPEN_GENERIC_REP
+   structure Some : OPEN_REP
 
    exception Nothing of Exn.t
    (** Raised when trying to extract some value when there is none. *)
@@ -28,9 +28,9 @@ signature SOME = sig
    (** Sets the value of the given representation. *)
 end
 
-signature SOME_GENERIC = sig
-   include OPEN_GENERIC SOME
+signature SOME_CASES = sig
+   include OPEN_CASES SOME
    sharing Rep = Some
 end
 
-signature WITH_SOME_DOM = TYPE_INFO_GENERIC
+signature WITH_SOME_DOM = TYPE_INFO_CASES

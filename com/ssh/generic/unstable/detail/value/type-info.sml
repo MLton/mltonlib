@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
+functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
@@ -16,14 +16,13 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
    val base = INT {base = true}
    fun pure (INT {...}) = INT {base = true}
 
-   structure TypeInfo =
-      LayerGenericRep
-        (structure Outer = Arg.Rep
-         structure Closed = struct
-            type  'a      t = t
-            type  'a      s = s
-            type ('a, 'k) p = p
-         end)
+   structure TypeInfo = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = struct
+         type  'a      t = t
+         type  'a      s = s
+         type ('a, 'k) p = p
+      end)
 
    open TypeInfo.This
 
@@ -35,7 +34,7 @@ functor WithTypeInfo (Arg : OPEN_GENERIC) : TYPE_INFO_GENERIC = struct
 
    fun numElems     ? = (#elems o outP o getP) ?
 
-   structure Layered = LayerGeneric
+   structure Layered = LayerCases
      (structure Outer = Arg and Result = TypeInfo and Rep = TypeInfo.Closed
 
       val iso        = const

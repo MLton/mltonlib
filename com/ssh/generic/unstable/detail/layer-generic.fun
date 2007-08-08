@@ -4,8 +4,34 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor LayerGenericRep (Arg : LAYER_GENERIC_REP_DOM) :>
-   LAYERED_GENERIC_REP
+signature JOIN_REPS_DOM = sig
+   structure Outer : OPEN_REP
+   structure Inner : OPEN_REP
+end
+
+functor JoinReps (Arg : JOIN_REPS_DOM) :>
+   OPEN_REP
+      where type ('a,   'x) t = ('a,   ('a,   'x) Arg.Inner.t) Arg.Outer.t
+      where type ('a,   'x) s = ('a,   ('a,   'x) Arg.Inner.s) Arg.Outer.s
+      where type ('a,'k,'x) p = ('a,'k,('a,'k,'x) Arg.Inner.p) Arg.Outer.p =
+struct
+   open Arg
+
+   type ('a,     'x) t = ('a,     ('a,     'x) Inner.t) Outer.t
+   type ('a,     'x) s = ('a,     ('a,     'x) Inner.s) Outer.s
+   type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.p) Outer.p
+
+   fun getT ? = Inner.getT (Outer.getT ?)
+   fun getS ? = Inner.getS (Outer.getS ?)
+   fun getP ? = Inner.getP (Outer.getP ?)
+
+   fun mapT ? = Outer.mapT (Inner.mapT ?)
+   fun mapS ? = Outer.mapS (Inner.mapS ?)
+   fun mapP ? = Outer.mapP (Inner.mapP ?)
+end
+
+functor LayerRep (Arg : LAYER_REP_DOM) :>
+   LAYERED_REP
       where type  'a      Closed.t =  'a      Arg.Closed.t
       where type  'a      Closed.s =  'a      Arg.Closed.s
       where type ('a, 'k) Closed.p = ('a, 'k) Arg.Closed.p
@@ -30,7 +56,7 @@ struct
       val mapS = Pair.mapSnd
       val mapP = Pair.mapSnd
    end
-   structure Result = JoinGenericReps (structure Outer=Outer and Inner=Inner)
+   structure Result = JoinReps (structure Outer=Outer and Inner=Inner)
    open Result
    structure This = struct
       fun getT ? = Pair.fst (Outer.getT ?)
@@ -42,8 +68,8 @@ struct
    end
 end
 
-functor LayerDepGeneric (Arg : LAYER_DEP_GENERIC_DOM) :>
-   OPEN_GENERIC
+functor LayerDepCases (Arg : LAYER_DEP_CASES_DOM) :>
+   OPEN_CASES
       where type ('a,     'x) Rep.t = ('a,     'x) Arg.Result.t
       where type ('a,     'x) Rep.s = ('a,     'x) Arg.Result.s
       where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
@@ -109,12 +135,12 @@ struct
    fun word ? = op0t Outer.word Arg.word ?
 end
 
-functor LayerGeneric (Arg : LAYER_GENERIC_DOM) :>
-   OPEN_GENERIC
+functor LayerCases (Arg : LAYER_CASES_DOM) :>
+   OPEN_CASES
       where type ('a,     'x) Rep.t = ('a,     'x) Arg.Result.t
       where type ('a,     'x) Rep.s = ('a,     'x) Arg.Result.s
       where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
-   LayerDepGeneric
+   LayerDepCases
      (open Arg Arg.Result.This
       fun iso b = Arg.iso (getT b)
       fun isoProduct b = Arg.isoProduct (getP b)

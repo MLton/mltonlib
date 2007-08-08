@@ -4,22 +4,22 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithOrd (Arg : OPEN_GENERIC) : ORD_GENERIC = struct
+functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix 0 &
    (* SML/NJ workaround --> *)
 
-   structure Ord =
-      LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedRep (Cmp))
+   structure Ord = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = MkClosedRep (Cmp))
 
    open Ord.This
 
    val ord = getT
    fun withOrd cmp = mapT (const cmp)
 
-   structure Layered = LayerGeneric
+   structure Layered = LayerCases
      (structure Outer = Arg and Result = Ord and Rep = Ord.Closed
 
       fun iso b (a2b, _) = Cmp.map a2b b

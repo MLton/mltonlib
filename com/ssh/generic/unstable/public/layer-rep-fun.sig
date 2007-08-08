@@ -7,7 +7,7 @@
 (**
  * Signature for the domain of the {LayerGenericRep} functor.
  *)
-signature LAYER_GENERIC_REP_DOM = sig
-   structure Outer : OPEN_GENERIC_REP
-   structure Closed : CLOSED_GENERIC_REP
+signature LAYER_REP_DOM = sig
+   structure Outer : OPEN_REP
+   structure Closed : CLOSED_REP
 end

@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithReduce (Arg : OPEN_GENERIC) : REDUCE_GENERIC = struct
+functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  0 &
@@ -18,7 +18,7 @@ functor WithReduce (Arg : OPEN_GENERIC) : REDUCE_GENERIC = struct
        
    fun default {zero, + = _} = const zero
 
-   structure Reduce = LayerGenericRep
+   structure Reduce = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep
         (type 'a t = {zero : Univ.t, + : Univ.t BinOp.t} -> 'a -> Univ.t))
@@ -32,7 +32,7 @@ functor WithReduce (Arg : OPEN_GENERIC) : REDUCE_GENERIC = struct
       from o Reduce.This.getT tB c
    end
 
-   structure Layered = LayerGeneric
+   structure Layered = LayerCases
      (structure Outer = Arg and Result = Reduce and Rep = Reduce.Closed
 
       fun iso rB (a2b, _) c = rB c o a2b

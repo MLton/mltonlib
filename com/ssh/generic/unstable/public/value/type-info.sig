@@ -18,7 +18,7 @@
  * of some other generics (e.g. hashing).
  *)
 signature TYPE_INFO = sig
-   structure TypeInfo : OPEN_GENERIC_REP
+   structure TypeInfo : OPEN_REP
 
    (** == Sums == *)
 
@@ -34,7 +34,7 @@ signature TYPE_INFO = sig
    (** Number of elements in the given incomplete product. *)
 end
 
-signature TYPE_INFO_GENERIC = sig
-   include OPEN_GENERIC TYPE_INFO
+signature TYPE_INFO_CASES = sig
+   include OPEN_CASES TYPE_INFO
    sharing Rep = TypeInfo
 end

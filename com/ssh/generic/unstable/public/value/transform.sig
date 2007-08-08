@@ -21,7 +21,7 @@
  * This design is experimental.
  *)
 signature TRANSFORM = sig
-   structure Transform : OPEN_GENERIC_REP
+   structure Transform : OPEN_REP
 
    val makeTransform :
        'a UnOp.t
@@ -31,7 +31,7 @@ signature TRANSFORM = sig
    (** Creates a transform operation. *)
 end
 
-signature TRANSFORM_GENERIC = sig
-   include OPEN_GENERIC TRANSFORM
+signature TRANSFORM_CASES = sig
+   include OPEN_CASES TRANSFORM
    sharing Rep = Transform
 end

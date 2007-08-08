@@ -15,7 +15,7 @@ structure GenericsUtil :> GENERICS_UTIL = struct
    fun failExnSq (l, r) = failCat ["unregistered exns ", `l, " and ", `r]
 end
 
-functor MkClosedRep (type 'a t) : CLOSED_GENERIC_REP = struct
+functor MkClosedRep (type 'a t) : CLOSED_REP = struct
    type  'a      t = 'a t
    type  'a      s = 'a t
    type ('a, 'k) p = 'a t

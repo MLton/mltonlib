@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
+functor WithEq (Arg : OPEN_CASES) : EQ_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  0 &
@@ -23,9 +23,9 @@ functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
       lL = lR andalso lp lL
    end
 
-   structure Eq =
-      LayerGenericRep (structure Outer = Arg.Rep
-                       structure Closed = MkClosedRep (BinPr))
+   structure Eq = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = MkClosedRep (BinPr))
 
    open Eq.This
 
@@ -33,7 +33,7 @@ functor WithEq (Arg : OPEN_GENERIC) : EQ_GENERIC = struct
    fun notEq t = not o eq t
    fun withEq eq = mapT (const eq)
 
-   structure Layered = LayerGeneric
+   structure Layered = LayerCases
      (structure Outer = Arg and Result = Eq and Rep = Eq.Closed
 
       fun iso b (a2b, _) = BinPr.map a2b b

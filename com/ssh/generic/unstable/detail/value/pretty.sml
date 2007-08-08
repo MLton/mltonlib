@@ -9,7 +9,7 @@
 (* XXX parameters for pretty printing? *)
 (* XXX parameters for depth, length, etc... for showing only partial data *)
 
-functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = struct
+functor WithPretty (Arg : OPEN_CASES) : PRETTY_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  7 *`
@@ -56,17 +56,16 @@ functor WithPretty (Arg : OPEN_GENERIC) : PRETTY_GENERIC = struct
       val op </> = bop op </>
    end
 
-   structure Pretty =
-      LayerGenericRep
-         (structure Outer = Arg.Rep
-          structure Closed = MkClosedRep (type 'a t = exn list * 'a -> u))
+   structure Pretty = LayerRep
+     (structure Outer = Arg.Rep
+      structure Closed = MkClosedRep (type 'a t = exn list * 'a -> u))
 
    open Pretty.This
 
    fun layout t = Pair.snd o [] <\ getT t
    fun pretty m t = Prettier.pretty m o layout t
 
-   structure Layered = LayerGeneric
+   structure Layered = LayerCases
      (structure Outer = Arg and Result = Pretty and Rep = Pretty.Closed
 
       local

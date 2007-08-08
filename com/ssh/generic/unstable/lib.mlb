@@ -29,11 +29,11 @@ in
 
          (* Concepts *)
 
-         public/closed-generic-rep.sig
-         public/closed-generic.sig
+         public/closed-rep.sig
+         public/closed-cases.sig
 
-         public/open-generic-rep.sig
-         public/open-generic.sig
+         public/open-rep.sig
+         public/open-cases.sig
 
          public/generic.sig
          public/generic-extra.sig
@@ -51,13 +51,10 @@ in
 
          detail/close-generic.fun
 
-         public/join-generics-fun.sig
-         detail/join-generics.fun
-
-         public/layered-generic-rep.sig
-         public/layer-dep-generic-fun.sig
-         public/layer-generic-fun.sig
-         public/layer-generic-rep-fun.sig
+         public/layered-rep.sig
+         public/layer-dep-cases-fun.sig
+         public/layer-cases-fun.sig
+         public/layer-rep-fun.sig
          detail/layer-generic.fun
 
          (* Values *)

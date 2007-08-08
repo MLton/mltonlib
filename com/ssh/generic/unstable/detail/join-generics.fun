@@ -4,33 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-signature JOIN_GENERIC_REPS_DOM = sig
-   structure Outer : OPEN_GENERIC_REP
-   structure Inner : OPEN_GENERIC_REP
-end
-
-functor JoinGenericReps (Arg : JOIN_GENERIC_REPS_DOM) :>
-   OPEN_GENERIC_REP
-      where type ('a,   'x) t = ('a,   ('a,   'x) Arg.Inner.t) Arg.Outer.t
-      where type ('a,   'x) s = ('a,   ('a,   'x) Arg.Inner.s) Arg.Outer.s
-      where type ('a,'k,'x) p = ('a,'k,('a,'k,'x) Arg.Inner.p) Arg.Outer.p =
-struct
-   open Arg
-
-   type ('a,     'x) t = ('a,     ('a,     'x) Inner.t) Outer.t
-   type ('a,     'x) s = ('a,     ('a,     'x) Inner.s) Outer.s
-   type ('a, 'k, 'x) p = ('a, 'k, ('a, 'k, 'x) Inner.p) Outer.p
-
-   fun getT ? = Inner.getT (Outer.getT ?)
-   fun getS ? = Inner.getS (Outer.getS ?)
-   fun getP ? = Inner.getP (Outer.getP ?)
-
-   fun mapT ? = Outer.mapT (Inner.mapT ?)
-   fun mapS ? = Outer.mapS (Inner.mapS ?)
-   fun mapP ? = Outer.mapP (Inner.mapP ?)
-end
-
-functor JoinGenerics (Arg : JOIN_GENERICS_DOM) :>
+functor JoinCases (Arg : JOIN_CASES_DOM) :>
    OPEN_GENERIC
       where type ('a,   'x) Rep.t = ('a,   ('a,   'x) Arg.Inner.Rep.t) Arg.Outer.Rep.t
       where type ('a,   'x) Rep.s = ('a,   ('a,   'x) Arg.Inner.Rep.s) Arg.Outer.Rep.s
