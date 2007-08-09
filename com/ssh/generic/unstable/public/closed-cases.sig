@@ -5,7 +5,7 @@
  *)
 
 (**
- * Signature for closed generics.
+ * Signature for closed structural cases.
  *)
 signature CLOSED_CASES = sig
    structure Rep : CLOSED_REP

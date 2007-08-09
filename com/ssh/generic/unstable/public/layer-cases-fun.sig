@@ -5,7 +5,7 @@
  *)
 
 (**
- * Signature for the domain of the {LayerGeneric} functor.
+ * Signature for the domain of the {LayerCases} functor.
  *)
 signature LAYER_CASES_DOM = sig
    structure Outer : OPEN_CASES

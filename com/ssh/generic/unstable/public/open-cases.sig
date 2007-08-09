@@ -5,9 +5,9 @@
  *)
 
 (**
- * Signature for open generics.  This is basically derived from the
- * {CLOSED_GENERIC} signature by parameterizing the representation to
- * allow building extended representations.
+ * Signature for open structural cases.  This is derived from the
+ * {CLOSED_CASES} signature by parameterizing the representation to allow
+ * building extended representations.
  *)
 signature OPEN_CASES = sig
    structure Rep : OPEN_REP
