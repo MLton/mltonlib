@@ -22,6 +22,7 @@ structure String = struct open BasisString type t = string end
 structure Int = struct open BasisInt type t = int end
 structure LargeInt = struct open BasisLargeInt type t = int end
 structure Word = struct open BasisWord type t = word end
+structure Word8 = struct open BasisWord8 type t = word end
 structure LargeWord = struct open BasisLargeWord type t = word end
 structure LargeReal = struct open BasisLargeReal type t = real end
 structure Word8Vector = struct open BasisWord8Vector type t = vector end

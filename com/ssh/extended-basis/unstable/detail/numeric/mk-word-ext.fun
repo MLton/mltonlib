@@ -59,6 +59,8 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
          val fromLittleBytes = mk BasisWord8Vector.foldr
       end
       val fromWord = fromLarge o BasisWord.toLarge
+      val fromWord8 = fromInt o BasisWord8.toInt
+      val fromWord8X = fromInt o BasisWord8.toIntX
       val fromWordX = fromLarge o BasisWord.toLargeX
       local
          fun mk idx w =
@@ -74,6 +76,8 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
          val toLittleBytes = mk (fn i => i)
       end
       val toWord = BasisWord.fromLarge o toLarge
+      val toWord8 = BasisWord8.fromInt o toIntX
+      val toWord8X = toWord8
       val toWordX = BasisWord.fromLarge o toLargeX
       val embString = (toString, fromString)
       val isoBigBytes = (toBigBytes, fromBigBytes)
@@ -87,6 +91,8 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
       val isoLargeWordX = isoLargeX
       val isoLittleBytes = (toLittleBytes, fromLittleBytes)
       val isoWord = (toWord, fromWord)
+      val isoWord8 = (toWord8, fromWord8)
+      val isoWord8X = (toWord8X, fromWord8X)
       val isoWordX = (toWordX, fromWordX)
       fun isZero w = fromInt 0 = w
       fun isEven w = isZero (andb (fromInt 1, w))
