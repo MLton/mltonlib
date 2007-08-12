@@ -24,8 +24,9 @@ structure Bool : BOOL = struct
       val xorb = op <>
       val isoInt as (toInt, fromInt) =
           (fn true => 1 | false => 0, fn 0 => false | _ => true)
-      val isoLargeInt as (toLargeInt, fromLargeInt) : (t, LargeInt.t) Iso.t =
-          (fn true => 1 | false => 0, fn 0 => false | _ => true)
+      val isoLargeInt as (toLargeInt, fromLargeInt) =
+          (fn true => 1 | false => 0 : LargeInt.t,
+           fn 0 : LargeInt.t => false | _ => true)
    end
 
    structure Bounded = MkBounded (Core)
