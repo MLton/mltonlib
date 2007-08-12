@@ -9,6 +9,7 @@ structure Bool : BOOL = struct
       open Bool
       type bitwise = t
       type bounded = t
+      type intable = t
       type ordered = t
       type scannable = t
       type stringable = t
@@ -21,7 +22,10 @@ structure Bool : BOOL = struct
       val notb = not
       fun orb (b1, b2) = b1 orelse b2
       val xorb = op <>
-      val toInt = fn true => 1 | false => 0
+      val isoInt as (toInt, fromInt) =
+          (fn true => 1 | false => 0, fn 0 => false | _ => true)
+      val isoLargeInt as (toLargeInt, fromLargeInt) : (t, LargeInt.t) Iso.t =
+          (fn true => 1 | false => 0, fn 0 => false | _ => true)
    end
 
    structure Bounded = MkBounded (Core)

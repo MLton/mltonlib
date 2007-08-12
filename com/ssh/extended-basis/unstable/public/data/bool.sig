@@ -21,13 +21,11 @@ signature BOOL = sig
    val isFalse : t UnPr.t
    (** {isFalse x = x = false} *)
 
-   val toInt : t -> Int.t
-   (** {toInt true = 1} and {toInt false = 0}. *)
-
    (** == Concepts == *)
 
    include BITWISE where type bitwise = t
    include BOUNDED where type bounded = t
+   include INTABLE where type intable = t
    include ORDERED where type ordered = t
    include SCANNABLE where type scannable = t
    include STRINGABLE where type stringable = t
