@@ -18,13 +18,8 @@ signature GENERICS = sig
       val toString : t -> String.t
    end
 
-   structure Record : sig
-      type t
-   end
-
-   structure Tuple : sig
-      type t
-   end
+   structure Record : T
+   structure Tuple : T
 
    val L : String.t -> Label.t
    val C : String.t -> Con.t
