@@ -48,6 +48,7 @@ signature SHIFTABLE = SHIFTABLE
 signature SIGNED = SIGNED
 signature STRINGABLE = STRINGABLE
 signature STRINGABLE_CORE = STRINGABLE_CORE
+signature T = T
 signature WORDABLE = WORDABLE
 signature WORDABLE_X = WORDABLE_X
 

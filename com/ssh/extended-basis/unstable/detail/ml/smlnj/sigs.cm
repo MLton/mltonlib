@@ -25,6 +25,7 @@ is
    ../../../public/concept/shiftable.sig
    ../../../public/concept/signed.sig
    ../../../public/concept/stringable.sig
+   ../../../public/concept/t.sig
    ../../../public/concept/wordable.sig
    ../../../public/control/exit.sig
    ../../../public/control/exn.sig
