@@ -86,7 +86,15 @@ in
          detail/value/ord.sml
 
          public/value/pickle.sig
-         detail/value/pickle.sml
+         local
+            local
+               $(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
+            in
+               structure HashTable
+            end
+         in
+            detail/value/pickle.sml
+         end
 
          public/value/pretty.sig
          detail/value/pretty.sml

@@ -35,7 +35,6 @@ group is
    ../../close-generic.fun
    ../../generics-util.sml
    ../../generics.sml
-   ../../join-generics.fun
    ../../layer-generic.fun
    ../../root-generic.sml
    ../../sml-syntax.sml
@@ -54,3 +53,4 @@ group is
    ../../value/type-info.sml
    ../../with-extra.fun
    extensions.cm
+   hash-table.cm
