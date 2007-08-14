@@ -6,6 +6,8 @@
 
 (**
  * Signature for a generic pickle/unpickle function.
+ *
+ * WARNING: At the moment, pickles are not portable.
  *)
 signature PICKLE = sig
    structure Pickle : OPEN_REP
