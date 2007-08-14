@@ -46,7 +46,7 @@ signature MONAD_EX = sig
    (** {pure f == return o f} *)
 
    val thunk : 'a Thunk.t -> 'a monad_ex
-   (** {thunk thk == return () >>= pure thunk} *)
+   (** {thunk th == return () >>= pure th} *)
 
    val seq : 'a monad_ex List.t -> 'a List.t monad_ex
    val seqWith : ('a -> 'b monad_ex) -> 'a List.t -> 'b List.t monad_ex
