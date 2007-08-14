@@ -210,47 +210,77 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
        INT {rd = rd, wr = wr}
    end
 
-   val int as INT {rd=rdInt, wr=wrInt} = bits Word.ops (swap Word.isoIntX)
+   fun iso' get bT (a2b, b2a) = let
+      val INT {rd, wr} = get bT
+   in
+      INT {rd = I.map b2a rd, wr = wr o a2b}
+   end
 
-   fun mutable {readProxy, readBody, writeWhole, self} = let
-      val cyclic = Arg.mayBeCyclic self
-      val tagD = #"\000" and tagR = #"\001"
+   val char = INT {rd = I.read, wr = O.write}
+   val int as INT {rd=rdInt, wr=wrInt} = bits Word.ops (swap Word.isoIntX)
+   val bool as INT {rd=rdBool, wr=wrBool} =
+       iso' id char (swap Char.isoInt <--> Bool.isoInt)
+
+   fun cyclic {readProxy, readBody, writeWhole, self} = let
       val (toDyn, fromDyn) = Dyn.new {eq = op =, hash = Arg.hash self}
       open I
       val rd =
-          read >>& getState >>= (fn tag & mp =>
-          if tag = tagD then
-             readProxy >>= (fn proxy =>
-             if cyclic
-             then (HashMap.insert mp (HashMap.numItems mp, toDyn proxy)
-                 ; readBody proxy >> return proxy)
-             else (readBody proxy >>= (fn () =>
-                   (HashMap.insert mp (HashMap.numItems mp, toDyn proxy)
-                  ; return proxy))))
-          else if tag = tagR then
-             rdInt >>= (fn i =>
-             case HashMap.find mp i
-              of NONE   => fail "Corrupted pickle"
-               | SOME d => return (fromDyn d))
-          else fail "Corrupted pickle")
+          rdBool >>& getState >>= (fn def & mp =>
+          if def
+          then readProxy >>= (fn proxy =>
+               (HashMap.insert mp (HashMap.numItems mp, toDyn proxy)
+              ; readBody proxy >> return proxy))
+          else rdInt >>= (fn i =>
+               case HashMap.find mp i
+                of NONE   => fail "Corrupted pickle"
+                 | SOME d => return (fromDyn d)))
       fun wr v = let
          val d = toDyn v
          open O
       in
          getState >>= (fn mp =>
          case HashMap.find mp d
-          of SOME i => write tagR >> wrInt i
-           | NONE   => 
-                if cyclic
-                then (HashMap.insert mp (d, HashMap.numItems mp)
-                    ; write tagD >> writeWhole v)
-                else write tagD >> writeWhole v >>= (fn () =>
-                     (HashMap.insert mp (d, HashMap.numItems mp)
-                    ; return ())))
+          of SOME i => wrBool false >> wrInt i
+           | NONE   => (HashMap.insert mp (d, HashMap.numItems mp)
+                      ; wrBool true >> writeWhole v))
       end
    in
       INT {rd = rd, wr = wr}
    end
+
+   fun share t (INT {rd=rdE, wr=wrE}) = let
+      val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq t, hash = Arg.hash t}
+      open I
+      val rd = rdBool >>& getState >>= (fn def & mp =>
+               if def
+               then rdE >>= (fn v =>
+                    (HashMap.insert mp (HashMap.numItems mp, toDyn v)
+                   ; return v))
+               else rdInt >>= (fn i =>
+                    case HashMap.find mp i
+                     of NONE   => fail "Corrupted pickle"
+                      | SOME d => return (fromDyn d)))
+      fun wr v = let
+         val d = toDyn v
+         open O
+      in
+         getState >>= (fn mp =>
+         case HashMap.find mp d
+          of SOME i => wrBool false >> wrInt i
+           | NONE   => wrBool true >> wrE v >>= (fn () =>
+                       (HashMap.insert mp (d, HashMap.numItems mp)
+                      ; return ())))
+      end
+   in
+      INT {rd=rd, wr=wr}
+   end
+
+   fun mutable (methods as {readProxy, readBody, writeWhole, self}) =
+       if Arg.mayBeCyclic self
+       then cyclic methods
+       else share self (INT {rd = let open I in readProxy >>= (fn p =>
+                                                readBody p >> return p) end,
+                             wr = writeWhole})
 
    fun seq {length, toSlice, getItem, fromList} (INT {rd=rdE, wr=wrE}) = let
       open O
@@ -273,16 +303,15 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       INT {rd = rd, wr = wr}
    end
 
-   fun iso' get bT (a2b, b2a) = let
-      val INT {rd, wr} = get bT
-   in
-      INT {rd = I.map b2a rd, wr = wr o a2b}
-   end
+   val string' = seq {length = String.length, toSlice = Substring.full,
+                      getItem = Substring.getc, fromList = String.fromList}
+                     char
 
    structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Pickle
 
-      fun iso        ? = iso' getT ?
+      fun iso b aIb = share (Arg.iso (fn _ => fn _ => ()) b aIb) (iso' getT b aIb)
+
       fun isoProduct ? = iso' getP ?
 
       fun isoSum bS (a2b, b2a) i = let
@@ -322,21 +351,22 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       end
       val unit = INT {rd = I.return (), wr = fn () => O.return ()}
       fun C0 _ i = {rd = const (I.return ()),
-                    wr = fn () => O.write (chr i)}
+                    wr = fn () => wrInt i}
       fun C1 _ t = let
          val INT {rd, wr} = getT t
       in
          fn i => {rd = const rd,
-                  wr = fn v => let open O in write (chr i) >> wr v end}
+                  wr = fn v => let open O in wrInt i >> wr v end}
       end
       fun data s = let
          val n = Arg.numAlts s
          val {rd, wr} = getS s 0
          open I
       in
-         INT {rd = map ord read >>= (fn i => if n <= i
-                                             then fail "Corrupted pickle"
-                                             else rd i),
+         INT {rd = rdInt >>= (fn i =>
+                   if n <= i
+                   then fail "Corrupted pickle"
+                   else rd i),
               wr = wr}
       end
 
@@ -379,23 +409,25 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                    self = Arg.array ignore t}
       end
 
-      fun list t = seq {length = List.length, toSlice = id,
-                        getItem = List.getItem, fromList = id} (getT t)
+      fun list t =
+          share (Arg.list ignore t)
+                (seq {length = List.length, toSlice = id,
+                      getItem = List.getItem, fromList = id} (getT t))
 
-      fun vector t = seq {length = Vector.length, toSlice = VectorSlice.full,
-                          getItem = VectorSlice.getItem,
-                          fromList = Vector.fromList} (getT t)
+      fun vector t =
+          share (Arg.vector ignore t)
+                (seq {length = Vector.length, toSlice = VectorSlice.full,
+                      getItem = VectorSlice.getItem,
+                      fromList = Vector.fromList} (getT t))
 
       val exn : Exn.t t = fake "Pickle.exn unimplemented"
       fun regExn _ _ = ()
 
-      val char = INT {rd = I.read, wr = O.write}
-      val bool = iso' id char (swap Char.isoInt <--> Bool.isoInt)
+      val char = char
+      val bool = bool
       val int = int
       val real = bits RealWord.ops CastReal.isoBits
-      val string = seq {length = String.length, toSlice = Substring.full,
-                        getItem = Substring.getc, fromList = String.fromList}
-                       char
+      val string = share (Arg.string ()) string'
       val word = bits Word.ops Iso.id
 
       val largeInt = let
@@ -445,7 +477,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
               | SOME (i, _) => i
          end
       in
-         iso' id string (to, from)
+         share (Arg.largeInt ()) (iso' id string' (to, from))
       end
       val largeReal = bits LargeRealWord.ops CastLargeReal.isoBits
       val largeWord = bits LargeWord.ops Iso.id
