@@ -41,6 +41,12 @@ signature ORDERED_EX = sig
 
    val min : ordered_ex BinOp.t
    (** Returns the smaller of the arguments. *)
+
+   val inRange : ordered_ex Sq.t -> ordered_ex UnPr.t
+   (**
+    * {inRange (lo, hi) v} is equivalent to {lo <= v andalso v <= hi},
+    * except that {inRange (lo, hi)} raises {Domain} iff {hi < lo}.
+    *)
 end
 
 signature ORDERED = sig
