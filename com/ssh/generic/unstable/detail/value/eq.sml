@@ -47,7 +47,7 @@ functor WithEq (Arg : OPEN_CASES) : EQ_CASES = struct
       val record = id
 
       val op +` = Sum.equal
-      val unit  = op =
+      val unit  = op = : Unit.t Rep.t
       fun C0 _  = unit
       fun C1 _  = id
       val data  = id
@@ -70,23 +70,23 @@ functor WithEq (Arg : OPEN_CASES) : EQ_CASES = struct
 
       fun vector ? = seq Vector.length Vector.sub ?
 
-      fun array _ = op =
-      fun refc  _ = op =
+      fun array _ = op = : 'a Array.t Rep.t
+      fun refc  _ = op = : 'a Ref.t Rep.t
 
-      val largeInt  = op =
+      val largeInt  = op = : LargeInt.t Rep.t
       val largeReal = iso op = CastLargeReal.isoBits
-      val largeWord = op =
+      val largeWord = op = : LargeWord.t Rep.t
 
-      val bool   = op =
-      val char   = op =
-      val int    = op =
+      val bool   = op = : Bool.t Rep.t
+      val char   = op = : Char.t Rep.t
+      val int    = op = : Int.t Rep.t
       val real   = iso op = CastReal.isoBits
-      val string = op =
-      val word   = op =
+      val string = op = : String.t Rep.t
+      val word   = op = : Word.t Rep.t
 
-      val word8  = op =
-      val word32 = op =
-      val word64 = op =)
+      val word8  = op = : Word8.t Rep.t
+      val word32 = op = : Word32.t Rep.t
+      val word64 = op = : Word64.t Rep.t)
 
    open Layered
 end

@@ -27,9 +27,9 @@
  * constructor and the arguments of the constructors are considered equal.
  * Of course, all of this is modulo user specified morphisms!
  *
- * Comparison of exceptions only works when at least one of the exception
- * constructors involved in a comparison has been registered with
- * {regExn}.
+ * By default, comparison of exceptions only works when at least one of
+ * the exception constructors involved in a comparison has been registered
+ * with {regExn}.
  *
  * Comparison of functions is impossible and fails at run-time.
  *)
@@ -37,13 +37,21 @@ signature EQ = sig
    structure Eq : OPEN_REP
 
    val eq : ('a, 'x) Eq.t -> 'a BinPr.t
-   (** Extracts the equality relation. *)
+   (** Extracts the equality predicate. *)
 
    val notEq : ('a, 'x) Eq.t -> 'a BinPr.t
    (** {notEq t = not o eq t} *)
 
    val withEq : 'a BinPr.t -> ('a, 'x) Eq.t UnOp.t
-   (** Functionally updates the equality predicate. *)
+   (**
+    * Functionally updates the equality predicate.
+    *
+    * Note that specializing equality often means that several other
+    * generic functions need to be specialized as well.  In particular,
+    * generic hashing and ordering should generally respect equality.
+    * Instead of specializing equality, consider using a canonic data
+    * representation where each equivalence class is a singleton.
+    *)
 end
 
 signature EQ_CASES = sig
