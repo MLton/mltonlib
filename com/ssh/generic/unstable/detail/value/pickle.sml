@@ -212,16 +212,21 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
 
    val int as INT {rd=rdInt, wr=wrInt} = bits Word.ops (swap Word.isoIntX)
 
-   fun mutable {readProxy, readBody, writeWhole, hash} = let
+   fun mutable {readProxy, readBody, writeWhole, self} = let
+      val cyclic = Arg.mayBeCyclic self
       val tagD = #"\000" and tagR = #"\001"
-      val (toDyn, fromDyn) = Dyn.new {eq = op =, hash = hash}
+      val (toDyn, fromDyn) = Dyn.new {eq = op =, hash = Arg.hash self}
       open I
       val rd =
           read >>& getState >>= (fn tag & mp =>
           if tag = tagD then
              readProxy >>= (fn proxy =>
-             (HashMap.insert mp (HashMap.numItems mp, toDyn proxy)
-            ; readBody proxy >> return proxy))
+             if cyclic
+             then (HashMap.insert mp (HashMap.numItems mp, toDyn proxy)
+                 ; readBody proxy >> return proxy)
+             else (readBody proxy >>= (fn () =>
+                   (HashMap.insert mp (HashMap.numItems mp, toDyn proxy)
+                  ; return proxy))))
           else if tag = tagR then
              rdInt >>= (fn i =>
              case HashMap.find mp i
@@ -235,12 +240,13 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
          getState >>= (fn mp =>
          case HashMap.find mp d
           of SOME i => write tagR >> wrInt i
-           | NONE   => let
-                val i = HashMap.numItems mp
-             in
-                HashMap.insert mp (d, i)
-              ; write tagD >> writeWhole v
-             end)
+           | NONE   => 
+                if cyclic
+                then (HashMap.insert mp (d, HashMap.numItems mp)
+                    ; write tagD >> writeWhole v)
+                else write tagD >> writeWhole v >>= (fn () =>
+                     (HashMap.insert mp (d, HashMap.numItems mp)
+                    ; return ())))
       end
    in
       INT {rd = rd, wr = wr}
@@ -345,7 +351,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
           mutable {readProxy = I.thunk (ref o const (Arg.some t)),
                    readBody = fn proxy => I.map (fn v => proxy := v) rd,
                    writeWhole = wr o !,
-                   hash = Arg.hash (Arg.refc ignore t)}
+                   self = Arg.refc ignore t}
       end
 
       fun array t = let
@@ -370,7 +376,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
           mutable {readProxy = I.map (Array.array /> Arg.some t) rdInt,
                    readBody = readBody,
                    writeWhole = writeWhole,
-                   hash = Arg.hash (Arg.array ignore t)}
+                   self = Arg.array ignore t}
       end
 
       fun list t = seq {length = List.length, toSlice = id,
@@ -418,7 +424,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
          end
          fun from s = let
             val buffer = Buffer.new ()
-            fun intToHex i = chr (if i < 10 then i + ord #"0" else i - 10 + ord #"A")
+            fun intToHex i = chr (i + (if i<10 then ord #"0" else ord #"A"-10))
             fun lp s =
                 case Substring.getc s
                  of NONE        => ()
