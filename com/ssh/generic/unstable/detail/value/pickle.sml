@@ -174,12 +174,10 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
 
    fun pickle t =
        case getT t
-        of INT {wr, ...} =>
-           O.run (HashMap.new {eq = Dyn.eq, hash = Dyn.hash}) wr
+        of INT r => O.run (HashMap.new {eq = Dyn.eq, hash = Dyn.hash}) (#wr r)
    fun unpickle t =
        case getT t
-        of INT {rd, ...} =>
-           I.run (HashMap.new {eq = op =, hash = Arg.hash (Arg.int ())}) rd
+        of INT r => I.run (HashMap.new {eq = op =, hash = Word.fromInt}) (#rd r)
 
    fun fake msg = INT {rd = I.thunk (failing msg), wr = failing msg}
 
@@ -394,7 +392,55 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                        char
       val word = bits Word.ops Iso.id
 
-      val largeInt : LargeInt.t t = fake "Pickle.largeInt unimplemented"
+      val largeInt = let
+         fun to i = let
+            val buffer = Buffer.new ()
+            fun hexToInt c =
+                ord c - (if      Char.inRange (#"0", #"9") c then ord #"0"
+                         else if Char.inRange (#"a", #"f") c then ord #"a" - 10
+                         else if Char.inRange (#"A", #"F") c then ord #"A" - 10
+                         else fail "Bug in LargeInt.fmt")
+            fun pack s =
+                if Int.isOdd (Substring.size s) then pl (0, s) else lp s
+            and lp s =
+                case Substring.getc s
+                 of NONE        => ()
+                  | SOME (c, s) => pl (hexToInt c, s)
+            and pl (i, s) =
+                case Substring.getc s
+                 of NONE        => fail "Bug"
+                  | SOME (c, s) =>
+                    (Buffer.push buffer (chr (hexToInt c * 16 + i)) ; lp s)
+         in
+            Buffer.push buffer (if i < 0 then #"\001" else #"\000")
+          ; pack (Substring.full (LargeInt.fmt StringCvt.HEX (abs i)))
+          ; Buffer.toString buffer
+         end
+         fun from s = let
+            val buffer = Buffer.new ()
+            fun intToHex i = chr (if i < 10 then i + ord #"0" else i - 10 + ord #"A")
+            fun lp s =
+                case Substring.getc s
+                 of NONE        => ()
+                  | SOME (c, s) =>
+                    (Buffer.push buffer (intToHex (Int.rem (ord c, 16)))
+                   ; Buffer.push buffer (intToHex (Int.quot (ord c, 16)))
+                   ; lp s)
+         in
+            if size s < 2 then fail "Corrupted pickle" else ()
+          ; case String.sub (s, 0)
+             of #"\000" => ()
+              | #"\001" => Buffer.push buffer #"~"
+              | _       => fail "Corrupted pickle"
+          ; lp (Substring.triml 1 (Substring.full s))
+          ; case LargeInt.scan StringCvt.HEX Substring.getc
+                               (Substring.full (Buffer.toString buffer))
+             of NONE        => fail "Corrupted pickle"
+              | SOME (i, _) => i
+         end
+      in
+         iso' id string (to, from)
+      end
       val largeReal = bits LargeRealWord.ops CastLargeReal.isoBits
       val largeWord = bits LargeWord.ops Iso.id
 
