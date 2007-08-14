@@ -162,7 +162,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    structure O = MkOstream (type t = (Dyn.t, Int.t) HashMap.t)
 
    datatype 'a t = INT of {rd : 'a I.t, wr : 'a -> Unit.t O.t}
-   type 'a s = Int.t -> {rd : Int.t -> 'a I.t, wr : 'a -> Unit.t O.t}
+   type 'a s = Int.t -> {rd : Int.t -> 'a I.t,
+                         wr : (Int.t -> Unit.t O.t) -> 'a -> Unit.t O.t}
 
    structure Pickle = LayerRep
       (structure Outer = Arg.Rep
@@ -317,7 +318,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       fun isoSum bS (a2b, b2a) i = let
          val {rd, wr} = getS bS i
       in
-         {rd = I.map b2a o rd, wr = wr o a2b}
+         {rd = I.map b2a o rd, wr = fn wrTag => wr wrTag o a2b}
       end
 
       fun op *` (lT, rT) = let
@@ -346,28 +347,32 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                {rd = fn i => if i < j
                              then I.map INL (rL i)
                              else I.map INR (rR i),
-                wr = Sum.sum (wL, wR)}
+                wr = Sum.sum o Pair.map (wL, wR) o Sq.mk}
             end
       end
       val unit = INT {rd = I.return (), wr = fn () => O.return ()}
       fun C0 _ i = {rd = const (I.return ()),
-                    wr = fn () => wrInt i}
+                    wr = fn wrTag => const (wrTag i)}
       fun C1 _ t = let
          val INT {rd, wr} = getT t
       in
          fn i => {rd = const rd,
-                  wr = fn v => let open O in wrInt i >> wr v end}
+                  wr = fn wrTag => wrTag i <\ O.>> o wr}
       end
       fun data s = let
          val n = Arg.numAlts s
+         val (rdTag, wrTag) =
+             if n <= Char.maxOrd + 1
+             then (I.map ord I.read, O.write o chr)
+             else (rdInt, wrInt)
          val {rd, wr} = getS s 0
          open I
       in
-         INT {rd = rdInt >>= (fn i =>
+         INT {rd = rdTag >>= (fn i =>
                    if n <= i
                    then fail "Corrupted pickle"
                    else rd i),
-              wr = wr}
+              wr = wr wrTag}
       end
 
       fun Y ? = let open Tie in iso (I.Y *` function) end
