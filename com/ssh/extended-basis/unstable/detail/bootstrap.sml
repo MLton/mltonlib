@@ -17,6 +17,7 @@ structure Bool = struct
    fun isTrue b = b = true
 end
 structure Char = struct open BasisChar type t = char end
+structure CharVector = struct open BasisCharVector type t = vector end
 structure Option = struct open BasisOption type 'a t = 'a option end
 structure String = struct open BasisString type t = string end
 structure Int = struct open BasisInt type t = int end

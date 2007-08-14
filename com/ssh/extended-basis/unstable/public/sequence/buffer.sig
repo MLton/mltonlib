@@ -83,6 +83,12 @@ signature BUFFER = sig
     * equivalent to {List.tabulate (length b, b <\ sub)}.
     *)
 
+   val toString : Char.t t -> String.t
+   (**
+    * Returns the contents of a char buffer as a string.  {toString b} is
+    * equivalent to {String.implode (toList b)}.
+    *)
+
    val toVector : 'a t -> 'a Vector.t
    (**
     * Returns the contents of the buffer as a vector.  {toVector b} is

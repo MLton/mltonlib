@@ -5,10 +5,11 @@
  *)
 
 functor MkBufferCommon (type 'a elem
-                        val inj : 'a -> 'a elem
-                        val prj : 'a elem -> 'a
-                        val any : 'a -> 'a elem) = struct
-   structure A=Array and AS=ArraySlice and V=Vector and VS=VectorSlice and L=List
+                            val inj : 'a -> 'a elem
+                            val prj : 'a elem -> 'a
+                            val any : 'a -> 'a elem) = struct
+   structure A=Array and AS=ArraySlice and L=List and CV=CharVector and V=Vector
+         and VS=VectorSlice
    datatype 'a t = T of {array : 'a elem A.t Ref.t, length : Int.t Ref.t}
 
    fun the s (T r) = s r
@@ -81,8 +82,9 @@ functor MkBufferCommon (type 'a elem
    local
       fun to tabulate t = tabulate (length t, prj o asub (array t))
    in
-      fun toArray ? = to A.tabulate ?
-      fun toList ? = to L.tabulate ?
-      fun toVector ? = to V.tabulate ?
+      fun toArray  ? = to  A.tabulate ?
+      fun toList   ? = to  L.tabulate ?
+      fun toVector ? = to  V.tabulate ?
+      fun toString ? = to CV.tabulate ?
    end
 end
