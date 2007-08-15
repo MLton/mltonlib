@@ -16,24 +16,25 @@ structure Bool = struct
    fun isFalse b = b = false
    fun isTrue b = b = true
 end
-structure Char = struct open BasisChar type t = char end
-structure CharVector = struct open BasisCharVector type t = vector end
-structure Option = struct open BasisOption type 'a t = 'a option end
-structure String = struct open BasisString type t = string end
-structure Int = struct open BasisInt type t = int end
-structure LargeInt = struct open BasisLargeInt type t = int end
-structure Word = struct open BasisWord type t = word end
-structure Word8 = struct open BasisWord8 type t = word end
-structure LargeWord = struct open BasisLargeWord type t = word end
-structure LargeReal = struct open BasisLargeReal type t = real end
-structure Word8Vector = struct open BasisWord8Vector type t = vector end
 structure Array = struct open BasisArray type 'a t = 'a array end
 structure ArraySlice = struct open BasisArraySlice type 'a t = 'a slice end
+structure Char = struct open BasisChar type t = char end
+structure CharVector = struct open BasisCharVector type t = vector end
+structure Effect = struct type 'a t = 'a -> Unit.t end
+structure FixedInt = struct open BasisFixedInt type t = int end
+structure Int = struct open BasisInt type t = int end
+structure LargeInt = struct open BasisLargeInt type t = int end
+structure LargeReal = struct open BasisLargeReal type t = real end
+structure LargeWord = struct open BasisLargeWord type t = word end
+structure List = struct open BasisList type 'a t = 'a list end
+structure Option = struct open BasisOption type 'a t = 'a option end
+structure Order = struct datatype order = datatype order type t = order end
+structure String = struct open BasisString type t = string end
 structure Vector = struct open BasisVector type 'a t = 'a vector end
 structure VectorSlice = struct open BasisVectorSlice type 'a t = 'a slice end
-structure List = struct open BasisList type 'a t = 'a list end
-structure Effect = struct type 'a t = 'a -> Unit.t end
-structure Order = struct datatype order = datatype order type t = order end
+structure Word = struct open BasisWord type t = word end
+structure Word8 = struct open BasisWord8 type t = word end
+structure Word8Vector = struct open BasisWord8Vector type t = vector end
 structure Pair = struct
    type ('a, 'b) pair = 'a * 'b
    type ('a, 'b) t = ('a, 'b) pair

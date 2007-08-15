@@ -10,7 +10,6 @@ structure BoolArray : MONO_ARRAY = BoolArray
 structure BoolArraySlice : MONO_ARRAY_SLICE = BoolArraySlice
 structure BoolVector : MONO_VECTOR = BoolVector
 structure BoolVectorSlice : MONO_VECTOR_SLICE = BoolVectorSlice
-structure FixedInt : INTEGER = FixedInt
 structure Int1 : INTEGER = Int1
 structure Int10 : INTEGER = Int10
 structure Int11 : INTEGER = Int11

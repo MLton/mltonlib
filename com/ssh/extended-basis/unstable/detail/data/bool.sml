@@ -24,6 +24,9 @@ structure Bool : BOOL = struct
       val xorb = op <>
       val isoInt as (toInt, fromInt) =
           (fn true => 1 | false => 0, fn 0 => false | _ => true)
+      val isoFixedInt as (toFixedInt, fromFixedInt) =
+          (fn true => 1 | false => 0 : FixedInt.t,
+           fn 0 : FixedInt.t => false | _ => true)
       val isoLargeInt as (toLargeInt, fromLargeInt) =
           (fn true => 1 | false => 0 : LargeInt.t,
            fn 0 : LargeInt.t => false | _ => true)

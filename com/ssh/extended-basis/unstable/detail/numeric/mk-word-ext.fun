@@ -58,6 +58,18 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
          val fromBigBytes = mk BasisWord8Vector.foldl
          val fromLittleBytes = mk BasisWord8Vector.foldr
       end
+      val toFixedInt =
+          if case BasisInt.precision
+              of NONE   => false
+               | SOME n => BasisInt.< (wordSize, n)
+          then BasisFixedInt.fromInt o toInt
+          else BasisFixedInt.fromLarge o toLargeInt
+      val toFixedIntX =
+          if case BasisInt.precision
+              of NONE   => false
+               | SOME n => BasisInt.<= (wordSize, n)
+          then BasisFixedInt.fromInt o toIntX
+          else BasisFixedInt.fromLarge o toLargeIntX
       val fromWord = fromLarge o BasisWord.toLarge
       val fromWord8 = fromInt o BasisWord8.toInt
       val fromWord8X = fromInt o BasisWord8.toIntX
@@ -79,21 +91,24 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
       val toWord8 = BasisWord8.fromInt o toIntX
       val toWord8X = toWord8
       val toWordX = BasisWord.fromLarge o toLargeX
+      val fromFixedInt = fromLargeInt o BasisFixedInt.toLarge
       val embString = (toString, fromString)
       val isoBigBytes = (toBigBytes, fromBigBytes)
+      val isoFixedInt = (toFixedInt, fromFixedInt)
+      val isoFixedIntX = (toFixedIntX, fromFixedInt)
       val isoInt = (toInt, fromInt)
       val isoIntX = (toIntX, fromInt)
       val isoLarge = (toLarge, fromLarge)
-      val isoLargeX = (toLargeX, fromLarge)
       val isoLargeInt = (toLargeInt, fromLargeInt)
       val isoLargeIntX = (toLargeIntX, fromLargeInt)
-      val isoLargeWord = isoLarge
-      val isoLargeWordX = isoLargeX
+      val isoLargeX = (toLargeX, fromLarge)
       val isoLittleBytes = (toLittleBytes, fromLittleBytes)
       val isoWord = (toWord, fromWord)
       val isoWord8 = (toWord8, fromWord8)
       val isoWord8X = (toWord8X, fromWord8X)
       val isoWordX = (toWordX, fromWordX)
+      val isoLargeWord = isoLarge
+      val isoLargeWordX = isoLargeX
       fun isZero w = fromInt 0 = w
       fun isEven w = isZero (andb (fromInt 1, w))
       val isOdd = not o isEven

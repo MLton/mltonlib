@@ -26,6 +26,14 @@ functor MkIntegerExt (I : BASIS_INTEGER) : INTEGER = struct
       val isoInt = (toInt, fromInt)
       val isoLarge = (toLarge, fromLarge)
       val isoLargeInt as (toLargeInt, fromLargeInt) = isoLarge
+      val isoFixedInt as (toFixedInt, fromFixedInt) =
+          if case (precision, BasisInt.precision)
+              of (SOME n, SOME m) => BasisInt.<= (n, m)
+               | _                => false
+          then (BasisFixedInt.fromInt o I.toInt,
+                I.fromInt o BasisFixedInt.toInt)
+          else (BasisFixedInt.fromLarge o I.toLarge,
+                I.fromLarge o BasisFixedInt.toLarge)
       fun isZero i = zero = i
       fun isEven i = isZero (rem (i, fromInt 2))
       val isOdd = not o isEven

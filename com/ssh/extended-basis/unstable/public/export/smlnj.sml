@@ -6,7 +6,6 @@
 
 (** == SML/NJ specific extensions == *)
 
-structure FixedInt : INTEGER = FixedInt
 structure Int31 : INTEGER = Int31
 structure Int32 : INTEGER = Int32
 structure Int64 : INTEGER = Int64

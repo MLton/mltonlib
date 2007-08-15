@@ -9,7 +9,6 @@ structure BasisBoolArraySlice = BoolArraySlice
 structure BasisBoolVector = BoolVector
 structure BasisBoolVector = BoolVector
 structure BasisBoolVectorSlice = BoolVectorSlice
-structure BasisFixedInt = FixedInt
 structure BasisInt1 = Int1
 structure BasisInt10 = Int10
 structure BasisInt11 = Int11

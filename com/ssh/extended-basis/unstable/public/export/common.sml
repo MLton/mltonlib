@@ -145,6 +145,7 @@ structure Emb : EMB = Emb
 structure Exit : EXIT = Exit
 structure Exn : EXN = Exn
 structure Fix : FIX = Fix
+structure FixedInt : INTEGER = FixedInt
 structure Fn : FN = Fn
 structure Fold : FOLD = Fold
 structure Int : INTEGER = Int

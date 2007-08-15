@@ -6,8 +6,6 @@
 
 (** == Extended {INTEGER} and {INT_INF} modules for MLKit == *)
 
-structure FixedInt : INTEGER = MkIntegerExt (FixedInt)
-
 structure Int31 : INTEGER = MkIntegerExt (Int31)
 structure Int32 : INTEGER = MkIntegerExt (Int32)
 

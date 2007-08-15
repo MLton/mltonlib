@@ -85,6 +85,7 @@ structure BasisChar = Char
 structure BasisCharVector = CharVector
 structure BasisCommandLine = CommandLine
 structure BasisDate = Date
+structure BasisFixedInt = FixedInt
 structure BasisGeneral = General
 structure BasisGenericSock = GenericSock
 structure BasisIEEEReal = IEEEReal

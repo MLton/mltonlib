@@ -6,6 +6,7 @@
 
 (* Extended scalar modules common to all compilers *)
 
+structure FixedInt = MkIntegerExt (FixedInt)
 structure Int = MkIntegerExt (BasisInt)
 structure LargeInt = MkIntegerExt (BasisLargeInt)
 structure Position = MkIntegerExt (BasisPosition)
