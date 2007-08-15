@@ -68,7 +68,9 @@ functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
       val vector = pure
       val list   = pure
 
-      val largeInt  = base
+      val fixedInt = base
+      val largeInt = base
+
       val largeReal = base
       val largeWord = base
 

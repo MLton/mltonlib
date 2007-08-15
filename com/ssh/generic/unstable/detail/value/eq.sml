@@ -73,7 +73,9 @@ functor WithEq (Arg : OPEN_CASES) : EQ_CASES = struct
       fun array _ = op = : 'a Array.t Rep.t
       fun refc  _ = op = : 'a Ref.t Rep.t
 
-      val largeInt  = op = : LargeInt.t Rep.t
+      val fixedInt = op = : FixedInt.t Rep.t
+      val largeInt = op = : LargeInt.t Rep.t
+
       val largeReal = iso op = CastLargeReal.isoBits
       val largeWord = op = : LargeWord.t Rep.t
 

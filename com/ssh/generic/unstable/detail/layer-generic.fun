@@ -100,6 +100,7 @@ struct
    fun array ? = op1t Outer.array Arg.array ?
    fun refc ? = op1t Outer.refc Arg.refc ?
    fun vector ? = op1t Outer.vector Arg.vector ?
+   fun fixedInt ? = op0t Outer.fixedInt Arg.fixedInt ?
    fun largeInt ? = op0t Outer.largeInt Arg.largeInt ?
    fun largeReal ? = op0t Outer.largeReal Arg.largeReal ?
    fun largeWord ? = op0t Outer.largeWord Arg.largeWord ?

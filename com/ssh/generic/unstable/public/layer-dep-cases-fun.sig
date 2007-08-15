@@ -31,6 +31,7 @@ signature LAYER_DEP_CASES_DOM = sig
    val array : ('a, 'x) Result.t -> 'a Array.t Result.Closed.t
    val refc : ('a, 'x) Result.t -> 'a Ref.t Result.Closed.t
    val vector : ('a, 'x) Result.t -> 'a Vector.t Result.Closed.t
+   val fixedInt : FixedInt.t Result.Closed.t
    val largeInt : LargeInt.t Result.Closed.t
    val largeReal : LargeReal.t Result.Closed.t
    val largeWord : LargeWord.t Result.Closed.t

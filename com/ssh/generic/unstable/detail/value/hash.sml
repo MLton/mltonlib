@@ -123,7 +123,9 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
           let open CastReal in viaWord (#1 isoBits) op mod Bits.isoWord end
       val word = const
 
-      val largeInt  = viaWord id op mod (Iso.swap Word.isoLargeInt)
+      val fixedInt = viaWord id op mod (Iso.swap Word.isoFixedInt)
+      val largeInt = viaWord id op mod (Iso.swap Word.isoLargeInt)
+
       val largeReal =
           let open CastLargeReal in viaWord (#1 isoBits) op mod Bits.isoWord end
       val largeWord = viaWord id op mod LargeWord.isoWord

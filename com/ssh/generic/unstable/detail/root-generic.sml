@@ -43,6 +43,7 @@ structure RootGeneric :> OPEN_CASES = struct
    val array = id
    val refc = id
    val vector = id
+   val fixedInt = id
    val largeInt = id
    val largeReal = id
    val largeWord = id

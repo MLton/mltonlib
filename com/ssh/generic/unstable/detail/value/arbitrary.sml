@@ -20,7 +20,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
 
    structure RandomGen = Arg.RandomGen
 
-   structure G = RandomGen and I = Int and R = Real and W = Word
+   structure G = RandomGen and R = Real and W = Word
 
    fun universally ? = G.mapUnOp (Univ.Iso.new ()) ?
    val map = G.Monad.map
@@ -114,15 +114,17 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
 
       val bool = IN {gen = G.bool, cog = G.variant o W.fromInt o Bool.toInt}
 
-      val int = IN {gen = map (fn w => W.toIntX (w - G.RNG.maxValue div 0w2))
-                              (* XXX result may not fit an Int.t *)
-                              (G.lift G.RNG.value),
-                    cog = G.variant o W.fromInt}
+      val fixedInt =
+          IN {gen = map (fn w => W.toFixedIntX (w - G.RNG.maxValue div 0w2))
+                        (G.lift G.RNG.value),
+              cog = G.variant o W.fromFixedInt}
       val word = IN {gen = G.lift G.RNG.value, cog = G.variant}
       val real = IN {gen = G.sized ((fn r => G.realInRange (~r, r)) o real),
                      cog = stringCog o R.toString} (* XXX Real cog *)
 
-      val largeInt  = iso' int  (Iso.swap I.isoLarge)
+      val      int = iso' fixedInt      Int.isoFixedInt
+      val largeInt = iso' fixedInt LargeInt.isoFixedInt
+
       val largeWord = iso' word (Iso.swap W.isoLarge)
       val largeReal = iso' real (Iso.swap (R.isoLarge IEEEReal.TO_NEAREST))
 

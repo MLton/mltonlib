@@ -6,10 +6,6 @@
 
 structure Generic :> sig
    include GENERIC_EXTRA
-      where type Label.t = Generics.Label.t
-      where type Con.t = Generics.Con.t
-      where type Record.t = Generics.Record.t
-      where type Tuple.t = Generics.Tuple.t
    include ARBITRARY     sharing Open.Rep = Arbitrary
    include DATA_REC_INFO sharing Open.Rep = DataRecInfo
    include EQ            sharing Open.Rep = Eq

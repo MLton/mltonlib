@@ -19,6 +19,7 @@ functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
        | EXN        of Exn.t
        | LIST       of t List.t
        | VECTOR     of t Vector.t
+       | FIXED_INT  of FixedInt.t
        | LARGE_INT  of LargeInt.t
        | LARGE_WORD of LargeWord.t
        | LARGE_REAL of LargeReal.t
@@ -82,7 +83,9 @@ functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
       fun array _ = isoUnsupported "Dyn.array unsupported"
       fun refc  _ = isoUnsupported "Dyn.refc unsupported"
 
-      val largeInt  = (LARGE_INT,  fn LARGE_INT  ? => ? | _ => raise Dyn)
+      val fixedInt = (FIXED_INT,  fn FIXED_INT  ? => ? | _ => raise Dyn)
+      val largeInt = (LARGE_INT,  fn LARGE_INT  ? => ? | _ => raise Dyn)
+
       val largeWord = (LARGE_WORD, fn LARGE_WORD ? => ? | _ => raise Dyn)
       val largeReal = (LARGE_REAL, fn LARGE_REAL ? => ? | _ => raise Dyn)
 

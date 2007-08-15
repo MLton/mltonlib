@@ -66,7 +66,9 @@ functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = struct
 
       fun refc t = Cmp.map ! t
 
-      val largeInt  = LargeInt.compare
+      val fixedInt = FixedInt.compare
+      val largeInt = LargeInt.compare
+
       val largeWord = LargeWord.compare
       val largeReal = iso CastLargeReal.Bits.compare CastLargeReal.isoBits
 

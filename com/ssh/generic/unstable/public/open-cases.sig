@@ -31,6 +31,7 @@ signature OPEN_CASES = sig
    val array : ('x -> 'y) -> ('a, 'x) Rep.t -> ('a Array.t, 'y) Rep.t
    val refc : ('x -> 'y) -> ('a, 'x) Rep.t -> ('a Ref.t, 'y) Rep.t
    val vector : ('x -> 'y) -> ('a, 'x) Rep.t -> ('a Vector.t, 'y) Rep.t
+   val fixedInt : 'x -> (FixedInt.t, 'x) Rep.t
    val largeInt : 'x -> (LargeInt.t, 'x) Rep.t
    val largeReal : 'x -> (LargeReal.t, 'x) Rep.t
    val largeWord : 'x -> (LargeWord.t, 'x) Rep.t

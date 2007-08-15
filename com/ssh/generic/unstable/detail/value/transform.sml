@@ -52,7 +52,9 @@ functor WithTransform (Arg : OPEN_CASES) : TRANSFORM_CASES = struct
       fun array tA x = (Array.modify tA x ; x)
       fun refc  tA x =   (Ref.modify tA x ; x)
 
-      val largeInt  = id
+      val fixedInt = id
+      val largeInt = id
+
       val largeReal = id
       val largeWord = id
 

@@ -65,7 +65,9 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
 
       fun refc rA c = rA c o !
 
-      val largeInt  = default
+      val fixedInt = default
+      val largeInt = default
+
       val largeReal = default
       val largeWord = default
 

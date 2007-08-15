@@ -448,13 +448,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val exn : Exn.t t = fake "Pickle.exn unimplemented"
       fun regExn _ _ = ()
 
-      val char = char
-      val bool = bool
-      val int = int
-      val real = bits RealWord.ops CastReal.isoBits
-      val string = share (Arg.string ()) string'
-      val word = bits Word.ops Iso.id
-
+      val fixedInt = bits LargeWord.ops (swap LargeWord.isoFixedIntX)
       val largeInt = let
          fun to i = let
             val buffer = Buffer.new ()
@@ -504,6 +498,14 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       in
          share (Arg.largeInt ()) (iso' id string' (to, from))
       end
+
+      val char = char
+      val bool = bool
+      val int = int
+      val real = bits RealWord.ops CastReal.isoBits
+      val string = share (Arg.string ()) string'
+      val word = bits Word.ops Iso.id
+
       val largeReal = bits LargeRealWord.ops CastLargeReal.isoBits
       val largeWord = bits LargeWord.ops Iso.id
 

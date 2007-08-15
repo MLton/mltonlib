@@ -101,7 +101,9 @@ signature CLOSED_CASES = sig
 
    (** == Support for Arbitrary Integers, Words, And Reals == *)
 
-   val largeInt  : LargeInt.t  Rep.t
+   val fixedInt : FixedInt.t Rep.t
+   val largeInt : LargeInt.t Rep.t
+
    val largeReal : LargeReal.t Rep.t
    val largeWord : LargeWord.t Rep.t
 

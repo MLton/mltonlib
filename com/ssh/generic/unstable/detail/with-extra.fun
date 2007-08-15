@@ -31,19 +31,17 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
    end
 
    local
-      fun mk precision int' large' =
-          if isSome Int.precision andalso
-             valOf precision <= valOf Int.precision then
-             iso int int'
-          else
-             iso largeInt large'
+      val fits = fn (SOME n, SOME m) => n <= m
+                  | _                => false
+      fun mk precision int' fixed' large' =
+          if      fits (precision,      Int.precision) then iso      int   int'
+          else if fits (precision, FixedInt.precision) then iso fixedInt fixed'
+          else                                              iso largeInt large'
    in
-   (* val int8  = mk Int8.precision  Int8.isoInt  Int8.isoLarge
-      (* Int8 not provided by SML/NJ *) *)
-   (* val int16 = mk Int16.precision Int16.isoInt Int16.isoLarge
-      (* Int16 not provided by SML/NJ *) *)
-      val int32 = mk Int32.precision Int32.isoInt Int32.isoLarge
-      val int64 = mk Int64.precision Int64.isoInt Int64.isoLarge
+      val int32 = let open Int32 in mk precision isoInt isoFixedInt isoLarge end
+      val int64 = let open Int64 in mk precision isoInt isoFixedInt isoLarge end
+      val position =
+          let open Position in mk precision isoInt isoFixedInt isoLarge end
    end
 
    local
@@ -106,7 +104,7 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
     ; regExn0 Subscript  (fn Subscript  => su | _ => n) "Subscript"
     ; regExn0 Time       (fn Time       => su | _ => n) "Time.Time"
     ; regExn0 Unordered  (fn Unordered  => su | _ => n) "IEEEReal.Unordered"
-    ; regExn1 Fail       (fn Fail     ? => s? | _ => n) "Fail"      string
+    ; regExn1 Fail       (fn Fail     ? => s? | _ => n) "Fail" string
       (* Handlers for some extended-basis exceptions: *)
     ; regExn0 Sum.Sum    (fn Sum.Sum    => su | _ => n) "Sum"
     ; regExn0 Fix.Fix    (fn Fix.Fix    => su | _ => n) "Fix"

@@ -70,7 +70,9 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
 
       fun refc a = ref o getT a
 
-      val largeInt  = fn () => 0   : LargeInt.t
+      val fixedInt  = fn () => 0 : FixedInt.t
+      val largeInt  = fn () => 0 : LargeInt.t
+
       val largeReal = fn () => 0.0 : LargeReal.t
       val largeWord = fn () => 0w0 : LargeWord.t
 

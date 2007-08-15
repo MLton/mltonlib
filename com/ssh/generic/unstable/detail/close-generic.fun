@@ -49,6 +49,7 @@ struct
    fun array ? = Arg.array ignore ?
    fun refc ? = Arg.refc ignore ?
    fun vector ? = Arg.vector ignore ?
+   val fixedInt = Arg.fixedInt ()
    val largeInt = Arg.largeInt ()
    val largeReal = Arg.largeReal ()
    val largeWord = Arg.largeWord ()

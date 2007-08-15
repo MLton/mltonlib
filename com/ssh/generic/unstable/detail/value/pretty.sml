@@ -185,7 +185,9 @@ functor WithPretty (Arg : OPEN_CASES) : PRETTY_CASES = struct
       val unit = mk (Thunk.mk "()")
       val word = mkWord Word.toString
 
-      val largeInt  = mk LargeInt.toString
+      val fixedInt = mk FixedInt.toString
+      val largeInt = mk LargeInt.toString
+
       val largeReal = mk LargeReal.toString
       val largeWord = mkWord LargeWord.toString
 

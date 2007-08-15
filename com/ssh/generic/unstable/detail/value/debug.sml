@@ -60,7 +60,9 @@ functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = struct
       val array  = ignore
       val refc   = ignore
 
-      val largeInt  = ()
+      val fixedInt = ()
+      val largeInt = ()
+
       val largeReal = ()
       val largeWord = ()
 
