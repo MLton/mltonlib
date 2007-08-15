@@ -161,11 +161,24 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    structure I = MkIstream (type t = (Int.t, Dyn.t) HashMap.t)
    structure O = MkOstream (type t = (Dyn.t, Int.t) HashMap.t)
 
-   type 'a t = {rd : 'a I.t, wr : 'a -> Unit.t O.t}
-   type 'a s = Int.t -> {rd : Int.t -> 'a I.t,
-                         wr : (Int.t -> Unit.t O.t) -> 'a -> Unit.t O.t}
+   structure OptInt = struct
+      type t = Int.t Option.t
+      local
+         fun mk bop =
+          fn (SOME l, SOME r) => SOME (bop (l, r))
+           | _                => NONE
+      in
+         val op +   = mk op +
+         val op div = mk op div
+      end
+   end
 
-   fun fake msg = {rd = I.thunk (failing msg), wr = failing msg}
+   type 'a t = {rd : 'a I.t, wr : 'a -> Unit.t O.t, sz : OptInt.t}
+   type 'a s = Int.t -> {rd : Int.t -> 'a I.t,
+                         wr : (Int.t -> Unit.t O.t) -> 'a -> Unit.t O.t,
+                         sz : OptInt.t}
+
+   fun fake msg = {rd = I.thunk (failing msg), wr = failing msg, sz = NONE}
 
    val op <--> = Iso.<-->
    val swap = Iso.swap
@@ -191,16 +204,17 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                   val bits = toBits v
                in
                   alts (fn n => O.write (toChar (bits >> Word.fromInt n))) O.>>
-               end}
+               end,
+       sz = SOME ((n + 7) div 8)}
    end
 
    fun iso' get bT (a2b, b2a) = let
-      val {rd, wr} = get bT
+      val {rd, wr, sz} = get bT
    in
-      {rd = I.map b2a rd, wr = wr o a2b}
+      {rd = I.map b2a rd, wr = wr o a2b, sz = sz}
    end
 
-   val char = {rd = I.read, wr = O.write}
+   val char = {rd = I.read, wr = O.write, sz = SOME 1}
    val int = bits Word.ops (swap Word.isoIntX)
    val bool = iso' id char (swap Char.isoInt <--> Bool.isoInt)
 
@@ -226,10 +240,11 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                    of SOME i => #wr bool false >> #wr int i
                     | NONE   => (HashMap.insert mp (d, HashMap.numItems mp)
                                ; #wr bool true >> writeWhole v))
-               end}
+               end,
+       sz = NONE}
    end
 
-   fun share t {rd=rdE, wr=wrE} = let
+   fun share t {rd = rdE, wr = wrE, sz = _} = let
       val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq t, hash = Arg.hash t}
       open I
    in
@@ -252,7 +267,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                     | NONE   => #wr bool true >> wrE v >>= (fn () =>
                                 (HashMap.insert mp (d, HashMap.numItems mp)
                                ; return ())))
-               end}
+               end,
+       sz = SOME 5}
    end
 
    fun mutable (methods as {readProxy, readBody, writeWhole, self}) =
@@ -260,9 +276,10 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
        then cyclic methods
        else share self {rd = let open I in readProxy >>= (fn p =>
                                            readBody p >> return p) end,
-                             wr = writeWhole}
+                        wr = writeWhole,
+                        sz = NONE}
 
-   fun seq {length, toSlice, getItem, fromList} {rd = rdE, wr = wrE} =
+   fun seq {length, toSlice, getItem, fromList} {rd = rdE, wr = wrE, sz = _} =
        {rd = let
            open I
         in
@@ -281,7 +298,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                  | SOME (e, sl) => wrE e >>= (fn () => lp sl)
         in
            fn seq => #wr int (length seq) >>= (fn () => lp (toSlice seq))
-        end}
+        end,
+        sz = NONE : OptInt.t}
 
    val string' = seq {length = String.length, toSlice = Substring.full,
                       getItem = Substring.getc, fromList = String.fromList}
@@ -303,22 +321,29 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Pickle
 
-      fun iso b aIb = share (Arg.iso (fn _ => fn _ => ()) b aIb) (iso' getT b aIb)
+      fun iso b aIb = let
+         val a = iso' getT b aIb
+      in
+         if case #sz (getT b) of NONE => true | SOME n => 5 < n
+         then share (Arg.iso (fn _ => fn _ => ()) b aIb) a
+         else a
+      end
 
       fun isoProduct ? = iso' getP ?
 
       fun isoSum bS (a2b, b2a) i = let
-         val {rd, wr} = getS bS i
+         val {rd, wr, sz} = getS bS i
       in
-         {rd = I.map b2a o rd, wr = fn wrTag => wr wrTag o a2b}
+         {rd = I.map b2a o rd, wr = fn wrTag => wr wrTag o a2b, sz = sz}
       end
 
       fun op *` (lT, rT) = let
-         val {rd = rL, wr = wL} = getP lT
-         val {rd = rR, wr = wR} = getP rT
+         val {rd = rL, wr = wL, sz = sL} = getP lT
+         val {rd = rR, wr = wR, sz = sR} = getP rT
       in
          {rd = let open I in rL >>& rR end,
-          wr = let open O in fn l & r => wL l >> wR r end}
+          wr = let open O in fn l & r => wL l >> wR r end,
+          sz = OptInt.+ (sL, sR)}
       end
 
       val T      = getT
@@ -333,45 +358,50 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       in
          fn i => let
                val j = i+lN
-               val {rd = rL, wr = wL} = lS i
-               val {rd = rR, wr = wR} = rS j
+               val {rd = rL, wr = wL, sz = sL} = lS i
+               val {rd = rR, wr = wR, sz = sR} = rS j
             in
                {rd = fn i => if i < j
                              then I.map INL (rL i)
                              else I.map INR (rR i),
-                wr = Sum.sum o Pair.map (wL, wR) o Sq.mk}
+                wr = Sum.sum o Pair.map (wL, wR) o Sq.mk,
+                sz = OptInt.+ (sL, sR)}
             end
       end
-      val unit = {rd = I.return (), wr = fn () => O.return ()}
-      fun C0 _ i = {rd = const (I.return ()), wr = fn wrTag => const (wrTag i)}
+      val unit = {rd = I.return (), wr = fn () => O.return (), sz = SOME 0}
+      fun C0 _ i = {rd = const (I.return ()),
+                    wr = fn wrTag => const (wrTag i),
+                    sz = SOME 0}
       fun C1 _ t = let
-         val {rd, wr} = getT t
+         val {rd, wr, sz} = getT t
       in
-         fn i => {rd = const rd, wr = fn wrTag => wrTag i <\ O.>> o wr}
+         fn i => {rd = const rd, wr = fn wrTag => wrTag i <\ O.>> o wr, sz = sz}
       end
       fun data s = let
          val n = Arg.numAlts s
-         val (rdTag, wrTag) =
+         val (rdTag, wrTag, szTag) =
              if n <= Char.maxOrd + 1
-             then (I.map ord I.read, O.write o chr)
-             else (#rd int, #wr int)
-         val {rd, wr} = getS s 0
+             then (I.map ord I.read, O.write o chr, SOME 1)
+             else (#rd int, #wr int, #sz int)
+         val {rd, wr, sz} = getS s 0
          open I
       in
          {rd = rdTag >>= (fn i =>
                if n <= i
                then fail "Corrupted pickle"
                else rd i),
-          wr = wr wrTag}
+          wr = wr wrTag,
+          sz = let open OptInt in sz div SOME n + szTag end}
       end
 
-      fun Y ? = let open Tie in iso (I.Y *` function) end
-                   (fn {rd, wr} => rd & wr, fn rd & wr => {rd = rd, wr = wr}) ?
+      fun Y ? = let open Tie in iso (I.Y *` function *` id NONE) end
+                   (fn {rd, wr, sz} => rd & wr & sz,
+                    fn rd & wr & sz => {rd = rd, wr = wr, sz = sz}) ?
 
       fun op --> _ = fake "Pickle.--> unsupported"
 
       fun refc t = let
-         val {rd, wr} = getT t
+         val {rd, wr, sz = _} = getT t
       in
           mutable {readProxy = I.thunk (ref o const (Arg.some t)),
                    readBody = fn proxy => I.map (fn v => proxy := v) rd,
@@ -380,7 +410,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       end
 
       fun array t = let
-         val {rd, wr} = getT t
+         val {rd, wr, sz = _} = getT t
       in
          mutable {readProxy = I.map (Array.array /> Arg.some t) (#rd int),
                   readBody = fn a => let
