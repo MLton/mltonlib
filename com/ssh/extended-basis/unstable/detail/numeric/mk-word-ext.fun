@@ -58,16 +58,13 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
          val fromBigBytes = mk BasisWord8Vector.foldl
          val fromLittleBytes = mk BasisWord8Vector.foldr
       end
+      fun intPrec p = case BasisInt.precision of NONE => false | SOME n => p n
       val toFixedInt =
-          if case BasisInt.precision
-              of NONE   => false
-               | SOME n => BasisInt.< (wordSize, n)
+          if intPrec (fn n => BasisInt.< (wordSize, n))
           then BasisFixedInt.fromInt o toInt
           else BasisFixedInt.fromLarge o toLargeInt
       val toFixedIntX =
-          if case BasisInt.precision
-              of NONE   => false
-               | SOME n => BasisInt.<= (wordSize, n)
+          if intPrec (fn n => BasisInt.<= (wordSize, n))
           then BasisFixedInt.fromInt o toIntX
           else BasisFixedInt.fromLarge o toLargeIntX
       val fromWord = fromLarge o BasisWord.toLarge
@@ -91,7 +88,10 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
       val toWord8 = BasisWord8.fromInt o toIntX
       val toWord8X = toWord8
       val toWordX = BasisWord.fromLarge o toLargeX
-      val fromFixedInt = fromLargeInt o BasisFixedInt.toLarge
+      val fromFixedInt =
+          if intPrec (fn n => n = valOf BasisFixedInt.precision)
+          then fromInt o BasisFixedInt.toInt
+          else fromLargeInt o BasisFixedInt.toLarge
       val embString = (toString, fromString)
       val isoBigBytes = (toBigBytes, fromBigBytes)
       val isoFixedInt = (toFixedInt, fromFixedInt)
