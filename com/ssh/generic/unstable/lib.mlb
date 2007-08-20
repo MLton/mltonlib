@@ -102,6 +102,9 @@ in
          public/value/reduce.sig
          detail/value/reduce.sml
 
+         public/value/seq.sig
+         detail/value/seq.sml
+
          public/value/transform.sig
          detail/value/transform.sml
       in

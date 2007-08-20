@@ -29,6 +29,7 @@ group is
    ../../../public/value/pickle.sig
    ../../../public/value/pretty.sig
    ../../../public/value/reduce.sig
+   ../../../public/value/seq.sig
    ../../../public/value/some.sig
    ../../../public/value/transform.sig
    ../../../public/value/type-info.sig
@@ -48,6 +49,7 @@ group is
    ../../value/pickle.sml
    ../../value/pretty.sml
    ../../value/reduce.sml
+   ../../value/seq.sml
    ../../value/some.sml
    ../../value/transform.sml
    ../../value/type-info.sml

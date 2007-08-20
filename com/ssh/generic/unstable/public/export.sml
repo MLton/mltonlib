@@ -143,6 +143,10 @@ signature REDUCE = REDUCE
 signature REDUCE_CASES = REDUCE_CASES
 functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = WithReduce (Arg)
 
+signature SEQ = SEQ
+signature SEQ_CASES = SEQ_CASES
+functor WithSeq (Arg : OPEN_CASES) : SEQ_CASES = WithSeq (Arg)
+
 signature SOME = SOME
 signature SOME_CASES = SOME_CASES
 signature WITH_SOME_DOM = WITH_SOME_DOM
