@@ -44,14 +44,14 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
                                    BasisInt.toString wordSize^") not known"))
       val bounds = (fromInt 0, fromInt~1)
       val numBytes = BasisInt.quot (BasisInt.+ (wordSize, 7), 8)
+      val fromWord8 = fromInt o BasisWord8.toInt
+      val fromWord8X = fromInt o BasisWord8.toIntX
       local
          fun mk fold bs =
              if numBytes <> BasisWord8Vector.length bs then
                 raise Subscript
              else
-                fold (fn (b, w) =>
-                         W.orb (W.<< (w, 0w8),
-                                W.fromLarge (BasisWord8.toLarge b)))
+                fold (fn (b, w) => W.orb (W.<< (w, 0w8), fromWord8 b))
                      (W.fromInt 0)
                      bs
       in
@@ -68,25 +68,21 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
           then BasisFixedInt.fromInt o toIntX
           else BasisFixedInt.fromLarge o toLargeIntX
       val fromWord = fromLarge o BasisWord.toLarge
-      val fromWord8 = fromInt o BasisWord8.toInt
-      val fromWord8X = fromInt o BasisWord8.toIntX
       val fromWordX = fromLarge o BasisWord.toLargeX
+      val toWord8 = BasisWord8.fromLarge o toLarge
+      val toWord8X = BasisWord8.fromLarge o toLargeX
       local
          fun mk idx w =
              BasisWord8Vector.tabulate
                 (numBytes,
                  fn i =>
-                    BasisWord8.fromLarge
-                       (W.toLarge
-                           (W.>> (w, BasisWord.*
-                                        (0w8, BasisWord.fromInt (idx i))))))
+                    (toWord8 o W.>>)
+                       (w, BasisWord.<< (BasisWord.fromInt (idx i), 0w3)))
       in
          val toBigBytes = mk (fn i => BasisInt.- (BasisInt.- (numBytes, 1), i))
          val toLittleBytes = mk (fn i => i)
       end
       val toWord = BasisWord.fromLarge o toLarge
-      val toWord8 = BasisWord8.fromInt o toIntX
-      val toWord8X = toWord8
       val toWordX = BasisWord.fromLarge o toLargeX
       val fromFixedInt =
           if intPrec (fn n => n = valOf BasisFixedInt.precision)
