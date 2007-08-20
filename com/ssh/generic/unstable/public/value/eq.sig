@@ -14,12 +14,15 @@
  * invariant.  If you truly need a structural equality relation for
  * mutable types that ignores identity, see {ORD}.
  *
+ * By default, comparison of data structures with cycles introduced
+ * through refs and arrays always terminates with a consistent result.
+ *
  * By default, the comparison of reals is done bitwise.  While this
- * matches the notion of equality provided for other types, this differs
- * from the notions of equality provided for reals by the Basis Library.
- * In particular, {~0.0} and {0.0} are considered unequal and {nan} is
- * considered equal to {nan}.  This treatment is important for a number of
- * non-numerical applications such as serialization.
+ * matches the default notion of equality provided for other types, this
+ * differs from the notions of equality provided for reals by the Basis
+ * Library.  In particular, {~0.0} and {0.0} are considered unequal and
+ * {nan} is considered equal to {nan}.  This treatment is important for a
+ * number of non-numerical applications such as serialization.
  *
  * By default, user defined datatypes and exceptions are given a
  * structural semantics of equality.  Specifically, two datatype or

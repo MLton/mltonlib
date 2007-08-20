@@ -18,10 +18,14 @@
  * This means that the ordering of mutable objects is not invariant with
  * respect to mutation.
  *
+ * By default, comparison of data structures with cycles introduced
+ * through references and arrays always terminates with a consistent
+ * result.
+ *
  * By default, the comparison of reals is done bitwise.  While this
- * matches the notion of ordering for other types, this differs from the
- * notions of ordering provided for reals by the Basis library.  In
- * particular, {~0.0} and {0.0} are considered unequal and {nan} is
+ * matches the default notion of ordering for other types, this differs
+ * from the notions of ordering provided for reals by the Basis library.
+ * In particular, {~0.0} and {0.0} are considered unequal and {nan} is
  * considered equal to {nan}.  This treatment is important for a number of
  * non-numerical applications such as serialization.
  *
