@@ -83,13 +83,9 @@ functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = struct
 
       val exns : (e * Exn.t Sq.t -> (e * Order.t) Option.t) Buffer.t = Buffer.new ()
       fun exn (e, lr) =
-          recur 0 (fn lp =>
-             fn i =>
-                if i = Buffer.length exns
-                then GenericsUtil.failExnSq lr
-                else case Buffer.sub (exns, i) (e, lr)
-                      of SOME r => r
-                       | NONE   => lp (i+1))
+          case Buffer.findSome (pass (e, lr)) exns
+           of NONE   => GenericsUtil.failExnSq lr
+            | SOME r => r
       fun regExn aO (_, e2a) =
           (Buffer.push exns)
              (fn (e, (l, r)) =>
