@@ -69,6 +69,15 @@ signature BUFFER = sig
     * 0} or {length b <= i}, then the {Subscript} exception is raised.
     *)
 
+   (** == Iterators == *)
+
+   val findSome : ('a -> 'b Option.t) -> 'a t -> 'b Option.t
+   (**
+    * Iterates over the buffer from the beginning applying the given
+    * function.  Returns the first {SOME b} value returned by the function
+    * or {NONE} if no such value is returned.
+    *)
+
    (** == Conversions == *)
 
    val toArray : 'a t -> 'a Array.t

@@ -87,4 +87,14 @@ functor MkBufferCommon (type 'a elem
       fun toVector ? = to  V.tabulate ?
       fun toString ? = to CV.tabulate ?
    end
+
+   fun findSome p b = let
+      fun lp i = if length b < i
+                 then NONE
+                 else case p (sub (b, i))
+                       of NONE   => lp (i+1)
+                        | result => result
+   in
+      lp 0
+   end
 end
