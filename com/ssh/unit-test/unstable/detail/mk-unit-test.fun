@@ -140,6 +140,11 @@ struct
 
    (* TEST REGISTRATION INTERFACE *)
 
+   fun history e =
+       case Exn.history e
+        of [] => str "No exception history available"
+         | hs => indent (map str ("Exception history:"::hs))
+
    fun test body =
        runTest
           (fn cfg =>
@@ -150,16 +155,11 @@ struct
                    fn e =>
                       ((println o indent)
                           [str (header cfg ^ " failed."),
-                           case e of
-                              Failure doc => doc <^> dot
-                            | _ =>
-                              indent [str "Unhandled exception",
-                                      str (Exn.message e) <^> dot],
-                           case Exn.history e of
-                              [] =>
-                              str "No exception history available."
-                            | hs => (indent o map str)
-                                       ("Exception history:"::hs)]
+                           case e
+                            of Failure doc => doc <^> dot
+                             | _ => indent [str "Unhandled exception",
+                                            str (Exn.message e) <^> dot],
+                           history e <^> dot]
                      ; false)))
 
    fun testEq t th = test (verifyEq t o th)
@@ -242,7 +242,8 @@ struct
                   handle e =>
                          G.return (SOME false, [],
                                    [named t "with" v,
-                                    named exn "raised" e]) ?))
+                                    named exn "raised" e <^> dot,
+                                    history e]) ?))
 
    fun that b = G.return (SOME b, [], [])
    val skip : law = G.return (NONE, [], [])
