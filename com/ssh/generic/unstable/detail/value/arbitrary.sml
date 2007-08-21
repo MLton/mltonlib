@@ -65,10 +65,10 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
          val gen = G.frequency [(Arg.numAlts aS, aGen),
                                 (Arg.numAlts bS, bGen)]
          val gen0 =
-             case Arg.hasBaseCase aS & Arg.hasBaseCase bS of
-                true & false => aGen
-              | false & true => bGen
-              | _            => gen
+             case Arg.hasBaseCase aS & Arg.hasBaseCase bS
+              of true  & false => aGen
+               | false & true  => bGen
+               | _             => gen
       in
          IN {gen = G.sized (fn 0 => gen0 | _ => gen),
              cog = fn INL a => G.variant 0w0 o cogS aS a

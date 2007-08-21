@@ -80,33 +80,33 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
          fun len n []      = n
            | len n (_::xs) = if m <= n then n else len (n+1) xs
       in
-         case len 0 xs of
-            0 => 0wx2A4C7A
-          | n => let
-               val p = {totWidth = Int.quot (totWidth, n),
-                        maxDepth = maxDepth - 1}
-               fun lp h _ []      = h
-                 | lp h n (x::xs) =
-                   if n = 0 then h else lp (h * 0w17 + getT xT x p) (n-1) xs
-            in
-               lp (Word.fromInt n) n xs
-            end
+         case len 0 xs
+          of 0 => 0wx2A4C7A
+           | n => let
+                val p = {totWidth = Int.quot (totWidth, n),
+                         maxDepth = maxDepth - 1}
+                fun lp h _ []      = h
+                  | lp h n (x::xs) =
+                    if n = 0 then h else lp (h * 0w17 + getT xT x p) (n-1) xs
+             in
+                lp (Word.fromInt n) n xs
+             end
       end
 
       fun hashSeq length sub hashElem s {totWidth, maxDepth} = let
          val n = length s
          val h = Word.fromInt n
       in
-         case Int.min (Int.quot (totWidth+3, 4), Int.quot (n+1, 2)) of
-            0          => h
-          | numSamples => let
-               val p = {totWidth = Int.quot (totWidth, numSamples),
-                        maxDepth = maxDepth - 1}
-               fun lp h 0 = h
-                 | lp h n = lp (h * 0w19 + hashElem (sub (s, n-1)) p) (n-1)
-            in
-               lp h (Int.max (numSamples, Int.min (10, n)))
-            end
+         case Int.min (Int.quot (totWidth+3, 4), Int.quot (n+1, 2))
+          of 0          => h
+           | numSamples => let
+                val p = {totWidth = Int.quot (totWidth, numSamples),
+                         maxDepth = maxDepth - 1}
+                fun lp h 0 = h
+                  | lp h n = lp (h * 0w19 + hashElem (sub (s, n-1)) p) (n-1)
+             in
+                lp h (Int.max (numSamples, Int.min (10, n)))
+             end
       end
 
       fun array  aT = hashSeq Array.length  Array.sub  (getT aT)

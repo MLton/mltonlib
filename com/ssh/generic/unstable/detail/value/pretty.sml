@@ -112,9 +112,9 @@ functor WithPretty (Arg : OPEN_CASES) : PRETTY_CASES = struct
           ref (txt o "#" <\ op ^ o General.exnName o #2)
       fun regExn t (_, prj) =
           Ref.modify (fn exn => fn (env, e) =>
-                                   case prj e of
-                                      NONE => exn (env, e)
-                                    | SOME x => t (env, x)) exn
+                         case prj e
+                          of NONE   => exn (env, e)
+                           | SOME x => t (env, x)) exn
       val exn = fn ? => !exn ?
 
       val txtAs = txt "as"

@@ -7,6 +7,7 @@
 functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
+   infix 0 &
    (* SML/NJ workaround --> *)
 
    structure Some = LayerRep
@@ -40,10 +41,10 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
          val b = getS bS
       in
          (* We are careful here to avoid diverging. *)
-         case (Arg.hasBaseCase aS, Arg.hasBaseCase bS) of
-            (true, false) => INL o a
-          | (false, true) => INR o b
-          | _             => fn () => INL (a ()) handle _ => INR (b ())
+         case Arg.hasBaseCase aS & Arg.hasBaseCase bS
+          of true  & false => INL o a
+           | false & true  => INR o b
+           | _             => fn () => INL (a ()) handle _ => INR (b ())
       end
       val unit = fn () => ()
       fun C0 _ = unit

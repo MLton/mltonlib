@@ -18,11 +18,11 @@ functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = struct
 
    fun seq {toSlice, getItem} aO (e, (l, r)) = let
       fun lp (e, l, r) =
-          case (getItem l, getItem r)
-           of (NONE       , NONE       ) => (e, EQUAL)
-            | (NONE       , SOME _     ) => (e, LESS)
-            | (SOME _     , NONE       ) => (e, GREATER)
-            | (SOME (x, l), SOME (y, r)) =>
+          case getItem l & getItem r
+           of NONE        & NONE        => (e, EQUAL)
+            | NONE        & SOME _      => (e, LESS)
+            | SOME _      & NONE        => (e, GREATER)
+            | SOME (x, l) & SOME (y, r) =>
               case aO (e, (x, y))
                of (e, EQUAL) => lp (e, l, r)
                 | result     => result
@@ -67,11 +67,11 @@ functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = struct
       val record = id
 
       fun op +` (aO, bO) (e, (l, r)) =
-          case (l, r)
-           of (INL l, INL r) => aO (e, (l, r))
-            | (INL _, INR _) => (e, LESS)
-            | (INR _, INL _) => (e, GREATER)
-            | (INR l, INR r) => bO (e, (l, r))
+          case l & r
+           of INL l & INL r => aO (e, (l, r))
+            | INL _ & INR _ => (e, LESS)
+            | INR _ & INL _ => (e, GREATER)
+            | INR l & INR r => bO (e, (l, r))
       val unit  = lift (fn ((), ()) => EQUAL)
       fun C0 _  = unit
       fun C1 _  = id
@@ -87,17 +87,17 @@ functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = struct
              fn i =>
                 if i = Buffer.length exns
                 then GenericsUtil.failExnSq lr
-                else case Buffer.sub (exns, i) (e, lr) of
-                        SOME r => r
-                      | NONE   => lp (i+1))
+                else case Buffer.sub (exns, i) (e, lr)
+                      of SOME r => r
+                       | NONE   => lp (i+1))
       fun regExn aO (_, e2a) =
           (Buffer.push exns)
              (fn (e, (l, r)) =>
-                 case e2a l & e2a r of
-                    SOME l & SOME r => SOME (aO (e, (l, r)))
-                  | SOME _ & NONE   => SOME (e, GREATER)
-                  | NONE   & SOME _ => SOME (e, LESS)
-                  | NONE   & NONE   => NONE)
+                 case e2a l & e2a r
+                  of SOME l & SOME r => SOME (aO (e, (l, r)))
+                   | SOME _ & NONE   => SOME (e, GREATER)
+                   | NONE   & SOME _ => SOME (e, LESS)
+                   | NONE   & NONE   => NONE)
 
       fun array ? = cyclic (seq {toSlice = ArraySlice.full,
                                  getItem = ArraySlice.getItem} ?)
