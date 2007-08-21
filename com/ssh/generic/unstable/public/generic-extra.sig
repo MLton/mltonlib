@@ -26,17 +26,19 @@ signature GENERIC_EXTRA = sig
    val R' : String.t -> 'a Rep.t -> ('a, Record.t) Rep.p
 
    val regExn0 : Exn.t -> (Exn.t -> Unit.t Option.t) -> String.t Effect.t
-   val regExn1 : ('a -> Exn.t) -> (Exn.t -> 'a Option.t) -> String.t
-                 -> 'a Rep.t Effect.t
+   val regExn1 :
+       ('a -> Exn.t) -> (Exn.t -> 'a Option.t) -> String.t -> 'a Rep.t Effect.t
+
+   val regExn0' : Exn.t -> (Exn.t -> Unit.t) -> String.t Effect.t
+   val regExn1' :
+       ('a -> Exn.t) -> (Exn.t -> 'a) -> String.t -> 'a Rep.t Effect.t
 
    (** == Tuples == *)
 
-   val tuple2 : 'a Rep.t * 'b Rep.t
-                -> ('a * 'b) Rep.t
-   val tuple3 : 'a Rep.t * 'b Rep.t * 'c Rep.t
-                -> ('a * 'b * 'c) Rep.t
-   val tuple4 : 'a Rep.t * 'b Rep.t * 'c Rep.t * 'd Rep.t
-                -> ('a * 'b * 'c * 'd) Rep.t
+   val tuple2 : 'a Rep.t * 'b Rep.t -> ('a * 'b) Rep.t
+   val tuple3 : 'a Rep.t * 'b Rep.t * 'c Rep.t -> ('a * 'b * 'c) Rep.t
+   val tuple4 :
+       'a Rep.t * 'b Rep.t * 'c Rep.t * 'd Rep.t -> ('a * 'b * 'c * 'd) Rep.t
 
    (** == Integer Types == *)
 
@@ -48,16 +50,16 @@ signature GENERIC_EXTRA = sig
    (** == Some Standard Datatypes == *)
 
    val option : 'a Rep.t -> 'a Option.t Rep.t
-   val order : order Rep.t
+   val order : Order.t Rep.t
 
    (** == Sums and Products == *)
 
-   val &` : 'a Rep.t * 'b Rep.t -> ('a,'b) Product.t Rep.t
-   val |` : 'a Rep.t * 'b Rep.t -> ('a,'b) Sum.t Rep.t
+   val &` : 'a Rep.t * 'b Rep.t -> ('a, 'b) Product.t Rep.t
+   val |` : 'a Rep.t * 'b Rep.t -> ('a, 'b) Sum.t Rep.t
 
    (** == Abbreviations for Common Types == *)
 
-   val sq : 'a Rep.t -> ('a * 'a) Rep.t
-   val uop : 'a Rep.t -> ('a -> 'a) Rep.t
-   val bop : 'a Rep.t -> ('a * 'a -> 'a) Rep.t
+   val sq : 'a Rep.t -> 'a Sq.t Rep.t
+   val unOp : 'a Rep.t -> 'a UnOp.t Rep.t
+   val binOp : 'a Rep.t -> 'a BinOp.t Rep.t
 end

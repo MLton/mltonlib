@@ -69,7 +69,7 @@ in
          fun (f === g) x = that (f x = g x)
          (* An approximation of extensional equality for functions. *)
       in
-         chk (all (uop int &` uop int &` uop int)
+         chk (all (case unOp int of t => t &` t &` t)
                   (fn f & g & h =>
                       all int
                           (f o (g o h) === (f o g) o h)))

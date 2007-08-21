@@ -23,6 +23,13 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
    fun regExn1 e p n t = regExn (C1' n t) (e, p)
 
    local
+      fun mk f e p = f e (fn e => SOME (p e) handle Match => NONE)
+   in
+      fun regExn0' ? = mk regExn0 ?
+      fun regExn1' ? = mk regExn1 ?
+   end
+
+   local
       fun mk t = iso (tuple t)
    in
       fun tuple2 (a, b) = mk (T a *` T b) Product.isoTuple2
@@ -77,8 +84,8 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
    end
 
    fun sq a = tuple2 (Sq.mk a)
-   fun uop a = a --> a
-   fun bop a = sq a --> a
+   fun unOp a = a --> a
+   fun binOp a = sq a --> a
 
    val () = let
       open IEEEReal OS OS.IO OS.Path Time
