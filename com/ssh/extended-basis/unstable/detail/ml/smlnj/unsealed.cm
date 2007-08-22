@@ -43,6 +43,7 @@ is
    ../../../detail/generic/fix.sml
    ../../../detail/generic/iso.sml
    ../../../detail/generic/tie.sml
+   ../../../detail/io/ios-monad.sml
    ../../../detail/io/reader.sml
    ../../../detail/io/text-io.sml
    ../../../detail/io/writer.sml

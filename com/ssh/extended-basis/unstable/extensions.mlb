@@ -248,6 +248,10 @@ in
          public/io/writer.sig
          detail/io/writer.sml
 
+         (* IOS Monad *)
+         public/io/ios-monad.sig
+         detail/io/ios-monad.sml
+
          (* Exit *)
          public/control/exit.sig
          detail/control/exit.sml

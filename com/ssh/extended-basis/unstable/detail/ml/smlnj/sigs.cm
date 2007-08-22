@@ -57,6 +57,7 @@ is
    ../../../public/generic/fix.sig
    ../../../public/generic/iso.sig
    ../../../public/generic/tie.sig
+   ../../../public/io/ios-monad.sig
    ../../../public/io/reader.sig
    ../../../public/io/text-io.sig
    ../../../public/io/writer.sig
