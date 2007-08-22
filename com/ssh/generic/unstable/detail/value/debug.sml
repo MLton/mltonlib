@@ -51,9 +51,12 @@ functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = struct
 
       val op --> = ignore
 
-      val exnCons : String.t List.t Ref.t = ref []
-      fun regExn cs _ = exnCons := addN "exception constructor" (!exnCons, cs)
+      val exns : String.t List.t Ref.t = ref []
       val exn = ()
+      fun regExn c =
+          exns := add1 "exception constructor" (Con.toString c, !exns)
+      fun regExn0 c _ = regExn c
+      fun regExn1 c _ _ = regExn c
 
       val list   = ignore
       val vector = ignore

@@ -45,7 +45,8 @@ struct
    fun Y ? = Arg.Y (Tie.id ()) ?
    fun op --> ? = Arg.--> ignore ?
    val exn = Arg.exn ()
-   fun regExn ? = Arg.regExn (const ignore) ?
+   fun regExn0 ? = Arg.regExn0 (const ignore) ?
+   fun regExn1 ? = Arg.regExn1 (const (const ignore)) ?
    fun array ? = Arg.array ignore ?
    fun refc ? = Arg.refc ignore ?
    fun vector ? = Arg.vector ignore ?

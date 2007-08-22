@@ -77,8 +77,11 @@ struct
    fun c1 outer this cx2y c a =
        outer (fn c => fn x => Inner.mkS (this c a, cx2y c (Inner.getT x))) c a
    fun y outer x y = outer (Inner.mkY (x, y))
-   fun re outer this ex a =
-       outer (fn x => fn e => (this a e : Unit.t ; ex (Inner.getS x) e : Unit.t)) a
+   fun re0 outer this ex =
+       outer (fn c => fn e => (this c e : Unit.t ; ex c e : Unit.t))
+   fun re1 outer this ex c a =
+       outer (fn c => fn x => fn e =>
+                 (this c a e : Unit.t ; ex c (Inner.getT x) e : Unit.t)) c a
 
    fun iso ? = m Inner.mkT Inner.getT Outer.iso Arg.iso ?
    fun isoProduct ? = m Inner.mkP Inner.getP Outer.isoProduct Arg.isoProduct ?
@@ -96,7 +99,8 @@ struct
    fun Y ? = y Outer.Y Arg.Y ?
    fun op --> ? = op2 Inner.mkT Inner.getT Inner.getT Outer.--> Arg.--> ?
    fun exn ? = op0t Outer.exn Arg.exn ?
-   fun regExn ? = re Outer.regExn Arg.regExn ?
+   fun regExn0 ? = re0 Outer.regExn0 Arg.regExn0 ?
+   fun regExn1 ? = re1 Outer.regExn1 Arg.regExn1 ?
    fun array ? = op1t Outer.array Arg.array ?
    fun refc ? = op1t Outer.refc Arg.refc ?
    fun vector ? = op1t Outer.vector Arg.vector ?
@@ -140,4 +144,4 @@ functor LayerCases (Arg : LAYER_CASES_DOM) :>
       fun record a = Arg.record (getP a)
       fun C1 c a = Arg.C1 c (getT a)
       fun data a = Arg.data (getS a)
-      fun regExn a e = Arg.regExn (getS a) e)
+      fun regExn1 c = Arg.regExn1 c o getT)

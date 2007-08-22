@@ -30,8 +30,8 @@
  * non-numerical applications such as serialization.
  *
  * By default, comparison of exceptions only works when at least one of
- * the exception constructors involved in a comparison has been registered
- * with {regExn}.
+ * the exception constructors involved in a comparison has been
+ * registered.
  *
  * Comparison of functions is impossible and fails at run-time.
  *)

@@ -15,7 +15,7 @@ structure HashMap :> sig
 end = struct
    open HashTable
    type ('a, 'b) t = ('a, 'b) hash_table
-   fun new {eq, hash} = mkTable (hash, eq) (100, Subscript)
+   fun new {eq, hash} = mkTable (hash, eq) (127, Subscript)
 end
 
 (************************************************************************)
@@ -46,85 +46,91 @@ end
 
 (************************************************************************)
 
+functor MkIOSMonad (State : T) : sig
+   type 'a t
+   include MONAD where type 'a monad = 'a t
+   val Y : 'a t Tie.t
+end = struct
+   structure Monad =
+      MkMonad (type 'a monad = ('a, State.t) IOSMonad.t open IOSMonad)
+   open Monad IOSMonad
+   type 'a t = 'a monad
+   val Y = Tie.function
+end
+
+(************************************************************************)
+
 functor MkIstream (State : T) :> sig
    type 'a t
+   include MONAD where type 'a monad = 'a t
    val Y : 'a t Tie.t
-   val run : State.t -> 'a t -> (Char.t, 'b) Reader.t -> ('a, 'b) Reader.t
+   val run : State.t -> 'a t -> (Char.t, 's) IOSMonad.t -> ('a, 's) IOSMonad.t
    val read : Char.t t
    structure State : T where type t = State.t
    val getState : State.t t
    val setState : State.t -> Unit.t t
-   include MONAD where type 'a monad = 'a t
 end = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
-   open Reader
-   datatype t = T of {st : Univ.t, rd : (Char.t, Univ.t) Reader.t, us : State.t}
-   type 'a t = ('a, t) Reader.t
-   val Y = Tie.function
-   fun run us f cr = let
+   datatype t =
+      T of {st : Univ.t, rd : (Char.t, Univ.t) IOSMonad.t, us : State.t}
+   structure Monad = MkIOSMonad (type t = t)
+   open IOSMonad Monad
+   fun run us f cM = let
       val (to, from) = Univ.Iso.new ()
    in
-      mapState (fn s => T {st = to s, rd = mapState (from, to) cr, us = us},
-                fn T r => from (#st r))
-               f
+      mapState (fn s => T {st = to s, rd = mapState (from, to) cM, us = us},
+                fn T r => from (#st r)) f
    end
    fun read (T {st, rd, us}) =
-       Option.map (Pair.map (id, fn st => T {st=st, rd=rd, us=us})) (rd st)
+       Pair.map (id, fn st => T {st=st, rd=rd, us=us}) (rd st)
    structure State = State
-   fun getState (s as T {us, ...}) = SOME (us, s)
-   fun setState us (T {st, rd, ...}) = SOME ((), T {st=st, rd=rd, us=us})
-   structure Monad =
-      MkMonad (type 'a monad = 'a t
-               fun return a s = SOME (a, s)
-               fun op >>= (rA, a2rB) s = case rA s
-                                          of NONE        => NONE
-                                           | SOME (a, s) => a2rB a s)
-   open Monad
+   fun getState (s as T {us, ...}) = (us, s)
+   fun setState us (T {st, rd, ...}) = ((), T {st=st, rd=rd, us=us})
 end
 
 (************************************************************************)
 
 functor MkOstream (State : T) :> sig
    type 'a t
+   include MONAD where type 'a monad = 'a t
    val Y : 'a t Tie.t
-   val run : State.t -> ('a -> Unit.t t) -> (Char.t, 'b) Writer.t -> ('a, 'b) Writer.t
+   val run : State.t -> ('a -> Unit.t t) -> (Char.t -> (Unit.t, 's) IOSMonad.t)
+                                         -> ('a     -> (Unit.t, 's) IOSMonad.t)
    val write : Char.t -> Unit.t t
    structure State : T where type t = State.t
    val getState : State.t t
    val setState : State.t -> Unit.t t
-   include MONAD where type 'a monad = 'a t
 end = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
-   open Writer
-   datatype t = T of {st : Univ.t, wr : (Char.t, Univ.t) Writer.t, us : State.t}
-   type 'a t = t -> 'a * t
-   val Y = Tie.function
-   fun run us f cw (a, s) = let
+   datatype t =
+      T of {st : Univ.t,
+            wr : Char.t -> (Unit.t, Univ.t) IOSMonad.t,
+            us : State.t}
+   structure Monad = MkIOSMonad (type t = t)
+   open IOSMonad Monad
+   fun run us f c2uM = let
       val (to, from) = Univ.Iso.new ()
    in
-      case f a (T {st = to s, wr = mapState (from, to) cw, us = us})
-       of ((), T r) => from (#st r)
+      mapState (fn s => T {st = to s, wr = mapState (from, to) o c2uM, us = us},
+                fn T r => from (#st r)) o f
    end
-   fun write c (T r) = ((), T {st = #wr r (c, #st r), wr = #wr r, us = #us r})
+   fun write c (T r) =
+       Pair.map (id, fn st => T {st = st, wr = #wr r, us = #us r})
+                (#wr r c (#st r))
    structure State = State
    fun getState (s as T {us, ...}) = (us, s)
    fun setState us (T {st, wr, ...}) = ((), T {st=st, wr=wr, us=us})
-   structure Monad =
-      MkMonad (type 'a monad = 'a t
-               fun return x s = (x, s)
-               fun op >>= (mA, a2mB) s = uncurry a2mB (mA s))
-   open Monad
 end
 
 (************************************************************************)
 
 functor WordWithOps (Arg : WORD) = struct
    open Arg
-   val ops = {wordSize = wordSize, orb = op orb, << = op <<, >> = op >>,
+   val ops = {wordSize = wordSize, orb = op orb, << = op <<, ~>> = op ~>>,
               isoWord8 = isoWord8}
 end
 
@@ -184,30 +190,6 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    val swap = Iso.swap
    val word8Ichar = (Byte.byteToChar, Byte.charToByte)
 
-   fun bits {wordSize=n, orb, <<, >>, isoWord8} (toBits, fromBits) = let
-      val (toChar, fromChar) = word8Ichar <--> isoWord8
-      fun alts ` op + =
-          if      n <= 8  then `0
-          else if n <= 16 then `0 + `8
-          else if n <= 32 then `0 + `8 + `16 + `24
-          else if n <= 64 then `0 + `8 + `16 + `24 + `32 + `40 + `48 + `56
-          else fail "Too many bits"
-   in
-      {rd = let
-          open I
-          fun ` n = map (fn c => fromChar c << Word.fromInt n) read
-          fun l + r = map op orb (l >>* r)
-       in
-          map fromBits (alts ` op +)
-       end,
-       wr = fn v => let
-                  val bits = toBits v
-               in
-                  alts (fn n => O.write (toChar (bits >> Word.fromInt n))) O.>>
-               end,
-       sz = SOME ((n + 7) div 8)}
-   end
-
    fun iso' get bT (a2b, b2a) = let
       val {rd, wr, sz} = get bT
    in
@@ -215,31 +197,134 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    end
 
    val char = {rd = I.read, wr = O.write, sz = SOME 1}
-   val int = bits Word.ops (swap Word.isoIntX)
-   val bool = iso' id char (swap Char.isoInt <--> Bool.isoInt)
+   val word8 = iso' id char word8Ichar
+   val intAs8  = iso' id char (swap Char.isoInt)
+
+   (* Pickles a positive int using a variable length encoding. *)
+   val size =
+       {rd = let
+           open I
+           fun lp (v, m) =
+               #rd word8 >>= (fn b =>
+               if b < 0wx80
+               then return (v + Word8.toInt b * m)
+               else lp (v + Word8.toInt (b - 0wx80) * m, m * 0x80))
+        in
+           lp (0, 1)
+        end,
+        wr = let
+           open O
+           fun lp i =
+               if i < 0x80
+               then #wr word8 (Word8.fromInt i)
+               else #wr word8 (Word8.andb (0wx7F, Word8.fromInt i)) >>= (fn () =>
+                    lp (Int.quot (i, 0x80)))
+        in
+           fn i => if i < 0 then fail "Negative size" else return i >>= lp
+        end,
+        sz = SOME 2}
+
+   (* Encodes either 8, 16, 32, or 64 bits of data and an optional size. *)
+   fun bits sized {wordSize=n, orb, <<, ~>>, isoWord8 = (toWord8, fromWord8)}
+            (toBits, fromBits) = let
+      fun alts ` op o =
+          if      n <= 8  then `0w0
+          else if n <= 16 then `0w0o`0w8
+          else if n <= 32 then `0w0o`0w8o`0w16o`0w24
+          else if n <= 64 then `0w0o`0w8o`0w16o`0w24o`0w32o`0w40o`0w48o`0w56
+          else fail "Too many bits"
+   in
+      {rd = let
+          open I
+          fun ` n = map (fn b => fromWord8 b << n) (#rd word8)
+          fun l o r = map op orb (l >>* r)
+          val rdBits = map fromBits (alts ` op o)
+       in
+          if sized
+          then #rd size >>= (fn m =>
+               if m <> n
+               then fail "Wrong number of bits in pickle"
+               else rdBits)
+          else rdBits
+       end,
+       wr = fn v => let
+               open O
+               val bits = toBits v
+               val wrBits = alts (fn n => #wr word8 (toWord8 (bits ~>> n))) op >>
+            in
+               if sized then #wr size n >> wrBits else wrBits
+            end,
+       sz = SOME ((n + 7) div 8 + Bool.toInt sized)}
+   end
+
+   val intAs16 = let
+      open Word
+   in
+      bits false
+           {wordSize = 16, orb = op orb, << = op <<, ~>> = op ~>>,
+            isoWord8 = isoWord8}
+           (swap Word.isoInt)
+   end
+
+   (* Encodes fixed size int as a size followed by little endian bytes. *)
+   fun mkFixedInt (fromLargeWordX, toLargeWord) =
+       {rd = let
+           open I
+           fun lp (1, s, w) =
+               #rd word8 >>= (fn b =>
+               return (fromLargeWordX (LargeWord.<< (LargeWord.fromWord8X b, s)
+                                       + w)))
+             | lp (n, s, w) =
+               #rd word8 >>= (fn b =>
+               lp (n-1, s+0w8, LargeWord.<< (LargeWord.fromWord8 b, s) + w))
+        in
+           #rd size >>= (fn 0 => return (fromLargeWordX 0w0)
+                          | n => lp (n, 0w0, 0w0))
+        end,
+        wr = let
+           open O
+           fun lp (n, w, wr) = let
+              val n = n+1
+              val b = LargeWord.toWord8 w
+              val wr = wr >> #wr word8 b
+           in
+              if LargeWord.fromWord8X b = w
+              then #wr size n >> wr
+              else lp (n, LargeWord.~>> (w, 0w8), wr)
+           end
+        in
+           fn i => case toLargeWord i
+                    of 0w0 => #wr size 0
+                     | w   => lp (0, w, return ())
+        end,
+        sz = SOME 4}
+
+   val () = if LargeWord.wordSize < valOf FixedInt.precision
+            then fail "LargeWord can't hold a FixedInt"
+            else ()
+   val fixedInt = mkFixedInt LargeWord.isoFixedIntX
 
    fun cyclic {readProxy, readBody, writeWhole, self} = let
       val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq self, hash = Arg.hash self}
       open I
    in
-      {rd = #rd bool >>& getState >>= (fn def & mp =>
-            if def
+      {rd = #rd size >>& getState >>= (fn i & mp =>
+            if 0 = i
             then readProxy >>= (fn proxy =>
                  (HashMap.insert mp (HashMap.numItems mp, toDyn proxy)
                 ; readBody proxy >> return proxy))
-            else #rd int >>= (fn i =>
-                 case HashMap.find mp i
+            else case HashMap.find mp (i-1)
                   of NONE   => fail "Corrupted pickle"
-                   | SOME d => return (fromDyn d))),
+                   | SOME d => return (fromDyn d)),
        wr = fn v => let
                   val d = toDyn v
                   open O
                in
                   getState >>= (fn mp =>
                   case HashMap.find mp d
-                   of SOME i => #wr bool false >> #wr int i
+                   of SOME i => #wr size (i+1)
                     | NONE   => (HashMap.insert mp (d, HashMap.numItems mp)
-                               ; #wr bool true >> writeWhole v))
+                               ; #wr size 0 >> writeWhole v))
                end,
        sz = NONE}
    end
@@ -248,23 +333,22 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq t, hash = Arg.hash t}
       open I
    in
-      {rd = #rd bool >>& getState >>= (fn def & mp =>
-            if def
+      {rd = #rd size >>& getState >>= (fn i & mp =>
+            if 0 = i
             then rdE >>= (fn v =>
                  (HashMap.insert mp (HashMap.numItems mp, toDyn v)
                 ; return v))
-            else #rd int >>= (fn i =>
-                 case HashMap.find mp i
+            else case HashMap.find mp (i-1)
                   of NONE   => fail "Corrupted pickle"
-                   | SOME d => return (fromDyn d))),
+                   | SOME d => return (fromDyn d)),
        wr = fn v => let
                   val d = toDyn v
                   open O
                in
                   getState >>= (fn mp =>
                   case HashMap.find mp d
-                   of SOME i => #wr bool false >> #wr int i
-                    | NONE   => #wr bool true >> wrE v >>= (fn () =>
+                   of SOME i => #wr size (i+1)
+                    | NONE   => #wr size 0 >> wrE v >>= (fn () =>
                                 (HashMap.insert mp (d, HashMap.numItems mp)
                                ; return ())))
                end,
@@ -282,13 +366,10 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    fun seq {length, toSlice, getItem, fromList} {rd = rdE, wr = wrE, sz = _} =
        {rd = let
            open I
+           fun lp (0, es) = return (fromList (rev es))
+             | lp (n, es) = rdE >>= (fn e => lp (n-1, e::es))
         in
-           #rd int >>= (fn n => let
-              fun lp (0, es) = return (fromList (rev es))
-                | lp (n, es) = rdE >>= (fn e => lp (n-1, e::es))
-           in
-              if n < 0 then fail "Corrupted pickle" else lp (n, [])
-           end)
+           #rd size >>= lp /> []
         end,
         wr = let
            open O
@@ -297,13 +378,88 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                 of NONE         => return ()
                  | SOME (e, sl) => wrE e >>= (fn () => lp sl)
         in
-           fn seq => #wr int (length seq) >>= (fn () => lp (toSlice seq))
+           fn seq => #wr size (length seq) >>= (fn () =>
+                     lp (toSlice seq))
         end,
         sz = NONE : OptInt.t}
 
-   val string' = seq {length = String.length, toSlice = Substring.full,
-                      getItem = Substring.getc, fromList = String.fromList}
-                     char
+   val string =
+       share (Arg.string ())
+             (seq {length = String.length, toSlice = Substring.full,
+                   getItem = Substring.getc, fromList = String.fromList}
+                  char)
+
+   val c2b = Byte.charToByte
+   val b2c = Byte.byteToChar
+   fun h2n c =
+       c2b c - (if      Char.inRange (#"0", #"9") c then c2b #"0"
+                else if Char.inRange (#"a", #"f") c then c2b #"a" - 0w10
+                else if Char.inRange (#"A", #"F") c then c2b #"A" - 0w10
+                else fail "Bug in fmt")
+   fun n2h n = b2c (n + (if n < 0w10 then c2b #"0" else c2b #"a" - 0w10))
+   local
+      fun makePos8 i = let
+         val n = Word.fromInt (IntInf.log2 (~i))
+      in
+         i + IntInf.<< (1, Word.andb (Word.~ 0w8, n + 0w8))
+      end
+   in
+      fun i2h i =
+          if i < 0
+          then let
+                val s = IntInf.fmt StringCvt.HEX (makePos8 i)
+             in
+                if 0w8 <= h2n (String.sub (s, 0)) then s else "ff"^s
+             end
+          else let
+                val s = IntInf.fmt StringCvt.HEX i
+                val (t, f) =
+                    if Int.isOdd (String.size s)
+                    then ("0", "0")
+                    else ("00", "")
+             in
+                (if 0w8 <= h2n (String.sub (s, 0)) then t else f) ^ s
+             end
+   end
+   fun h2i h = let
+      val i = valOf (StringCvt.scanString (IntInf.scan StringCvt.HEX) h)
+   in
+      if 0w8 <= h2n (String.sub (h, 0))
+      then i - IntInf.<< (1, Word.fromInt (IntInf.log2 i + 1))
+      else i
+   end
+
+   val intInf =
+       {wr = let
+           open O
+           fun lp (_, 0) = return ()
+             | lp (s, i) = case i - 1 of i => pl (s, i, h2n (String.sub (s, i)))
+           and pl (_, 0, b) = #wr word8 b
+             | pl (s, i, b) = let
+                  val i = i - 1
+               in
+                  #wr word8 (b + Word8.<< (h2n (String.sub (s, i)), 0w4)) >>=
+                   (fn () => lp (s, i))
+               end
+        in
+           fn 0 => #wr size 0
+            | i => let
+                 val s = i2h i
+                 val n = String.length s
+              in
+                 #wr size (Int.quot (n, 2)) >>= (fn () => lp (s, n))
+              end
+        end,
+        rd = let
+           open I
+           fun lp (cs, 0) = return (h2i (implode cs))
+             | lp (cs, n) =
+               #rd word8 >>= (fn b =>
+               lp (n2h (Word8.>> (b, 0w4))::n2h (Word8.andb (b, 0wxF))::cs, n-1))
+        in
+           #rd size >>= (fn 0 => return 0 | n => lp ([], n))
+        end,
+        sz = NONE : OptInt.t}
 
    structure Pickle = LayerRep
       (structure Outer = Arg.Rep
@@ -313,10 +469,19 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
 
    open Pickle.This
 
-   fun pickle t =
+   fun pickler t =
        O.run (HashMap.new {eq = Dyn.eq, hash = Dyn.hash}) (#wr (getT t))
-   fun unpickle t =
+   fun unpickler t =
        I.run (HashMap.new {eq = op =, hash = Word.fromInt}) (#rd (getT t))
+
+   fun pickle t = let
+      val pA = pickler t (IOSMonad.fromPutter (uncurry Buffer.push))
+   in
+      fn a => Buffer.toString o Pair.snd o pA a |< Buffer.new ()
+   end
+   fun unpickle t =
+       Pair.fst o unpickler t (IOSMonad.fromReader Substring.getc) o
+       Substring.full
 
    structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Pickle
@@ -379,19 +544,19 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       end
       fun data s = let
          val n = Arg.numAlts s
-         val (rdTag, wrTag, szTag) =
-             if n <= Char.maxOrd + 1
-             then (I.map ord I.read, O.write o chr, SOME 1)
-             else (#rd int, #wr int, #sz int)
+         val tag =
+             if      n < 256   then intAs8
+             else if n < 65536 then intAs16
+             else fail "Too many tags"
          val {rd, wr, sz} = getS s 0
          open I
       in
-         {rd = rdTag >>= (fn i =>
+         {rd = #rd tag >>= (fn i =>
                if n <= i
                then fail "Corrupted pickle"
                else rd i),
-          wr = wr wrTag,
-          sz = let open OptInt in sz div SOME n + szTag end}
+          wr = wr (#wr tag),
+          sz = let open OptInt in sz div SOME n + #sz tag end}
       end
 
       fun Y ? = let open Tie in iso (I.Y *` function *` id NONE) end
@@ -412,7 +577,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       fun array t = let
          val {rd, wr, sz = _} = getT t
       in
-         mutable {readProxy = I.map (Array.array /> Arg.some t) (#rd int),
+         mutable {readProxy = I.map (Array.array /> Arg.some t) (#rd size),
                   readBody = fn a => let
                      open I
                      fun lp i = if i = Array.length a
@@ -429,7 +594,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                                 then return ()
                                 else wr (Array.sub (a, i)) >>= (fn () => lp (i+1))
                   in
-                     #wr int (Array.length a) >>= (fn () => lp 0)
+                     #wr size (Array.length a) >>= (fn () => lp 0)
                   end,
                   self = Arg.array ignore t}
       end
@@ -445,73 +610,53 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                       getItem = VectorSlice.getItem,
                       fromList = Vector.fromList} (getT t))
 
-      val exn : Exn.t t = fake "Pickle.exn unimplemented"
-      fun regExn _ _ = ()
-
-      val fixedInt = bits LargeWord.ops (swap LargeWord.isoFixedIntX)
-      val largeInt = let
-         fun to i = let
-            val buffer = Buffer.new ()
-            fun hexToInt c =
-                ord c - (if      Char.inRange (#"0", #"9") c then ord #"0"
-                         else if Char.inRange (#"a", #"f") c then ord #"a" - 10
-                         else if Char.inRange (#"A", #"F") c then ord #"A" - 10
-                         else fail "Bug in LargeInt.fmt")
-            fun pack s =
-                if Int.isOdd (Substring.size s) then pl (0, s) else lp s
-            and lp s =
-                case Substring.getc s
-                 of NONE        => ()
-                  | SOME (c, s) => pl (hexToInt c, s)
-            and pl (i, s) =
-                case Substring.getc s
-                 of NONE        => fail "Bug"
-                  | SOME (c, s) =>
-                    (Buffer.push buffer (chr (hexToInt c * 16 + i)) ; lp s)
-         in
-            Buffer.push buffer (if i < 0 then #"\001" else #"\000")
-          ; pack (Substring.full (LargeInt.fmt StringCvt.HEX (abs i)))
-          ; Buffer.toString buffer
-         end
-         fun from s = let
-            val buffer = Buffer.new ()
-            fun intToHex i = chr (i + (if i<10 then ord #"0" else ord #"A"-10))
-            fun lp s =
-                case Substring.getc s
-                 of NONE        => ()
-                  | SOME (c, s) =>
-                    (Buffer.push buffer (intToHex (Int.rem (ord c, 16)))
-                   ; Buffer.push buffer (intToHex (Int.quot (ord c, 16)))
-                   ; lp s)
-         in
-            if size s < 2 then fail "Corrupted pickle" else ()
-          ; case String.sub (s, 0)
-             of #"\000" => ()
-              | #"\001" => Buffer.push buffer #"~"
-              | _       => fail "Corrupted pickle"
-          ; lp (Substring.triml 1 (Substring.full s))
-          ; case LargeInt.scan StringCvt.HEX Substring.getc
-                               (Substring.full (Buffer.toString buffer))
-             of NONE        => fail "Corrupted pickle"
-              | SOME (i, _) => i
-         end
+      val exns : {rd : String.t -> Exn.t I.t Option.t,
+                  wr : Exn.t -> Unit.t O.t Option.t} Buffer.t =
+          Buffer.new ()
+      val exn : Exn.t t =
+          {rd = let
+              open I
+           in
+              #rd string >>= (fn s =>
+              case Buffer.findSome (pass s o #rd) exns
+               of NONE   => fail ("Unregistered exception constructor: " ^ s)
+                | SOME r => r)
+           end,
+           wr = fn e => case Buffer.findSome (pass e o #wr) exns
+                         of NONE   => GenericsUtil.failExn e
+                          | SOME r => r,
+           sz = NONE}
+      fun regExn c {rd, wr, sz=_} (a2e, e2a) = let
+         val c = Generics.Con.toString c
+         val rd = I.map a2e rd
       in
-         share (Arg.largeInt ()) (iso' id string' (to, from))
+         (Buffer.push exns)
+            {rd = fn c' => if c' = c then SOME rd else NONE,
+             wr = Option.map (fn a => O.>> (#wr string c, wr a)) o e2a}
       end
+      fun regExn0 c (e, p) = regExn c unit (const e, p)
+      fun regExn1 c t = regExn c (getT t)
+
+      val fixedInt = fixedInt
+      val largeInt = if isSome LargeInt.precision
+                     then iso' id fixedInt (swap FixedInt.isoLarge)
+                     else intInf
 
       val char = char
-      val bool = bool
-      val int = int
-      val real = bits RealWord.ops CastReal.isoBits
-      val string = share (Arg.string ()) string'
-      val word = bits Word.ops Iso.id
+      val bool = iso' id char (swap Char.isoInt <--> Bool.isoInt)
+      val int = if isSome Int.precision
+                then iso' id fixedInt Int.isoFixedInt
+                else iso' id largeInt Int.isoLargeInt
+      val real = bits true RealWord.ops CastReal.isoBits
+      val string = string
+      val word = mkFixedInt (swap Word.isoLargeX)
 
-      val largeReal = bits LargeRealWord.ops CastLargeReal.isoBits
-      val largeWord = bits LargeWord.ops Iso.id
+      val largeReal = bits true LargeRealWord.ops CastLargeReal.isoBits
+      val largeWord = mkFixedInt Iso.id
 
-      val word8  = iso' id char word8Ichar
-      val word32 = bits Word32.ops Iso.id
-      val word64 = bits Word64.ops Iso.id)
+      val word8  = word8
+      val word32 = bits false Word32.ops Iso.id
+      val word64 = bits false Word64.ops Iso.id)
 
    open Layered
 end

@@ -64,6 +64,8 @@ functor WithEq (Arg : OPEN_CASES) : EQ_CASES = struct
                              of NONE   & NONE   => exnHandler (l, r)
                               | SOME l & SOME r => t (l, r)
                               | _               => false) exnHandler
+      fun regExn0 _ = regExn unit
+      fun regExn1 _ = regExn
       fun exn ? = !exnHandler ?
 
       val list = ListPair.allEq

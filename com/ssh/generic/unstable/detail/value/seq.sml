@@ -101,6 +101,8 @@ functor WithSeq (Arg : OPEN_CASES) : SEQ_CASES = struct
                    | SOME _ & NONE   => SOME (e, false)
                    | NONE   & SOME _ => SOME (e, false)
                    | NONE   & NONE   => NONE)
+      fun regExn0 _ (e, p) = regExn unit (const e, p)
+      fun regExn1 _ = regExn
 
       fun array ? = cyclic (sequ {toSlice = ArraySlice.full,
                                   getItem = ArraySlice.getItem} ?)

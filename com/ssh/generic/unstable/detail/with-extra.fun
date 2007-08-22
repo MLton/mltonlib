@@ -19,14 +19,11 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
    fun C1' n = C1 (C n)
    fun R' n = R (L n)
 
-   fun regExn0 e p n = regExn (C0' n) (const e, p)
-   fun regExn1 e p n t = regExn (C1' n t) (e, p)
-
    local
-      fun mk f e p = f e (fn e => SOME (p e) handle Match => NONE)
+      fun lift f a = SOME (f a) handle Match => NONE
    in
-      fun regExn0' ? = mk regExn0 ?
-      fun regExn1' ? = mk regExn1 ?
+      fun regExn0' n e p = regExn0 (C n) (e, lift p)
+      fun regExn1' n t e p = regExn1 (C n) t (e, lift p)
    end
 
    local
@@ -89,31 +86,29 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
 
    val () = let
       open IEEEReal OS OS.IO OS.Path Time
-      val s = SOME
-      val n = NONE
-      val su = SOME ()
    in
       (* Handlers for most standard exceptions: *)
-      regExn0 Bind       (fn Bind       => su | _ => n) "Bind"
-    ; regExn0 Chr        (fn Chr        => su | _ => n) "Chr"
-    ; regExn0 Date.Date  (fn Date.Date  => su | _ => n) "Date.Date"
-    ; regExn0 Div        (fn Div        => su | _ => n) "Div"
-    ; regExn0 Domain     (fn Domain     => su | _ => n) "Domain"
-    ; regExn0 Empty      (fn Empty      => su | _ => n) "Empty"
-    ; regExn0 InvalidArc (fn InvalidArc => su | _ => n) "OS.Path.InvalidArc"
-    ; regExn0 Match      (fn Match      => su | _ => n) "Match"
-    ; regExn0 Option     (fn Option     => su | _ => n) "Option"
-    ; regExn0 Overflow   (fn Overflow   => su | _ => n) "Overflow"
-    ; regExn0 Path       (fn Path       => su | _ => n) "OS.Path.Path"
-    ; regExn0 Poll       (fn Poll       => su | _ => n) "OS.IO.Poll"
-    ; regExn0 Size       (fn Size       => su | _ => n) "Size"
-    ; regExn0 Span       (fn Span       => su | _ => n) "Span"
-    ; regExn0 Subscript  (fn Subscript  => su | _ => n) "Subscript"
-    ; regExn0 Time       (fn Time       => su | _ => n) "Time.Time"
-    ; regExn0 Unordered  (fn Unordered  => su | _ => n) "IEEEReal.Unordered"
-    ; regExn1 Fail       (fn Fail     ? => s? | _ => n) "Fail" string
+      regExn0' "Bind"               Bind         (fn Bind         => ())
+    ; regExn0' "Chr"                Chr          (fn Chr          => ())
+    ; regExn0' "Date.Date"          Date.Date    (fn Date.Date    => ())
+    ; regExn0' "Div"                Div          (fn Div          => ())
+    ; regExn0' "Domain"             Domain       (fn Domain       => ())
+    ; regExn0' "Empty"              Empty        (fn Empty        => ())
+    ; regExn0' "OS.Path.InvalidArc" InvalidArc   (fn InvalidArc   => ())
+    ; regExn0' "Match"              Match        (fn Match        => ())
+    ; regExn0' "Option"             Option       (fn Option       => ())
+    ; regExn0' "Overflow"           Overflow     (fn Overflow     => ())
+    ; regExn0' "OS.Path.Path"       Path         (fn Path         => ())
+    ; regExn0' "OS.IO.Poll"         Poll         (fn Poll         => ())
+    ; regExn0' "Size"               Size         (fn Size         => ())
+    ; regExn0' "Span"               Span         (fn Span         => ())
+    ; regExn0' "Subscript"          Subscript    (fn Subscript    => ())
+    ; regExn0' "Time.Time"          Time         (fn Time         => ())
+    ; regExn0' "IEEEReal.Unordered" Unordered    (fn Unordered    => ())
+    ; regExn1' "Fail" string        Fail         (fn Fail       ? =>  ?)
       (* Handlers for some extended-basis exceptions: *)
-    ; regExn0 Sum.Sum    (fn Sum.Sum    => su | _ => n) "Sum"
-    ; regExn0 Fix.Fix    (fn Fix.Fix    => su | _ => n) "Fix"
+    ; regExn0' "IOSMonad.EOS"       IOSMonad.EOS (fn IOSMonad.EOS => ())
+    ; regExn0' "Sum.Sum"            Sum.Sum      (fn Sum.Sum      => ())
+    ; regExn0' "Fix.Fix"            Fix.Fix      (fn Fix.Fix      => ())
    end
 end

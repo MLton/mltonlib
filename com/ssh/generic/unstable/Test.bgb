@@ -4,5 +4,5 @@
 ;; See the LICENSE file or http://mlton.org/License for details.
 
 (bg-build
- :name  "Generics Check"
- :shell "./Check.sh")
+ :name  "Generics Test"
+ :shell "./Test.sh")

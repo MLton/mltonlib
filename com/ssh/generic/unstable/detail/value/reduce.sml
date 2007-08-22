@@ -56,8 +56,9 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
 
       fun op --> _ = failing "Reduce.--> has no default"
 
-      fun regExn _ _ = ()
       fun exn _ = fail "Reduce.exn not yet implemented"
+      fun regExn0 _ _ = ()
+      fun regExn1 _ _ _ = ()
 
       fun list   ? = seq   List.foldl ?
       fun vector ? = seq Vector.foldl ?

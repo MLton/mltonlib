@@ -7,16 +7,49 @@
 (**
  * Signature for a generic pickle/unpickle function.
  *
- * WARNING: At the moment, pickles are not portable.
+ * WARNING: The pickle format is neither versioned nor typed.  Pickling
+ * with one type and unpickling with another either fails with an
+ * exception or produces some value, which is usually not wanted.
+ *
+ * The pickle format is designed to be platform independent.  For example,
+ * it is possible to pickle on a 32-bit big-endian platform and unpickle
+ * on a 64-bit little-endian platform or vice-versa.  Types whose sizes
+ * are platform dependent use variable length or explicit precision
+ * encodings.  Unpickling fails if an encoded value is not representable
+ * or there is no conversion from the pickled precision.
+ *
+ * The pickle format is byte-oriented (not bit-oriented) and relatively
+ * compact given the platform independency.  Entropy coding is likely to
+ * be effective on pickled data, because tags in pickled data are biased
+ * towards small octets.  The pickle format should admit relatively
+ * efficient pickling and unpickling, especially given a few reasonable
+ * primitives, but the current implementation is not written for
+ * efficiency.  Sharing is only introduced if it possibly decreases the
+ * size of pickles or is required due to mutable data structures.
  *)
 signature PICKLE = sig
    structure Pickle : OPEN_REP
 
-   val pickle : ('a, 'x) Pickle.t -> (Char.t, 'b) Writer.t -> ('a, 'b) Writer.t
-   (** Extracts the pickling function. *)
+   (** == Stream Interface ==
+    *
+    * The {pickler} and {unpickler} functions support pickling directly to
+    * and unpickling directly from an arbitrary stream without storing the
+    * pickle in memory as a whole.
+    *)
 
-   val unpickle : ('a, 'x) Pickle.t -> (Char.t, 'b) Reader.t -> ('a, 'b) Reader.t
-   (** Extracts the unpickling function. *)
+   val pickler   : ('a, 'x) Pickle.t -> (Char.t -> (Unit.t, 's) IOSMonad.t)
+                                     -> ('a     -> (Unit.t, 's) IOSMonad.t)
+   val unpickler : ('a, 'x) Pickle.t -> (Char.t, 's) IOSMonad.t
+                                     -> ('a,     's) IOSMonad.t
+
+   (** == Simplified Interface ==
+    *
+    * The {pickle} and {unpickle} functions provide a simplified interface
+    * for pickling to strings and unpickling from strings.
+    *)
+
+   val pickle   : ('a, 'x) Pickle.t -> 'a -> String.t
+   val unpickle : ('a, 'x) Pickle.t -> String.t -> 'a
 end
 
 signature PICKLE_CASES = sig

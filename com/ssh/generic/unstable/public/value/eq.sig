@@ -11,8 +11,10 @@
  * equality.  For mutable types (refs and arrays) this means that two
  * objects are considered equal iff they have the same identity.  This
  * means that the result of comparing two particular mutable objects is
- * invariant.  If you truly need a structural equality relation for
- * mutable types that ignores identity, see {ORD}.
+ * invariant.  If you need a structural equality relation for mutable
+ * types that merely requires objects to have one-to-one sharing, see
+ * {SEQ}.  If you truly need a structural equality relation for mutable
+ * types that ignores identity, see {ORD}.
  *
  * By default, comparison of data structures with cycles introduced
  * through refs and arrays always terminates with a consistent result.
@@ -31,8 +33,8 @@
  * Of course, all of this is modulo user specified morphisms!
  *
  * By default, comparison of exceptions only works when at least one of
- * the exception constructors involved in a comparison has been registered
- * with {regExn}.
+ * the exception constructors involved in a comparison has been
+ * registered.
  *
  * Comparison of functions is impossible and fails at run-time.
  *)

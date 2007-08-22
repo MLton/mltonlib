@@ -43,8 +43,9 @@ functor WithTransform (Arg : OPEN_CASES) : TRANSFORM_CASES = struct
 
       fun op --> _ = failing "Transform.--> not yet implemented"
 
-      fun regExn _ _ = ()
       fun exn _ = fail "Transform.exn not yet implemented"
+      fun regExn0 _ _ = ()
+      fun regExn1 _ _ _ = ()
 
       val list   =   List.map
       val vector = Vector.map

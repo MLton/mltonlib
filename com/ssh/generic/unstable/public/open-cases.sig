@@ -27,7 +27,8 @@ signature OPEN_CASES = sig
    val Y : 'x Tie.t -> ('a, 'x) Rep.t Tie.t
    val --> : ('x * 'y -> 'z) -> ('a, 'x) Rep.t * ('b, 'y) Rep.t -> ('a -> 'b, 'z) Rep.t
    val exn : 'x -> (Exn.t, 'x) Rep.t
-   val regExn : ('x -> ('a, Exn.t) Emb.t Effect.t) -> ('a, 'x) Rep.s -> ('a, Exn.t) Emb.t Effect.t
+   val regExn0 : (Generics.Con.t -> (Exn.t * (Exn.t -> Unit.t Option.t)) Effect.t) -> Generics.Con.t -> (Exn.t * (Exn.t -> Unit.t Option.t)) Effect.t
+   val regExn1 : (Generics.Con.t -> 'x -> ('a, Exn.t) Emb.t Effect.t) -> Generics.Con.t -> ('a, 'x) Rep.t -> ('a, Exn.t) Emb.t Effect.t
    val array : ('x -> 'y) -> ('a, 'x) Rep.t -> ('a Array.t, 'y) Rep.t
    val refc : ('x -> 'y) -> ('a, 'x) Rep.t -> ('a Ref.t, 'y) Rep.t
    val vector : ('x -> 'y) -> ('a, 'x) Rep.t -> ('a Vector.t, 'y) Rep.t

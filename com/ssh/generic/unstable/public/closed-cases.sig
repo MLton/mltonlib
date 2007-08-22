@@ -87,8 +87,11 @@ signature CLOSED_CASES = sig
    val exn : Exn.t Rep.t
    (** Universal representation for exceptions. *)
 
-   val regExn : 'a Rep.s -> ('a, Exn.t) Emb.t Effect.t
-   (** Registers a handler for exceptions. *)
+   val regExn0 : Generics.Con.t -> (Exn.t * (Exn.t -> Unit.t Option.t)) Effect.t
+   (** Registers a nullary exception constructor. *)
+
+   val regExn1 : Generics.Con.t -> 'a Rep.t -> ('a, Exn.t) Emb.t Effect.t
+   (** Registers an unary exception constructor. *)
 
    (** == Support for Types With Identity == *)
 

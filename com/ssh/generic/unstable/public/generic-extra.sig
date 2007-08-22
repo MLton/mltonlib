@@ -25,15 +25,20 @@ signature GENERIC_EXTRA = sig
 
    val R' : String.t -> 'a Rep.t -> ('a, Record.t) Rep.p
 
-   val regExn0 : Exn.t -> (Exn.t -> Unit.t Option.t) -> String.t Effect.t
-   val regExn1 :
-       ('a -> Exn.t) -> (Exn.t -> 'a Option.t) -> String.t -> 'a Rep.t Effect.t
+   val regExn0' : String.t -> Exn.t -> (Exn.t -> Unit.t) Effect.t
+   val regExn1' : String.t -> 'a Rep.t -> ('a -> Exn.t) -> (Exn.t -> 'a) Effect.t
 
-   val regExn0' : Exn.t -> (Exn.t -> Unit.t) -> String.t Effect.t
-   val regExn1' :
-       ('a -> Exn.t) -> (Exn.t -> 'a) -> String.t -> 'a Rep.t Effect.t
-
-   (** == Tuples == *)
+   (** == Tuples ==
+    *
+    * Note that these are provided for convenience --- generics are not
+    * limited to these tuple arities.  To encode an arbitrary n-tuple, use
+    * the following pattern:
+    *
+    *> fun tupleN (t1, ..., tN) =
+    *>     iso (tuple (T t1 *` ... *` T tN))
+    *>         (fn (v1, ..., vN) => v1 & ... & vN,
+    *>          fn v1 & ... & vN => (v1, ..., vN))
+    *)
 
    val tuple2 : 'a Rep.t * 'b Rep.t -> ('a * 'b) Rep.t
    val tuple3 : 'a Rep.t * 'b Rep.t * 'c Rep.t -> ('a * 'b * 'c) Rep.t
@@ -52,7 +57,13 @@ signature GENERIC_EXTRA = sig
    val option : 'a Rep.t -> 'a Option.t Rep.t
    val order : Order.t Rep.t
 
-   (** == Sums and Products == *)
+   (** == Binary Sums and Products ==
+    *
+    * Note that the following are not the same as the {*`} and {+`}
+    * combinators for encoding n-ary products and sums.  Rather, the
+    * following encode the particular general purpose binary product
+    * and sum types provided by the Extended Basis library.
+    *)
 
    val &` : 'a Rep.t * 'b Rep.t -> ('a, 'b) Product.t Rep.t
    val |` : 'a Rep.t * 'b Rep.t -> ('a, 'b) Sum.t Rep.t

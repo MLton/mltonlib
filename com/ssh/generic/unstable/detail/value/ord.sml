@@ -94,6 +94,8 @@ functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = struct
                    | SOME _ & NONE   => SOME (e, GREATER)
                    | NONE   & SOME _ => SOME (e, LESS)
                    | NONE   & NONE   => NONE)
+      fun regExn0 _ = regExn unit
+      fun regExn1 _ = regExn
 
       fun array ? = cyclic (seq {toSlice = ArraySlice.full,
                                  getItem = ArraySlice.getItem} ?)

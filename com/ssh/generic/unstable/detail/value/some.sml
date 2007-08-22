@@ -63,7 +63,8 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
        *)
 
       val exn = fn () => Empty
-      fun regExn _ _ = ()
+      fun regExn0 _ _ = ()
+      fun regExn1 _ _ _ = ()
 
       fun array  _ = Array.empty
       fun vector _ = Vector.empty

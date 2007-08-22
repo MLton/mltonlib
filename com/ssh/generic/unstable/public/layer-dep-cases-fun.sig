@@ -27,7 +27,8 @@ signature LAYER_DEP_CASES_DOM = sig
    val Y : 'a Result.Closed.t Tie.t
    val --> : ('a, 'x) Result.t * ('b, 'y) Result.t -> ('a -> 'b) Result.Closed.t
    val exn : Exn.t Result.Closed.t
-   val regExn : ('a, 'x) Result.s -> ('a, Exn.t) Emb.t Effect.t
+   val regExn0 : Generics.Con.t -> (Exn.t * (Exn.t -> Unit.t Option.t)) Effect.t
+   val regExn1 : Generics.Con.t -> ('a, 'x) Result.t -> ('a, Exn.t) Emb.t Effect.t
    val array : ('a, 'x) Result.t -> 'a Array.t Result.Closed.t
    val refc : ('a, 'x) Result.t -> 'a Ref.t Result.Closed.t
    val vector : ('a, 'x) Result.t -> 'a Vector.t Result.Closed.t

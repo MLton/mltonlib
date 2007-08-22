@@ -75,7 +75,8 @@ functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
       fun op --> is = (ARROW, fn ARROW ? => ? | _ => raise Dyn) <--> Fn.iso is
 
       val exn = (EXN, fn EXN ? => ? | _ => raise Dyn)
-      fun regExn _ _ = ()
+      fun regExn0 _ _ = ()
+      fun regExn1 _ _ _ = ()
 
       fun list i = (LIST, fn LIST ? => ? | _ => raise Dyn) <--> List.iso i
       fun vector i = (VECTOR, fn VECTOR ? => ? | _ => raise Dyn) <--> Vector.iso i

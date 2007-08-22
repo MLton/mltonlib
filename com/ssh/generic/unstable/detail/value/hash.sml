@@ -116,7 +116,8 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
       val string = hashSeq String.length String.sub char
 
       val exn = string o Exn.message (* XXX Imprecise *)
-      fun regExn _ _ = ()
+      fun regExn0 _ _ = ()
+      fun regExn1 _ _ _ = ()
 
       val bool = prim (fn true => 0wx2DA745 | false => 0wx3C24A62)
       val real =

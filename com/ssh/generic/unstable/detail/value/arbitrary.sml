@@ -90,8 +90,9 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
       fun op --> (a, b) = op -->` (getT a, getT b)
 
       val exn = IN {gen = G.return Empty,
-                    cog = failing "Arbitrary.exn unsupported"}
-      fun regExn _ _ = ()
+                    cog = failing "Arbitrary.exn not yet implemented"}
+      fun regExn0 _ _ = ()
+      fun regExn1 _ _ _ = ()
 
       fun list' (IN {gen = xGen, cog = xCog}) = let
          val xsGen = G.sized (0 <\ G.intInRange) >>= G.list xGen

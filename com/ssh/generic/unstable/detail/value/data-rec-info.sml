@@ -88,7 +88,8 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
       fun op --> _ = base
 
       val exn = INT {exn = true, pure = true, recs = []}
-      fun regExn _ _ = ()
+      fun regExn0 _ _ = ()
+      fun regExn1 _ _ _ = ()
 
       val array = mutable
       val refc  = mutable
