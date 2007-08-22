@@ -16,9 +16,9 @@ Info
 ----
 
    License:         MLton license (a BSD-style license)
-   Portability:     portable
+   Portability:     portable (MLton and SML/NJ are actively supported)
    Stability:       experimental
-   Maintainer:      Vesa Karvonen <vesa.karvonen@cs.helsinki.fi>
+   Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
 
 
 About Library Organization
@@ -28,8 +28,8 @@ About Library Organization
 
       This directory contains the documented signature definitions (*.sig)
       and listings of all top-level bindings exported by this library
-      (export*.sml).  The contents of this directory should be sufficient
-      to understand the extensions provided by this library.
+      (export*.sml).  The contents of this directory should ideally be
+      sufficient to understand the extensions provided by this library.
 
    basis.{cm,mlb,use}
 
@@ -51,7 +51,7 @@ About Library Organization
 
    detail/ml/$(SML_COMPILER)/
 
-      These directories (e.g. detail/mlton/) contain compiler specific
+      These directories (e.g. detail/ml/mlton/) contain compiler specific
       implementation details.  Different compilers implement different
       subsets of the original basis library.
 
@@ -104,7 +104,7 @@ Contributions
 
    The signatures and structures defined by this library are not meant to
    be cast in stone!  We welcome contributions including new extensions,
-   bugfixes, and ports to new compilers.  The recommended submit method
+   bug fixes, and ports to new compilers.  The recommended submit method
    for small contributions to this library is to send a message with a
    brief description of the proposed contribution as well as a patch
    containing full code and documentation (signature comments) to either
