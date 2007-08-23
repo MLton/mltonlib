@@ -67,6 +67,9 @@ in
          public/value/data-rec-info.sig
          detail/value/data-rec-info.sml
 
+         public/value/type-hash.sig
+         detail/value/type-hash.sml
+
          public/value/some.sig
          detail/value/some.sml
 
@@ -109,9 +112,6 @@ in
 
          public/value/transform.sig
          detail/value/transform.sml
-
-         public/value/type-hash.sig
-         detail/value/type-hash.sml
       in
          public/export.sml
       end

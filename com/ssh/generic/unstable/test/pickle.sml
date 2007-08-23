@@ -21,6 +21,15 @@ val () = let
                 in
                    verifyTrue (seq t (x, unpickle t p))
                 end)
+
+   fun testTypeMismatch t u =
+       test (fn () => let
+                   val p = pickle t (some t)
+                in
+                   verifyFailsWith
+                      (fn Pickling.TypeMismatch => true | _ => false)
+                      (fn () => unpickle u p)
+                end)
 in
    unitTests
       (title "Generic.Pickle")
@@ -35,6 +44,12 @@ in
 
       (testSeq (Graph.t int) Graph.intGraph1)
       (testSeq (array exn) ExnArray.exnArray1)
+
+      (title "Generic.Pickle.TypeMismatch")
+
+      (testTypeMismatch int word)
+      (testTypeMismatch (list char) (vector char))
+      (testTypeMismatch (array real) (option real))
 
       $
 end

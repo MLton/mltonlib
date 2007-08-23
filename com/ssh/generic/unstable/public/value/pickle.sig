@@ -7,9 +7,10 @@
 (**
  * Signature for a generic pickle/unpickle function.
  *
- * WARNING: The pickle format is neither versioned nor typed.  Pickling
- * with one type and unpickling with another either fails with an
- * exception or produces some value, which is usually not wanted.
+ * WARNING: The pickle format contains the {typeHash} of the pickled type.
+ * While this can help to detect accidental type mismatches (pickling with
+ * one type and then unpickling with another) it is not fool proof nor
+ * designed to be secure in any way.
  *
  * The pickle format is designed to be platform independent.  For example,
  * it is possible to pickle on a 32-bit big-endian platform and unpickle
@@ -29,6 +30,11 @@
  *)
 signature PICKLE = sig
    structure Pickle : OPEN_REP
+
+   structure Pickling : sig
+      exception TypeMismatch
+      (** Raised by unpickling functions when a type-mismatch is detected. *)
+   end
 
    (** == Stream Interface ==
     *
@@ -58,6 +64,6 @@ signature PICKLE_CASES = sig
 end
 
 signature WITH_PICKLE_DOM = sig
-   include OPEN_CASES DATA_REC_INFO EQ HASH SOME TYPE_INFO
-   sharing Rep = DataRecInfo = Eq = Hash = Some = TypeInfo
+   include OPEN_CASES DATA_REC_INFO EQ HASH SOME TYPE_HASH TYPE_INFO
+   sharing Rep = DataRecInfo = Eq = Hash = Some = TypeHash = TypeInfo
 end

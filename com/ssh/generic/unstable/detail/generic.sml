@@ -23,7 +23,7 @@ end = struct
    structure Open = WithEq          (Open) open Open structure Eq=Open
    structure Open = WithOrd         (Open) open Open
    structure Open = WithPretty      (Open) open Open
-   structure Open = WithTypeHash    (Open) open Open
+   structure Open = WithTypeHash    (Open) open Open structure TypeHash=Open
    structure Open = WithTypeInfo    (Open) open Open structure TypeInfo=Open
    structure Open = WithDataRecInfo (Open) open Open structure DataRecInfo=Open
 
@@ -36,8 +36,8 @@ end = struct
    structure Open = WithArbitrary   (Open) open Open
 
    structure Open = struct
-      open TypeInfo Open
-      structure TypeInfo = Rep
+      open TypeHash TypeInfo Open
+      structure TypeHash = Rep and TypeInfo = Rep
    end
    structure Open = WithHash        (Open) open Open structure Hash=Open
 
@@ -48,8 +48,9 @@ end = struct
    structure Open = WithSome        (Open) open Open structure Some=Open
 
    structure Open = struct
-      open Eq Hash TypeInfo DataRecInfo Some
-      structure Eq=Rep and Hash=Rep and TypeInfo=Rep and DataRecInfo=Rep
+      open DataRecInfo Eq Hash TypeHash TypeInfo Some
+      structure DataRecInfo = Rep and Eq = Rep and Hash = Rep and TypeHash = Rep
+            and TypeInfo = Rep
    end
    structure Open = WithPickle      (Open) open Open
 

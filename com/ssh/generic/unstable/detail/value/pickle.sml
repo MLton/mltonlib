@@ -266,6 +266,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
            (swap Word.isoInt)
    end
 
+   val word32 = bits false Word32.ops Iso.id
+
    (* Encodes fixed size int as a size followed by little endian bytes. *)
    fun mkFixedInt (fromLargeWordX, toLargeWord) =
        {rd = let
@@ -469,10 +471,29 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
 
    open Pickle.This
 
-   fun pickler t =
-       O.run (HashMap.new {eq = Dyn.eq, hash = Dyn.hash}) (#wr (getT t))
-   fun unpickler t =
-       I.run (HashMap.new {eq = op =, hash = Word.fromInt}) (#rd (getT t))
+   structure Pickling = struct
+      exception TypeMismatch
+   end
+
+   fun pickler t = let
+      val key = Arg.typeHash t
+      val wr = #wr (getT t)
+      open O
+   in
+      run (HashMap.new {eq = Dyn.eq, hash = Dyn.hash})
+          (fn v => #wr word32 key >> wr v)
+   end
+   fun unpickler t = let
+      val key = Arg.typeHash t
+      val rd = #rd (getT t)
+      open I
+   in
+      run (HashMap.new {eq = op =, hash = Word.fromInt})
+          (#rd word32 >>= (fn key' =>
+           if key' <> key
+           then raise Pickling.TypeMismatch
+           else rd))
+   end
 
    fun pickle t = let
       val pA = pickler t (IOSMonad.fromPutter (uncurry Buffer.push))
@@ -655,7 +676,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val largeWord = mkFixedInt Iso.id
 
       val word8  = word8
-      val word32 = bits false Word32.ops Iso.id
+      val word32 = word32
       val word64 = bits false Word64.ops Iso.id)
 
    open Layered
