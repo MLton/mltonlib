@@ -32,6 +32,7 @@ group is
    ../../../public/value/seq.sig
    ../../../public/value/some.sig
    ../../../public/value/transform.sig
+   ../../../public/value/type-hash.sig
    ../../../public/value/type-info.sig
    ../../close-generic.fun
    ../../generics-util.sml
@@ -52,6 +53,7 @@ group is
    ../../value/seq.sml
    ../../value/some.sml
    ../../value/transform.sml
+   ../../value/type-hash.sml
    ../../value/type-info.sml
    ../../with-extra.fun
    extensions.cm

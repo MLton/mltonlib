@@ -14,6 +14,7 @@ structure Generic :> sig
    include PICKLE        sharing Open.Rep = Pickle
    include PRETTY        sharing Open.Rep = Pretty
    include SOME          sharing Open.Rep = Some
+   include TYPE_HASH     sharing Open.Rep = TypeHash
    include TYPE_INFO     sharing Open.Rep = TypeInfo
 end = struct
    structure Open = RootGeneric
@@ -22,6 +23,7 @@ end = struct
    structure Open = WithEq          (Open) open Open structure Eq=Open
    structure Open = WithOrd         (Open) open Open
    structure Open = WithPretty      (Open) open Open
+   structure Open = WithTypeHash    (Open) open Open
    structure Open = WithTypeInfo    (Open) open Open structure TypeInfo=Open
    structure Open = WithDataRecInfo (Open) open Open structure DataRecInfo=Open
 
@@ -53,14 +55,15 @@ end = struct
 
    (* Make type representations equal: *)
    structure Arbitrary   = Rep
+   structure DataRecInfo = Rep
    structure Eq          = Rep
    structure Hash        = Rep
    structure Ord         = Rep
    structure Pickle      = Rep
    structure Pretty      = Rep
    structure Some        = Rep
+   structure TypeHash    = Rep
    structure TypeInfo    = Rep
-   structure DataRecInfo = Rep
 
    (* Close the combination for use: *)
    structure Generic = struct
