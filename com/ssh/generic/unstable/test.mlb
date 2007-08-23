@@ -19,6 +19,7 @@ local
       in
          test/pickle.sml
          test/pretty.sml
+         test/some.sml
       end
    end
 in
