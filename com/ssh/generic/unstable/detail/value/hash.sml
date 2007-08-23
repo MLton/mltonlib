@@ -28,7 +28,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
    fun hashParam t p =
        if #totWidth p < 0 orelse #maxDepth p < 0
        then raise Domain
-       else fn v => getT t v p
+       else fn v => Word.xorb (Word32.toWord (Arg.typeHash t), getT t v p)
 
    fun hash t = hashParam t {totWidth = 200, maxDepth = 10}
 

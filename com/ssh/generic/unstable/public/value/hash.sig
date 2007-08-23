@@ -44,4 +44,7 @@ signature HASH_CASES = sig
    sharing Rep = Hash
 end
 
-signature WITH_HASH_DOM = TYPE_INFO_CASES
+signature WITH_HASH_DOM = sig
+   include OPEN_CASES TYPE_HASH TYPE_INFO
+   sharing Rep = TypeHash = TypeInfo
+end
