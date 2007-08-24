@@ -36,12 +36,12 @@ signature TIE = sig
     *> val isEven & isOdd =
     *>     let open Tie in fix (function *` function) end
     *>        (fn isEven & isOdd =>
-    *>            (fn 0w0 => true
-    *>              | 0w1 => false
-    *>              | n => isOdd (n-0w1)) &
-    *>            (fn 0w0 => false
-    *>              | 0w1 => true
-    *>              | n => isEven (n-0w1)))
+    *>            (fn 0 => true
+    *>              | 1 => false
+    *>              | n => isOdd (n-1)) &
+    *>            (fn 0 => false
+    *>              | 1 => true
+    *>              | n => isEven (n-1)))
     *)
 
    (** == Making New Witnesses == *)
