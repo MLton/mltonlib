@@ -8,6 +8,9 @@
 functor CloseWithExtra (Open : OPEN_CASES) =
    WithExtra (structure Open = Open and Closed = CloseCases (Open) open Closed)
 
+(* Register basis library exceptions for the default generics. *)
+local structure ? = RegBasisExns (Generic) in end
+
 (* A simplistic graph for testing with cyclic data. *)
 functor MkGraph (Generic : GENERIC_EXTRA) :> sig
    type 'a t

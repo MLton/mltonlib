@@ -78,10 +78,12 @@ signature GENERIC_EXTRA = GENERIC_EXTRA
 functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
 (**
  * Implements a number of frequently used type representations for
- * convenience.  As a side-effect, this functor also registers handlers
- * for most standard exceptions.  The exact set of extra representations
- * is likely to grow over time.
+ * convenience.  The exact set of extra representations is likely to grow
+ * over time.
  *)
+
+functor RegBasisExns (Arg : CLOSED_CASES) = RegBasisExns (Arg)
+(** Registers handlers for most standard exceptions as a side-effect. *)
 
 (** == Auxiliary Generics == *)
 

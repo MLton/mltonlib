@@ -45,8 +45,9 @@ in
 
          (* Framework *)
 
+         detail/with-extra.fun
          ann "nonexhaustiveExnMatch ignore" in
-            detail/with-extra.fun
+            detail/reg-basis-exns.fun
          end
 
          detail/root-generic.sml
