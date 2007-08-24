@@ -16,23 +16,21 @@
  * type of the form {t * ... * t}.  Unfortunately, even such a family of
  * fixpoint combinators does not support mutual recursion over different
  * abstract types.
- *
- * See also: [http://mlton.org/Fixpoints]
  *)
 signature TIE = sig
    type 'a dom and 'a cod
    type 'a t = 'a dom -> 'a cod
    (**
-    * The type of fixpoint tiers.
+    * The type of fixpoint witnesses.
     *
     * The type constructors {dom} and {cod} are used to expose the arrow
-    * {->} type constructor (to allow eta-expansion) while preventing
-    * clients from actually applying tiers.
+    * {->} type constructor (to allow eta-expansion) while keeping the
+    * domain and codomain abstract.
     *)
 
    val fix : 'a t -> 'a Fix.t
    (**
-    * Produces a fixpoint combinator from the given tier.  For example,
+    * Produces a fixpoint combinator from the given witness.  For example,
     * one can make a mutually recursive definition of functions:
     *
     *> val isEven & isOdd =
@@ -46,7 +44,7 @@ signature TIE = sig
     *>              | n => isEven (n-0w1)))
     *)
 
-   (** == Making New Tiers == *)
+   (** == Making New Witnesses == *)
 
    val pure : ('a * 'a UnOp.t) Thunk.t -> 'a t
    (**
@@ -57,8 +55,8 @@ signature TIE = sig
    val tier : ('a * 'a Effect.t) Thunk.t -> 'a t
    (**
     * {tier} is used to define fixpoint tiers for new abstract types by
-    * providing a thunk whose instantiation allocates a fresh "knot" and a
-    * procedure for "tying" it.
+    * providing a thunk whose instantiation allocates a mutable proxy and
+    * a procedure for updating it with the result.
     *)
 
    val id : 'a -> 'a t
@@ -68,26 +66,26 @@ signature TIE = sig
 
    val iso : 'b t -> ('a, 'b) Iso.t -> 'a t
    (**
-    * Given an isomorphism between {'a} and {'b} and a tier for {'b},
-    * produces a tier for {'a}.  This is useful when you have a new type
-    * that is isomorphic to some old type for which you already have a
-    * tier.
+    * Given an isomorphism between {'a} and {'b} and a witness for {'b},
+    * produces a witness for {'a}.  This is useful when you have a new
+    * type that is isomorphic to some old type for which you already have
+    * a witness.
     *)
 
    val *` : 'a t * 'b t -> ('a, 'b) Product.t t
    (**
-    * Given tiers for {'a} and {'b} produces a tier for the product {('a,
-    * 'b) Product.t}.  This is used when mutual recursion is needed.
+    * Given witnesses for {'a} and {'b} produces a witness for the product
+    * {('a, 'b) Product.t}.  This is used when mutual recursion is needed.
     *)
 
    val tuple2 : 'a t * 'b t -> ('a * 'b) t
    (**
-    * Given tiers for {'a} and {'b} produces a tier for the product {'a *
-    * 'b}.
+    * Given witnesses for {'a} and {'b} produces a witness for the product
+    * {'a * 'b}.
     *)
 
    (** == Particular Tiers == *)
 
    val function : ('a -> 'b) t
-   (** Tier for functions. *)
+   (** Witness for functions. *)
 end
