@@ -11,7 +11,7 @@ Info
    License:         MLton license (a BSD-style license)
    Portability:     Windows specific, some MLton extensions may be used
    Stability:       experimental
-   Maintainer:      Vesa Karvonen <vesa.karvonen@cs.helsinki.fi>
+   Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
 
 
 About Library Organization
