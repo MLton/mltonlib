@@ -1,0 +1,195 @@
+Generic Programming Library
+---------------------------
+
+   This library implements a framework for generic, or polytypic, or
+   closed type-indexed, values and also implements several generics,
+   including
+   - equality (Eq, Seq),
+   - linear ordering (Ord),
+   - hashing (Hash),
+   - pretty printing (Pretty),
+   - pickling (Pickle),
+   - random value generation (Arbitrary),
+   - reductions (Reduce), and
+   - transforms (Transform).
+
+   The underlying techniques are discussed in [8], but the basic approach
+   is similar to [6] with a twist of [2] to attack the problem of
+   combining type-indexed values discussed in [15].  The ability to
+   combine generics is largely what makes it meaningful to create a
+   library of them.
+
+
+Info
+----
+
+   License:         MLton license (a BSD-style license)
+   Portability:     portable (MLton and SML/NJ are supported)
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
+
+
+About Library Organization
+--------------------------
+
+   public/
+
+      This directory contains the documented signature definitions (*.sig)
+      and listings of all top-level bindings exported by this library
+      (export.sml).  The contents of this directory should ideally provide
+      sufficient documentation to use the library.
+
+   lib.{cm,mlb}
+
+      These build files define the framework.
+
+   lib-with-default.{cm,mlb}
+
+      These build files include the framework and a default combination of
+      probably the most useful generics for convenience.
+
+   detail/
+
+      This directory contains the implementation details of the library.
+
+   detail/ml/$(SML_COMPILER)/
+
+      These directories (e.g. detail/ml/mlton/) contain compiler specific
+      implementation details.
+
+
+Motivation
+----------
+
+   Standard ML supports neither generics nor ad-hoc polymorphism.  This
+   presents a challenge to programmers.  The problem is that at first
+   glance there seems to be no practical way to implement something like a
+   function for converting a value of any type to a string or a function
+   for computing a hash of a value of any type.  Implementing and
+   maintaining a collection of such utility functions by hand for each
+   type is tedious and boring work.  Fortunately, there are ways to
+   implement type-indexed values in SML as discussed in [15].  Various
+   articles such as [13], [5], [9], and [1] also contain examples of
+   type-indexed values in ML.
+
+   Unfortunately, the popular value-dependent encodings suffer from the
+   lack of composability, which makes the implementation of complex
+   generics difficult (requiring manual tupling) and the simultaneous use
+   of multiple generics tedious (need to provide multiple type
+   representations).  On the other hand, the directly composable
+   value-independent encodings [14, 15] seem to preclude customizing the
+   behaviour of a generic at specific types or type constructors, require
+   potentially expensive coercions, and, in some forms, essentially
+   preclude defining generic functions on mutable types.
+
+   While the approach used in this library is by no means a panacea, it
+   does address all of the above issues.  Complex generics can be built
+   from multiple simpler generics.  Independently developed generics can
+   be combined for convenient use.  The behaviour of generics can be
+   customized at particular types.  No coercion to a monomorphic universal
+   type is required.  Mutable types can be supported.
+
+   The approach used in this library still suffers from the need to
+   explicitly define a combination of generics for use.  This somewhat
+   restricts program organization.  Also, combining a large number of
+   generics together is likely to have costs -- potentially prohibitive
+   costs -- depending heavily on the compiler's ability to eliminate the
+   construction of unused elements of products.
+
+
+Contributions
+-------------
+
+   The signatures and structures defined by this library are not meant to
+   be cast in stone!  We welcome contributions including new generics,
+   bug fixes, and ports to new compilers.  The recommended submit method
+   for small contributions to this library is to send a message with a
+   brief description of the proposed contribution as well as a patch
+   containing full code and documentation (signature comments) to either
+   the MLton-user list
+
+      mlton-user@mlton.org
+
+   or the MLton list
+
+      mlton@mlton.org .
+
+   For larger extensions or changes we recommend that you first contact
+   the active maintainer(s) of this library.  The preferred contact method
+   is through the above mailing lists.
+
+
+References
+----------
+
+  [1] Embedded Interpreters.
+      Nick Benton.
+      Journal of Functional Programming, 15(4):503--542, 2005.
+
+  [2] OO Programming styles in ML.
+      Bernard Berthomieu.
+      Technical Report 2000111, LAAS, March 2000.
+
+  [3] A Lightweight Implementation of Generics and Dynamics.
+      James Cheney and Ralf Hinze.
+      In Haskell '02: Proceedings of the 2002 ACM SIGPLAN workshop on
+      Haskell, pages 90--104, New York, NY, USA, 2002.  ACM Press.
+
+  [4] QuickCheck: A Lightweight Tool for Random Testing of Haskell.
+      Programs.
+      Koen Claessen and John Hughes.
+      ACM SIG-PLAN Notices, 35(9):268--279, 2000.
+
+  [5] Type-specialized serialization with sharing.
+      Martin Elsman.
+      In Sixth Symposium on Trends in Functional Programming (TFP'05),
+      September 2005.
+
+  [6] Generics for the Masses.
+      Ralf Hinze.
+      In ICFP '04: Proceedings of the ninth ACM SIGPLAN international
+      conference on Functional programming, pages 236--243, New York, NY,
+      USA, 2004.  ACM Press.
+
+  [7] Comparing Approaches to Generic Programming in Haskell.
+      Ralf Hinze, Johan Jeuring, and Andres Löh.
+      In Spring School on Datatype-Generic Programming, 2006.
+
+  [8] Generics for the Working ML'er.
+      Vesa Karvonen.
+      In Proceedings of the 2007 workshop on ML.
+
+  [9] Pickler Combinators.
+      Andrew Kennedy.
+      Journal of Functional Programming, 14(6):727--739, 2004.
+
+ [10] Scrap your boilerplate: A practical design pattern for generic
+      programming.
+      Ralf Lämmel and Simon Peyton Jones.
+      ACM SIG-PLAN Notices, 38(3):26--37, March 2003.
+
+ [11] TypeCase: A Design Pattern for Type-Indexed Functions.
+      Bruno C.d.S. Oliveira and Jeremy Gibbons.
+      In Haskell '05: Proceedings of the 2005 ACM SIGPLAN workshop on
+      Haskell, pages 98--109, New York, NY, USA, 2005.  ACM Press.
+
+ [12] Generics as a Library.
+      Bruno C.d.S. Oliveira, Ralf Hinze, and Andres Löh.
+      In Henrik Nilsson and Marko van Eekelen, editors, Seventh Symposium
+      on Trends in Functional Programming 2006.
+
+ [13] Embedding an Interpreted Language Using Higher-Order Functions and
+      Types.
+      Norman Ramsey.
+      In IVME '03: Proceedings of the 2003 workshop on Interpreters,
+      virtual machines and emulators, pages 6--14, New York, NY, USA,
+      2003.  ACM Press.
+
+ [14] A new approach to type-indexed values in SML.
+      Stephen Weeks.
+      [http://mlton.org/pipermail/mlton-user/2006-September/000917.html]
+
+ [15] Encoding Types in ML-like Languages.
+      Zhe Yang.
+      In International Conference on Functional Programming (ICFP'98),
+      September 1998.
