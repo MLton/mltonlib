@@ -15,11 +15,13 @@ local
       "warnUnused true"
    in
       local
-         test/test-utils.sml
+         test/utils.sml
       in
          test/pickle.sml
          test/pretty.sml
+         test/reduce.sml
          test/some.sml
+         test/transform.sml
       end
    end
 in

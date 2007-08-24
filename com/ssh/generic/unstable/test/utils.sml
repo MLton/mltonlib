@@ -4,21 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(* Some tests need the structural/sharing equality {Seq}. *)
-structure Generic = struct
-   open Generic
-   local
-      structure Open = WithSeq (Open)
-      structure Closed = CloseCases (Open)
-      structure Extra = WithExtra (structure Open = Open open Open Closed)
-   in
-      val seq = Open.seq
-      open Extra
-   end
-end
+(* Helper for adding a new generic. *)
+functor CloseWithExtra (Open : OPEN_CASES) =
+   WithExtra (structure Open = Open and Closed = CloseCases (Open) open Closed)
 
 (* A simplistic graph for testing with cyclic data. *)
-structure Graph :> sig
+functor MkGraph (Generic : GENERIC_EXTRA) :> sig
    type 'a t
    val t : 'a Generic.Rep.t -> 'a t Generic.Rep.t
    val intGraph1 : Int.t t
@@ -56,7 +47,7 @@ end = struct
 end
 
 (* A contrived recursive exception constructor for testing with cyclic data. *)
-structure ExnArray :> sig
+functor MkExnArray (Generic : GENERIC_EXTRA) :> sig
    exception ExnArray of Exn.t Array.t
    val exnArray1 : Exn.t Array.t
 end = struct

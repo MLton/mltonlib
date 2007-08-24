@@ -4,7 +4,21 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-val () = let
+local
+   structure Generic = struct
+      open Generic
+      local
+         structure Open = WithSeq (Open)
+         structure Extra = CloseWithExtra (Open)
+      in
+         val seq = Open.seq
+         open Extra
+      end
+   end
+
+   structure Graph = MkGraph (Generic)
+   structure ExnArray = MkExnArray (Generic)
+
    open Generic UnitTest
 
    fun chkEq t =
@@ -31,25 +45,26 @@ val () = let
                       (fn () => unpickle u p)
                 end)
 in
-   unitTests
-      (title "Generic.Pickle")
+   val () =
+       unitTests
+          (title "Generic.Pickle")
 
-      (chkEq (vector (option (list real))))
-      (chkEq (tuple2 (fixedInt, largeInt)))
-      (chkEq (largeReal &` largeWord))
-      (chkEq (tuple3 (word8, word32, word64)))
-      (chkEq (bool &` char &` int &` real &` string &` word))
+          (chkEq (vector (option (list real))))
+          (chkEq (tuple2 (fixedInt, largeInt)))
+          (chkEq (largeReal &` largeWord))
+          (chkEq (tuple3 (word8, word32, word64)))
+          (chkEq (bool &` char &` int &` real &` string &` word))
 
-      (title "Generic.Pickle.Cyclic")
+          (title "Generic.Pickle.Cyclic")
 
-      (testSeq (Graph.t int) Graph.intGraph1)
-      (testSeq (array exn) ExnArray.exnArray1)
+          (testSeq (Graph.t int) Graph.intGraph1)
+          (testSeq (array exn) ExnArray.exnArray1)
 
-      (title "Generic.Pickle.TypeMismatch")
+          (title "Generic.Pickle.TypeMismatch")
 
-      (testTypeMismatch int word)
-      (testTypeMismatch (list char) (vector char))
-      (testTypeMismatch (array real) (option real))
+          (testTypeMismatch int word)
+          (testTypeMismatch (list char) (vector char))
+          (testTypeMismatch (array real) (option real))
 
-      $
+          $
 end
