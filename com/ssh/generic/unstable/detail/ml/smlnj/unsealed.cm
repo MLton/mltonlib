@@ -38,6 +38,7 @@ group is
    ../../generics-util.sml
    ../../generics.sml
    ../../layer-generic.fun
+   ../../reg-basis-exns.fun
    ../../root-generic.sml
    ../../sml-syntax.sml
    ../../value/arbitrary.sml
