@@ -47,7 +47,7 @@ signature ASYNC = sig
 
    (** == Combinators ==
     *
-    * Event combinators work in such away that committing to the returned
+    * Event combinators work in such a way that committing to the returned
     * event also commits to a given event.  However, committing to a given
     * event does not commit to the returned event.
     *)
@@ -58,6 +58,15 @@ signature ASYNC = sig
     * and when committed to also executes the given function, which is
     * usually referred to as either a handler or an action.
     *)
+
+   val <|> : 'a Event.t BinOp.t
+   (**
+    * Creates an event that chooses, in an unspecified manner, an enabled
+    * even from the given pair of events to commit to.
+    *)
+
+   val never : 'a Event.t
+   (** An event that is never enabled. *)
 
    val choose : 'a Event.t List.t -> 'a Event.t
    (**
@@ -101,6 +110,16 @@ signature ASYNC = sig
 
    val all : Unit.t Event.t List.t Effect.t
    (** {all = each o choose} *)
+
+   val whenSeq : 'a Event.t List.t -> 'a List.t Effect.t Effect.t
+   (**
+    * Commit to given events sequentially from first to last.  Make a
+    * list of the results.  When all events have been committed to,
+    * perform the given action.
+    *)
+
+   val whenArb : 'a Event.t List.t -> 'a List.t Effect.t Effect.t
+   (** Like {whenSeq}, but commit to given events in any order. *)
 
    (** == Communication Mechanisms ==
     *

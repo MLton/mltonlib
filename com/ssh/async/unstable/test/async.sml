@@ -8,11 +8,11 @@
  * Ad hoc tests against the Async module.
  *)
 val () = let
-   open UnitTest Async Async.Handler
-   fun eq ex ac = verifyEq Type.int {actual = ac, expect = ex}
-   fun eql ex ac = verifyEq (Type.list Type.int) {actual = ac, expect = ex}
+   open Generic UnitTest Async Async.Handler
+   fun eq ex ac = verifyEq int {actual = ac, expect = ex}
+   fun eql ex ac = verifyEq (list int) {actual = ac, expect = ex}
    val full = verifyFailsWith (fn Full => true | _ => false)
-   fun inc v () = v += 1
+   fun inc v () = v := !v + 1
    val push = List.push
 in
    unitTests

@@ -6,7 +6,6 @@
 
 local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
-   $(MLTON_LIB)/com/ssh/misc-util/unstable/lib.mlb
    ../../lib.mlb
 
    ann

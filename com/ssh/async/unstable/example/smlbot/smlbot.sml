@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(* XXX consider supporting HaMLet S and possibly Alice ML as evaluators *)
+(* XXX consider supporting Alice ML as an evaluator *)
 
 structure SMLBot :> sig
    val run : {host : String.t, port : String.t, pass : String.t,
