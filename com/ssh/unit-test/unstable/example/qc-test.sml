@@ -4,8 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(*
- * This file contains simple examples of specifying QuickCheck -style
+(* This file contains simple examples of specifying QuickCheck -style
  * randomized tests using the UnitTest framework.  The example laws
  * are from the QuickCheck paper by Koen Claessen and John Hughes.
  *)
@@ -83,10 +82,9 @@ in
 
       (chk (all (sq int)
                 (fn (x, y) =>
-                    if x <= y then
-                       that (Int.max (x, y) = y)
-                    else
-                       skip)))
+                    if x <= y
+                    then that (Int.max (x, y) = y)
+                    else skip)))
 
       (* Read the above as:
        *
@@ -102,19 +100,17 @@ in
 
       (chk (all (int &` list int)
                 (fn x & xs =>
-                    if isSorted xs then
-                       (trivial (null xs))
-                          (that (isSorted (insert x xs)))
-                    else
-                       skip)))
+                    if isSorted xs
+                    then (trivial (null xs))
+                            (that (isSorted (insert x xs)))
+                    else skip)))
 
       (chk (all (int &` list int)
                 (fn x & xs =>
-                    if isSorted xs then
-                       (collect int (length xs))
-                          (that (isSorted (insert x xs)))
-                    else
-                       skip)))
+                    if isSorted xs
+                    then (collect int (length xs))
+                            (that (isSorted (insert x xs)))
+                    else skip)))
 
       (chk (all (int &` sortedList)
                 (fn x & xs =>
