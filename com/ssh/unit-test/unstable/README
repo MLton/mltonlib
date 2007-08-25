@@ -1,0 +1,83 @@
+Unit Testing Library
+--------------------
+
+   This library implements a unit testing framework supporting both xUnit
+   [3] and QuickCheck [1] style testing.
+
+
+Info
+----
+
+   License:         MLton license (a BSD-style license)
+   Portability:     portable (MLton and SML/NJ are supported)
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
+
+
+About Library Organization
+--------------------------
+
+   public/
+
+      This directory contains the documented signature definitions (*.sig)
+      and listings of all top-level bindings exported by this library
+      (public/export.sml).  The contents of this directory should ideally
+      be sufficient to understand how to use the functionality provided by
+      this library.
+
+   example/
+
+      This directory contains examples related to this library.
+
+   lib.{cm,mlb}
+
+      These build files defines the library.
+
+   lib-with-default.{cm,mlb}
+
+      These build files provide a default UnitTest-module instantantiation
+      for convenience using the default combination of generics provided
+      by the generics library.
+
+   detail/
+
+      This directory contains the implementation details of the library.
+
+
+Contributions
+-------------
+
+   The signatures and structures defined by this library are not meant to
+   be cast in stone!  We welcome contributions including new features,
+   bug fixes, and ports to new compilers.  The recommended submit method
+   for small contributions to this library is to send a message with a
+   brief description of the proposed contribution as well as a patch
+   containing full code and documentation (signature comments) to either
+   the MLton-user list
+
+      mlton-user@mlton.org
+
+   or the MLton list
+
+      mlton@mlton.org .
+
+   For larger extensions or changes we recommend that you first contact
+   the active maintainer(s) of this library.  The preferred contact method
+   is through the above mailing lists.
+
+
+References
+----------
+
+  [1] QuickCheck: A Lightweight Tool for Random Testing of Haskell
+      Programs.
+      Koen Claessen and John Hughes.
+      ICFP 2000.
+
+  [2] QCheck/SML.
+      Christopher League.
+      [http://contrapunctus.net/league/haques/qcheck/]
+
+  [3] xUnit.
+      Wikipedia.
+      [http://en.wikipedia.org/wiki/XUnit]
