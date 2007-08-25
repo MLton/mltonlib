@@ -47,6 +47,28 @@ About Motivation and Scope
    See [1] for starters.
 
 
+Contributions
+-------------
+
+   The signatures and structures defined by this library are not meant to
+   be cast in stone!  We welcome contributions including new features,
+   bug fixes, and ports to new compilers.  The recommended submit method
+   for small contributions to this library is to send a message with a
+   brief description of the proposed contribution as well as a patch
+   containing full code and documentation (signature comments) to either
+   the MLton-user list
+
+      mlton-user@mlton.org
+
+   or the MLton list
+
+      mlton@mlton.org .
+
+   For larger extensions or changes we recommend that you first contact
+   the active maintainer(s) of this library.  The preferred contact method
+   is through the above mailing lists.
+
+
 References
 ----------
 
