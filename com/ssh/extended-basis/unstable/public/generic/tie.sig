@@ -54,15 +54,15 @@ signature TIE = sig
 
    val tier : ('a * 'a Effect.t) Thunk.t -> 'a t
    (**
-    * {tier} is used to define fixpoint tiers for new abstract types by
-    * providing a thunk whose instantiation allocates a mutable proxy and
-    * a procedure for updating it with the result.
+    * {tier} is used to define fixpoint witnesses for new abstract types
+    * by providing a thunk whose instantiation allocates a mutable proxy
+    * and a procedure for updating it with the result.
     *)
 
    val id : 'a -> 'a t
    (** {id x} is equivalent to {pure (const (x, id))}. *)
 
-   (** == Combining Existing Tiers == *)
+   (** == Combining Existing Witnesses == *)
 
    val iso : 'b t -> ('a, 'b) Iso.t -> 'a t
    (**
@@ -84,7 +84,7 @@ signature TIE = sig
     * {'a * 'b}.
     *)
 
-   (** == Particular Tiers == *)
+   (** == Particular Witnesses == *)
 
    val function : ('a -> 'b) t
    (** Witness for functions. *)
