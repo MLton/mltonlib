@@ -17,7 +17,7 @@ signature UNIT_TEST = sig
    type 'a s = (t, t, Unit.t, t, t, Unit.t, 'a) Fold.s
    (** Type of a unit test fold step. *)
 
-   (** == TEST SPECIFICATION INTERFACE == *)
+   (** == Test Specification Interface == *)
 
    val unitTests : (t, t, Unit.t, 'a) Fold.f
    (** Begins test specification. *)
@@ -25,7 +25,7 @@ signature UNIT_TEST = sig
    val title : String.t -> 'a s
    (** {title string} specifies the title for subsequent tests. *)
 
-   (** === TEST REGISTRATION INTERFACE === *)
+   (** === Test Registration Interface === *)
 
    val test : Unit.t Effect.t -> 'a s
    (**
@@ -54,7 +54,7 @@ signature UNIT_TEST = sig
     * The exception constructor must be registered with {regExn}.
     *)
 
-   (** == RANDOM TESTING INTERFACE == *)
+   (** == Random Testing Interface == *)
 
    val sizeFn : Int.t UnOp.t -> 'a s
    (**
@@ -112,10 +112,9 @@ signature UNIT_TEST = sig
     *
     *> all (sq int)
     *>     (fn (x, y) =>
-    *>         if x <= y then
-    *>            that (Int.max (x, y) = y)
-    *>         else
-    *>            skip)
+    *>         if x <= y
+    *>         then that (Int.max (x, y) = y)
+    *>         else skip)
     *
     * specifies that if {x <= y} then {Int.max (x, y) = y}.
     *)
@@ -135,7 +134,7 @@ signature UNIT_TEST = sig
     * well as the (pretty printed) values will be logged.
     *)
 
-   (** == AD HOC TESTING HELPERS == *)
+   (** == Ad Hoc Testing Helpers == *)
 
    exception Failure of Prettier.t
    (** Exception for reporting prettier errors. *)
