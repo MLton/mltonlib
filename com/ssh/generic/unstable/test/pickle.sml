@@ -11,8 +11,7 @@ local
          structure Open = WithSeq (Open)
          structure Extra = CloseWithExtra (Open)
       in
-         val seq = Open.seq
-         open Extra
+         open Open Extra
       end
    end
 

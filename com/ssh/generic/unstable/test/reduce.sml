@@ -11,8 +11,7 @@ local
          structure Open = WithReduce (Open)
          structure Extra = CloseWithExtra (Open)
       in
-         val makeReduce = Open.makeReduce
-         open Extra
+         open Open Extra
       end
    end
 

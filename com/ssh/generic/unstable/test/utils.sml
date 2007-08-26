@@ -9,7 +9,7 @@ functor CloseWithExtra (Open : OPEN_CASES) =
    WithExtra (structure Open = Open and Closed = CloseCases (Open) open Closed)
 
 (* Register basis library exceptions for the default generics. *)
-local structure ? = RegBasisExns (Generic) in end
+local structure ? = RegBasisExns (Generic) open ? in end
 
 (* A simplistic graph for testing with cyclic data. *)
 functor MkGraph (Generic : GENERIC_EXTRA) :> sig
@@ -61,4 +61,24 @@ end = struct
 
    val exnArray1 = Array.fromList [Empty]
    val () = Array.update (exnArray1, 0, ExnArray exnArray1)
+end
+
+(* A simple binary tree. *)
+functor MkBinTree (Generic : GENERIC_EXTRA) :> sig
+   datatype 'a t = LF | BR of 'a t * 'a * 'a t
+   val t : 'a Generic.Rep.t -> 'a t Generic.Rep.t
+end = struct
+   datatype 'a t = LF | BR of 'a t * 'a * 'a t
+   local
+      open Generic
+      val lf = C "LF"
+      val br = C "BR"
+   in
+      fun t a =
+          (Tie.fix Y)
+             (fn aT =>
+                 iso (data (C0 lf +` C1 br (tuple3 (aT, a, aT))))
+                     (fn LF => INL () | BR ? => INR ?,
+                      fn INL () => LF | INR ? => BR ?))
+   end
 end
