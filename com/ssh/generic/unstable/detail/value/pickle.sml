@@ -46,84 +46,71 @@ end
 
 (************************************************************************)
 
-functor MkIOSMonad (State : T) : sig
-   type 'a t
-   include MONAD where type 'a monad = 'a t
-   val Y : 'a t Tie.t
+functor MkStateMonad (Arg : sig include MONAD_CORE T end) :> sig
+   include MONAD_CORE
+   val Y : 'a monad Tie.t
+   val get : Arg.t monad
+   val set : Arg.t -> Unit.t monad
+   val run : Arg.t -> 'a monad -> ('a * Arg.t) Arg.monad
+   val lift : 'a Arg.monad -> 'a monad
+   val liftFn : ('a -> 'b Arg.monad) -> 'a -> 'b monad
 end = struct
-   structure Monad =
-      MkMonad (type 'a monad = ('a, State.t) IOSMonad.t open IOSMonad)
-   open Monad IOSMonad
-   type 'a t = 'a monad
+   (* <-- SML/NJ workaround *)
+   open TopLevel
+   (* SML/NJ workaround --> *)
+   type 'a monad = Arg.t -> ('a * Arg.t) Arg.monad
+   fun return x t = Arg.return (x, t)
+   fun op >>= (aM, a2bM) t = Arg.>>= (aM t, uncurry a2bM)
    val Y = Tie.function
+   fun get t = Arg.return (t, t)
+   fun set t = const (Arg.return ((), t))
+   val run = pass
+   fun lift m t = Arg.>>= (m, flip return t)
+   fun liftFn a2bM = lift o a2bM
 end
 
 (************************************************************************)
 
-functor MkIstream (State : T) :> sig
-   type 'a t
-   include MONAD where type 'a monad = 'a t
-   val Y : 'a t Tie.t
-   val run : State.t -> 'a t -> (Char.t, 's) IOSMonad.t -> ('a, 's) IOSMonad.t
-   val read : Char.t t
-   structure State : T where type t = State.t
-   val getState : State.t t
-   val setState : State.t -> Unit.t t
+structure Istream :> sig
+   include MONAD_CORE
+   val run : 'a monad -> (Char.t, 's) IOSMonad.t -> ('a, 's) IOSMonad.t
+   val read : Char.t monad
 end = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
-   datatype t =
-      T of {st : Univ.t, rd : (Char.t, Univ.t) IOSMonad.t, us : State.t}
-   structure Monad = MkIOSMonad (type t = t)
-   open IOSMonad Monad
-   fun run us f cM = let
-      val (to, from) = Univ.Iso.new ()
-   in
-      mapState (fn s => T {st = to s, rd = mapState (from, to) cM, us = us},
-                fn T r => from (#st r)) f
-   end
-   fun read (T {st, rd, us}) =
-       Pair.map (id, fn st => T {st=st, rd=rd, us=us}) (rd st)
-   structure State = State
-   fun getState (s as T {us, ...}) = (us, s)
-   fun setState us (T {st, rd, ...}) = ((), T {st=st, rd=rd, us=us})
+   datatype t = T of {st : Univ.t, rd : (Char.t, Univ.t) IOSMonad.t}
+   type 'a monad = ('a, t) IOSMonad.t
+   open IOSMonad
+   fun run f cM =
+       case Univ.Iso.new ()
+        of (to, from) =>
+           mapState (fn s => T {st = to s, rd = mapState (from, to) cM},
+                     fn T r => from (#st r)) f
+   fun read (T {st, rd}) = Pair.map (id, fn st => T {st=st, rd=rd}) (rd st)
 end
 
 (************************************************************************)
 
-functor MkOstream (State : T) :> sig
-   type 'a t
-   include MONAD where type 'a monad = 'a t
-   val Y : 'a t Tie.t
-   val run : State.t -> ('a -> Unit.t t) -> (Char.t -> (Unit.t, 's) IOSMonad.t)
-                                         -> ('a     -> (Unit.t, 's) IOSMonad.t)
-   val write : Char.t -> Unit.t t
-   structure State : T where type t = State.t
-   val getState : State.t t
-   val setState : State.t -> Unit.t t
+structure Ostream :> sig
+   include MONAD_CORE
+   val run : ('a -> Unit.t monad) -> (Char.t -> (Unit.t, 's) IOSMonad.t)
+                                  -> ('a     -> (Unit.t, 's) IOSMonad.t)
+   val write : Char.t -> Unit.t monad
 end = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
-   datatype t =
-      T of {st : Univ.t,
-            wr : Char.t -> (Unit.t, Univ.t) IOSMonad.t,
-            us : State.t}
-   structure Monad = MkIOSMonad (type t = t)
-   open IOSMonad Monad
-   fun run us f c2uM = let
-      val (to, from) = Univ.Iso.new ()
-   in
-      mapState (fn s => T {st = to s, wr = mapState (from, to) o c2uM, us = us},
-                fn T r => from (#st r)) o f
-   end
+   datatype t = T of {st : Univ.t, wr : Char.t -> (Unit.t, Univ.t) IOSMonad.t}
+   type 'a monad = ('a, t) IOSMonad.t
+   open IOSMonad
+   fun run f c2uM =
+       case Univ.Iso.new ()
+        of (to, from) =>
+           mapState (fn s => T {st = to s, wr = mapState (from, to) o c2uM},
+                     fn T r => from (#st r)) o f
    fun write c (T r) =
-       Pair.map (id, fn st => T {st = st, wr = #wr r, us = #us r})
-                (#wr r c (#st r))
-   structure State = State
-   fun getState (s as T {us, ...}) = (us, s)
-   fun setState us (T {st, wr, ...}) = ((), T {st=st, wr=wr, us=us})
+       Pair.map (id, fn st => T {st = st, wr = #wr r}) (#wr r c (#st r))
 end
 
 (************************************************************************)
@@ -164,8 +151,49 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
 
    structure Dyn = HashUniv
 
-   structure I = MkIstream (type t = (Int.t, Dyn.t) HashMap.t)
-   structure O = MkOstream (type t = (Dyn.t, Int.t) HashMap.t)
+   structure I = let
+      structure SMC = MkStateMonad
+        (open Istream
+         type t = Int.t * (Int.t, Dyn.t) HashMap.t)
+      structure M = MkMonad (SMC)
+   in
+      struct
+         open M
+         structure Map = struct
+            val get = map #2 SMC.get
+         end
+         structure Key = struct
+            val alloc = SMC.get >>= (fn (n, m) =>
+                        SMC.set (n+1, m) >>
+                        return (n+1))
+         end
+         fun run s = Istream.run o SMC.run s
+         val read = SMC.lift Istream.read
+         val Y = SMC.Y
+      end
+   end
+   structure O = let
+      structure SMC = MkStateMonad
+        (open Ostream
+         type t = Int.t * (Dyn.t, Int.t) HashMap.t)
+      structure M = MkMonad (SMC)
+   in
+      struct
+         open M
+         structure Map = struct
+            val get = map #2 SMC.get
+         end
+         structure Key = struct
+            val alloc = SMC.get >>= (fn (n, m) =>
+                        SMC.set (n+1, m) >>
+                        return (n+1))
+         end
+         fun run s w =
+             Ostream.run
+                (fn v => Ostream.>>= (SMC.run s (w v), Ostream.return o #1))
+         fun write ? = SMC.liftFn Ostream.write ?
+      end
+   end
 
    structure OptInt = struct
       type t = Int.t Option.t
@@ -179,9 +207,9 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       end
    end
 
-   type 'a t = {rd : 'a I.t, wr : 'a -> Unit.t O.t, sz : OptInt.t}
-   type 'a s = Int.t -> {rd : Int.t -> 'a I.t,
-                         wr : (Int.t -> Unit.t O.t) -> 'a -> Unit.t O.t,
+   type 'a t = {rd : 'a I.monad, wr : 'a -> Unit.t O.monad, sz : OptInt.t}
+   type 'a s = Int.t -> {rd : Int.t -> 'a I.monad,
+                         wr : (Int.t -> Unit.t O.monad) -> 'a -> Unit.t O.monad,
                          sz : OptInt.t}
 
    fun fake msg = {rd = I.thunk (failing msg), wr = failing msg, sz = NONE}
@@ -310,23 +338,24 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq self, hash = Arg.hash self}
       open I
    in
-      {rd = #rd size >>& getState >>= (fn i & mp =>
-            if 0 = i
-            then readProxy >>= (fn proxy =>
-                 (HashMap.insert mp (HashMap.numItems mp, toDyn proxy)
+      {rd = #rd size >>& Map.get >>= (fn key & mp =>
+            if 0 = key
+            then Key.alloc >>& readProxy >>= (fn key & proxy =>
+                 (HashMap.insert mp (key, toDyn proxy)
                 ; readBody proxy >> return proxy))
-            else case HashMap.find mp (i-1)
+            else case HashMap.find mp key
                   of NONE   => fail "Corrupted pickle"
                    | SOME d => return (fromDyn d)),
        wr = fn v => let
                   val d = toDyn v
                   open O
                in
-                  getState >>= (fn mp =>
+                  Map.get >>= (fn mp =>
                   case HashMap.find mp d
-                   of SOME i => #wr size (i+1)
-                    | NONE   => (HashMap.insert mp (d, HashMap.numItems mp)
-                               ; #wr size 0 >> writeWhole v))
+                   of SOME key => #wr size key
+                    | NONE     => Key.alloc >>= (fn key =>
+                                  (HashMap.insert mp (d, key)
+                                 ; #wr size 0 >> writeWhole v)))
                end,
        sz = NONE}
    end
@@ -335,24 +364,26 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq t, hash = Arg.hash t}
       open I
    in
-      {rd = #rd size >>& getState >>= (fn i & mp =>
-            if 0 = i
-            then rdE >>= (fn v =>
-                 (HashMap.insert mp (HashMap.numItems mp, toDyn v)
+      {rd = #rd size >>& Map.get >>= (fn key & mp =>
+            if 0 = key
+            then Key.alloc >>& rdE >>= (fn key & v =>
+                 (HashMap.insert mp (key, toDyn v)
                 ; return v))
-            else case HashMap.find mp (i-1)
+            else case HashMap.find mp key
                   of NONE   => fail "Corrupted pickle"
                    | SOME d => return (fromDyn d)),
        wr = fn v => let
                   val d = toDyn v
                   open O
                in
-                  getState >>= (fn mp =>
+                  Map.get >>= (fn mp =>
                   case HashMap.find mp d
-                   of SOME i => #wr size (i+1)
-                    | NONE   => #wr size 0 >> wrE v >>= (fn () =>
-                                (HashMap.insert mp (d, HashMap.numItems mp)
-                               ; return ())))
+                   of SOME key => #wr size key
+                    | NONE     => #wr size 0 >> Key.alloc >>= (fn key =>
+                                  wrE v >>= (fn () =>
+                                  (if isSome (HashMap.find mp d) then () else
+                                   HashMap.insert mp (d, key)
+                                 ; return ()))))
                end,
        sz = SOME 5}
    end
@@ -480,7 +511,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val wr = #wr (getT t)
       open O
    in
-      run (HashMap.new {eq = Dyn.eq, hash = Dyn.hash})
+      run (0, HashMap.new {eq = Dyn.eq, hash = Dyn.hash})
           (fn v => #wr word32 key >> wr v)
    end
    fun unpickler t = let
@@ -488,7 +519,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val rd = #rd (getT t)
       open I
    in
-      run (HashMap.new {eq = op =, hash = Word.fromInt})
+      IOSMonad.map #1 o
+      run (0, HashMap.new {eq = op =, hash = Word.fromInt})
           (#rd word32 >>= (fn key' =>
            if key' <> key
            then raise Pickling.TypeMismatch
@@ -631,8 +663,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                       getItem = VectorSlice.getItem,
                       fromList = Vector.fromList} (getT t))
 
-      val exns : {rd : String.t -> Exn.t I.t Option.t,
-                  wr : Exn.t -> Unit.t O.t Option.t} Buffer.t =
+      val exns : {rd : String.t -> Exn.t I.monad Option.t,
+                  wr : Exn.t -> Unit.t O.monad Option.t} Buffer.t =
           Buffer.new ()
       val exn : Exn.t t =
           {rd = let
