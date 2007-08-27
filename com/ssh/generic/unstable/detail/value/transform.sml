@@ -7,91 +7,114 @@
 functor WithTransform (Arg : OPEN_CASES) : TRANSFORM_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix 4 <\
+   infix  4 <\
+   infixr 4 />
+   infix  0 &
    (* SML/NJ workaround --> *)
 
+   type c = Word.t
+   val ID = 0w0 and REC = 0w1 and CUSTOM = 0w2
+   val join = Word.orb
+
    type e = Univ.t List.t
-   type 'a t = ('a * e) UnOp.t
+   type 'a t = c * ('a * e) UnOp.t
 
    fun lift f = Pair.map (f, id)
 
-   val default = id
+   val default = (ID, id)
 
-   fun cyclic t = let
-      val (to, from) = Univ.Emb.new ()
-   in
-      fn (x, e) => if List.exists (SOME x <\ op = o from) e
-                   then (x, e)
-                   else t (x, to x::e)
-   end
+   fun un f2f (c, f) = if ID = c then default else (c, f2f f)
+   fun bin fs2f ((aC, aT), (bC, bT)) =
+       case join (aC, bC) of c => if ID = c then default else (c, fs2f (aT, bT))
+
+   fun cyclic t =
+       case Univ.Emb.new ()
+        of (to, from) => fn (x, e) => if List.exists (SOME x <\ op = o from) e
+                                      then (x, e)
+                                      else t (x, to x::e)
 
    structure Transform = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
 
-   fun makeTransform a2a tA tA2tB = let
-      val tA = Transform.This.mapT (const (lift a2a)) tA
-      val tB = tA2tB tA
-   in
-      Pair.fst o Transform.This.getT tB o (fn b => (b, []))
-   end
+   open Transform.This
+
+   fun makeTransform a2a t t2u =
+       #1 o #2 (getT (t2u (mapT (const (CUSTOM, lift a2a)) t))) o id /> []
 
    structure Layered = LayerCases
      (structure Outer = Arg and Result = Transform and Rep = Transform.Closed
 
-      fun iso bT (a2b, b2a) = lift b2a o bT o lift a2b
+      fun iso ? (a2b, b2a) = un (Fn.map (lift a2b, lift b2a)) ?
       val isoProduct = iso
       val isoSum     = iso
 
-      fun op *` (aT, bT) (a & b, e) = let
-         val (a, e) = aT (a, e)
-         val (b, e) = bT (b, e)
-      in
-         (a & b, e)
-      end
+      fun op *` ? =
+          bin (fn (aT, bT) => fn (a & b, e) => let
+                                    val (a, e) = aT (a, e)
+                                    val (b, e) = bT (b, e)
+                                 in
+                                    (a & b, e)
+                                 end) ?
       val T      = id
       fun R _    = id
       val tuple  = id
       val record = id
 
-      fun op +` (aT, bT) (s, e) =
-          case s
-           of INL a => lift INL (aT (a, e))
-            | INR b => lift INR (bT (b, e))
+      fun op +` ? =
+          bin (fn (aT, bT) => fn (INL a, e) => lift INL (aT (a, e))
+                               | (INR b, e) => lift INR (bT (b, e))) ?
       val unit  = default
       fun C0 _  = unit
       fun C1 _  = id
       val data  = id
 
-      val Y = Tie.function
+      fun Y ? = Tie.pure (fn () => let
+                                val r = ref (raising Fix.Fix)
+                             in
+                                ((REC, fn x => !r x),
+                                 fn (c, f) =>
+                                    if c <= REC
+                                    then default
+                                    else (r := f ; (CUSTOM, f)))
+                             end) ?
 
-      fun op --> _ = failing "Transform.--> has no default"
+      fun op --> _ = (ID, failing "Transform.--> has no default")
 
       val exn = default
       fun regExn0 _ _ = ()
       fun regExn1 _ _ _ = ()
 
-      fun list xT = Pair.map (id, Pair.snd) o
-                    List.unfoldr'
-                       (fn ([],    _) => NONE
-                         | (x::xs, e) =>
-                           case xT (x, e) of (y, e) => SOME (y, (xs, e)))
+      fun list ? =
+          un (fn xT =>
+                 Pair.map (id, Pair.snd) o
+                 List.unfoldr'
+                    (fn ([],    _) => NONE
+                      | (x::xs, e) =>
+                        case xT (x, e) of (y, e) => SOME (y, (xs, e)))) ?
 
-      fun vector xT (v, e) =
-          Vector.unfoldi (xT o lift (v <\ Vector.sub)) (Vector.length v, e)
+      fun vector ? =
+          un (fn xT => fn (v, e) =>
+                 Vector.unfoldi
+                    (xT o lift (v <\ Vector.sub)) (Vector.length v, e)) ?
 
-      fun array aT = cyclic (fn (aA, e) => let
-                                   fun lp (i, e) =
-                                       if i = Array.length aA then e else
-                                       case aT (Array.sub (aA, i), e)
-                                        of (a, e) => (Array.update (aA, i, a)
-                                                    ; lp (i+1, e))
-                                in
-                                   (aA, lp (0, e))
-                                end)
+      fun array ? =
+          un (fn aT =>
+                 cyclic (fn (aA, e) => let
+                               fun lp (i, e) =
+                                   if i = Array.length aA then e else
+                                   case aT (Array.sub (aA, i), e)
+                                    of (a, e) => (Array.update (aA, i, a)
+                                                ; lp (i+1, e))
+                            in
+                               (aA, lp (0, e))
+                            end)) ?
 
-      fun refc aT =
-          cyclic (fn (r, e) => case aT (!r, e) of (a, e) => (r := a ; (r, e)))
+      fun refc ? =
+          un (fn aT =>
+                 cyclic
+                    (fn (r, e) =>
+                        case aT (!r, e) of (a, e) => (r := a ; (r, e)))) ?
 
       val fixedInt = default
       val largeInt = default
