@@ -60,7 +60,7 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
       val isoSum     = const
 
       fun op *` (INP l, INP r) =
-          INP {exn  = #exn l orelse #exn r, recs = merge (#recs l, #recs r)}
+          INP {exn = #exn l orelse #exn r, recs = merge (#recs l, #recs r)}
       fun T (INT {exn, recs, ...}) = INP {exn = exn, recs = recs}
       fun R _ = T
       fun tuple (INP {exn, recs, ...}) =
@@ -68,7 +68,7 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
       val record = tuple
 
       fun op +` (INS l, INS r) =
-          INS {exn  = #exn l orelse #exn r, recs = merge (#recs l, #recs r)}
+          INS {exn = #exn l orelse #exn r, recs = merge (#recs l, #recs r)}
       val unit = base
       fun C0 _ = INS {exn = false, recs = []}
       fun C1 _ (INT {exn, recs, ...}) = INS {exn = exn, recs = recs}
