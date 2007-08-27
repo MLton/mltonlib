@@ -24,6 +24,7 @@ local
    end
 
    structure BinTree = MkBinTree (Generic)
+   structure Graph = MkGraph (Generic)
 in
    val () =
        unitTests
@@ -40,6 +41,8 @@ in
                 (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
                 (BR (BR (LF, 1, LF), 2, BR (LF, 3, BR (LF, 4, LF))))
           end
+
+          (testTransform op ~ int Graph.t Graph.intGraph1 Graph.intGraph1)
 
           $
 end

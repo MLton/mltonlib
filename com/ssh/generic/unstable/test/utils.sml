@@ -5,8 +5,24 @@
  *)
 
 (* Helper for adding a new generic. *)
-functor CloseWithExtra (Open : OPEN_CASES) =
-   WithExtra (structure Open = Open and Closed = CloseCases (Open) open Closed)
+functor CloseWithExtra (Open : OPEN_CASES) = struct
+   local
+      structure Extra = WithExtra
+         (structure Open = Open and Closed = CloseCases (Open) open Closed)
+   in
+      open Extra
+   end
+   structure Arbitrary   = Open.Rep
+   structure DataRecInfo = Open.Rep
+   structure Eq          = Open.Rep
+   structure Hash        = Open.Rep
+   structure Ord         = Open.Rep
+   structure Pickle      = Open.Rep
+   structure Pretty      = Open.Rep
+   structure Some        = Open.Rep
+   structure TypeHash    = Open.Rep
+   structure TypeInfo    = Open.Rep
+end
 
 (* Register basis library exceptions for the default generics. *)
 local structure ? = RegBasisExns (Generic) open ? in end
@@ -17,16 +33,20 @@ functor MkGraph (Generic : GENERIC_EXTRA) :> sig
    val t : 'a Generic.Rep.t -> 'a t Generic.Rep.t
    val intGraph1 : Int.t t
 end = struct
-   datatype 'a t = VTX of 'a * 'a t List.t Ref.t
+   datatype 'a v = VTX of 'a * 'a t
+   withtype 'a t = 'a v List.t Ref.t
 
    local
       open Tie Generic
       val vtx = C "VTX"
+      fun withT aV = refc (list aV)
    in
-      fun t a =
-          fix Y (fn aT =>
-                    iso (data (C1 vtx (tuple2 (a, refc (list aT)))))
-                        (fn VTX ? => ?, VTX))
+      fun v a =
+          fix Y
+              (fn aV =>
+                  iso (data (C1 vtx (tuple2 (a, withT aV))))
+                      (fn VTX ? => ?, VTX))
+      fun t a = withT (v a)
    end
 
    fun arcs (VTX (_, r)) = r
@@ -45,7 +65,7 @@ end = struct
     ; arcs d := [f]
     ; arcs e := [d]
     ; arcs f := [e]
-    ; a
+    ; ref [a, b, c, d, e, f]
    end
 end
 
