@@ -84,7 +84,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
       fun C0 _ = unit
       fun C1 _ = getT
       fun data aS a {maxDepth, totWidth} =
-          if maxDepth = 0 then 0wx9AA5562B
+          if maxDepth = 0 then 0wx36958B65
           else getS aS a {maxDepth = maxDepth - 1,
                           totWidth = totWidth}
 
@@ -121,7 +121,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
       val string = sequ String.length String.sub char
 
       fun exn e {maxDepth, totWidth} =
-          if maxDepth = 0 then 0wxD26156CB
+          if maxDepth = 0 then 0wx1A35B599
           else case Buffer.findSome (pass (e, {maxDepth = maxDepth - 1,
                                                totWidth = totWidth})) exns
                 of NONE   => GenericsUtil.failExn e
