@@ -41,6 +41,16 @@ functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = struct
          else t (to (l, r)::e, (l, r))
    end
 
+   val exns : (e * Exn.t Sq.t -> (e * Order.t) Option.t) Buffer.t = Buffer.new ()
+   fun regExn aO (_, e2a) =
+       (Buffer.push exns)
+          (fn (e, (l, r)) =>
+              case e2a l & e2a r
+               of SOME l & SOME r => SOME (aO (e, (l, r)))
+                | SOME _ & NONE   => SOME (e, GREATER)
+                | NONE   & SOME _ => SOME (e, LESS)
+                | NONE   & NONE   => NONE)
+
    structure Ord = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
@@ -81,19 +91,10 @@ functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = struct
 
       fun op --> _ = failing "Ord.--> unsupported"
 
-      val exns : (e * Exn.t Sq.t -> (e * Order.t) Option.t) Buffer.t = Buffer.new ()
       fun exn (e, lr) =
           case Buffer.findSome (pass (e, lr)) exns
            of NONE   => GenericsUtil.failExnSq lr
             | SOME r => r
-      fun regExn aO (_, e2a) =
-          (Buffer.push exns)
-             (fn (e, (l, r)) =>
-                 case e2a l & e2a r
-                  of SOME l & SOME r => SOME (aO (e, (l, r)))
-                   | SOME _ & NONE   => SOME (e, GREATER)
-                   | NONE   & SOME _ => SOME (e, LESS)
-                   | NONE   & NONE   => NONE)
       fun regExn0 _ = regExn unit
       fun regExn1 _ = regExn
 

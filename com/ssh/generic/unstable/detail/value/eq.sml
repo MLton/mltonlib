@@ -23,6 +23,15 @@ functor WithEq (Arg : OPEN_CASES) : EQ_CASES = struct
       lL = lR andalso lp lL
    end
 
+   val exnHandler : Exn.t BinPr.t Ref.t = ref GenericsUtil.failExnSq
+   fun regExn t (_, e2to) =
+       Ref.modify (fn exnHandler =>
+                   fn (l, r) =>
+                      case e2to l & e2to r
+                       of NONE   & NONE   => exnHandler (l, r)
+                        | SOME l & SOME r => t (l, r)
+                        | _               => false) exnHandler
+
    structure Eq = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (BinPr))
@@ -56,17 +65,9 @@ functor WithEq (Arg : OPEN_CASES) : EQ_CASES = struct
 
       fun op --> _ = failing "Eq.--> unsupported"
 
-      val exnHandler : Exn.t Rep.t Ref.t = ref GenericsUtil.failExnSq
-      fun regExn t (_, e2to) =
-          Ref.modify (fn exnHandler =>
-                         fn (l, r) =>
-                            case e2to l & e2to r
-                             of NONE   & NONE   => exnHandler (l, r)
-                              | SOME l & SOME r => t (l, r)
-                              | _               => false) exnHandler
+      fun exn ? = !exnHandler ?
       fun regExn0 _ = regExn unit
       fun regExn1 _ = regExn
-      fun exn ? = !exnHandler ?
 
       val list = ListPair.allEq
 

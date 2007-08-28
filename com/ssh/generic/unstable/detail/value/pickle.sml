@@ -494,6 +494,17 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
         end,
         sz = NONE : OptInt.t}
 
+   val exns : {rd : String.t -> Exn.t I.monad Option.t,
+               wr : Exn.t -> Unit.t O.monad Option.t} Buffer.t = Buffer.new ()
+   fun regExn c {rd, wr, sz=_} (a2e, e2a) = let
+      val c = Generics.Con.toString c
+      val rd = I.map a2e rd
+   in
+      (Buffer.push exns)
+         {rd = fn c' => if c' = c then SOME rd else NONE,
+          wr = Option.map (fn a => O.>> (#wr string c, wr a)) o e2a}
+   end
+
    structure Pickle = LayerRep
       (structure Outer = Arg.Rep
        structure Closed = struct
@@ -663,9 +674,6 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                       getItem = VectorSlice.getItem,
                       fromList = Vector.fromList} (getT t))
 
-      val exns : {rd : String.t -> Exn.t I.monad Option.t,
-                  wr : Exn.t -> Unit.t O.monad Option.t} Buffer.t =
-          Buffer.new ()
       val exn : Exn.t t =
           {rd = let
               open I
@@ -679,14 +687,6 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                          of NONE   => GenericsUtil.failExn e
                           | SOME r => r,
            sz = NONE}
-      fun regExn c {rd, wr, sz=_} (a2e, e2a) = let
-         val c = Generics.Con.toString c
-         val rd = I.map a2e rd
-      in
-         (Buffer.push exns)
-            {rd = fn c' => if c' = c then SOME rd else NONE,
-             wr = Option.map (fn a => O.>> (#wr string c, wr a)) o e2a}
-      end
       fun regExn0 c (e, p) = regExn c unit (const e, p)
       fun regExn1 c t = regExn c (getT t)
 

@@ -47,6 +47,16 @@ functor WithSeq (Arg : OPEN_CASES) : SEQ_CASES = struct
       fn (e, (l, r)) => lp (e, e, (l, r))
    end
 
+   val exns : (e * Exn.t Sq.t -> (e * Bool.t) Option.t) Buffer.t = Buffer.new ()
+   fun regExn aE (_, e2a) =
+       (Buffer.push exns)
+          (fn (e, (l, r)) =>
+              case e2a l & e2a r
+               of SOME l & SOME r => SOME (aE (e, (l, r)))
+                | SOME _ & NONE   => SOME (e, false)
+                | NONE   & SOME _ => SOME (e, false)
+                | NONE   & NONE   => NONE)
+
    structure Seq = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
@@ -88,19 +98,10 @@ functor WithSeq (Arg : OPEN_CASES) : SEQ_CASES = struct
 
       fun op --> _ = failing "Seq.--> unsupported"
 
-      val exns : (e * Exn.t Sq.t -> (e * Bool.t) Option.t) Buffer.t = Buffer.new ()
       fun exn (e, lr) =
           case Buffer.findSome (pass (e, lr)) exns
            of NONE   => GenericsUtil.failExnSq lr
             | SOME r => r
-      fun regExn aE (_, e2a) =
-          (Buffer.push exns)
-             (fn (e, (l, r)) =>
-                 case e2a l & e2a r
-                  of SOME l & SOME r => SOME (aE (e, (l, r)))
-                   | SOME _ & NONE   => SOME (e, false)
-                   | NONE   & SOME _ => SOME (e, false)
-                   | NONE   & NONE   => NONE)
       fun regExn0 _ (e, p) = regExn unit (const e, p)
       fun regExn1 _ = regExn
 
