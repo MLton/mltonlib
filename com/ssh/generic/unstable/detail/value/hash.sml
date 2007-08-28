@@ -10,7 +10,8 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
    infix  0 &
    (* SML/NJ workaround --> *)
 
-   type 'a t = 'a -> {totWidth : Int.t, maxDepth : Int.t} -> Word.t
+   type p = {totWidth : Int.t, maxDepth : Int.t}
+   type 'a t = 'a -> p -> Word.t
 
    fun prim f : 'a t = const o f
 
@@ -19,18 +20,38 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
 
    fun iso' bH (a2b, _) = bH o a2b
 
+   fun sequ length sub hashElem s {totWidth, maxDepth} = let
+      val n = length s
+      val h = Word.fromInt n
+   in
+      case Int.min (Int.quot (totWidth+3, 4), Int.quot (n+1, 2))
+       of 0          => h
+        | numSamples => let
+             val p = {totWidth = Int.quot (totWidth, numSamples),
+                      maxDepth = maxDepth}
+             fun lp h 0 = h
+               | lp h n = lp (h * 0w19 + hashElem (sub (s, n-1)) p) (n-1)
+          in
+             lp h (Int.max (numSamples, Int.min (10, n)))
+          end
+   end
+
+   val exns : (Exn.t * p -> Word.t Option.t) Buffer.t = Buffer.new ()
+
    structure Hash = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
 
    open Hash.This
 
+   val defaultHashParam = {totWidth = 200, maxDepth = 10}
+
    fun hashParam t p =
        if #totWidth p < 0 orelse #maxDepth p < 0
        then raise Domain
        else fn v => Word.xorb (Word32.toWord (Arg.typeHash t), getT t v p)
 
-   fun hash t = hashParam t {totWidth = 200, maxDepth = 10}
+   fun hash t = hashParam t defaultHashParam
 
    structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Hash
@@ -50,20 +71,20 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
       end
       val T   = getT
       fun R _ = getT
-      fun tuple aP a p = if #totWidth p = 0 then 0w0 else getP aP a p
+      fun tuple aP a p = if #totWidth p = 0 then 0wx65B2531B else getP aP a p
       val record = tuple
 
       fun op +` ? = let
          fun withConst c f v p = Word.xorb (f v p, c)
       in
-         Sum.sum o Pair.map (withConst 0wx96BA232 o getS,
-                             withConst 0wxCF24651 o getS)
+         Sum.sum o Pair.map (withConst 0wx04D55ADB o getS,
+                             withConst 0wx05B6D5A3 o getS)
       end ?
-      val unit = prim (Thunk.mk 0wx2F785)
+      val unit = prim (Thunk.mk 0wx062DAD9B)
       fun C0 _ = unit
       fun C1 _ = getT
       fun data aS a {maxDepth, totWidth} =
-          if maxDepth = 0 then 0w0
+          if maxDepth = 0 then 0wx9AA5562B
           else getS aS a {maxDepth = maxDepth - 1,
                           totWidth = totWidth}
 
@@ -81,10 +102,10 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
            | len n (_::xs) = if m <= n then n else len (n+1) xs
       in
          case len 0 xs
-          of 0 => 0wx2A4C7A
+          of 0 => 0wx2A4C5ADB
            | n => let
                 val p = {totWidth = Int.quot (totWidth, n),
-                         maxDepth = maxDepth - 1}
+                         maxDepth = maxDepth}
                 fun lp h _ []      = h
                   | lp h n (x::xs) =
                     if n = 0 then h else lp (h * 0w17 + getT xT x p) (n-1) xs
@@ -93,33 +114,32 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
              end
       end
 
-      fun hashSeq length sub hashElem s {totWidth, maxDepth} = let
-         val n = length s
-         val h = Word.fromInt n
-      in
-         case Int.min (Int.quot (totWidth+3, 4), Int.quot (n+1, 2))
-          of 0          => h
-           | numSamples => let
-                val p = {totWidth = Int.quot (totWidth, numSamples),
-                         maxDepth = maxDepth - 1}
-                fun lp h 0 = h
-                  | lp h n = lp (h * 0w19 + hashElem (sub (s, n-1)) p) (n-1)
-             in
-                lp h (Int.max (numSamples, Int.min (10, n)))
-             end
-      end
-
-      fun array  aT = hashSeq Array.length  Array.sub  (getT aT)
-      fun vector aT = hashSeq Vector.length Vector.sub (getT aT)
+      fun array  aT = sequ Array.length  Array.sub  (getT aT)
+      fun vector aT = sequ Vector.length Vector.sub (getT aT)
 
       val char = prim (Word.fromInt o ord)
-      val string = hashSeq String.length String.sub char
+      val string = sequ String.length String.sub char
 
-      val exn = string o Exn.message (* XXX Imprecise *)
-      fun regExn0 _ _ = ()
-      fun regExn1 _ _ _ = ()
+      fun exn e {maxDepth, totWidth} =
+          if maxDepth = 0 then 0wxD26156CB
+          else case Buffer.findSome (pass (e, {maxDepth = maxDepth - 1,
+                                               totWidth = totWidth})) exns
+                of NONE   => GenericsUtil.failExn e
+                 | SOME h => h
+      fun regExn0 c (e, e2t) =
+          case Word.xorb (string (Generics.Con.toString c) defaultHashParam,
+                          string (Exn.name e) defaultHashParam)
+           of c => (Buffer.push exns)
+                      (fn (e, _) => if isSome (e2t e) then SOME c else NONE)
+      fun regExn1 c t (_, e2t) =
+          case string (Generics.Con.toString c) defaultHashParam & getT t
+           of c & t => (Buffer.push exns)
+                          (fn (e, p) =>
+                              case e2t e
+                               of NONE   => NONE
+                                | SOME v => SOME (Word.xorb (c, t v p)))
 
-      val bool = prim (fn true => 0wx2DA745 | false => 0wx3C24A62)
+      val bool = prim (fn true => 0wx096DB16D | false => 0wx01B56B6D)
       val real =
           let open CastReal in viaWord (#1 isoBits) op mod Bits.isoWord end
       val word = const
