@@ -89,11 +89,11 @@ functor MkBufferCommon (type 'a elem
    end
 
    fun findSome p b = let
-      fun lp i = if length b < i
-                 then NONE
-                 else case p (sub (b, i))
+      fun lp i = if i < length b
+                 then case p (sub (b, i))
                        of NONE   => lp (i+1)
                         | result => result
+                 else NONE
    in
       lp 0
    end
