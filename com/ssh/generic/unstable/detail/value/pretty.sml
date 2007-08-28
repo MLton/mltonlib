@@ -56,142 +56,131 @@ functor WithPretty (Arg : OPEN_CASES) : PRETTY_CASES = struct
       val op </> = bop op </>
    end
 
+   local
+      open Generics
+   in
+      val C = C
+      val l2s = Label.toString
+      val c2s = Con.toString
+   end
+
+   fun inj b a2b = b o Pair.map (id, a2b)
+
+   val txtAs = txt "as"
+   val txtFn = txt "#fn"
+
+   val ctorRef = C "ref"
+
+   fun cyclic t =
+       case Univ.Emb.new ()
+        of (to, from) =>
+           fn (e, v : ''a) => let
+                 val idx = Int.toString o length
+                 fun lp [] = let
+                        val c = ref true
+                        val r = t (to (v, c)::e, v)
+                     in
+                        if !c then r else txt ("#"^idx e) </> txtAs </> r
+                     end
+                   | lp (u::e) =
+                     case from u
+                      of NONE => lp e
+                       | SOME (x, c) =>
+                         if x <> v then lp e else (c := false ; txt ("#"^idx e))
+              in
+                 lp e
+              end
+
+   fun sequ style toL t (e, a) =
+       surround style o fill o punctuate comma o List.map (curry t e) |< toL a
+
+   type 'a t = Univ.t List.t * 'a -> u
+
+   fun mk toS : 'a t = txt o toS o Pair.snd
+   fun enc l r toS x = concat [l, toS x, r]
+   fun mkWord toString = mk ("0wx" <\ op ^ o toString)
+
+   val exnHandler : Exn.t t Ref.t =
+       ref (txt o "#" <\ op ^ o General.exnName o #2)
+
    structure Pretty = LayerRep
      (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = exn list * 'a -> u))
+      structure Closed = MkClosedRep (type 'a t = 'a t))
 
    open Pretty.This
 
    fun layout t = Pair.snd o [] <\ getT t
    fun pretty m t = Prettier.pretty m o layout t
+   fun show t = pretty NONE t
 
    structure Layered = LayerCases
      (structure Outer = Arg and Result = Pretty and Rep = Pretty.Closed
 
-      local
-         open Generics
-      in
-         val C = C
-         val l2s = Label.toString
-         val c2s = Con.toString
-      end
-
-      fun inj b a2b = b o Pair.map (id, a2b)
       fun iso b = inj b o Iso.to
       val isoProduct = iso
       val isoSum = iso
 
-      fun (l *` r) (env, a & b) = l (env, a) <^> comma <$> r (env, b)
-
+      fun (l *` r) (e, a & b) = l (e, a) <^> comma <$> r (e, b)
       val T = id
-      fun R label = let
-         val txtLabel = txt (l2s label)
-         fun fmt t ? = group (nest 1 (txtLabel </> equals </> t ?))
-      in
-         fmt
-      end
-
+      fun R l = case txt (l2s l)
+                 of l => fn t => fn ? => group (nest 1 (l </> equals </> t ?))
       fun tuple t = surround parens o t
       fun record t = surround braces o t
 
-      fun l +` r = fn (env, INL a) => l (env, a)
-                    | (env, INR b) => r (env, b)
-
-      fun C0 ctor = const (txt (c2s ctor))
-      fun C1 ctor = let
-         val txtCtor = txt (c2s ctor)
-      in
-         fn t => fn ? => nest 1 (group (txtCtor <$> atomize (t ?)))
-      end
-
+      fun l +` r = fn (e, INL a) => l (e, a)
+                    | (e, INR b) => r (e, b)
+      val unit = mk (Thunk.mk "()")
+      fun C0 c = const (txt (c2s c))
+      fun C1 c = case txt (c2s c)
+                  of c => fn t => fn ? => nest 1 (group (c <$> atomize (t ?)))
       val data = id
 
       val Y = Tie.function
 
-      val exn : Exn.t Rep.t ref =
-          ref (txt o "#" <\ op ^ o General.exnName o #2)
+      fun exn ? = !exnHandler ?
       fun regExn0 c (_, prj) =
-          Ref.modify (fn exn => fn (env, e) =>
+          Ref.modify (fn exnHandler => fn (env, e) =>
                          case prj e
-                          of NONE    => exn (env, e)
-                           | SOME () => txt (c2s c)) exn
+                          of NONE    => exnHandler (env, e)
+                           | SOME () => txt (c2s c)) exnHandler
       fun regExn1 c t (_, prj) =
-          Ref.modify (fn exn => fn (env, e) =>
+          Ref.modify (fn exnHandler => fn (env, e) =>
                          case prj e
-                          of NONE   => exn (env, e)
+                          of NONE   => exnHandler (env, e)
                            | SOME x =>
                              nest 1 (group (txt (c2s c) <$>
-                                            atomize (t (env, x))))) exn
+                                            atomize (t (env, x))))) exnHandler
 
+      fun refc ? = cyclic o flip inj ! |< C1 ctorRef ?
+      fun array ? = cyclic |< sequ hashParens Array.toList ?
 
-      val exn = fn ? => !exn ?
+      fun vector ? = sequ hashBrackets Vector.toList ?
+      fun list ? = sequ brackets id ?
 
-      val txtAs = txt "as"
-      fun cyclic t = let
-         exception E of ''a * bool ref
-      in
-         fn (env, v : ''a) => let
-               val idx = Int.toString o length
-               fun lp (E (v', c)::env) =
-                   if v' <> v then
-                      lp env
-                   else
-                      (c := false ; txt ("#"^idx env))
-                 | lp (_::env) = lp env
-                 | lp [] = let
-                      val c = ref true
-                      val r = t (E (v, c)::env, v)
-                   in
-                      if !c then
-                         r
-                      else
-                         txt ("#"^idx env) </> txtAs </> r
-                   end
-            in
-               lp env
-            end
-      end
-      fun aggregate style toL t (env, a) =
-          surround style o fill o punctuate comma o List.map (curry t env) |< toL a
-
-      val ctorRef = C "ref"
-      fun refc  ? = cyclic o flip inj ! |< C1 ctorRef ?
-      fun array ? = cyclic |< aggregate hashParens Array.toList ?
-
-      fun vector ? = aggregate hashBrackets Vector.toList ?
-
-      fun list ? = aggregate brackets id ?
-
-      val txtFn = txt "#fn"
-      fun _ --> _ = const txtFn
+      fun op --> _ = const txtFn
 
       local
          open Prettier
          val toLit = txt o String.toString
-         val nlbs = txt "\\n\\"
+         val txtNlBs = txt "\\n\\"
       in
-      fun string (_, s) =
-          (true,
-           group o dquotes |< choice
-              {wide = toLit s,
-               narrow = lazy (fn () =>
-                                 List.foldl1
-                                    (fn (x, s) =>
-                                        s <^> nlbs <$> backslash <^> x)
-                                    (List.map toLit
-                                              (String.fields
-                                                  (#"\n" <\ op =) s)))})
+         fun string (_, s) =
+             (true,
+              group o dquotes |< choice
+                 {wide = toLit s,
+                  narrow = lazy (fn () =>
+                                    List.foldl1
+                                       (fn (x, s) =>
+                                           s <^> txtNlBs <$> backslash <^> x)
+                                       (List.map toLit
+                                                 (String.fields
+                                                     (#"\n" <\ op =) s)))})
       end
-
-      fun mk toS : 'a Rep.t = txt o toS o Pair.snd
-      fun enc l r toS x = concat [l, toS x, r]
-      fun mkWord toString = mk ("0wx" <\ op ^ o toString)
 
       val bool = mk Bool.toString
       val char = mk (enc "#\"" "\"" Char.toString)
       val int  = mk Int.toString
       val real = mk Real.toString
-      val unit = mk (Thunk.mk "()")
       val word = mkWord Word.toString
 
       val fixedInt = mk FixedInt.toString

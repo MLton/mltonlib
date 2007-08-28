@@ -15,7 +15,10 @@ signature PRETTY = sig
    (** Extracts the prettifying function. *)
 
    val pretty : Int.t Option.t -> ('a, 'x) Pretty.t -> 'a -> String.t
-   (** {pretty m t = Prettier.pretty m o layout t} *)
+   (** {pretty m t} is equivalent to {Prettier.pretty m o layout t}. *)
+
+   val show : ('a, 'x) Pretty.t -> 'a -> String.t
+   (** {show t} is equivalent to {pretty NONE t}. *)
 end
 
 signature PRETTY_CASES = sig
