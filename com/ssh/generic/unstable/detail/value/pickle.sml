@@ -391,25 +391,19 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                 else fail "Bug in fmt")
    fun n2h n = b2c (n + (if n < 0w10 then c2b #"0" else c2b #"a" - 0w10))
    local
-      fun makePos8 i = let
-         val n = Word.fromInt (IntInf.log2 (~i))
-      in
-         i + IntInf.<< (1, Word.andb (Word.~ 0w8, n + 0w8))
-      end
+      fun makePos8 i =
+          i + IntInf.<<
+                 (1,
+                  Word.andb (Word.fromInt (IntInf.log2 (IntInf.notb i)) + 0w9,
+                             ~ 0w8))
    in
       fun i2h i =
           if i < 0
-          then let
-                val s = IntInf.fmt StringCvt.HEX (makePos8 i)
-             in
-                if 0w8 <= h2n (String.sub (s, 0)) then s else "ff"^s
-             end
+          then IntInf.fmt StringCvt.HEX (makePos8 i)
           else let
                 val s = IntInf.fmt StringCvt.HEX i
                 val (t, f) =
-                    if Int.isOdd (String.size s)
-                    then ("0", "0")
-                    else ("00", "")
+                    if Int.isOdd (String.size s) then ("0", "0") else ("00", "")
              in
                 (if 0w8 <= h2n (String.sub (s, 0)) then t else f) ^ s
              end
