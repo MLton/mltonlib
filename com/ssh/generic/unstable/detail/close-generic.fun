@@ -4,15 +4,15 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor CloseRep (Arg : OPEN_REP) :>
+functor CloseRep (include OPEN_REP) :>
    CLOSED_REP
-      where type  'a      t = ('a,     Unit.t) Arg.t
-      where type  'a      s = ('a,     Unit.t) Arg.s
-      where type ('a, 'k) p = ('a, 'k, Unit.t) Arg.p =
+      where type  'a      t = ('a,     Unit.t) t
+      where type  'a      s = ('a,     Unit.t) s
+      where type ('a, 'k) p = ('a, 'k, Unit.t) p =
 struct
-   type  'a      t = ('a,     Unit.t) Arg.t
-   type  'a      s = ('a,     Unit.t) Arg.s
-   type ('a, 'k) p = ('a, 'k, Unit.t) Arg.p
+   type  'a      t = ('a,     Unit.t) t
+   type  'a      s = ('a,     Unit.t) s
+   type ('a, 'k) p = ('a, 'k, Unit.t) p
 end
 
 functor CloseCases (Arg : OPEN_CASES) :>

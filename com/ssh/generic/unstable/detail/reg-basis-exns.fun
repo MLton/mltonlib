@@ -4,9 +4,9 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor RegBasisExns (Arg : CLOSED_CASES) = struct
+functor RegBasisExns (include CLOSED_CASES) = struct
    val () = let
-      open Arg Generics IEEEReal OS OS.IO OS.Path Time
+      open Generics IEEEReal OS OS.IO OS.Path Time
 
       local
          fun lift f a = SOME (f a) handle Match => NONE
