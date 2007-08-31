@@ -5,4 +5,4 @@
 
 (bg-build
  :name  "Generics Test"
- :shell "./Test.sh")
+ :shell "nice -n5 ./Test.sh")
