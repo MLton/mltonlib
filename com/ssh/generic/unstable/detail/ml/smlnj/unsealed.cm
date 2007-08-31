@@ -37,6 +37,8 @@ group is
    ../../close-generic.fun
    ../../generics-util.sml
    ../../generics.sml
+   ../../hash-map.sml
+   ../../hash-univ.sml
    ../../layer-generic.fun
    ../../mk-closed-rep.fun
    ../../reg-basis-exns.fun

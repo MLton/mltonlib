@@ -6,45 +6,6 @@
 
 (************************************************************************)
 
-structure HashMap :> sig
-   type ('a, 'b) t
-   val new : {eq : 'a BinPr.t, hash : 'a -> Word.t} -> ('a, 'b) t
-   val insert : ('a, 'b) t -> ('a * 'b) Effect.t
-   val find : ('a, 'b) t -> 'a -> 'b Option.t
-   val numItems : ('a, 'b) t -> Int.t
-end = struct
-   open HashTable
-   type ('a, 'b) t = ('a, 'b) hash_table
-   fun new {eq, hash} = mkTable (hash, eq) (127, Subscript)
-end
-
-(************************************************************************)
-
-signature HASH_UNIV = sig
-   type t
-   val new : {eq : 'a BinPr.t, hash : 'a -> Word.t} -> ('a, t) Iso.t
-   val eq : t BinPr.t
-   val hash : t -> Word.t
-end
-
-structure HashUniv :> HASH_UNIV = struct
-   datatype t = T of {value : Univ.t,
-                      methods : {eq : Univ.t BinPr.t,
-                                 hash : Univ.t -> Word.t} Ref.t}
-   fun new {eq, hash} = let
-      val (to, from) = Univ.Iso.new ()
-      val methods = ref {eq = BinPr.map from eq, hash = hash o from}
-   in
-      (fn value => T {value = to value, methods = methods},
-       fn T r => from (#value r))
-   end
-   fun eq (T l, T r) = #methods l = #methods r
-                       andalso #eq (! (#methods l)) (#value l, #value r)
-   fun hash (T r) = #hash (! (#methods r)) (#value r)
-end
-
-(************************************************************************)
-
 functor MkStateMonad (Arg : sig include MONAD_CORE T end) :> sig
    include MONAD_CORE
    val Y : 'a monad Tie.t
