@@ -43,6 +43,8 @@ in
          public/generics-util.sig
          detail/generics-util.sml
 
+         detail/mk-closed-rep.fun
+
          (* Framework *)
 
          detail/with-extra.fun

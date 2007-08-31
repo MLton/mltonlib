@@ -28,6 +28,9 @@ structure RootGeneric : OPEN_CASES = RootGeneric
 
 (** == Framework Functors == *)
 
+functor MkClosedRep (type 'a t) : CLOSED_REP = MkClosedRep (type 'a t = 'a t)
+(** Makes a closed representation by replicating the given type. *)
+
 functor CloseCases (Arg : OPEN_CASES) :>
    CLOSED_CASES
       where type  'a      Rep.t = ('a,     Unit.t) Arg.Rep.t
