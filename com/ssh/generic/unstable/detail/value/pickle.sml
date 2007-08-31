@@ -29,19 +29,18 @@ end
 
 structure HashUniv :> HASH_UNIV = struct
    datatype t = T of {value : Univ.t,
-                      methods : {eq : Univ.t BinPr.t, hash : Univ.t -> Word.t}}
+                      methods : {eq : Univ.t BinPr.t,
+                                 hash : Univ.t -> Word.t} Ref.t}
    fun new {eq, hash} = let
-      val (to, from) = Univ.Emb.new ()
-      val methods = {eq = fn (l, r) => case (from l, from r)
-                                        of (SOME l, SOME r) => eq (l, r)
-                                         | _                => false,
-                     hash = hash o valOf o from}
+      val (to, from) = Univ.Iso.new ()
+      val methods = ref {eq = BinPr.map from eq, hash = hash o from}
    in
       (fn value => T {value = to value, methods = methods},
-       fn T r => valOf (from (#value r)))
+       fn T r => from (#value r))
    end
-   fun eq (T l, T r) = #eq (#methods l) (#value l, #value r)
-   fun hash (T r) = #hash (#methods r) (#value r)
+   fun eq (T l, T r) = #methods l = #methods r
+                       andalso #eq (! (#methods l)) (#value l, #value r)
+   fun hash (T r) = #hash (! (#methods r)) (#value r)
 end
 
 (************************************************************************)
