@@ -183,7 +183,14 @@ struct
       fun maxSkip ? = mk #skipM ?
    end
 
-   val rng = ref (G.RNG.make (G.RNG.Seed.fromWord (getOpt (RandomDev.seed (), 0w0))))
+   val rng = ref (G.RNG.make (G.RNG.Seed.fromWord let
+                                 open Maybe
+                                 val W = Word.fromString
+                              in
+                                 getOpt (get (Monad.sum [S"-s"@`W, L"--seed"@`W,
+                                                         mk RandomDev.seed ()]),
+                                         0w0)
+                              end))
 
    fun sort ? = SortedList.stableSort #n ?
 
