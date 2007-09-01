@@ -184,9 +184,11 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       {rd = I.map b2a rd, wr = wr o a2b, sz = sz}
    end
 
+   val unit = {rd = I.return (), wr = fn () => O.return (), sz = SOME 0}
    val char = {rd = I.read, wr = O.write, sz = SOME 1}
    val word8 = iso' id char word8Ichar
-   val intAs8  = iso' id char (swap Char.isoInt)
+   val intAs8 = iso' id char (swap Char.isoInt)
+   val intAs0 = iso' id unit (ignore, const 0)
 
    (* Pickles a positive int using a variable length encoding. *)
    val size =
@@ -551,7 +553,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                 sz = OptInt.+ (sL, sR)}
             end
       end
-      val unit = {rd = I.return (), wr = fn () => O.return (), sz = SOME 0}
+      val unit = unit
       fun C0 _ i = {rd = const (I.return ()),
                     wr = fn wrTag => const (wrTag i),
                     sz = SOME 0}
@@ -563,7 +565,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       fun data s = let
          val n = Arg.numAlts s
          val tag =
-             if      n < 256   then intAs8
+             if      n = 1     then intAs0
+             else if n < 256   then intAs8
              else if n < 65536 then intAs16
              else fail "Too many tags"
          val {rd, wr, sz} = getS s 0
