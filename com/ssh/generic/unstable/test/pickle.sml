@@ -8,7 +8,7 @@ local
    structure Generic = struct
       open Generic
       local
-         structure Open = WithSeq (Open)
+         structure Open = WithSeq (open Generic Open)
          structure Extra = CloseWithExtra (Open)
       in
          open Open Extra
@@ -20,12 +20,12 @@ local
 
    open Generic UnitTest
 
-   fun chkEq t =
+   fun chkSeq t =
        (chk o all t)
           (fn x => let
                  val p = pickle t x
               in
-                 that (eq t (x, unpickle t p))
+                 that (seq t (x, unpickle t p))
               end)
 
    fun testSeq t x =
@@ -48,11 +48,11 @@ in
        unitTests
           (title "Generic.Pickle")
 
-          (chkEq (vector (option (list real))))
-          (chkEq (tuple2 (fixedInt, largeInt)))
-          (chkEq (largeReal &` largeWord))
-          (chkEq (tuple3 (word8, word32, word64)))
-          (chkEq (bool &` char &` int &` real &` string &` word))
+          (chkSeq (vector (option (list real))))
+          (chkSeq (tuple2 (fixedInt, largeInt)))
+          (chkSeq (largeReal &` largeWord))
+          (chkSeq (tuple3 (word8, word32, word64)))
+          (chkSeq (bool &` char &` int &` real &` string &` word))
 
           (title "Generic.Pickle.Cyclic")
 

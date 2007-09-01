@@ -140,8 +140,8 @@ functor WithPretty (Arg : OPEN_CASES) : PRETTY_CASES = WithPretty (Arg)
 signature REDUCE = REDUCE and REDUCE_CASES = REDUCE_CASES
 functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = WithReduce (Arg)
 
-signature SEQ = SEQ and SEQ_CASES = SEQ_CASES
-functor WithSeq (Arg : OPEN_CASES) : SEQ_CASES = WithSeq (Arg)
+signature SEQ = SEQ and SEQ_CASES = SEQ_CASES and WITH_SEQ_DOM = WITH_SEQ_DOM
+functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = WithSeq (Arg)
 
 signature SOME = SOME and SOME_CASES = SOME_CASES
       and WITH_SOME_DOM = WITH_SOME_DOM

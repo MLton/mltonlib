@@ -34,3 +34,5 @@ signature SEQ_CASES = sig
    include OPEN_CASES SEQ
    sharing Rep = Seq
 end
+
+signature WITH_SEQ_DOM = HASH_CASES

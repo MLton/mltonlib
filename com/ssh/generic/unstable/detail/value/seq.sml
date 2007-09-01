@@ -4,58 +4,63 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithSeq (Arg : OPEN_CASES) : SEQ_CASES = struct
+functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix 4 <\
    infix 0 &
    (* SML/NJ workaround --> *)
 
-   type e = Univ.t List.t
-   type 'a t = e * 'a Sq.t -> e * Bool.t
+   type e = (HashUniv.t, HashUniv.t) HashMap.t
+   type 'a t = e * 'a Sq.t -> e Option.t
 
-   fun lift (eq : 'a BinPr.t) : 'a t = Pair.map (id, eq)
+   fun lift (eq : 'a BinPr.t) : 'a t =
+    fn (e, xy) => if eq xy then SOME e else NONE
 
    fun sequ {toSlice, getItem} aE (e, (l, r)) = let
       fun lp (e, l, r) =
           case getItem l & getItem r
-           of NONE        & NONE        => (e, true)
-            | NONE        & SOME _      => (e, false)
-            | SOME _      & NONE        => (e, false)
+           of NONE        & NONE        => SOME e
+            | NONE        & SOME _      => NONE
+            | SOME _      & NONE        => NONE
             | SOME (x, l) & SOME (y, r) =>
               case aE (e, (x, y))
-               of (e, true) => lp (e, l, r)
-                | result    => result
+               of SOME e => lp (e, l, r)
+                | NONE   => NONE
    in
       lp (e, toSlice l, toSlice r)
    end
 
-   fun cyclic t = let
-      val (to, from) = Univ.Emb.new ()
-      fun lp (e, [],    (l, r)) = t (to (l, r)::e, (l, r))
-        | lp (e, u::us, (l, r)) =
-          case from u
-           of NONE        => lp (e, us, (l, r))
-            | SOME (a, b) =>
-              if a = l andalso b = r orelse a = r andalso b = l then
-                 (e, true)
-              else if (a = l) <> (b = r) orelse (a = r) <> (b = l) then
-                 (e, false)
-              else
-                 lp (e, us, (l, r))
+   fun cyclic aT aE = let
+      val (to, _) = HashUniv.new {eq = op =, hash = Arg.hash aT}
    in
-      fn (e, (l, r)) => lp (e, e, (l, r))
+      fn (e, (l, r)) => let
+            val lD = to l
+            val rD = to r
+         in
+            case HashMap.find e lD
+             of SOME rD' => if HashUniv.eq (rD, rD') then SOME e else NONE
+              | NONE =>
+                if isSome (HashMap.find e rD)
+                then NONE
+                else (HashMap.insert e (lD, rD)
+                    ; HashMap.insert e (rD, lD)
+                    ; aE (e, (l, r)))
+         end
    end
 
-   val exns : (e * Exn.t Sq.t -> (e * Bool.t) Option.t) Buffer.t = Buffer.new ()
+   val exns : (e * Exn.t Sq.t -> e Option.t Option.t) Buffer.t = Buffer.new ()
    fun regExn aE (_, e2a) =
-       (Buffer.push exns)
-          (fn (e, (l, r)) =>
-              case e2a l & e2a r
-               of SOME l & SOME r => SOME (aE (e, (l, r)))
-                | SOME _ & NONE   => SOME (e, false)
-                | NONE   & SOME _ => SOME (e, false)
-                | NONE   & NONE   => NONE)
+      (Buffer.push exns)
+         (fn (e, (l, r)) =>
+             case e2a l & e2a r
+              of SOME l & SOME r => SOME (aE (e, (l, r)))
+               | NONE   & NONE   => NONE
+               | _               => SOME NONE)
+
+   fun iso' getX bX =
+       case getX bX
+        of bE => fn (a2b, _) => fn (e, bp) => bE (e, Sq.map a2b bp)
 
    structure Seq = LayerRep
      (structure Outer = Arg.Rep
@@ -63,36 +68,46 @@ functor WithSeq (Arg : OPEN_CASES) : SEQ_CASES = struct
 
    open Seq.This
 
-   fun seq t = Pair.snd o [] <\ getT t
+   fun seq t =
+       case getT t
+        of eq => fn xy => isSome (eq (HashMap.new {eq = HashUniv.eq,
+                                                   hash = HashUniv.hash}, xy))
    fun notSeq t = negate (seq t)
    fun withSeq eq = mapT (const (lift eq))
 
-   structure Layered = LayerCases
-     (structure Outer = Arg and Result = Seq and Rep = Seq.Closed
+   structure Layered = LayerDepCases
+     (structure Outer = Arg and Result = Seq
 
-      fun iso bE (a2b, _) (e, bp) = bE (e, Sq.map a2b bp)
-      val isoProduct = iso
-      val isoSum     = iso
+      fun iso        ? = iso' getT ?
+      fun isoProduct ? = iso' getP ?
+      fun isoSum     ? = iso' getS ?
 
-      fun op *` (aE, bE) (e, (lA & lB, rA & rB)) =
-          case aE (e, (lA, rA))
-           of (e, true) => bE (e, (lB, rB))
-            | result    => result
-      val T      = id
-      fun R _    = id
-      val tuple  = id
-      val record = id
+      fun op *` (aP, bP) = let
+         val aE = getP aP
+         val bE = getP bP
+      in
+         fn (e, (lA & lB, rA & rB)) =>
+            case aE (e, (lA, rA))
+             of SOME e => bE (e, (lB, rB))
+              | NONE   => NONE
+      end
+      val T      = getT
+      fun R _    = getT
+      val tuple  = getP
+      val record = getP
 
-      fun op +` (aE, bE) (e, (l, r)) =
-          case l & r
-           of INL l & INL r => aE (e, (l, r))
-            | INL _ & INR _ => (e, false)
-            | INR _ & INL _ => (e, false)
-            | INR l & INR r => bE (e, (l, r))
+      fun op +` (aS, bS) = let
+         val aE = getS aS
+         val bE = getS bS
+      in
+         fn (e, (INL l, INL r)) => aE (e, (l, r))
+          | (e, (INR l, INR r)) => bE (e, (l, r))
+          | _                   => NONE
+      end
       val unit  = lift (fn ((), ()) => true)
       fun C0 _  = unit
-      fun C1 _  = id
-      val data  = id
+      fun C1 _  = getT
+      val data  = getS
 
       val Y = Tie.function
 
@@ -103,26 +118,28 @@ functor WithSeq (Arg : OPEN_CASES) : SEQ_CASES = struct
            of NONE   => GenericsUtil.failExnSq lr
             | SOME r => r
       fun regExn0 _ (e, p) = regExn unit (const e, p)
-      fun regExn1 _ = regExn
+      fun regExn1 _ = regExn o getT
 
-      fun array ? = cyclic (sequ {toSlice = ArraySlice.full,
-                                  getItem = ArraySlice.getItem} ?)
-      fun list ? = sequ {toSlice = id, getItem = List.getItem} ?
-      fun vector ? = sequ {toSlice = VectorSlice.full,
-                           getItem = VectorSlice.getItem} ?
+      fun array aT =
+          cyclic (Arg.array ignore aT)
+                 (sequ {toSlice = ArraySlice.full,
+                        getItem = ArraySlice.getItem} (getT aT))
+      fun list aT = sequ {toSlice = id, getItem = List.getItem} (getT aT)
+      fun vector aT = sequ {toSlice = VectorSlice.full,
+                            getItem = VectorSlice.getItem} (getT aT)
 
-      fun refc t = cyclic (iso t (!, undefined))
+      fun refc aT = cyclic (Arg.refc ignore aT) (iso aT (!, undefined))
 
       val fixedInt = lift (op = : FixedInt.t BinPr.t)
       val largeInt = lift (op = : LargeInt.t BinPr.t)
 
       val largeWord = lift (op = : LargeWord.t BinPr.t)
-      val largeReal = iso (lift op =) CastLargeReal.isoBits
+      val largeReal = iso' id (lift op =) CastLargeReal.isoBits
 
       val bool   = lift (op = : Bool.t BinPr.t)
       val char   = lift (op = : Char.t BinPr.t)
       val int    = lift (op = : Int.t BinPr.t)
-      val real   = iso (lift op =) CastReal.isoBits
+      val real   = iso' id (lift op =) CastReal.isoBits
       val string = lift (op = : String.t BinPr.t)
       val word   = lift (op = : Word.t BinPr.t)
 
