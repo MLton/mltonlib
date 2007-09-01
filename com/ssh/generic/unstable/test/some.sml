@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-val () = let
+local
    open Generic UnitTest
 
    fun listEither pair sumIn sumOut a =
@@ -17,12 +17,23 @@ val () = let
 
    fun listL ? = listEither id        id       id       ?
    fun listR ? = listEither Pair.swap Sum.swap Sum.swap ?
+
+   structure BinTree = MkBinTree (Generic)
 in
-   unitTests
-      (title "Generic.Some")
+   val () =
+       unitTests
+          (title "Generic.Some")
 
-      (* Test that generation terminates both ways. *)
-      (test (fn () => verifyTrue (some (listL int) = some (listR int))))
+          (* Test that generation terminates both ways. *)
+          (testEq (list int)
+                  (fn () =>
+                      {actual = some (listL int),
+                       expect = some (listR int)}))
 
-      $
+          (testEq (BinTree.t int)
+                  (fn () =>
+                      {actual = some (BinTree.t int),
+                       expect = BinTree.LF}))
+
+          $
 end
