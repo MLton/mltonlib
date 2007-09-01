@@ -56,7 +56,7 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
 
       fun op --> _ = failing "Reduce.--> has no default"
 
-      fun exn _ = fail "Reduce.exn not yet implemented"
+      val exn = default
       fun regExn0 _ _ = ()
       fun regExn1 _ _ _ = ()
 
