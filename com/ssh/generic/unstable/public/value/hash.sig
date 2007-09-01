@@ -27,12 +27,11 @@ signature HASH = sig
    val hashParam :
        ('a, 'x) Hash.t -> {totWidth : Int.t, maxDepth : Int.t} -> 'a -> Word.t
    (**
-    * Returns a hash function.  The {totWidth} and {maxDepth}
-    * parameters give some control over hashing.  The {totWidth}
-    * parameter controls how many elements of sequences, like lists
-    * and vectors, will be examined.  The {maxDepth} parameter
-    * controls how many times the hash function descends into a
-    * (possibly recursive) datatype.
+    * Returns a hash function.  The {totWidth} and {maxDepth} parameters
+    * give some control over hashing.  The {totWidth} parameter controls
+    * how many elements of sequences, like lists and vectors, will be
+    * examined.  The {maxDepth} parameter controls how many times the hash
+    * function descends into a (possibly recursive) datatype.
     *)
 
    val hash : ('a, 'x) Hash.t -> 'a -> Word.t
