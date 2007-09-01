@@ -188,7 +188,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    val char = {rd = I.read, wr = O.write, sz = SOME 1}
    val word8 = iso' id char word8Ichar
    val intAs8 = iso' id char (swap Char.isoInt)
-   val intAs0 = iso' id unit (ignore, const 0)
+   val intAs0 : Int.t t = iso' id unit (ignore, const 0)
 
    (* Pickles a positive int using a variable length encoding. *)
    val size =
