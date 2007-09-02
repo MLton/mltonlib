@@ -49,3 +49,5 @@ signature ORD_CASES = sig
    include OPEN_CASES ORD
    sharing Rep = Ord
 end
+
+signature WITH_ORD_DOM = HASH_CASES

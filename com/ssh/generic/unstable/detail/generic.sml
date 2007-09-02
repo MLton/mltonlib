@@ -21,7 +21,6 @@ end = struct
 
    (* Add generics not depending on any other generic: *)
    structure Open = WithEq          (Open) open Open structure Eq=Open
-   structure Open = WithOrd         (Open) open Open
    structure Open = WithPretty      (Open) open Open
    structure Open = WithTypeHash    (Open) open Open structure TypeHash=Open
    structure Open = WithTypeInfo    (Open) open Open structure TypeInfo=Open
@@ -40,6 +39,8 @@ end = struct
       structure TypeHash = Rep and TypeInfo = Rep
    end
    structure Open = WithHash        (Open) open Open structure Hash=Open
+
+   structure Open = WithOrd         (Open) open Open
 
    structure Open = struct
       open TypeInfo Open

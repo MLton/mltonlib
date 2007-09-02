@@ -120,10 +120,9 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
       fun regExn0 _ (e, p) = regExn unit (const e, p)
       fun regExn1 _ = regExn o getT
 
-      fun array aT =
-          cyclic (Arg.array ignore aT)
-                 (sequ {toSlice = ArraySlice.full,
-                        getItem = ArraySlice.getItem} (getT aT))
+      fun array aT = cyclic (Arg.array ignore aT)
+                            (sequ {toSlice = ArraySlice.full,
+                                   getItem = ArraySlice.getItem} (getT aT))
       fun list aT = sequ {toSlice = id, getItem = List.getItem} (getT aT)
       fun vector aT = sequ {toSlice = VectorSlice.full,
                             getItem = VectorSlice.getItem} (getT aT)

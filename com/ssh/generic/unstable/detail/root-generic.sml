@@ -10,8 +10,8 @@ structure RootGeneric :> OPEN_CASES = struct
    (* SML/NJ workaround --> *)
 
    structure Rep = struct
-      type ('a, 'x) t = 'x
-      type ('a, 'x) s = 'x
+      type ('a,     'x) t = 'x
+      type ('a,     'x) s = 'x
       type ('a, 'k, 'x) p = 'x
 
       val getT = id

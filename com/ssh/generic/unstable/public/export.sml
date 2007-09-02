@@ -127,8 +127,8 @@ signature HASH = HASH and HASH_CASES = HASH_CASES
       and WITH_HASH_DOM = WITH_HASH_DOM
 functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = WithHash (Arg)
 
-signature ORD = ORD and ORD_CASES = ORD_CASES
-functor WithOrd (Arg : OPEN_CASES) : ORD_CASES = WithOrd (Arg)
+signature ORD = ORD and ORD_CASES = ORD_CASES and WITH_ORD_DOM = WITH_ORD_DOM
+functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = WithOrd (Arg)
 
 signature PICKLE = PICKLE and PICKLE_CASES = PICKLE_CASES
       and WITH_PICKLE_DOM = WITH_PICKLE_DOM
