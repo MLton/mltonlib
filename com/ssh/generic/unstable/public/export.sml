@@ -135,7 +135,8 @@ signature PICKLE = PICKLE and PICKLE_CASES = PICKLE_CASES
 functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = WithPickle (Arg)
 
 signature PRETTY = PRETTY and PRETTY_CASES = PRETTY_CASES
-functor WithPretty (Arg : OPEN_CASES) : PRETTY_CASES = WithPretty (Arg)
+      and WITH_PRETTY_DOM = WITH_PRETTY_DOM
+functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = WithPretty (Arg)
 
 signature REDUCE = REDUCE and REDUCE_CASES = REDUCE_CASES
 functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = WithReduce (Arg)

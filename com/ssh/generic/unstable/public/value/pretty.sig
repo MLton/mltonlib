@@ -25,3 +25,5 @@ signature PRETTY_CASES = sig
    include OPEN_CASES PRETTY
    sharing Rep = Pretty
 end
+
+signature WITH_PRETTY_DOM = HASH_CASES
