@@ -8,7 +8,7 @@ local
    structure Generic = struct
       open Generic
       local
-         structure Open = WithTransform (Open)
+         structure Open = WithTransform (open Generic Open)
          structure Extra = CloseWithExtra (Open)
       in
          open Open Extra

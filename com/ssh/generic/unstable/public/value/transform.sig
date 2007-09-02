@@ -35,3 +35,5 @@ signature TRANSFORM_CASES = sig
    include OPEN_CASES TRANSFORM
    sharing Rep = Transform
 end
+
+signature WITH_TRANSFORM_DOM = HASH_CASES

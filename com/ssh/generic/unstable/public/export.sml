@@ -148,7 +148,9 @@ signature SOME = SOME and SOME_CASES = SOME_CASES
 functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = WithSome (Arg)
 
 signature TRANSFORM = TRANSFORM and TRANSFORM_CASES = TRANSFORM_CASES
-functor WithTransform (Arg : OPEN_CASES) : TRANSFORM_CASES = WithTransform (Arg)
+      and WITH_TRANSFORM_DOM = WITH_TRANSFORM_DOM
+functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES =
+   WithTransform (Arg)
 
 signature TYPE_HASH = TYPE_HASH and TYPE_HASH_CASES = TYPE_HASH_CASES
 functor WithTypeHash (Arg : OPEN_CASES) : TYPE_HASH_CASES = WithTypeHash (Arg)
