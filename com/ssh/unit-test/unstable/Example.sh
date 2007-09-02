@@ -26,6 +26,7 @@ MLTON_LIB $(cd ../../../.. && pwd)" > generated/mlb-path-map
 
     mlton -mlb-path-map generated/mlb-path-map \
           -output generated/example            \
+          -ieee-fp true                        \
           example.mlb
 
     if generated/example ; then echo "Unexpected!" ; fi
