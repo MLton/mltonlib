@@ -25,29 +25,17 @@ signature PRETTIER = sig
    type t
    (** The abstract type of documents. *)
 
-   datatype elem =
-      STRING of String.t
-    | NEWLINE of Int.t
+   val renderer : Int.t Option.t -> (String.t -> (Unit.t, 's) IOSMonad.t)
+                                 -> (t        -> (Unit.t, 's) IOSMonad.t)
+   (** Function for linearizing a document directly to a given stream. *)
 
-   val fold : (elem * 'a -> 'a) -> 'a -> Int.t Option.t -> t -> 'a
-   (**
-    * Linearizes the given document and folds the linearized document with
-    * the given function.
-    *)
+   val render : Int.t Option.t -> t -> String.t
+   (** Renders the document as a string. *)
 
-   val app : elem Effect.t -> Int.t Option.t -> t Effect.t
-   (** {app e = fold (e o #1) ()} *)
+   val println : Int.t Option.t -> t Effect.t
+   (** Writes the document to stdOut with a newline and flushes stdOut. *)
 
-   val pretty : Int.t Option.t -> t -> String.t
-   (** {pretty n d = concat (rev (fold op:: [] n d))} *)
-
-   val println : TextIO.outstream -> Int.t Option.t -> t Effect.t
-   (**
-    * Writes the document to the specified stream with a newline and
-    * flushes the stream.
-    *)
-
-   (** == BASIC COMBINATORS == *)
+   (** == Basic Combinators == *)
 
    val empty : t
    (** The empty document is semantically equivalent to {txt ""}. *)
@@ -143,7 +131,7 @@ signature PRETTIER = sig
     * like {line}.
     *)
 
-   (** == ALIGNMENT COMBINATORS == *)
+   (** == Alignment Combinators == *)
 
    val column : (Int.t -> t) -> t
    val nesting : (Int.t -> t) -> t
@@ -157,7 +145,7 @@ signature PRETTIER = sig
    val fillBreak : Int.t -> t UnOp.t
    val fill : Int.t -> t UnOp.t
 
-   (** == OPERATORS == *)
+   (** == Operators == *)
 
    val <+>  : t BinOp.t  (** Concatenates with a {space}. *)
    val <$>  : t BinOp.t  (** Concatenates with a {line}. *)
@@ -165,7 +153,7 @@ signature PRETTIER = sig
    val <$$> : t BinOp.t  (** Concatenates with a {linebreak}. *)
    val <//> : t BinOp.t  (** Concatenates with a {softbreak}. *)
 
-   (** == LIST COMBINATORS == *)
+   (** == List Combinators == *)
 
    val sep : t List.t -> t  (** {sep = group o vsep} *)
    val cat : t List.t -> t  (** {cat = group o vcat} *)
@@ -183,7 +171,7 @@ signature PRETTIER = sig
    val vcat    : t List.t -> t  (** Concatenates with {<$$>}. *)
    val fillCat : t List.t -> t  (** Concatenates with {<//>}. *)
 
-   (** == BRACKETING COMBINATORS == *)
+   (** == Bracketing Combinators == *)
 
    val enclose : t Sq.t -> t UnOp.t
    (** {enclose (l, r) d = l <^> d <^> r} *)
@@ -195,7 +183,7 @@ signature PRETTIER = sig
    val braces   : t UnOp.t  (** {braces   = enclose (lbrace, rbrace)} *)
    val brackets : t UnOp.t  (** {brackets = enclose (lbracket, rbracket)} *)
 
-   (** == CHARACTER DOCUMENTS == *)
+   (** == Character Documents == *)
 
    val lparen    : t  (** {txt "("} *)
    val rparen    : t  (** {txt ")"} *)

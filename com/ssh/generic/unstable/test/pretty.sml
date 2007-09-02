@@ -5,12 +5,12 @@
  *)
 
 local
-   open Generic UnitTest
+   open Prettier Generic UnitTest
 
    infix |`
 
    fun tst n t s v =
-       testEq string (fn () => {expect = s, actual = pretty n t v})
+       testEq string (fn () => {expect = s, actual = render n (pretty t v)})
 
    structure Graph = MkGraph (Generic)
 in

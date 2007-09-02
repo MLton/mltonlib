@@ -47,8 +47,6 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       val txt = atomic o txt
       fun surround (n, p) = atomic o group o nest n o enclose p o Pair.snd
       fun atomize (d as (a, _)) = if a then d else surround parens d
-      val punctuate = fn (_, s) => punctuate s o List.map Pair.snd
-      val fill = fn ? => nonAtomic (vsep ?)
       val group = uop group
       val nest = uop o nest
       val op <^> = fn ((al, dl), (ar, dr)) => (al andalso ar, dl <^> dr)
@@ -89,8 +87,16 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
                         end) <^>
                        aP ((e, c), v))
 
-   fun sequ style toL t (e, a) =
-       surround style o fill o punctuate comma o List.map (curry t e) |< toL a
+   fun sequ style toSlice getItem aP (e, a) = let
+      fun lp (d, s) =
+          case getItem s
+           of NONE        => surround style d
+            | SOME (a, s) => lp (d <^> comma <$> aP (e, a), s)
+   in
+      case getItem (toSlice a)
+       of NONE        => atomic (Prettier.<^> (#2 style))
+        | SOME (a, s) => lp (aP (e, a), s)
+   end
 
    fun mk toS : 'a t = txt o toS o Pair.snd
    fun enc l r toS x = concat [l, toS x, r]
@@ -113,12 +119,11 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
 
    open Pretty.This
 
-   fun layout t =
+   fun pretty t =
        case getT t
         of p => fn x => #2 (p ((HashMap.new {eq = HashUniv.eq,
                                              hash = HashUniv.hash}, ref ~1), x))
-   fun pretty m t = Prettier.pretty m o layout t
-   fun show t = pretty NONE t
+   fun show t = Prettier.render NONE o pretty t
 
    structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Pretty
@@ -165,11 +170,12 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       fun regExn1 c aT = case C1 c aT of aP => regExn aP o Pair.snd
 
       fun refc aT = cyclic (Arg.refc ignore aT) o flip inj ! |< C1 ctorRef aT
-      fun array aT = cyclic (Arg.array ignore aT) |<
-                     sequ hashParens Array.toList (getT aT)
-
-      fun vector aT = sequ hashBrackets Vector.toList (getT aT)
-      fun list aT = sequ brackets id (getT aT)
+      fun array aT =
+          cyclic (Arg.array ignore aT) |<
+          sequ hashParens ArraySlice.full ArraySlice.getItem (getT aT)
+      fun vector aT =
+          sequ hashBrackets VectorSlice.full VectorSlice.getItem (getT aT)
+      fun list aT = sequ brackets id List.getItem (getT aT)
 
       fun op --> _ = const txtFn
 

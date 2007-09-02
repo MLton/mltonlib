@@ -27,26 +27,26 @@ struct
       val bool = bool
       val eq = eq
       val exn = exn
-      val layout = layout
+      val pretty = pretty
    end
 
    local
       open Prettier
    in
       val indent = nest 2 o sep
-      fun named t n v = str n <^> nest 2 (line <^> layout t v)
+      fun named t n v = str n <^> nest 2 (line <^> pretty t v)
       val comma = comma
       val dot = dot
       val group = group
       val op <^> = op <^>
-      val pretty = pretty
+      val render = render
 
       local
          open Maybe
          val I = I.fromString
          val cols = Monad.sum [S"-w"@`I, L"--width"@`I, E"COLUMNS"@`I, `70]
       in
-         val println = println TextIO.stdOut (get cols)
+         val println = println (get cols)
       end
 
       val punctuate = punctuate
@@ -264,5 +264,5 @@ struct
    fun trivial b = classify (if b then SOME "trivial" else NONE)
 
    fun collect t v p =
-       G.Monad.map (fn (r, ts, msg) => (r, pretty NONE (layout t v)::ts, msg)) p
+       G.Monad.map (fn (r, ts, msg) => (r, render NONE (pretty t v)::ts, msg)) p
 end
