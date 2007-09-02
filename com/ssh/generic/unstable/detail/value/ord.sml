@@ -7,30 +7,24 @@
 functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix 4 <\
    infix 0 &
    (* SML/NJ workaround --> *)
 
    type e = (HashUniv.t, HashUniv.t) HashMap.t
-   datatype r = LT | EQ of e | GT
-   type 'a t = e * 'a Sq.t -> r
+   type 'a t = e * 'a Sq.t -> Order.t
 
-   fun lift (cmp : 'a Cmp.t) : 'a t =
-    fn (e, xy) => case cmp xy
-                   of EQUAL   => EQ e
-                    | LESS    => LT
-                    | GREATER => GT
+   fun lift (cmp : 'a Cmp.t) : 'a t = cmp o #2
 
    fun sequ {toSlice, getItem} aO (e, (l, r)) = let
       fun lp (e, l, r) =
           case getItem l & getItem r
-           of NONE        & NONE        => EQ e
-            | NONE        & SOME _      => LT
-            | SOME _      & NONE        => GT
+           of NONE        & NONE        => EQUAL
+            | NONE        & SOME _      => LESS
+            | SOME _      & NONE        => GREATER
             | SOME (x, l) & SOME (y, r) =>
               case aO (e, (x, y))
-               of EQ e => lp (e, l, r)
-                | res  => res
+               of EQUAL => lp (e, l, r)
+                | res   => res
    in
       lp (e, toSlice l, toSlice r)
    end
@@ -45,21 +39,21 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
             if case HashMap.find e lD
                 of SOME rD' => HashUniv.eq (rD, rD')
                  | NONE     => false
-            then EQ e
+            then EQUAL
             else (HashMap.insert e (lD, rD)
                 ; HashMap.insert e (rD, lD)
                 ; aO (e, (l, r)))
          end
    end
 
-   val exns : (e * Exn.t Sq.t -> r Option.t) Buffer.t = Buffer.new ()
+   val exns : (e * Exn.t Sq.t -> Order.t Option.t) Buffer.t = Buffer.new ()
    fun regExn aO (_, e2a) =
        (Buffer.push exns)
           (fn (e, (l, r)) =>
               case e2a l & e2a r
                of SOME l & SOME r => SOME (aO (e, (l, r)))
-                | SOME _ & NONE   => SOME GT
-                | NONE   & SOME _ => SOME LT
+                | SOME _ & NONE   => SOME GREATER
+                | NONE   & SOME _ => SOME LESS
                 | NONE   & NONE   => NONE)
 
    fun iso' getX bX (a2b, _) (e, bp) = getX bX (e, Sq.map a2b bp)
@@ -73,9 +67,7 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
    fun ord t = let
       val ord = getT t
    in
-      fn xy =>
-         case (ord (HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash}, xy))
-          of LT => LESS | EQ _ => EQUAL | GT => GREATER
+      fn xy => ord (HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash}, xy)
    end
    fun withOrd cmp = mapT (const (lift cmp))
 
@@ -92,8 +84,8 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
       in
          fn (e, (lA & lB, rA & rB)) =>
             case aO (e, (lA, rA))
-             of EQ e => bO (e, (lB, rB))
-              | res  => res
+             of EQUAL => bO (e, (lB, rB))
+              | res   => res
       end
       val T      = getT
       fun R _    = getT
@@ -107,8 +99,8 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
          fn (e, (l, r)) =>
             case l & r
              of INL l & INL r => aO (e, (l, r))
-              | INL _ & INR _ => LT
-              | INR _ & INL _ => GT
+              | INL _ & INR _ => LESS
+              | INR _ & INL _ => GREATER
               | INR l & INR r => bO (e, (l, r))
       end
       val unit  = lift (fn ((), ()) => EQUAL)
