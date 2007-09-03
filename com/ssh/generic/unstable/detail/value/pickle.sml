@@ -401,7 +401,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    in
       fun i2h i =
           if i < 0
-          then IntInf.fmt StringCvt.HEX (makePos8 i)
+          then if i = ~1 then "ff" else IntInf.fmt StringCvt.HEX (makePos8 i)
           else let
                 val s = IntInf.fmt StringCvt.HEX i
                 val (t, f) =
