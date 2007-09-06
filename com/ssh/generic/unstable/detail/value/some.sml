@@ -10,6 +10,8 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
    infix 0 &
    (* SML/NJ workaround --> *)
 
+   fun iso' b (_, b2a) = b2a o b
+
    structure Some = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (Thunk))
@@ -25,7 +27,6 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
    structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Some
 
-      fun iso' b (_, b2a) = b2a o b
       fun iso        ? = iso' (getT ?)
       fun isoProduct ? = iso' (getP ?)
       fun isoSum     ? = iso' (getS ?)
