@@ -75,7 +75,9 @@ structure Async :> ASYNC = struct
                            (Array.update (rs, i, SOME v)
                           ; n := !n - 1
                           ; if 0 = !n
-                            then done (map valOf (Array.toList rs))
+                            then done (Stream.toList
+                                          (Stream.map
+                                              valOf (Stream.fromArray rs)))
                             else ())))
             es
       end
