@@ -84,6 +84,9 @@ in
          public/value/type-hash.sig
          detail/value/type-hash.sml
 
+         public/value/hash.sig
+         detail/value/hash.sml
+
          public/value/some.sig
          detail/value/some.sml
 
@@ -97,9 +100,6 @@ in
 
          public/value/eq.sig
          detail/value/eq.sml
-
-         public/value/hash.sig
-         detail/value/hash.sml
 
          public/value/ord.sig
          detail/value/ord.sml

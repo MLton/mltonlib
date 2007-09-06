@@ -29,14 +29,44 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
    datatype 'a t = IN of {gen : 'a G.t, cog : 'a -> Univ.t G.t UnOp.t}
    fun out (IN r) = r
 
+   fun mkInt precision fromLarge aT = let
+      fun gen n =
+          map (fn i => fromLarge (i - IntInf.<< (1, Word.fromInt n - 0w1)))
+              (G.bits n)
+   in
+      IN {gen = case precision
+                 of NONE   => G.sized (0 <\ G.intInRange) >>= gen o 1 <\ op +
+                  | SOME n => G.intInRange (1, n) >>= gen,
+          cog = G.variant o Arg.hash (aT ())}
+   end
+
+   fun mkReal fromReal aT =
+       IN {gen = G.sized ((fn r => map fromReal (G.realInRange (~r,r))) o real),
+           cog = G.variant o Arg.hash (aT ())}
+
+   fun mkWord wordSize fromLargeInt aT =
+       IN {gen = map fromLargeInt (G.bits wordSize),
+           cog = G.variant o Arg.hash (aT ())}
+
+   fun iso' (IN {gen, cog}) (a2b, b2a) =
+       IN {gen = map b2a gen, cog = cog o a2b}
+
+   val exns : Exn.t G.t Buffer.t = Buffer.new ()
+
+   fun list' (IN {gen = xGen, cog = xCog}) = let
+      val xsGen = G.sized (0 <\ G.intInRange) >>= G.list xGen
+      fun xsCog [] = G.variant 0w0
+        | xsCog (x::xs) =
+          universally (xCog x) o G.variant 0w1 o universally (xsCog xs)
+   in
+      IN {gen = xsGen, cog = xsCog}
+   end
+
    structure Arbitrary = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
 
    open Arbitrary.This
-
-   fun cogS ? = #cog (out (getS ?))
-   fun genS ? = #gen (out (getS ?))
 
    fun arbitrary ? = #gen (out (getT ?))
    fun withGen gen = mapT (fn IN {cog, ...} => IN {gen = gen, cog = cog})
@@ -44,35 +74,37 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
    structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Arbitrary
 
-      fun iso' (IN {gen, cog}) (a2b, b2a) =
-          IN {gen = map b2a gen, cog = cog o a2b}
+      fun iso        aT = iso' (getT aT)
+      fun isoProduct aP = iso' (getP aP)
+      fun isoSum     aS = iso' (getS aS)
 
-      fun iso        ? = iso' (getT ?)
-      fun isoProduct ? = iso' (getP ?)
-      fun isoSum     ? = iso' (getS ?)
-
-      fun op *`` (IN {gen = aGen, cog = aCog}, IN {gen = bGen, cog = bCog}) =
-          IN {gen = G.Monad.>>& (aGen, bGen), cog = fn a & b => aCog a o bCog b}
-      fun op *` (a, b) = op *`` (getP a, getP b)
+      fun op *` (aP, bP) = let
+         val IN {gen = aG, cog = aC} = getP aP
+         val IN {gen = bG, cog = bC} = getP bP
+      in
+         IN {gen = G.Monad.>>& (aG, bG), cog = fn a & b => aC a o bC b}
+      end
       val T      = getT
       fun R _    = getT
       val tuple  = getP
       val record = getP
 
       fun op +` (aS, bS) = let
-         val aGen = map INL (genS aS)
-         val bGen = map INR (genS bS)
-         val gen = G.frequency [(Arg.numAlts aS, aGen),
-                                (Arg.numAlts bS, bGen)]
+         val IN {gen = aG, cog = aC} = getS aS
+         val IN {gen = bG, cog = bC} = getS bS
+         val aG = map INL aG
+         val bG = map INR bG
+         val gen = G.frequency [(Arg.numAlts aS, aG),
+                                (Arg.numAlts bS, bG)]
          val gen0 =
              case Arg.hasBaseCase aS & Arg.hasBaseCase bS
-              of true  & false => aGen
-               | false & true  => bGen
+              of true  & false => aG
+               | false & true  => bG
                | _             => gen
       in
          IN {gen = G.sized (fn 0 => gen0 | _ => gen),
-             cog = fn INL a => G.variant 0w0 o cogS aS a
-                    | INR b => G.variant 0w1 o cogS bS b}
+             cog = fn INL a => G.variant 0w0 o aC a
+                    | INR b => G.variant 0w1 o bC b}
       end
       val unit = IN {gen = G.return (), cog = const (G.variant 0w0)}
       fun C0 _ = unit
@@ -83,59 +115,46 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
                    (fn IN {gen = a, cog = b} => a & b,
                     fn a & b => IN {gen = a, cog = b}) ?
 
-      fun op -->` (IN {gen = aGen, cog = aCog}, IN {gen = bGen, cog = bCog}) =
-          IN {gen = G.promote (fn a => universally (aCog a) bGen),
-              cog = fn f => fn g =>
-                       aGen >>= (fn a => universally (bCog (f a)) g)}
-      fun op --> (a, b) = op -->` (getT a, getT b)
-
-      val exn = IN {gen = G.return Empty,
-                    cog = failing "Arbitrary.exn not yet implemented"}
-      fun regExn0 _ _ = ()
-      fun regExn1 _ _ _ = ()
-
-      fun list' (IN {gen = xGen, cog = xCog}) = let
-         val xsGen = G.sized (0 <\ G.intInRange) >>= G.list xGen
-         fun xsCog [] = G.variant 0w0
-           | xsCog (x::xs) =
-             universally (xCog x) o G.variant 0w1 o universally (xsCog xs)
+      fun aT --> bT = let
+         val IN {gen = aG, cog = aC} = getT aT
+         val IN {gen = bG, cog = bC} = getT bT
       in
-         IN {gen = xsGen, cog = xsCog}
+         IN {gen = G.promote (fn a => universally (aC a) bG),
+             cog = fn f => fn g => aG >>= (fn a => universally (bC (f a)) g)}
       end
+
+      val exn = IN {gen = G.return () >>= (fn () =>
+                          G.intInRange (0, Buffer.length exns-1) >>= (fn i =>
+                          Buffer.sub (exns, i))),
+                    cog = G.variant o Arg.hash (Arg.exn ())}
+      fun regExn0 _ (e, _) = Buffer.push exns (G.return e)
+      fun regExn1 _ aT (a2e, _) = Buffer.push exns (map a2e (arbitrary aT))
+
       fun list ? = list' (getT ?)
+      fun vector a = iso' (list a) Vector.isoList
 
       fun array  a = iso' (list a) Array.isoList
-      fun vector a = iso' (list a) Vector.isoList
 
       fun refc a = iso' (getT a) (!, ref)
 
-      val char = IN {gen = map chr (G.intInRange (0, Char.maxOrd)),
-                     cog = G.variant o W.fromInt o ord}
-      val string as IN {cog = stringCog, ...} = iso' (list' char) String.isoList
+      val fixedInt = mkInt FixedInt.precision FixedInt.fromLarge Arg.fixedInt
+      val largeInt = mkInt LargeInt.precision LargeInt.fromLarge Arg.largeInt
+
+      val largeWord =
+          mkWord LargeWord.wordSize LargeWord.fromLargeInt Arg.largeWord
+      val largeReal = mkReal R.toLarge Arg.largeReal
 
       val bool = IN {gen = G.bool, cog = G.variant o W.fromInt o Bool.toInt}
-
-      val fixedInt =
-          IN {gen = map (fn w => W.toFixedIntX (w - G.RNG.maxValue div 0w2))
-                        (G.lift G.RNG.value),
-              cog = G.variant o W.fromFixedInt}
+      val char = IN {gen = map Byte.byteToChar G.word8,
+                     cog = G.variant o Word8.toWord o Byte.charToByte}
+      val int = mkInt Int.precision Int.fromLarge Arg.int
+      val real = mkReal id Arg.real
+      val string = iso' (list' char) String.isoList
       val word = IN {gen = G.lift G.RNG.value, cog = G.variant}
-      val real = IN {gen = G.sized ((fn r => G.realInRange (~r, r)) o real),
-                     cog = stringCog o R.toString} (* XXX Real cog *)
 
-      val      int = iso' fixedInt      Int.isoFixedInt
-      val largeInt = iso' fixedInt LargeInt.isoFixedInt
-
-      val largeWord = iso' word (Iso.swap W.isoLarge)
-      val largeReal = iso' real (Iso.swap (R.isoLarge IEEEReal.TO_NEAREST))
-
-      local
-         fun mk large = iso' word (Iso.<--> (Iso.swap W.isoLarge, large))
-      in
-         val word8  = mk Word8.isoLarge
-         val word32 = mk Word32.isoLarge
-         val word64 = mk Word64.isoLarge
-      end)
+      val word8 = IN {gen = G.word8, cog = G.variant o Word8.toWord}
+      val word32 = mkWord Word32.wordSize Word32.fromLargeInt Arg.word32
+      val word64 = mkWord Word64.wordSize Word64.fromLargeInt Arg.word64)
 
    open Layered
 end

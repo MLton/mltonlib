@@ -29,6 +29,7 @@ signature ARBITRARY_CASES = sig
 end
 
 signature WITH_ARBITRARY_DOM = sig
-   include TYPE_INFO_CASES
+   include OPEN_CASES HASH TYPE_INFO
+   sharing Rep = Hash = TypeInfo
    structure RandomGen : RANDOM_GEN
 end
