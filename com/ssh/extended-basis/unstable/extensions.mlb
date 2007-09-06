@@ -39,7 +39,9 @@ in
          detail/ml/$(SML_COMPILER)/workarounds.mlb
 
          (* Minimal modules for bootstrapping. *)
-         detail/bootstrap.sml
+         ann "warnUnused false" in
+            detail/bootstrap.sml
+         end
 
          (* Compiler specific extensions (if any). *)
          detail/ml/$(SML_COMPILER)/extensions.mlb
@@ -277,6 +279,10 @@ in
          detail/ml/$(SML_COMPILER)/mono-arrays.sml
          detail/ml/$(SML_COMPILER)/mono-array-slices.sml
          detail/ml/$(SML_COMPILER)/texts.sml
+
+         (* Stream *)
+         public/sequence/stream.sig
+         detail/sequence/stream.sml
 
          (* Lazy *)
          public/lazy/lazy.sig

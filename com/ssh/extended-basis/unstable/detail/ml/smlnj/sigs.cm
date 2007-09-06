@@ -74,6 +74,7 @@ is
    ../../../public/sequence/mono-vector-slice.sig
    ../../../public/sequence/mono-vector.sig
    ../../../public/sequence/resizable-array.sig
+   ../../../public/sequence/stream.sig
    ../../../public/sequence/vector-slice.sig
    ../../../public/sequence/vector.sig
    ../../../public/text/char.sig

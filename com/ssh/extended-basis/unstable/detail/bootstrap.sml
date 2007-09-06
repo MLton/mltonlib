@@ -30,6 +30,7 @@ structure List = struct open BasisList type 'a t = 'a list end
 structure Option = struct open BasisOption type 'a t = 'a option end
 structure Order = struct datatype order = datatype order type t = order end
 structure String = struct open BasisString type t = string end
+structure Substring = struct open BasisSubstring type t = substring end
 structure Vector = struct open BasisVector type 'a t = 'a vector end
 structure VectorSlice = struct open BasisVectorSlice type 'a t = 'a slice end
 structure Word = struct open BasisWord type t = word end

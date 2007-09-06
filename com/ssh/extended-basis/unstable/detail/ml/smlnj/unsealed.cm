@@ -73,6 +73,7 @@ is
    ../../../detail/sequence/mk-mono-vector-slice-ext.fun
    ../../../detail/sequence/mk-seq-common-ext.fun
    ../../../detail/sequence/resizable-array.sml
+   ../../../detail/sequence/stream.sml
    ../../../detail/sequence/vector-slice.sml
    ../../../detail/sequence/vector.sml
    ../../../detail/text/mk-text-ext.fun

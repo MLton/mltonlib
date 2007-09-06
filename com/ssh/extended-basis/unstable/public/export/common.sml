@@ -92,6 +92,7 @@ signature REF = REF
 signature RESIZABLE_ARRAY = RESIZABLE_ARRAY
 signature SHIFT_OP = SHIFT_OP
 signature SQ = SQ
+signature STREAM = STREAM
 signature STRING = STRING
 signature SUBSTRING = SUBSTRING
 signature SUM = SUM
@@ -168,6 +169,7 @@ structure Real : REAL = Real
 structure Ref : REF where type 'a t = 'a ref = Ref
 structure ResizableArray : RESIZABLE_ARRAY = ResizableArray
 structure ShiftOp : SHIFT_OP = ShiftOp
+structure Stream : STREAM = Stream
 structure String : STRING = String
 structure Substring : SUBSTRING = Substring
 structure Text : TEXT = Text
