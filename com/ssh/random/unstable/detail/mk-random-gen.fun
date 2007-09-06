@@ -6,8 +6,7 @@
 
 functor MkRandomGen (RNG : RNG) :>
    RANDOM_GEN where type RNG.t = RNG.t
-              where type RNG.Seed.t = RNG.Seed.t =
-struct
+              where type RNG.Seed.t = RNG.Seed.t = struct
    (* <-- SML/NJ workarounds *)
    open TopLevel
    infix  4 <\
@@ -25,7 +24,7 @@ struct
    type 'a t = 'a dom -> 'a cod
 
    fun generate n t =
-       pass (W.toInt (RNG.value t mod (W.fromInt n)), RNG.next t)
+       pass (W.toInt (RNG.value t mod W.fromInt n), RNG.next t)
 
    fun lift r2a = r2a o Pair.snd
 
@@ -33,7 +32,8 @@ struct
       MkMonad (type 'a monad = 'a t
                val return = const
                fun (m >>= k) (n, r) =
-                   k (m (n, RNG.split 0w314 r)) (n, RNG.split 0w159 r))
+                   k (m (n, RNG.split 0wx4969599B r))
+                     (n, RNG.split 0wx1AB25A6D r))
 
    open Monad
 
@@ -52,6 +52,11 @@ struct
    fun sized i2g (n, r) = i2g n (n, r)
    fun resize f g = g o Pair.map (f, id)
    fun bool (_, r) = RNG.maxValue div 0w2 < RNG.value r
+   local
+      val n = 0w256 val d = RNG.maxValue div n val m = d * n
+   in
+      fun word8 (_, r) = Word8.fromWord (RNG.value r mod m div d)
+   end
 
    fun Y ? = Tie.pure (fn () => let
                              val r = ref (raising Fix.Fix)
@@ -64,11 +69,35 @@ struct
    fun inRange bInRange (a2b, b2a) =
        map b2a o bInRange o Pair.map (Sq.mk a2b)
 
+   fun list aG n =
+       if n < 0 then raise Domain
+       else fn (s, r) =>
+               List.unfoldl (fn 0w0 => NONE
+                              | i   => SOME (aG (s, RNG.split i r), i-0w1))
+                            (W.fromInt n)
+
+   fun bits n = (* XXX this is O(n*n), O(n) is possible via IntInf.scan *)
+       if n < 0 then raise Domain else let
+          val msk = IntInf.<< (1, Word.fromInt n) - 1
+       in
+          lift (fn r => let
+                      fun lp (n, r, i) =
+                          if 0 < n
+                          then lp (n - 8,
+                                   RNG.next r,
+                                   IntInf.<< (i, 0w8) +
+                                   Word8.toLargeInt (word8 (0, r)))
+                          else IntInf.andb (i, msk)
+                   in
+                      lp (n, r, 0)
+                   end)
+       end
+
    fun wordInRange (l, h) =
        (assert (fn () => l <= h)
       ; let val n = h - l + 0w1         (* XXX may overflow *)
             val d = RNG.maxValue div n  (* XXX may result in zero *)
-            val m = n * d
+            val m = d * n
         in lift (fn r => RNG.value r mod m div d + l)
         end)
 
@@ -78,19 +107,21 @@ struct
             (inRange wordInRange (Iso.swap W.isoInt) (0, h - l)))
 
    local
-      val w2r = R.fromLargeInt o W.toLargeInt
+      val () = if R.radix <> 2 then fail "Real.radix <> 2" else ()
+      val d = R.fromLargeInt (IntInf.<< (1, W.fromInt R.precision) - 1)
    in
       fun realInRange (l, h) =
           (assert (fn () => l <= h)
-         ; let val m = (h - l) / w2r RNG.maxValue
-           in fn (_, r) => w2r (RNG.value r) * m + l
+         ; let val m = (h - l) / d
+           in map (fn i => R.fromLargeInt i * m + l) (bits R.precision)
            end)
    end
 
-   fun elements xs =
-       let val xs = V.fromList xs
-       in map (xs <\ V.sub) (intInRange (0, V.length xs))
-       end
+   fun elements xs = let
+      val xs = V.fromList xs
+   in
+      map (xs <\ V.sub) (intInRange (0, V.length xs))
+   end
 
    fun oneOf gs = elements gs >>= id
 
@@ -106,23 +137,5 @@ struct
       end
    in
       intInRange (1, tot) >>= pick 0
-   end
-
-   local
-      fun unfold px sx x2y = let
-         fun lp ys x =
-             if px x then
-                rev ys
-             else
-                lp (x2y x::ys) (sx x)
-      in
-         lp []
-      end
-   in
-      fun list ga m (n, r) =
-          unfold (op = /> 0w0)
-                 (op - /> 0w1)
-                 (fn i => ga (n, RNG.split i r))
-                 (W.fromInt m)
    end
 end

@@ -44,6 +44,9 @@ signature RANDOM_GEN = sig
    val wordInRange : Word.t Sq.t -> Word.t t
 
    val bool : Bool.t t
+   val word8 : Word8.t t
+
+   val bits : Int.t -> IntInf.t t
 
    val list : 'a t -> Int.t -> 'a List.t t
 end
