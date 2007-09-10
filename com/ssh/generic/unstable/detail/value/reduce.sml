@@ -10,43 +10,51 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
    infix  0 &
    (* SML/NJ workaround --> *)
 
-   fun seq fold rA (c as {zero, +}) = let
-      val rA = rA c
+   fun sequ toSlice getItem xR (z, p, xs) = let
+      fun lp (s, xs) =
+          case getItem xs
+           of NONE         => s
+            | SOME (x, xs) => lp (p (s, xR (z, p, x)), xs)
    in
-      fold (fn (a, r) => rA a + r) zero
+      case getItem (toSlice xs)
+       of NONE         => z
+        | SOME (x, xs) => lp (xR (z, p, x), xs)
    end
-       
-   fun default {zero, + = _} = const zero
+
+   fun default (z, _, _) = z
 
    structure Reduce = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep
-        (type 'a t = {zero : Univ.t, + : Univ.t BinOp.t} -> 'a -> Univ.t))
+        (type 'a t = Univ.t * Univ.t BinOp.t * 'a -> Univ.t))
 
-   fun makeReduce zero op + a2r tA tA2tB = let
+   fun makeReduce z p a2r aT aT2bT = let
       val (to, from) = Univ.Iso.new ()
-      val c = {zero = to zero, + = BinOp.map (from, to) op +}
-      val tA = Reduce.This.mapT (const (const (to o a2r))) tA
-      val tB = tA2tB tA
+      val z = to z
+      val p = BinOp.map (from, to) p
+      val aT = Reduce.This.mapT (const (to o a2r o #3)) aT
+      val bR = Reduce.This.getT (aT2bT aT)
    in
-      from o Reduce.This.getT tB c
+      fn x => from (bR (z, p, x))
    end
 
    structure Layered = LayerCases
      (structure Outer = Arg and Result = Reduce and Rep = Reduce.Closed
 
-      fun iso rB (a2b, _) c = rB c o a2b
+      fun iso bR (a2b, _) (z, p, a) = bR (z, p, a2b a)
       val isoProduct = iso
       val isoSum     = iso
 
-      fun op *` (rA, rB) (c as {zero = _, +}) =
-          op + o Pair.map (rA c, rB c) o Product.toTuple2
+      fun op *` (aR, bR) (z, p, (a & b)) =
+          p (aR (z, p, a), bR (z, p, b))
       val T      = id
       fun R _    = id
       val tuple  = id
       val record = id
 
-      fun op +` (rA, rB) c = Sum.sum (rA c, rB c)
+      fun op +` (aR, bR) =
+       fn (z, p, INL a) => aR (z, p, a)
+        | (z, p, INR b) => bR (z, p, b)
       val unit  = default
       fun C0 _  = unit
       fun C1 _  = id
@@ -60,11 +68,11 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
       fun regExn0 _ _ = ()
       fun regExn1 _ _ _ = ()
 
-      fun list   ? = seq   List.foldl ?
-      fun vector ? = seq Vector.foldl ?
-      fun array  ? = seq  Array.foldl ?
+      fun list   ? = sequ             id          List.getItem ?
+      fun vector ? = sequ VectorSlice.full VectorSlice.getItem ?
+      fun array  ? = sequ  ArraySlice.full  ArraySlice.getItem ?
 
-      fun refc rA c = rA c o !
+      fun refc aR (z, p, r) = aR (z, p, !r)
 
       val fixedInt = default
       val largeInt = default
