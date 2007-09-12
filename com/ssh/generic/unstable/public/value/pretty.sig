@@ -20,7 +20,7 @@ signature PRETTY = sig
    (** Extracts the prettifying function. *)
 
    val show : ('a, 'x) Pretty.t -> 'a -> String.t
-   (** {show t} is equivalent to {Prettier.render NONE (pretty t)}. *)
+   (** {show t} is equivalent to {Prettier.render NONE o pretty t}. *)
 end
 
 signature PRETTY_CASES = sig

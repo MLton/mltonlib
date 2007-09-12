@@ -23,43 +23,33 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   local
-      open Prettier
-      type u = Bool.t * t
-      fun nonAtomic doc = (false, doc)
-      val uop : t UnOp.t -> u UnOp.t = id <\ Pair.map
-      val bop : t BinOp.t -> u BinOp.t =
-          fn f => nonAtomic o f o Pair.map (Sq.mk Pair.snd)
-   in
-      type u = u
+   datatype f = ATOMIC | NONFIX
 
-      fun atomic doc = (true,  doc)
+   fun mark f doc = (f, doc)
 
-      val parens       = (1, (lparen,   rparen))
-      val hashParens   = (2, (txt "#(", rparen))
-      val braces       = (1, (lbrace,   rbrace))
-      val brackets     = (1, (lbracket, rbracket))
-      val hashBrackets = (2, (txt "#[", rbracket))
+   open Prettier
 
-      val comma  = atomic comma
-      val equals = atomic equals
+   fun surround (n, p) = mark ATOMIC o group o nest n o enclose p
+   fun atomize (a, d) = if ATOMIC = a then d else parens d
 
-      val txt = atomic o txt
-      fun surround (n, p) = atomic o group o nest n o enclose p o Pair.snd
-      fun atomize (d as (a, _)) = if a then d else surround parens d
-      val group = uop group
-      val nest = uop o nest
-      val op <^> = fn ((al, dl), (ar, dr)) => (al andalso ar, dl <^> dr)
-      val op <$> = bop op <$>
-      val op </> = bop op </>
-   end
+   val parens       = (1, (lparen,   rparen))
+   val hashParens   = (2, (txt "#(", rparen))
+   val braces       = (1, (lbrace,   rbrace))
+   val brackets     = (1, (lbracket, rbracket))
+   val hashBrackets = (2, (txt "#[", rbracket))
 
    type e = (HashUniv.t, Prettier.t Option.t) HashMap.t * Int.t Ref.t
-   type 'a t = e * 'a -> u
+   type 'a t = e * 'a -> f * Prettier.t
+   type 'a p = e * 'a -> Prettier.t
 
    fun inj b a2b = b o Pair.map (id, a2b)
 
+   val txt0wx = txt "0wx"
    val txtFn = txt "#fn"
+   val txtHash = txt "#"
+   val txtHashDQuote = txt "#\""
+   val txtNlBs = txt "\\n\\"
+   val txtUnit = txt "()"
 
    val ctorRef = Generics.C "ref"
 
@@ -70,23 +60,22 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
               case to v
                of vD =>
                   case HashMap.find e vD
-                   of SOME (SOME u) => atomic u
+                   of SOME (SOME u) => (ATOMIC, u)
                     | SOME NONE => let
-                         val u = Prettier.txt ("#"^Int.toString (c := !c + 1 ; !c))
+                         val u = txtHash <^> txt (Int.toString (c := !c + 1 ; !c))
                       in
                          HashMap.insert e (vD, SOME u)
-                       ; atomic u
+                       ; (ATOMIC, u)
                       end
                     | NONE =>
                       (HashMap.insert e (vD, NONE)
-                     ; (true,
-                        let open Prettier in
-                           lazy (fn () => case HashMap.find e vD
-                                           of SOME (SOME u) => u <^> equals
-                                            | _             => empty)
-                        end) <^>
-                       aP ((e, c), v))
-
+                     ; case aP ((e, c), v)
+                        of (f, d) =>
+                           (f,
+                            lazy (fn () => case HashMap.find e vD
+                                            of SOME (SOME u) => u <^> equals
+                                             | _             => empty) <^> d))
+                      
    fun sequ style toSlice getItem aP (e, a) = let
       fun lp (d, s) =
           case getItem s
@@ -94,16 +83,16 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
             | SOME (a, s) => lp (d <^> comma <$> aP (e, a), s)
    in
       case getItem (toSlice a)
-       of NONE        => atomic (Prettier.<^> (#2 style))
+       of NONE        => (ATOMIC, op <^> (#2 style))
         | SOME (a, s) => lp (aP (e, a), s)
    end
 
-   fun mk toS : 'a t = txt o toS o Pair.snd
-   fun enc l r toS x = concat [l, toS x, r]
-   fun mkWord toString = mk ("0wx" <\ op ^ o toString)
+   fun mk toString : 'a t = mark ATOMIC o txt o toString o Pair.snd
+   fun mkWord toString : 'a t =
+       mark ATOMIC o txt0wx <\ op <^> o txt o toString o Pair.snd
 
    val exnHandler : Exn.t t Ref.t =
-       ref (txt o "#" <\ op ^ o General.exnName o #2)
+       ref (mark ATOMIC o txtHash <\ op <^> o txt o General.exnName o #2)
    fun regExn aP e2a =
        Ref.modify (fn exnHandler => fn (env, e) =>
                       case e2a e
@@ -111,11 +100,15 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
                         | SOME a => aP (env, a))
                   exnHandler
 
-   fun iso' getX bX = inj (getX bX) o Iso.to
+   fun iso' bP = inj bP o Iso.to
 
    structure Pretty = LayerRep
      (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = 'a t))
+      structure Closed = struct
+         type 'a t = 'a t
+         type 'a s = 'a t
+         type ('a, 'k) p = 'a p
+      end)
 
    open Pretty.This
 
@@ -128,9 +121,9 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
    structure Layered = LayerDepCases
      (structure Outer = Arg and Result = Pretty
 
-      fun iso        ? = iso' getT ?
-      fun isoProduct ? = iso' getP ?
-      fun isoSum     ? = iso' getS ?
+      fun iso        aT = iso' (getT aT)
+      fun isoProduct aP = iso' (getP aP)
+      fun isoSum     aS = iso' (getS aS)
 
       fun aP *` bP = let
          val aP = getP aP
@@ -138,12 +131,11 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       in
          fn (e, a & b) => aP (e, a) <^> comma <$> bP (e, b)
       end
-      val T = getT
+      fun T t = #2 o getT t
       fun R l =
           case txt (Generics.Label.toString l)
-           of l =>
-              fn aT => case getT aT
-                        of aP => fn ? => group (nest 1 (l </> equals </> aP ?))
+           of l => fn aT => case T aT of aP => fn x =>
+              group (nest 1 (l </> equals </> aP x))
       fun tuple aP = surround parens o getP aP
       fun record aP = surround braces o getP aP
 
@@ -154,13 +146,12 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
          fn (e, INL a) => aP (e, a)
           | (e, INR b) => bP (e, b)
       end
-      val unit = mk (Thunk.mk "()")
-      fun C0 c = const (txt (Generics.Con.toString c))
+      fun unit _ = (ATOMIC, txtUnit)
+      fun C0 c = const (ATOMIC, txt (Generics.Con.toString c))
       fun C1 c =
           case txt (Generics.Con.toString c)
-           of c =>
-              fn aT => case getT aT
-                        of aP => fn ? => nest 1 (group (c <$> atomize (aP ?)))
+           of c => fn aT => case getT aT of aP => fn ex =>
+              (NONFIX, nest 1 (group (c <$> atomize (aP ex))))
       val data = getS
 
       val Y = Tie.function
@@ -172,33 +163,28 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       fun refc aT = cyclic (Arg.refc ignore aT) o flip inj ! |< C1 ctorRef aT
       fun array aT =
           cyclic (Arg.array ignore aT) |<
-          sequ hashParens ArraySlice.full ArraySlice.getItem (getT aT)
+          sequ hashParens ArraySlice.full ArraySlice.getItem (T aT)
       fun vector aT =
-          sequ hashBrackets VectorSlice.full VectorSlice.getItem (getT aT)
-      fun list aT = sequ brackets id List.getItem (getT aT)
+          sequ hashBrackets VectorSlice.full VectorSlice.getItem (T aT)
+      fun list aT = sequ brackets id List.getItem (T aT)
 
-      fun op --> _ = const txtFn
+      fun op --> _ = const (ATOMIC, txtFn)
 
       local
-         open Prettier
          val toLit = txt o String.toString
-         val txtNlBs = txt "\\n\\"
       in
          fun string (_, s) =
-             (true,
-              group o dquotes |< choice
-                 {wide = toLit s,
-                  narrow = lazy (fn () =>
-                                    List.foldl1
-                                       (fn (x, s) =>
-                                           s <^> txtNlBs <$> backslash <^> x)
-                                       (List.map toLit
-                                                 (String.fields
-                                                     (#"\n" <\ op =) s)))})
+             mark ATOMIC o group o dquotes |< choice
+                {wide = toLit s,
+                 narrow = lazy (fn () =>
+                    List.foldl1
+                       (fn (x, s) => s <^> txtNlBs <$> backslash <^> x)
+                       (List.map toLit (String.fields (#"\n" <\ op =) s)))}
       end
 
       val bool = mk Bool.toString
-      val char = mk (enc "#\"" "\"" Char.toString)
+      fun char (_, x) =
+          (ATOMIC, txtHashDQuote <^> txt (Char.toString x) <^> dquote)
       val int  = mk Int.toString
       val real = mk Real.toString
       val word = mkWord Word.toString
