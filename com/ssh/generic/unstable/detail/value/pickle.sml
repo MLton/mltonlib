@@ -114,18 +114,20 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    structure I = let
       structure SMC = MkStateMonad
         (open Istream
-         type t = Int.t * (Int.t, Dyn.t) HashMap.t)
+         type t = Dyn.t ResizableArray.t)
       structure M = MkMonad (SMC)
    in
       struct
          open M
-         structure Map = struct
-            val get = map #2 SMC.get
-         end
+         structure Map = SMC
          structure Key = struct
-            val alloc = SMC.get >>= (fn (n, m) =>
-                        SMC.set (n+1, m) >>
-                        return (n+1))
+            local
+               val dummy = #1 (Dyn.new {eq = undefined, hash = undefined}) ()
+            in
+               val alloc = SMC.get >>= (fn arr =>
+                           (ResizableArray.push arr dummy
+                          ; return (ResizableArray.length arr)))
+            end
          end
          fun run s = Istream.run o SMC.run s
          val read = SMC.lift Istream.read
@@ -306,14 +308,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq self, hash = Arg.hash self}
       open I
    in
-      P {rd = rd size >>& Map.get >>= (fn key & mp =>
+      P {rd = rd size >>& Map.get >>= (fn key & arr =>
               if 0 = key
               then Key.alloc >>& readProxy >>= (fn key & proxy =>
-                   (HashMap.insert mp (key, toDyn proxy)
+                   (ResizableArray.update (arr, key-1, toDyn proxy)
                   ; readBody proxy >> return proxy))
-              else case HashMap.find mp key
-                    of NONE   => fail "Corrupted pickle"
-                     | SOME d => return (fromDyn d)),
+              else return (fromDyn (ResizableArray.sub (arr, key-1)))),
          wr = fn v => let
                     val d = toDyn v
                     open O
@@ -332,14 +332,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq aT, hash = Arg.hash aT}
       open I
    in
-      P {rd = rd size >>& Map.get >>= (fn key & mp =>
+      P {rd = rd size >>& Map.get >>= (fn key & arr =>
               if 0 = key
               then Key.alloc >>& aR >>= (fn key & v =>
-                   (HashMap.insert mp (key, toDyn v)
+                   (ResizableArray.update (arr, key-1, toDyn v)
                   ; return v))
-              else case HashMap.find mp key
-                    of NONE   => fail "Corrupted pickle"
-                     | SOME d => return (fromDyn d)),
+              else return (fromDyn (ResizableArray.sub (arr, key-1)))),
          wr = fn v => let
                     val d = toDyn v
                     open O
@@ -495,7 +493,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       open I
    in
       IOSMonad.map #1 o
-      run (0, HashMap.new {eq = op =, hash = Word.fromInt})
+      run (ResizableArray.new ())
           (rd word32 >>= (fn key' =>
            if key' <> key
            then raise Pickling.TypeMismatch
