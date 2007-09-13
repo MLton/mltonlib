@@ -600,11 +600,14 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
 
       fun refc aT = let
          val P {rd, wr, ...} = getT aT
+         val self = Arg.refc ignore aT
       in
-          mutable {readProxy = I.thunk (ref o const (Arg.some aT)),
-                   readBody = fn proxy => I.map (fn v => proxy := v) rd,
-                   writeWhole = wr o !,
-                   self = Arg.refc ignore aT}
+         if Arg.mayBeCyclic self
+         then cyclic {readProxy = I.thunk (ref o const (Arg.some aT)),
+                      readBody = fn proxy => I.map (fn v => proxy := v) rd,
+                      writeWhole = wr o !,
+                      self = self}
+         else share self (P {rd = I.map ref rd, wr = wr o !, sz = NONE})
       end
 
       fun array aT = let
