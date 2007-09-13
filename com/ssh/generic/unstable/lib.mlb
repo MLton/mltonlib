@@ -27,6 +27,9 @@ in
             detail/generics.sml
          end
 
+         public/ty.sig
+         detail/ty.sml
+
          (* Concepts *)
 
          public/closed-rep.sig
@@ -118,6 +121,9 @@ in
 
          public/value/transform.sig
          detail/value/transform.sml
+
+         public/value/type-exp.sig
+         detail/value/type-exp.sml
       in
          public/export.sml
       end

@@ -24,6 +24,9 @@ structure Generics : GENERICS = Generics
 signature GENERICS_UTIL = GENERICS_UTIL
 structure GenericsUtil : GENERICS_UTIL = GenericsUtil
 
+signature TY = TY
+structure Ty : TY = Ty
+
 structure RootGeneric : OPEN_CASES = RootGeneric
 
 (** == Framework Functors == *)
@@ -102,6 +105,9 @@ functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = WithDebug (Arg)
  * - constructors are unique within each datatype, and
  * - exception constructors are globally unique.
  *)
+
+signature TYPE_EXP = TYPE_EXP and TYPE_EXP_CASES = TYPE_EXP_CASES
+functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = WithTypeExp (Arg)
 
 signature TYPE_INFO = TYPE_INFO and TYPE_INFO_CASES = TYPE_INFO_CASES
 functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = WithTypeInfo (Arg)

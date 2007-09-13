@@ -20,6 +20,7 @@ group is
    ../../../public/layered-rep.sig
    ../../../public/open-cases.sig
    ../../../public/open-rep.sig
+   ../../../public/ty.sig
    ../../../public/value/arbitrary.sig
    ../../../public/value/data-rec-info.sig
    ../../../public/value/dynamic.sig
@@ -32,6 +33,7 @@ group is
    ../../../public/value/seq.sig
    ../../../public/value/some.sig
    ../../../public/value/transform.sig
+   ../../../public/value/type-exp.sig
    ../../../public/value/type-hash.sig
    ../../../public/value/type-info.sig
    ../../close-generic.fun
@@ -44,6 +46,7 @@ group is
    ../../reg-basis-exns.fun
    ../../root-generic.sml
    ../../sml-syntax.sml
+   ../../ty.sml
    ../../value/arbitrary.sml
    ../../value/data-rec-info.sml
    ../../value/debug.sml
@@ -57,6 +60,7 @@ group is
    ../../value/seq.sml
    ../../value/some.sml
    ../../value/transform.sml
+   ../../value/type-exp.sml
    ../../value/type-hash.sml
    ../../value/type-info.sml
    ../../with-extra.fun
