@@ -56,7 +56,7 @@ signature TY = sig
     *
     * The {DataRecInfo} generic computes the same information
     * incrementally during type representation construction and is likely
-    * to be better amenable to compiler optimizations such as constant
+    * to be more amenable to compiler optimizations such as constant
     * folding.
     *)
 
