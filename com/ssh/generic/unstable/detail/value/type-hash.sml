@@ -32,32 +32,32 @@ functor WithTypeHash (Arg : OPEN_CASES) : TYPE_HASH_CASES = struct
       fun isoProduct ? _ = unary 0wxC01B56DB ?
       fun isoSum     ? _ = unary 0wxB006B6DB ?
 
-      fun op *`  ? = binary 0wx00ADB6DB ?
-      fun T      ? = unary 0wx00B6DB6B ?
-      fun R      l = unary (text Generics.Label.toString l)
-      fun tuple  ? = unary 0wx00DB6DB5 ?
-      fun record ? = unary 0wx01B6DB55 ?
+      val op *`  = binary 0wx00ADB6DB
+      val T      = unary 0wx00B6DB6B
+      fun R    l = unary (text Generics.Label.toString l)
+      val tuple  = unary 0wx00DB6DB5
+      val record = unary 0wx01B6DB55
 
-      fun op +` ? = binary 0wx02DB6D4D ?
-      val unit    = 0wx036DB6C5 : Word32.t
-      fun C0    ? = text Generics.Con.toString ?
-      fun C1    c = unary (text Generics.Con.toString c)
-      fun data  ? = unary 0wx04DB6D63 ?
+      val op +` = binary 0wx02DB6D4D
+      val unit  = 0wx036DB6C5 : Word32.t
+      val C0    = text Generics.Con.toString
+      fun C1  c = unary (text Generics.Con.toString c)
+      val data  = unary 0wx04DB6D63
 
-      fun Y ? = Tie.id (0wx05B6DB51 : Word32.t) ?
+      val Y = Tie.id (0wx05B6DB51 : Word32.t)
 
-      fun op --> ? = binary 0wx06DB6D61 ?
+      val op --> = binary 0wx06DB6D61
 
       val exn = 0wx08DB6B69 : Word32.t
       fun regExn0 _ _ = ()
       fun regExn1 _ _ _ = ()
 
-      fun list ? = unary 0wx09B6DB29 ?
+      val list = unary 0wx09B6DB29
 
-      fun vector ? = unary 0wx0ADB6D29 ?
+      val vector = unary 0wx0ADB6D29
 
-      fun array ? = unary 0wx0B6DB651 ?
-      fun refc ? = unary 0wx0CDB6D51 ?
+      val array = unary 0wx0B6DB651
+      val refc = unary 0wx0CDB6D51
 
       val fixedInt = 0wx0DB6DAA1 : Word32.t
       val largeInt = 0wx1B6DB541 : Word32.t
