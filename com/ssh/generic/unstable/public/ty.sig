@@ -10,22 +10,18 @@
  *)
 signature TY = sig
    structure Product : sig
-      datatype 'elem t = *`   of 'elem t Sq.t
-                       | ELEM of 'elem
-                       | ISO  of 'elem t
+      datatype 'elem t = TIMES       of 'elem t Sq.t
+                       | ELEM        of 'elem
+                       | ISO_PRODUCT of 'elem t
    end
 
    structure Sum : sig
-      datatype 'ty t = +`  of 'ty t Sq.t
-                     | C0  of Generics.Con.t
-                     | C1  of Generics.Con.t * 'ty
-                     | ISO of 'ty t
+      datatype 'ty t = PLUS    of 'ty t Sq.t
+                     | C0      of Generics.Con.t
+                     | C1      of Generics.Con.t * 'ty
+                     | ISO_SUM of 'ty t
    end
 
-   structure Var : sig
-      eqtype t
-      val new : t Thunk.t
-   end
 
    structure Con0 : sig
       datatype t = BOOL | CHAR | EXN | FIXED_INT | INT | LARGE_INT
@@ -41,14 +37,31 @@ signature TY = sig
       datatype t = ARROW
    end
 
-   datatype 'var t =
-            DATA   of 'var t Sum.t
-          | CON0   of Con0.t
-          | CON1   of Con1.t * 'var t
-          | CON2   of Con2.t * 'var t Sq.t
-          | FIX    of 'var * 'var t
-          | ISO    of 'var t
-          | RECORD of (Generics.Label.t * 'var t) Product.t
-          | TUPLE  of 'var t Product.t
-          | VAR    of 'var
+   datatype 'var t = DATA   of 'var t Sum.t
+                   | CON0   of Con0.t
+                   | CON1   of Con1.t * 'var t
+                   | CON2   of Con2.t * 'var t Sq.t
+                   | FIX    of 'var * 'var t
+                   | ISO    of 'var t
+                   | RECORD of (Generics.Label.t * 'var t) Product.t
+                   | TUPLE  of 'var t Product.t
+                   | VAR    of 'var
+
+   (** == Data Recursion Info ==
+    *
+    * These correspond to the algorithms in the {DataRecInfo} generic
+    * and have been implemented here as recursive algorithms on type
+    * representation expressions with the intention of documenting their
+    * semantics.
+    *
+    * The {DataRecInfo} generic computes the same information
+    * incrementally during type representation construction and is likely
+    * to be better amenable to compiler optimizations such as constant
+    * folding.
+    *)
+
+   val isMutableType :  'a t UnPr.t
+   val mayBeCyclic   : ''a t UnPr.t
+   val mayBeRecData  : ''a t UnPr.t
+   val mayContainExn :  'a t UnPr.t
 end

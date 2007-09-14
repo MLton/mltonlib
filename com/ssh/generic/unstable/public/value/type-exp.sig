@@ -10,7 +10,12 @@
 signature TYPE_EXP = sig
    structure TypeExp : OPEN_REP
 
-   val ty : ('a, 'x) TypeExp.t -> Ty.Var.t Ty.t
+   (** A minimalistic type variable representation providing only equality. *)
+   structure TypeVar : sig
+      eqtype t
+   end
+
+   val ty : ('a, 'x) TypeExp.t -> TypeVar.t Ty.t
    (** Returns the type expression given a type representation. *)
 end
 

@@ -9,19 +9,24 @@ functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = struct
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   open Ty Ty.Con0 Ty.Con1 Ty.Con2
+   open Generics Ty open Product Sum Con0 Con1 Con2
+
+   structure TypeVar = struct
+      type t = Unit.t Ref.t
+      val new = ref
+   end
 
    fun mapElem f =
-    fn Product.*` (a, b) => Product.*` (mapElem f a, mapElem f b)
-     | Product.ISO b     => Product.ISO (mapElem f b)
-     | Product.ELEM e    => Product.ELEM (f e)
+    fn TIMES (a, b)   => TIMES (mapElem f a, mapElem f b)
+     | ISO_PRODUCT b  => ISO_PRODUCT (mapElem f b)
+     | ELEM e         => ELEM (f e)
 
    structure TypeExp = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = struct
-         type 'a t = Var.t Ty.t
-         type 'a s = Var.t Ty.t Ty.Sum.t
-         type ('a, 'k) p = (Generics.Label.t Option.t * Var.t Ty.t) Ty.Product.t
+         type 'a t = TypeVar.t Ty.t
+         type 'a s = TypeVar.t Ty.t Sum.t
+         type ('a, 'k) p = (Label.t Option.t * TypeVar.t Ty.t) Product.t
       end)
 
    val ty = TypeExp.This.getT
@@ -29,25 +34,25 @@ functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = struct
    structure Layered = LayerCases
      (structure Outer = Arg and Result = TypeExp and Rep = TypeExp.Closed
 
-      fun iso        bT _ =         ISO bT
-      fun isoProduct bP _ = Product.ISO bP
-      fun isoSum     bS _ =     Sum.ISO bS
+      fun iso        bT _ = ISO         bT
+      fun isoProduct bP _ = ISO_PRODUCT bP
+      fun isoSum     bS _ = ISO_SUM     bS
 
-      fun op *` (aT, bT) = Product.*` (aT, bT)
-      fun T aT   = Product.ELEM (NONE, aT)
-      fun R l aT = Product.ELEM (SOME l, aT)
+      val op *` = TIMES
+      fun T aT = ELEM (NONE, aT)
+      fun R l aT = ELEM (SOME l, aT)
       fun tuple aP = TUPLE (mapElem Pair.snd aP)
       fun record aP = RECORD (mapElem (Pair.map (valOf, id)) aP)
 
-      fun op +` (aT, bT) = Sum.+` (aT, bT)
-      val unit  = CON0 UNIT
-      fun C0 c  = Sum.C0 c
+      val op +` = PLUS
+      val unit = CON0 UNIT
+      fun C0 c = Sum.C0 c
       fun C1 c aT = Sum.C1 (c, aT)
       val data = DATA
 
       fun Y ? =
           Tie.pure (fn () => let
-                          val v = Var.new ()
+                          val v = TypeVar.new ()
                        in
                           (VAR v, fn e => FIX (v, e))
                        end) ?
