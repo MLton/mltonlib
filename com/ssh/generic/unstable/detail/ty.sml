@@ -5,6 +5,10 @@
  *)
 
 structure Ty :> TY = struct
+   (* <-- SML/NJ workaround *)
+   open TopLevel
+   (* SML/NJ workaround --> *)
+
    structure Product = struct
       datatype 'elem t = TIMES       of 'elem t Sq.t
                        | ELEM        of 'elem
@@ -97,5 +101,5 @@ structure Ty :> TY = struct
      | _           => false
 
    fun mayBeCyclic t =
-       (isMutableType andAlso (mayContainExn orElse mayBeRecData)) t
+       isMutableType t andalso (mayContainExn t orelse mayBeRecData t)
 end
