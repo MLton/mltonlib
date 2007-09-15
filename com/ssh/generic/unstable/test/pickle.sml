@@ -54,6 +54,9 @@ in
           (chkSeq (tuple3 (word8, word32, word64)))
           (chkSeq (bool &` char &` int &` real &` string &` word))
 
+          (sizeFn (fn i => i*50+1))
+          (chkSeq largeInt)
+
           (title "Generic.Pickle.Cyclic")
 
           (testSeq (Graph.t int) Graph.intGraph1)
