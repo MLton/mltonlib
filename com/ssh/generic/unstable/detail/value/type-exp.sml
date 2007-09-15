@@ -50,12 +50,11 @@ functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = struct
       fun C1 c aT = Sum.C1 (c, aT)
       val data = DATA
 
-      fun Y ? =
-          Tie.pure (fn () => let
-                          val v = TypeVar.new ()
-                       in
-                          (VAR v, fn e => FIX (v, e))
-                       end) ?
+      val Y = Tie.pure (fn () => let
+                              val v = TypeVar.new ()
+                           in
+                              (VAR v, fn e => FIX (v, e))
+                           end)
 
       fun op --> aTbT = CON2 (ARROW, aTbT)
 

@@ -75,15 +75,14 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
       fun data (INS {exn, recs, ...}) =
           INT {exn = exn, pure = true, recs = recs}
 
-      fun Y ? =
-          Tie.pure
-             (fn () => let
-                    val me = ref ()
-                 in
-                    (INT {exn = false, pure = true, recs = [me]},
-                     fn INT {exn, pure, recs} =>
-                        INT {exn = exn, pure = pure, recs = rem me recs})
-                 end) ?
+      val Y = Tie.pure
+                 (fn () => let
+                        val me = ref ()
+                     in
+                        (INT {exn = false, pure = true, recs = [me]},
+                         fn INT {exn, pure, recs} =>
+                            INT {exn = exn, pure = pure, recs = rem me recs})
+                     end)
 
       fun op --> _ = base
 

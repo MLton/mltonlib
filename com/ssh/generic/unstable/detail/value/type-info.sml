@@ -55,7 +55,7 @@ functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
       fun C1 _ (INT {base, ...}) = INS {alts = 1, base = base}
       fun data (INS {base, ...}) = INT {base = base}
 
-      fun Y ? = Tie.pure (fn () => (INT {base = false}, id)) ?
+      val Y = Tie.id (INT {base = false})
 
       fun op --> _ = base
 
