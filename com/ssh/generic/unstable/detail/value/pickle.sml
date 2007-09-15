@@ -205,7 +205,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                 rd word8 >>= (fn b =>
                 if b < 0wx80
                 then return (v + Word8.toInt b * m)
-                else lp (v + Word8.toInt (b - 0wx80) * m, m * 0x80))
+                else lp (v + Word8.toInt (Word8.andb (b, 0wx7F)) * m, m * 0x80))
           in
              lp (0, 1)
           end,
@@ -214,10 +214,10 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
              fun lp i =
                  if i < 0x80
                  then wr word8 (Word8.fromInt i)
-                 else wr word8 (Word8.andb (0wx7F, Word8.fromInt i)) >>=
+                 else wr word8 (Word8.orb (0wx80, Word8.fromInt i)) >>=
                       (fn () => lp (Int.quot (i, 0x80)))
           in
-             fn i => if i < 0 then fail "Negative size" else return i >>= lp
+             fn i => if i < 0 then fail "Negative size" else lp i
           end,
           sz = SOME 2}
 
@@ -253,15 +253,6 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                  if sized then wr size n >> wrBits else wrBits
               end,
          sz = SOME ((n + 7) div 8 + Bool.toInt sized)}
-   end
-
-   val intAs16 = let
-      open Word
-   in
-      bits false
-           {wordSize = 16, orb = op orb, << = op <<, ~>> = op ~>>,
-            isoWord8 = isoWord8}
-           (swap Word.isoInt)
    end
 
    val word32 = bits false Word32.ops Iso.id
@@ -576,10 +567,9 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       fun data aS = let
          val n = Arg.numAlts aS
          val tag =
-             if      n <= 1     then intAs0
-             else if n <= 256   then intAs8
-             else if n <= 65536 then intAs16
-             else fail "Too many tags"
+             if      n <= 1   then intAs0
+             else if n <= 256 then intAs8
+             else                  size
          val S {rd = aR, wr = aW, sz = aS} = getS aS
          val aR = aR 0
          open I

@@ -92,8 +92,8 @@
  * pickling constructors based on the knowledge of how many constructors a
  * datatype has.  If a datatype contains only a single constructor, no tag
  * is written at all (0-bits of storage).  If a datatype contains a
- * maximum of 256 constructors, the tag takes 8-bits.  Otherwise 16-bits
- * are used.
+ * maximum of 256 constructors, the tag takes 8-bits.  Otherwise a
+ * variable length tag is used.
  *
  * For maximal flexibility, the interface allows pickling / unpickling
  * directly to / from an arbitrary stream.
