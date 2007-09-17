@@ -24,6 +24,32 @@ local
    in
       testEq toT (fn () => {expect = expect, actual = reduce value})
    end
+
+   structure Lambda =
+      MkLambda (structure Id = struct
+                   type t = String.t
+                   val t = string
+                end
+                open Generic)
+
+   structure Set = struct
+      val empty = []
+      fun singleton x = [x]
+      fun union (xs, ys) = List.nubByEq op = (xs @ ys)
+      fun difference (xs, ys) = List.filter (not o List.contains ys) xs
+   end
+
+   local
+      open Set Lambda
+      val refs = fn REF id => singleton id | _ => empty
+      val decs = fn FUN (id, _) => singleton id | _ => empty
+   in
+      fun free term =
+          difference
+             (union (refs (out term),
+                     makeReduce empty union free t t' term),
+              decs (out term))
+   end
 in
    val () =
        unitTests
@@ -39,6 +65,20 @@ in
                         (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
                         [0, 1, 2, 3]
           end
+
+          (testEq (list string)
+                  (fn () => let
+                         open Lambda
+                         fun ` f = IN o f
+                      in
+                         {actual = free (`APP (`FUN ("x",
+                                                     `APP (`REF "y", `REF "x")),
+                                               `FUN ("z",
+                                                     `APP (`REF "x",
+                                                           `APP (`REF "y",
+                                                                 `REF "x"))))),
+                          expect = ["y", "x"]}
+                      end))
 
           $
 end

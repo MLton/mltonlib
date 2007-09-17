@@ -98,3 +98,57 @@ end = struct
                       fn INL () => LF | INR ? => BR ?))
    end
 end
+
+functor MkLambda (include GENERIC_EXTRA
+                  structure Id : sig
+                     type t
+                     val t : t Rep.t
+                  end) :> sig
+   structure Id : sig
+      type t = Id.t
+      val t : t Rep.t
+   end
+
+   datatype 't f =
+      FUN of Id.t * 't
+    | APP of 't Sq.t
+    | REF of Id.t
+
+   datatype t = IN of t f
+   val out : t -> t f
+
+   val f : 't Rep.t -> 't f Rep.t
+   val t' : t Rep.t UnOp.t
+   val t : t Rep.t
+end = struct
+   structure Id = Id
+
+   datatype 't f =
+      FUN of Id.t * 't
+    | APP of 't Sq.t
+    | REF of Id.t
+
+   datatype t = IN of t f
+   fun out (IN ?) = ?
+
+   local
+      val cFUN = C "FUN"
+      val cAPP = C "APP"
+      val cREF = C "REF"
+   in
+      fun f t =
+          iso (data (C1 cFUN (tuple2 (Id.t, t))
+                  +` C1 cAPP (sq t)
+                  +` C1 cREF Id.t))
+              (fn FUN ? => INL (INL ?) | APP ? => INL (INR ?) | REF ? => INR ?,
+               fn INL (INL ?) => FUN ? | INL (INR ?) => APP ? | INR ? => REF ?)
+   end
+
+   local
+      val cIN = C "IN"
+   in
+      fun t' t = iso (data (C1 cIN (f t))) (out, IN)
+   end
+
+   val t = Tie.fix Y t'
+end
