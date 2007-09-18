@@ -11,7 +11,7 @@
  * implemented through mutable types, references and arrays.  Furthermore,
  * a mutable type can only be used to form cycles if it is a part of a
  * strongly connected component containing a recursive datatype or
- * contains an exception.  This makes it possible to compute a simple
+ * contains exceptions.  This makes it possible to compute a simple
  * conservative approximation as to whether a given mutable type can be
  * part of cycle.
  *
@@ -36,16 +36,15 @@ signature DATA_REC_INFO = sig
 
    val mayContainExn : ('a, 'x) DataRecInfo.t UnPr.t
    (**
-    * Returns true if a value of the type {'a} may contain exception
-    * values.  Arrow types are not considered to contain exception values.
+    * Returns true if a value of the type {'a} may contain exceptions.
+    * Arrow types are not considered to contain exceptions.
     *)
 
    val mayBeRecData : ('a, 'x) DataRecInfo.t UnPr.t
    (**
     * Returns true if a value of type {'a} may be part of a recursive
     * datatype.  Exceptions are not considered to be a recursive datatype
-    * and arrow types are not considered to be part of recursive
-    * datatypes.
+    * and arrow types are not considered to contain recursive datatypes.
     *)
 
    val isMutableType : ('a, 'x) DataRecInfo.t UnPr.t
