@@ -13,6 +13,7 @@ local
        testEq string (fn () => {expect = s, actual = render n (pretty t v)})
 
    structure Graph = MkGraph (Generic)
+   structure BinTree = MkBinTree (Generic)
 in
    val () =
        unitTests
@@ -125,6 +126,24 @@ in
                \  VTX (5, #2),\n\
                \  VTX (6, #1)]"
                Graph.intGraph1)
+
+          let
+             open BinTree Prettier Pretty Pretty.Fixity
+             fun withAngles xP x =
+                 xP x >>= (fn (_, d) =>
+                 return (ATOMIC, angles d))
+          in
+             tst (SOME 30)
+                 (BinTree.t (mapPrinter withAngles int))
+                 "BR\n\
+                 \ (BR (LF, <0>, LF),\n\
+                 \  <1>,\n\
+                 \  BR\n\
+                 \   (LF,\n\
+                 \    <2>,\n\
+                 \    BR (LF, <3>, LF)))"
+                 (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
+          end
 
           $
 end

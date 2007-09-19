@@ -76,6 +76,55 @@ signature PRETTY = sig
 
    (** Substructure for additional pretty printing combinators. *)
    structure Pretty : sig
+      (** == Monadic Combinator Interface ==
+       *
+       * This interface allows the pretty printer stored in a type
+       * representation to be extracted and replaced with a custom pretty
+       * printer.
+       *)
+
+      include MONAD_CORE
+
+      val getFmt : Fmt.t monad
+      (** Returns the default formatting options. *)
+
+      val setFmt : Fmt.t -> Unit.t monad
+      (**
+       * Functionally sets the default formatting options.  The new
+       * default formatting options are only passed to the children of the
+       * current monadic operation.  Note that changing the {maxDepth}
+       * option has no effect on any default printers.
+       *)
+
+      val getRemDepth : Int.t Option.t monad
+      (** Returns the remaining depth. *)
+
+      val setRemDepth : Int.t Option.t -> Unit.t monad
+      (**
+       * Functionally sets the remaining depth.  The new depth only
+       * affects the direct subactions of the current monadic action.
+       *)
+
+      structure Fixity : sig
+         datatype t =
+            ATOMIC
+          | NONFIX
+          | INFIXL of Int.t
+          | INFIXR of Int.t
+      end
+
+      type 'a t = 'a -> (Fixity.t * Prettier.t) monad
+      (** The type of pretty printing actions. *)
+
+      val getPrinter : ('a, 'x) PrettyRep.t -> 'a t
+      (** Returns the pretty printing action stored in a type representation. *)
+
+      val setPrinter : 'a t -> ('a, 'x) PrettyRep.t UnOp.t
+      (** Functionally updates the pretty printing action in a type rep. *)
+
+      val mapPrinter : 'a t UnOp.t -> ('a, 'x) PrettyRep.t UnOp.t
+      (** {mapPrinter f t} is equivalent to {setPrinter (f (getPrinter t)) t}. *)
+
       (** == Infix Constructors ==
        *
        * The {infixL} and {infixR} combinators update a given sum type

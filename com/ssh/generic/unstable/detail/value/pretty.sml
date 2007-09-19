@@ -37,11 +37,16 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
    infixr 4 </ />
    infix  2 >|
    infixr 2 |<
+   infix  1 >>=
    infix  0 &
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   datatype f = ATOMIC | NONFIX | INFIXL of Int.t | INFIXR of Int.t
+   structure Fixity = struct
+      datatype t = ATOMIC | NONFIX | INFIXL of Int.t | INFIXR of Int.t
+   end
+
+   open Fixity
 
    fun mark f doc = (f, doc)
 
@@ -87,7 +92,8 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
                set : RefOpts.t -> 'a Ref.t,
                chk : 'a Effect.t}
 
-      val notNeg = Option.app (fn i => if i < 0 then raise Size else ())
+      val notNeg = fn i => if i < 0 then raise Size else ()
+      val notNegOpt = Option.app notNeg
       fun chkRealFmt fmt =
           if case fmt
               of StringCvt.SCI (SOME i) => i < 0
@@ -100,9 +106,9 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       val intRadix  = O {get = #intRadix,  set = #intRadix,  chk = ignore}
       val wordRadix = O {get = #wordRadix, set = #wordRadix, chk = ignore}
       val realFmt   = O {get = #realFmt,   set = #realFmt,   chk = chkRealFmt}
-      val maxDepth  = O {get = #maxDepth,  set = #maxDepth,  chk = notNeg}
-      val maxLength = O {get = #maxLength, set = #maxLength, chk = notNeg}
-      val maxString = O {get = #maxString, set = #maxString, chk = notNeg}
+      val maxDepth  = O {get = #maxDepth,  set = #maxDepth,  chk = notNegOpt}
+      val maxLength = O {get = #maxLength, set = #maxLength, chk = notNegOpt}
+      val maxString = O {get = #maxString, set = #maxString, chk = notNegOpt}
 
       structure I = MapOpts (type 'a dom = 'a and 'a cod = 'a Ref.t val f = ref)
             and P = MapOpts (type 'a dom = 'a Ref.t and 'a cod = 'a val f = !)
@@ -122,7 +128,7 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
              fmt : Fmt.t}
    type v = {maxDepth : OptInt.t}
    datatype e = E of c * v
-   type 'a t = e * 'a -> f * Prettier.t
+   type 'a t = e * 'a -> Fixity.t * Prettier.t
    type 'a p = e * 'a -> Prettier.t
 
    fun inj b a2b = b o Pair.map (id, a2b)
@@ -240,6 +246,27 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
    open PrettyRep.This
 
    structure Pretty = struct
+      type 'a monad = e -> 'a * e
+      fun return a e = (a, e)
+      fun (aM >>= a2bM) e = uncurry a2bM (aM e)
+
+      fun getFmt (e as E ({fmt, ...}, _)) = (fmt, e)
+      fun setFmt fmt (E ({cnt, map, ...}, v)) =
+          ((), E ({cnt = cnt, fmt = fmt, map = map}, v))
+
+      fun getRemDepth (e as E (_, {maxDepth})) = (maxDepth, e)
+      fun setRemDepth maxDepth (E (c, _)) = ((), E (c, {maxDepth = maxDepth}))
+
+      structure Fixity = Fixity
+
+      type 'a t = 'a -> (Fixity.t * Prettier.t) monad
+
+      fun getPrinter aT =
+          case getT aT
+           of aP => fn a => fn e => (aP (e, a), e)
+      fun setPrinter aP = mapT (const (Pair.fst o uncurry aP o Pair.swap))
+      fun mapPrinter f t = setPrinter (f (getPrinter t)) t
+
       local
          fun mk con n cmpL cmpR =
              if n < 0 orelse 9 < n then raise Domain else
