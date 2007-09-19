@@ -19,6 +19,8 @@ mlton -mlb-path-map generated/mlb-path-map         \
       -show-def-use generated/test.du              \
       -output generated/test                       \
       -const 'Exn.keepHistory true'                \
+      -type-check true                             \
+      -verbose 2                                   \
       test.mlb
 
 time \
