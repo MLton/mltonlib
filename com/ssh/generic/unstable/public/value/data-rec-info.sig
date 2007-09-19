@@ -25,29 +25,29 @@
  * of some other generics (e.g. pickling).
  *)
 signature DATA_REC_INFO = sig
-   structure DataRecInfo : OPEN_REP
+   structure DataRecInfoRep : OPEN_REP
 
-   val mayBeCyclic : ('a, 'x) DataRecInfo.t UnPr.t
+   val mayBeCyclic : ('a, 'x) DataRecInfoRep.t UnPr.t
    (**
     * Returns true if {'a} is a mutable type and may be part of a
     * recursive datatype or contain exceptions.  This means that values of
     * the type can form cycles.
     *)
 
-   val mayContainExn : ('a, 'x) DataRecInfo.t UnPr.t
+   val mayContainExn : ('a, 'x) DataRecInfoRep.t UnPr.t
    (**
     * Returns true if a value of the type {'a} may contain exceptions.
     * Arrow types are not considered to contain exceptions.
     *)
 
-   val mayBeRecData : ('a, 'x) DataRecInfo.t UnPr.t
+   val mayBeRecData : ('a, 'x) DataRecInfoRep.t UnPr.t
    (**
     * Returns true if a value of type {'a} may be part of a recursive
     * datatype.  Exceptions are not considered to be a recursive datatype
     * and arrow types are not considered to contain recursive datatypes.
     *)
 
-   val isMutableType : ('a, 'x) DataRecInfo.t UnPr.t
+   val isMutableType : ('a, 'x) DataRecInfoRep.t UnPr.t
    (**
     * Returns true iff the type {'a} is of the form {'b Array.t} or of the
     * form {'b Ref.t}.
@@ -56,5 +56,5 @@ end
 
 signature DATA_REC_INFO_CASES = sig
    include OPEN_CASES DATA_REC_INFO
-   sharing Rep = DataRecInfo
+   sharing Rep = DataRecInfoRep
 end

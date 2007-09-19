@@ -108,9 +108,9 @@
  * If you really need it (due to efficiency), let us know.
  *)
 signature PICKLE = sig
-   structure Pickle : OPEN_REP
+   structure PickleRep : OPEN_REP
 
-   structure Pickling : sig
+   structure Pickle : sig
       exception TypeMismatch
       (** Raised by unpickling functions when a type-mismatch is detected. *)
    end
@@ -122,10 +122,10 @@ signature PICKLE = sig
     * pickle in memory as a whole.
     *)
 
-   val pickler   : ('a, 'x) Pickle.t -> (Char.t -> (Unit.t, 's) IOSMonad.t)
-                                     -> ('a     -> (Unit.t, 's) IOSMonad.t)
-   val unpickler : ('a, 'x) Pickle.t -> (Char.t, 's) IOSMonad.t
-                                     -> ('a,     's) IOSMonad.t
+   val pickler   : ('a, 'x) PickleRep.t -> (Char.t -> (Unit.t, 's) IOSMonad.t)
+                                        -> ('a     -> (Unit.t, 's) IOSMonad.t)
+   val unpickler : ('a, 'x) PickleRep.t -> (Char.t, 's) IOSMonad.t
+                                        -> ('a,     's) IOSMonad.t
 
    (** == Simplified Interface ==
     *
@@ -133,16 +133,17 @@ signature PICKLE = sig
     * for pickling to strings and unpickling from strings.
     *)
 
-   val pickle   : ('a, 'x) Pickle.t -> 'a -> String.t
-   val unpickle : ('a, 'x) Pickle.t -> String.t -> 'a
+   val pickle   : ('a, 'x) PickleRep.t -> 'a -> String.t
+   val unpickle : ('a, 'x) PickleRep.t -> String.t -> 'a
 end
 
 signature PICKLE_CASES = sig
    include OPEN_CASES PICKLE
-   sharing Rep = Pickle
+   sharing Rep = PickleRep
 end
 
 signature WITH_PICKLE_DOM = sig
    include OPEN_CASES DATA_REC_INFO EQ HASH SOME TYPE_HASH TYPE_INFO
-   sharing Rep = DataRecInfo = Eq = Hash = Some = TypeHash = TypeInfo
+   sharing Rep = DataRecInfoRep = EqRep = HashRep = SomeRep = TypeHashRep
+         = TypeInfoRep
 end

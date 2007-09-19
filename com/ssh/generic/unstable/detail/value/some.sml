@@ -12,11 +12,11 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
 
    fun iso' b (_, b2a) = b2a o b
 
-   structure Some = LayerRep
+   structure SomeRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (Thunk))
 
-   open Some.This
+   open SomeRep.This
 
    exception Nothing of Exn.t
 
@@ -25,7 +25,7 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
    fun withSome v = mapT (const (const v))
 
    structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = Some
+     (structure Outer = Arg and Result = SomeRep
 
       fun iso        ? = iso' (getT ?)
       fun isoProduct ? = iso' (getP ?)

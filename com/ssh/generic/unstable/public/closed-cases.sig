@@ -54,7 +54,7 @@ signature CLOSED_CASES = sig
 
    (** == Support for Datatypes == *)
 
-   val +` : 'a Rep.s * 'b Rep.s -> (('a, 'b) Sum.t) Rep.s
+   val +` : 'a Rep.s * 'b Rep.s -> ('a, 'b) Sum.t Rep.s
    (**
     * Given representations for variants of type {'a} and {'b}, returns a
     * representation for the sum {('a, 'b) Sum.t}.

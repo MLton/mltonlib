@@ -43,9 +43,9 @@ in
 
           (tst (SOME 22)
                ((order |` unit) &` order &` (unit |` order))
-               "&\n\
-               \ (& (INL LESS, EQUAL),\n\
-               \  INR GREATER)"
+               "INL LESS\n\
+               \& EQUAL\n\
+               \& INR GREATER"
                (INL LESS & EQUAL & INR GREATER))
 
           let

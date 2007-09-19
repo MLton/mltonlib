@@ -11,25 +11,25 @@
  * Koen Claessen and John Hughes.
  *)
 signature ARBITRARY = sig
-   structure Arbitrary : OPEN_REP
+   structure ArbitraryRep : OPEN_REP
 
    structure RandomGen : RANDOM_GEN
    (** The underlying random value generator. *)
 
-   val arbitrary : ('a, 'x) Arbitrary.t -> 'a RandomGen.t
+   val arbitrary : ('a, 'x) ArbitraryRep.t -> 'a RandomGen.t
    (** Extracts the random value generator. *)
 
-   val withGen : 'a RandomGen.t -> ('a, 'x) Arbitrary.t UnOp.t
+   val withGen : 'a RandomGen.t -> ('a, 'x) ArbitraryRep.t UnOp.t
    (** Functionally updates the random value generator. *)
 end
 
 signature ARBITRARY_CASES = sig
    include OPEN_CASES ARBITRARY
-   sharing Rep = Arbitrary
+   sharing Rep = ArbitraryRep
 end
 
 signature WITH_ARBITRARY_DOM = sig
    include OPEN_CASES HASH TYPE_INFO
-   sharing Rep = Hash = TypeInfo
+   sharing Rep = HashRep = TypeInfoRep
    structure RandomGen : RANDOM_GEN
 end

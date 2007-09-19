@@ -10,7 +10,7 @@ functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
    infix <-->
    (* SML/NJ workaround --> *)
 
-   structure Dyn = struct
+   structure Dynamic = struct
       datatype t =
          PRODUCT    of (t, t) Product.t
        | SUM        of (t, t) Sum.t
@@ -32,74 +32,77 @@ functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
        | WORD8      of Word8.t
        | WORD32     of Word32.t
        | WORD64     of Word64.t
-      exception Dyn
+      exception Dynamic
    end
 
-   open Dyn
+   open Dynamic
 
    val op <--> = Iso.<-->
 
    fun isoUnsupported text = (failing text, failing text)
 
-   structure Dynamic = LayerRep
+   structure DynamicRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = ('a, t) Iso.t))
 
-   open Dynamic.This
+   open DynamicRep.This
 
-   fun toDyn t = Iso.to (getT t)
-   fun fromDyn t d = SOME (Iso.from (getT t) d) handle Dyn.Dyn => NONE
+   fun toDynamic t = Iso.to (getT t)
+   fun fromDynamic t d =
+       SOME (Iso.from (getT t) d) handle Dynamic.Dynamic => NONE
 
    structure Layered = LayerCases
-     (structure Outer = Arg and Result = Dynamic and Rep = Dynamic.Closed
+     (structure Outer=Arg and Result=DynamicRep and Rep=DynamicRep.Closed
 
       fun iso bId aIb = bId <--> aIb
       val isoProduct = iso
       val isoSum     = iso
 
       fun op *` is =
-          (PRODUCT, fn PRODUCT ? => ? | _ => raise Dyn) <--> Product.iso is
+          (PRODUCT, fn PRODUCT ? => ? | _ => raise Dynamic) <--> Product.iso is
       val T      = id
       fun R _    = id
       val tuple  = id
       val record = id
 
-      fun op +` is = (SUM, fn SUM ? => ? | _ => raise Dyn) <--> Sum.iso is
-      val unit  = (fn () => UNIT, fn UNIT => () | _ => raise Dyn)
+      fun op +` is = (SUM, fn SUM ? => ? | _ => raise Dynamic) <--> Sum.iso is
+      val unit  = (fn () => UNIT, fn UNIT => () | _ => raise Dynamic)
       fun C0 _  = unit
       fun C1 _  = id
       val data  = id
 
       fun Y ? = let open Tie in tuple2 (function, function) end ?
 
-      fun op --> is = (ARROW, fn ARROW ? => ? | _ => raise Dyn) <--> Fn.iso is
+      fun op --> is =
+          (ARROW, fn ARROW ? => ? | _ => raise Dynamic) <--> Fn.iso is
 
-      val exn = (EXN, fn EXN ? => ? | _ => raise Dyn)
+      val exn = (EXN, fn EXN ? => ? | _ => raise Dynamic)
       fun regExn0 _ _ = ()
       fun regExn1 _ _ _ = ()
 
-      fun list i = (LIST, fn LIST ? => ? | _ => raise Dyn) <--> List.iso i
-      fun vector i = (VECTOR, fn VECTOR ? => ? | _ => raise Dyn) <--> Vector.iso i
+      fun list i = (LIST, fn LIST ? => ? | _ => raise Dynamic) <--> List.iso i
+      fun vector i =
+          (VECTOR, fn VECTOR ? => ? | _ => raise Dynamic) <--> Vector.iso i
 
-      fun array _ = isoUnsupported "Dyn.array unsupported"
-      fun refc  _ = isoUnsupported "Dyn.refc unsupported"
+      fun array _ = isoUnsupported "Dynamic.array unsupported"
+      fun refc  _ = isoUnsupported "Dynamic.refc unsupported"
 
-      val fixedInt = (FIXED_INT,  fn FIXED_INT  ? => ? | _ => raise Dyn)
-      val largeInt = (LARGE_INT,  fn LARGE_INT  ? => ? | _ => raise Dyn)
+      val fixedInt = (FIXED_INT,  fn FIXED_INT  ? => ? | _ => raise Dynamic)
+      val largeInt = (LARGE_INT,  fn LARGE_INT  ? => ? | _ => raise Dynamic)
 
-      val largeWord = (LARGE_WORD, fn LARGE_WORD ? => ? | _ => raise Dyn)
-      val largeReal = (LARGE_REAL, fn LARGE_REAL ? => ? | _ => raise Dyn)
+      val largeWord = (LARGE_WORD, fn LARGE_WORD ? => ? | _ => raise Dynamic)
+      val largeReal = (LARGE_REAL, fn LARGE_REAL ? => ? | _ => raise Dynamic)
 
-      val bool   = (BOOL,   fn BOOL   ? => ? | _ => raise Dyn)
-      val char   = (CHAR,   fn CHAR   ? => ? | _ => raise Dyn)
-      val int    = (INT,    fn INT    ? => ? | _ => raise Dyn)
-      val real   = (REAL,   fn REAL   ? => ? | _ => raise Dyn)
-      val string = (STRING, fn STRING ? => ? | _ => raise Dyn)
-      val word   = (WORD,   fn WORD   ? => ? | _ => raise Dyn)
+      val bool   = (BOOL,   fn BOOL   ? => ? | _ => raise Dynamic)
+      val char   = (CHAR,   fn CHAR   ? => ? | _ => raise Dynamic)
+      val int    = (INT,    fn INT    ? => ? | _ => raise Dynamic)
+      val real   = (REAL,   fn REAL   ? => ? | _ => raise Dynamic)
+      val string = (STRING, fn STRING ? => ? | _ => raise Dynamic)
+      val word   = (WORD,   fn WORD   ? => ? | _ => raise Dynamic)
 
-      val word8  = (WORD8,  fn WORD8  ? => ? | _ => raise Dyn)
-      val word32 = (WORD32, fn WORD32 ? => ? | _ => raise Dyn)
-      val word64 = (WORD64, fn WORD64 ? => ? | _ => raise Dyn))
+      val word8  = (WORD8,  fn WORD8  ? => ? | _ => raise Dynamic)
+      val word32 = (WORD32, fn WORD32 ? => ? | _ => raise Dynamic)
+      val word64 = (WORD64, fn WORD64 ? => ? | _ => raise Dynamic))
 
    open Layered
 end

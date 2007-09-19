@@ -14,19 +14,21 @@ functor WithTypeHash (Arg : OPEN_CASES) : TYPE_HASH_CASES = struct
    in
       fun unary c h = h * 0w19 + c
       fun binary c (l, r) = l * 0w13 + r * 0w17 + c
-      fun text toString =
-          String.foldl (fn (c, h) => h * 0w33 + fromInt (ord c)) 0w5381 o
-          toString
+      local
+         fun textStep (c, h) = h * 0w33 + fromInt (ord c)
+      in
+         fun text s = String.foldl textStep 0w5381 s
+      end
    end
 
-   structure TypeHash = LayerRep
+   structure TypeHashRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = Word32.t))
 
-   val typeHash = TypeHash.This.getT
+   val typeHash = TypeHashRep.This.getT
 
    structure Layered = LayerCases
-     (structure Outer = Arg and Result = TypeHash and Rep = TypeHash.Closed
+     (structure Outer=Arg and Result=TypeHashRep and Rep=TypeHashRep.Closed
 
       fun iso        ? _ = unary 0wxD00B6B6B ?
       fun isoProduct ? _ = unary 0wxC01B56DB ?
@@ -34,14 +36,14 @@ functor WithTypeHash (Arg : OPEN_CASES) : TYPE_HASH_CASES = struct
 
       val op *`  = binary 0wx00ADB6DB
       val T      = unary 0wx00B6DB6B
-      fun R    l = unary (text Generics.Label.toString l)
+      fun R    l = unary (text (Generics.Label.toString l))
       val tuple  = unary 0wx00DB6DB5
       val record = unary 0wx01B6DB55
 
       val op +` = binary 0wx02DB6D4D
       val unit  = 0wx036DB6C5 : Word32.t
-      val C0    = text Generics.Con.toString
-      fun C1  c = unary (text Generics.Con.toString c)
+      val C0    = text o Generics.Con.toString
+      fun C1  c = unary (text (Generics.Con.toString c))
       val data  = unary 0wx04DB6D63
 
       val Y = Tie.id (0wx05B6DB51 : Word32.t)

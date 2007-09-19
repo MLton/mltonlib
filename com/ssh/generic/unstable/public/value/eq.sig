@@ -39,15 +39,15 @@
  * Comparison of functions is impossible and fails at run-time.
  *)
 signature EQ = sig
-   structure Eq : OPEN_REP
+   structure EqRep : OPEN_REP
 
-   val eq : ('a, 'x) Eq.t -> 'a BinPr.t
+   val eq : ('a, 'x) EqRep.t -> 'a BinPr.t
    (** Extracts the equality predicate. *)
 
-   val notEq : ('a, 'x) Eq.t -> 'a BinPr.t
+   val notEq : ('a, 'x) EqRep.t -> 'a BinPr.t
    (** {notEq t = not o eq t} *)
 
-   val withEq : 'a BinPr.t -> ('a, 'x) Eq.t UnOp.t
+   val withEq : 'a BinPr.t -> ('a, 'x) EqRep.t UnOp.t
    (**
     * Functionally updates the equality predicate.
     *
@@ -61,5 +61,5 @@ end
 
 signature EQ_CASES = sig
    include OPEN_CASES EQ
-   sharing Rep = Eq
+   sharing Rep = EqRep
 end

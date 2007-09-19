@@ -7,18 +7,18 @@
 (**
  * Signature for a generic, structural, dynamic type.
  *
- * The coercion functions {toDyn} and {fromDyn} take time relative to the
- * size of the structural encoding of the values.  Mutable types, {ref}s
- * and {array}s, are not supported---encoding would not preserve the
- * identity of mutable values.  Arrow types are supported, but coercing a
- * function to a dynamic value and then back returns a function wrapped
- * with coercions.
+ * The coercion functions {toDynamic} and {fromDynamic} take time relative
+ * to the size of the structural encoding of the values.  Mutable types,
+ * {ref}s and {array}s, are not supported---encoding would not preserve
+ * the identity of mutable values.  Arrow types are supported, but
+ * coercing a function to a dynamic value and then back returns a function
+ * wrapped with coercions.
  *
  * In contrast to the universal type provided by the {Univ} structure, the
  * provided dynamic type is structural.  Consider the following code:
  *
- *> val x = toDyn (list int) [5]
- *> val SOME [5] = fromDyn (list int) x
+ *> val x = toDynamic (list int) [5]
+ *> val SOME [5] = fromDynamic (list int) x
  *
  * Even though the generic representation {list int} is computed twice,
  * the above code evaluates without raising a {Bind} exception.
@@ -32,7 +32,7 @@
  * between values of such types do not fail (by default).
  *
  * This design is experimental.  An interesting design alternative would
- * be to allow more coercions to occur in {fromDyn}.  For example,
+ * be to allow more coercions to occur in {fromDynamic}.  For example,
  * coercions between different scalar sizes and types could be performed
  * implicitly.  It would also be possible to coerce between vectors and
  * lists of different element type.  One could even implicitly read values
@@ -49,18 +49,18 @@
  * registering exception constructors.
  *)
 signature DYNAMIC = sig
-   structure Dynamic : OPEN_REP
+   structure DynamicRep : OPEN_REP
 
-   structure Dyn : sig
+   structure Dynamic : sig
       type t
-      exception Dyn
+      exception Dynamic
    end
 
-   val toDyn : ('a, 'x) Dynamic.t -> 'a -> Dyn.t
-   val fromDyn : ('a, 'x) Dynamic.t -> Dyn.t -> 'a Option.t
+   val toDynamic : ('a, 'x) DynamicRep.t -> 'a -> Dynamic.t
+   val fromDynamic : ('a, 'x) DynamicRep.t -> Dynamic.t -> 'a Option.t
 end
 
 signature DYNAMIC_CASES = sig
    include OPEN_CASES DYNAMIC
-   sharing Rep = Dynamic
+   sharing Rep = DynamicRep
 end

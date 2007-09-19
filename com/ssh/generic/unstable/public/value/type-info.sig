@@ -18,23 +18,23 @@
  * of some other generics (e.g. hashing).
  *)
 signature TYPE_INFO = sig
-   structure TypeInfo : OPEN_REP
+   structure TypeInfoRep : OPEN_REP
 
    (** == Sums == *)
 
-   val hasBaseCase : ('a, 'x) TypeInfo.s UnPr.t
+   val hasBaseCase : ('a, 'x) TypeInfoRep.s UnPr.t
    (** Returns true iff the type {'a} has a non-recursive variant. *)
 
-   val numAlts : ('a, 'x) TypeInfo.s -> Int.t
+   val numAlts : ('a, 'x) TypeInfoRep.s -> Int.t
    (** Number of alternatives in the given incomplete sum. *)
 
    (** == Products == *)
 
-   val numElems : ('a, 'k, 'x) TypeInfo.p -> Int.t
+   val numElems : ('a, 'k, 'x) TypeInfoRep.p -> Int.t
    (** Number of elements in the given incomplete product. *)
 end
 
 signature TYPE_INFO_CASES = sig
    include OPEN_CASES TYPE_INFO
-   sharing Rep = TypeInfo
+   sharing Rep = TypeInfoRep
 end

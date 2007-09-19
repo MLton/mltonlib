@@ -36,18 +36,18 @@
  * Comparison of functions is impossible and fails at run-time.
  *)
 signature ORD = sig
-   structure Ord : OPEN_REP
+   structure OrdRep : OPEN_REP
 
-   val ord : ('a, 'x) Ord.t -> 'a Cmp.t
+   val ord : ('a, 'x) OrdRep.t -> 'a Cmp.t
    (** Extracts the linear ordering. *)
 
-   val withOrd : 'a Cmp.t -> ('a, 'x) Ord.t UnOp.t
+   val withOrd : 'a Cmp.t -> ('a, 'x) OrdRep.t UnOp.t
    (** Functionally updates the comparison function. *)
 end
 
 signature ORD_CASES = sig
    include OPEN_CASES ORD
-   sharing Rep = Ord
+   sharing Rep = OrdRep
 end
 
 signature WITH_ORD_DOM = HASH_CASES

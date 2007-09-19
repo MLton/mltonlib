@@ -12,16 +12,16 @@ functor CloseWithExtra (Open : OPEN_CASES) = struct
    in
       open Extra
    end
-   structure Arbitrary   = Open.Rep
-   structure DataRecInfo = Open.Rep
-   structure Eq          = Open.Rep
-   structure Hash        = Open.Rep
-   structure Ord         = Open.Rep
-   structure Pickle      = Open.Rep
-   structure Pretty      = Open.Rep
-   structure Some        = Open.Rep
-   structure TypeHash    = Open.Rep
-   structure TypeInfo    = Open.Rep
+   structure ArbitraryRep   = Open.Rep
+   structure DataRecInfoRep = Open.Rep
+   structure EqRep          = Open.Rep
+   structure HashRep        = Open.Rep
+   structure OrdRep         = Open.Rep
+   structure PickleRep      = Open.Rep
+   structure PrettyRep      = Open.Rep
+   structure SomeRep        = Open.Rep
+   structure TypeHashRep    = Open.Rep
+   structure TypeInfoRep    = Open.Rep
 end
 
 (* Register basis library exceptions for the default generics. *)

@@ -41,20 +41,20 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   datatype f = ATOMIC | NONFIX
+   datatype f = ATOMIC | NONFIX | INFIXL of Int.t | INFIXR of Int.t
 
    fun mark f doc = (f, doc)
 
    open Prettier
-
-   fun surround (n, p) = mark ATOMIC o group o nest n o enclose p
-   fun atomize (a, d) = if ATOMIC = a then d else parens d
 
    val parens       = (1, (lparen,   rparen))
    val hashParens   = (2, (txt "#(", rparen))
    val braces       = (1, (lbrace,   rbrace))
    val brackets     = (1, (lbracket, rbracket))
    val hashBrackets = (2, (txt "#[", rbracket))
+
+   fun surround (n, p) = nest n o enclose p
+   fun atomize (a, d) = if ATOMIC = a then d else surround parens d
 
    structure OptInt = struct
       type t = Int.t Option.t
@@ -179,16 +179,17 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
               in
                  if SOME 0 = n
                  then surround style (d <$> txtDots)
-                 else lp (OptInt.- (n, SOME 1), d <$> aP (e, a), s)
+                 else lp (OptInt.- (n, SOME 1), d <$> group (aP (e, a)), s)
               end
       open Fmt
    in
-      if SOME 0 = !maxLength fmt
-      then surround style txtDots
-      else case getItem (toSlice a)
-            of NONE        => (ATOMIC, op <^> (#2 style))
-             | SOME (a, s) =>
-               lp (OptInt.- (!maxLength fmt, SOME 1), aP (e, a), s)
+      (ATOMIC,
+       if SOME 0 = !maxLength fmt
+       then surround style txtDots
+       else case getItem (toSlice a)
+             of NONE        => op <^> (#2 style)
+              | SOME (a, s) =>
+                lp (OptInt.- (!maxLength fmt, SOME 1), group (aP (e, a)), s))
    end
 
    val intPrefix =
@@ -228,7 +229,7 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
 
    fun iso' bP = inj bP o Iso.to
 
-   structure Pretty = LayerRep
+   structure PrettyRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = struct
          type 'a t = 'a t
@@ -236,22 +237,53 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
          type ('a, 'k) p = 'a p
       end)
 
-   open Pretty.This
+   open PrettyRep.This
+
+   structure Pretty = struct
+      local
+         fun mk con n cmpL cmpR =
+             if n < 0 orelse 9 < n then raise Domain else
+                fn c => case txt (Generics.Con.toString c) of c =>
+                   fn (aT, bT) => case getT aT & getT bT of aP & bP =>
+                      (mapS o const)
+                         (fn (e, (a, b)) => let
+                                val (aF, aS) = aP (e, a)
+                                val (bF, bS) = bP (e, b)
+                                val aS = if cmpL aF
+                                         then surround parens aS
+                                         else aS
+                                val bS = if cmpR bF
+                                         then surround parens bS
+                                         else bS
+                             in
+                                (con n, aS <$> c </> bS)
+                             end)
+      in
+         fun infixL n =
+             mk INFIXL n
+                (fn INFIXL l => l <  n | INFIXR r => r <= n | _ => false)
+                (fn INFIXL l => l <= n | INFIXR r => r <= n | _ => false)
+         fun infixR n =
+             mk INFIXR n
+                (fn INFIXL l => l <= n | INFIXR r => r <= n | _ => false)
+                (fn INFIXL l => l <= n | INFIXR r => r <  n | _ => false)
+      end
+   end
 
    fun fmt t =
        case getT t
         of p => fn fmt => fn x =>
-           #2 (p (E ({map = HashMap.new {eq = HashUniv.eq,
-                                         hash = HashUniv.hash},
-                      cnt = ref ~1,
-                      fmt = fmt},
-                     {maxDepth = Fmt.! Fmt.maxDepth fmt}),
-                  x))
+           group (#2 (p (E ({map = HashMap.new {eq = HashUniv.eq,
+                                                hash = HashUniv.hash},
+                             cnt = ref ~1,
+                             fmt = fmt},
+                            {maxDepth = Fmt.! Fmt.maxDepth fmt}),
+                         x)))
    fun pretty t = fmt t Fmt.default
    fun show t = Prettier.render NONE o pretty t
 
    structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = Pretty
+     (structure Outer = Arg and Result = PrettyRep
 
       fun iso        aT = iso' (getT aT)
       fun isoProduct aP = iso' (getP aP)
@@ -263,13 +295,13 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       in
          fn (e, a & b) => aP (e, a) <^> comma <$> bP (e, b)
       end
-      fun T t = #2 o getT t
+      fun T t = group o #2 o getT t
       fun R l =
           case txt (Generics.Label.toString l)
            of l => fn aT => case T aT of aP => fn x =>
               group (nest 1 (l </> equals </> aP x))
-      fun tuple aP = surround parens o getP aP
-      fun record aP = surround braces o getP aP
+      fun tuple aP = mark ATOMIC o surround parens o getP aP
+      fun record aP = mark ATOMIC o surround braces o getP aP
 
       fun aS +` bS = let
          val aP = getS aS
@@ -312,7 +344,7 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
                     then Substring.substring (s, 0, valOf maxString)
                     else Substring.full s
          in
-            mark ATOMIC o group o dquotes |< choice
+            mark ATOMIC o dquotes |< choice
                {wide = toLit s <^> suf,
                 narrow = lazy (fn () =>
                    List.foldl1

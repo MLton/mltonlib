@@ -22,10 +22,12 @@
  * functions, because it is impossible to compare functions for equality.
  *)
 signature HASH = sig
-   structure Hash : OPEN_REP
+   structure HashRep : OPEN_REP
 
-   val hashParam :
-       ('a, 'x) Hash.t -> {totWidth : Int.t, maxDepth : Int.t} -> 'a -> Word.t
+   val hashParam : ('a, 'x) HashRep.t
+                   -> {totWidth : Int.t,
+                       maxDepth : Int.t}
+                   -> 'a -> Word.t
    (**
     * Returns a hash function.  The {totWidth} and {maxDepth} parameters
     * give some control over hashing.  The {totWidth} parameter controls
@@ -34,16 +36,16 @@ signature HASH = sig
     * function descends into a (possibly recursive) datatype.
     *)
 
-   val hash : ('a, 'x) Hash.t -> 'a -> Word.t
+   val hash : ('a, 'x) HashRep.t -> 'a -> Word.t
    (** Returns the default hash function. *)
 end
 
 signature HASH_CASES = sig
    include OPEN_CASES HASH
-   sharing Rep = Hash
+   sharing Rep = HashRep
 end
 
 signature WITH_HASH_DOM = sig
    include OPEN_CASES TYPE_HASH TYPE_INFO
-   sharing Rep = TypeHash = TypeInfo
+   sharing Rep = TypeHashRep = TypeInfoRep
 end

@@ -62,17 +62,17 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
       IN {gen = xsGen, cog = xsCog}
    end
 
-   structure Arbitrary = LayerRep
+   structure ArbitraryRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
 
-   open Arbitrary.This
+   open ArbitraryRep.This
 
    fun arbitrary ? = #gen (out (getT ?))
    fun withGen gen = mapT (fn IN {cog, ...} => IN {gen = gen, cog = cog})
 
    structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = Arbitrary
+     (structure Outer = Arg and Result = ArbitraryRep
 
       fun iso        aT = iso' (getT aT)
       fun isoProduct aP = iso' (getP aP)

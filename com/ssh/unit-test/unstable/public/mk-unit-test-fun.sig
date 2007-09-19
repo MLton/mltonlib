@@ -9,7 +9,7 @@
  *)
 signature MK_UNIT_TEST_DOM = sig
    include GENERIC
-   include ARBITRARY sharing Open.Rep = Arbitrary
-   include EQ        sharing Open.Rep = Eq
-   include PRETTY    sharing Open.Rep = Pretty
+   include ARBITRARY sharing Open.Rep = ArbitraryRep
+   include EQ        sharing Open.Rep = EqRep
+   include PRETTY    sharing Open.Rep = PrettyRep
 end

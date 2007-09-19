@@ -40,11 +40,11 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
 
    val exns : (Exn.t * p -> Word.t Option.t) Buffer.t = Buffer.new ()
 
-   structure Hash = LayerRep
+   structure HashRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
 
-   open Hash.This
+   open HashRep.This
 
    val defaultHashParam = {totWidth = 200, maxDepth = 10}
 
@@ -61,7 +61,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
    fun hash t = hashParam t defaultHashParam
 
    structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = Hash
+     (structure Outer = Arg and Result = HashRep
 
       fun iso        ? = iso' (getT ?)
       fun isoProduct ? = iso' (getP ?)

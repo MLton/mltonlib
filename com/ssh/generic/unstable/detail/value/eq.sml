@@ -32,18 +32,18 @@ functor WithEq (Arg : OPEN_CASES) : EQ_CASES = struct
                         | SOME l & SOME r => t (l, r)
                         | _               => false) exnHandler
 
-   structure Eq = LayerRep
+   structure EqRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (BinPr))
 
-   open Eq.This
+   open EqRep.This
 
    val eq = getT
    fun notEq t = not o eq t
    fun withEq eq = mapT (const eq)
 
    structure Layered = LayerCases
-     (structure Outer = Arg and Result = Eq and Rep = Eq.Closed
+     (structure Outer = Arg and Result = EqRep and Rep = EqRep.Closed
 
       fun iso b (a2b, _) = BinPr.map a2b b
       val isoProduct = iso

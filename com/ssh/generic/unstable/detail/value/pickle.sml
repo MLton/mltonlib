@@ -469,15 +469,15 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
           wr = Option.map (fn a => O.>> (wr string c, aW a)) o e2a}
    end
 
-   structure Pickle = LayerRep
+   structure PickleRep = LayerRep
       (structure Outer = Arg.Rep
        structure Closed = struct
           type 'a t = 'a t and 'a s = 'a s and ('a, 'k) p = 'a t
        end)
 
-   open Pickle.This
+   open PickleRep.This
 
-   structure Pickling = struct
+   structure Pickle = struct
       exception TypeMismatch
    end
 
@@ -498,7 +498,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       run (ResizableArray.new ())
           (rd word32 >>= (fn key' =>
            if key' <> key
-           then raise Pickling.TypeMismatch
+           then raise Pickle.TypeMismatch
            else aR))
    end
 
@@ -512,7 +512,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
        Substring.full
 
    structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = Pickle
+     (structure Outer = Arg and Result = PickleRep
 
       fun iso bT aIb = let
          val bP = getT bT

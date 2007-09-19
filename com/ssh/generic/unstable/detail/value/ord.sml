@@ -58,11 +58,11 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
 
    fun iso' getX bX (a2b, _) (e, bp) = getX bX (e, Sq.map a2b bp)
 
-   structure Ord = LayerRep
+   structure OrdRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
 
-   open Ord.This
+   open OrdRep.This
 
    fun ord t = let
       val ord = getT t
@@ -72,7 +72,7 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
    fun withOrd cmp = mapT (const (lift cmp))
 
    structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = Ord
+     (structure Outer = Arg and Result = OrdRep
 
       fun iso        ? = iso' getT ?
       fun isoProduct ? = iso' getP ?

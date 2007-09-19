@@ -34,7 +34,7 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
    fun mutable (INT {exn, recs, ...}) =
        INT {exn = exn, pure = false, recs = recs}
 
-   structure DataRecInfo = LayerRep
+   structure DataRecInfoRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = struct
          type  'a      t = t
@@ -42,7 +42,7 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
          type ('a, 'k) p = p
       end)
 
-   open DataRecInfo.This
+   open DataRecInfoRep.This
 
    fun outT (INT r) = r
 
@@ -53,7 +53,8 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
        (isMutableType andAlso (mayContainExn orElse mayBeRecData)) ?
 
    structure Layered = LayerCases
-     (structure Outer=Arg and Result=DataRecInfo and Rep=DataRecInfo.Closed
+     (structure Outer=Arg and Result=DataRecInfoRep
+         and Rep=DataRecInfoRep.Closed
 
       val iso        = const
       val isoProduct = const

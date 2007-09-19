@@ -40,7 +40,7 @@ local
                    val p = pickle t (some t)
                 in
                    verifyFailsWith
-                      (fn Pickling.TypeMismatch => true | _ => false)
+                      (fn Pickle.TypeMismatch => true | _ => false)
                       (fn () => unpickle u p)
                 end)
 in

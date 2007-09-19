@@ -16,7 +16,7 @@ functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
    val base = INT {base = true}
    fun pure (INT {...}) = INT {base = true}
 
-   structure TypeInfo = LayerRep
+   structure TypeInfoRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = struct
          type  'a      t = t
@@ -24,7 +24,7 @@ functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
          type ('a, 'k) p = p
       end)
 
-   open TypeInfo.This
+   open TypeInfoRep.This
 
    fun outS (INS r) = r
    fun outP (INP r) = r
@@ -35,7 +35,7 @@ functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
    fun numElems     ? = (#elems o outP o getP) ?
 
    structure Layered = LayerCases
-     (structure Outer = Arg and Result = TypeInfo and Rep = TypeInfo.Closed
+     (structure Outer=Arg and Result=TypeInfoRep and Rep=TypeInfoRep.Closed
 
       val iso        = const
       val isoProduct = const
