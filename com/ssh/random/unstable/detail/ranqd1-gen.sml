@@ -10,10 +10,10 @@ structure RanQD1Gen :> RANDOM_GEN where type RNG.Seed.t = Word32.t =
        open TopLevel
        infixr 4 />
        (* SML/NJ workarounds --> *)
-       type t = Word32.t
        structure Seed = Word32
+       type t = Seed.t
        val make = id
-       val (value, seed) = Iso.<--> (Iso.swap Word.isoLarge, Word32.isoLarge)
+       val value = Seed.toWord
        val next = NumericalRecipes.ranqd1
-       fun split w = #2 o NumericalRecipes.psdes /> seed w
-       val maxValue = value Word32.maxValue)
+       fun split w = #2 o NumericalRecipes.psdes /> Seed.fromWord w
+       val maxValue = Seed.toWord Seed.maxValue)
