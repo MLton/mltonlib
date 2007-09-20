@@ -59,7 +59,7 @@ functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
 
       fun op --> _ = base
 
-      val exn = INT {base = true}
+      val exn = base
       fun regExn0 _ _ = ()
       fun regExn1 _ _ _ = ()
 
