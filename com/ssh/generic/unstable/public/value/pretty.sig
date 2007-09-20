@@ -21,13 +21,14 @@
  * specified.
  * - The radix of integers and words is shown in the output with a "b"
  * (binary ; HaMLet-S), "o" (octal ; non-standard), or "x" prefix.
- * - Sharing of mutable objects is shown in the output.  Shared mutable
- * objects are assigned a sequence number, indicated by a "#n=" prefix at
- * the first occurrence.  Subsequent occurrences of the shared object are
- * indicated by a "#n".
+ * - Sharing of mutable objects is shown in the output.  Each shared
+ * mutable object is assigned a sequence number that is indicated by a
+ * "#n=" prefix at the first occurrence.  Subsequent occurrences of the
+ * shared object are indicated by a "#n".
  * - Handles arbitrary cyclic data structures.
  * - Supports pretty printing infix constructors in infix notation with a
  * given fixity.
+ * - Supports customizing pretty printers.
  *)
 signature PRETTY = sig
    structure PrettyRep : OPEN_REP
