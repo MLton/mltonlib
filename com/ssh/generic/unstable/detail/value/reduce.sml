@@ -23,23 +23,25 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
 
    fun default (z, _, _) = z
 
-   structure Reduce = LayerRep
+   structure ReduceRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep
         (type 'a t = Univ.t * Univ.t BinOp.t * 'a -> Univ.t))
+
+   open ReduceRep.This
 
    fun makeReduce z p a2r aT aT2bT = let
       val (to, from) = Univ.Iso.new ()
       val z = to z
       val p = BinOp.map (from, to) p
-      val aT = Reduce.This.mapT (const (to o a2r o #3)) aT
-      val bR = Reduce.This.getT (aT2bT aT)
+      val aT = mapT (const (to o a2r o #3)) aT
+      val bR = getT (aT2bT aT)
    in
       fn x => from (bR (z, p, x))
    end
 
    structure Layered = LayerCases
-     (structure Outer = Arg and Result = Reduce and Rep = Reduce.Closed
+     (structure Outer = Arg and Result = ReduceRep and Rep = ReduceRep.Closed
 
       fun iso bR (a2b, _) (z, p, a) = bR (z, p, a2b a)
       val isoProduct = iso

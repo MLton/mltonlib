@@ -35,11 +35,11 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
 
    fun iso' getX bX (a2b, b2a) = un (Fn.map (Pair.map (a2b, id), b2a)) (getX bX)
 
-   structure Transform = LayerRep
+   structure TransformRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
 
-   open Transform.This
+   open TransformRep.This
 
    fun makeTransform a2a t t2u =
        case getT (t2u (mapT (const (CUSTOM, lift a2a)) t))
@@ -47,7 +47,7 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
            fn x => f (x, HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash})
 
    structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = Transform
+     (structure Outer = Arg and Result = TransformRep
 
       fun iso        ? = iso' getT ?
       fun isoProduct ? = iso' getP ?

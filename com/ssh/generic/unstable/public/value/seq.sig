@@ -18,21 +18,21 @@
  * other similar generics.
  *)
 signature SEQ = sig
-   structure Seq : OPEN_REP
+   structure SeqRep : OPEN_REP
 
-   val seq : ('a, 'x) Seq.t -> 'a BinPr.t
+   val seq : ('a, 'x) SeqRep.t -> 'a BinPr.t
    (** Extracts the equality predicate. *)
 
-   val notSeq : ('a, 'x) Seq.t -> 'a BinPr.t
+   val notSeq : ('a, 'x) SeqRep.t -> 'a BinPr.t
    (** {notSeq t = not o seq t} *)
 
-   val withSeq : 'a BinPr.t -> ('a, 'x) Seq.t UnOp.t
+   val withSeq : 'a BinPr.t -> ('a, 'x) SeqRep.t UnOp.t
    (** Functionally updates the equality predicate. *)
 end
 
 signature SEQ_CASES = sig
    include OPEN_CASES SEQ
-   sharing Rep = Seq
+   sharing Rep = SeqRep
 end
 
 signature WITH_SEQ_DOM = HASH_CASES

@@ -17,11 +17,11 @@ functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = struct
    end
 
    fun mapElem f =
-    fn TIMES (a, b)   => TIMES (mapElem f a, mapElem f b)
-     | ISO_PRODUCT b  => ISO_PRODUCT (mapElem f b)
-     | ELEM e         => ELEM (f e)
+    fn TIMES (a, b)  => TIMES (mapElem f a, mapElem f b)
+     | ISO_PRODUCT b => ISO_PRODUCT (mapElem f b)
+     | ELEM e        => ELEM (f e)
 
-   structure TypeExp = LayerRep
+   structure TypeExpRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = struct
          type 'a t = TypeVar.t Ty.t
@@ -29,10 +29,10 @@ functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = struct
          type ('a, 'k) p = (Label.t Option.t * TypeVar.t Ty.t) Product.t
       end)
 
-   val ty = TypeExp.This.getT
+   val ty = TypeExpRep.This.getT
 
    structure Layered = LayerCases
-     (structure Outer = Arg and Result = TypeExp and Rep = TypeExp.Closed
+     (structure Outer = Arg and Result = TypeExpRep and Rep = TypeExpRep.Closed
 
       fun iso        bT _ = ISO         bT
       fun isoProduct bP _ = ISO_PRODUCT bP

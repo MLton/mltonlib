@@ -21,19 +21,19 @@
  * This design is experimental.
  *)
 signature TRANSFORM = sig
-   structure Transform : OPEN_REP
+   structure TransformRep : OPEN_REP
 
    val makeTransform :
        'a UnOp.t
-       -> ('a, 'x) Transform.t
-       -> (('a, 'x) Transform.t -> ('b, 'y) Transform.t)
+       -> ('a, 'x) TransformRep.t
+       -> (('a, 'x) TransformRep.t -> ('b, 'y) TransformRep.t)
        -> 'b UnOp.t
    (** Creates a transform operation. *)
 end
 
 signature TRANSFORM_CASES = sig
    include OPEN_CASES TRANSFORM
-   sharing Rep = Transform
+   sharing Rep = TransformRep
 end
 
 signature WITH_TRANSFORM_DOM = HASH_CASES

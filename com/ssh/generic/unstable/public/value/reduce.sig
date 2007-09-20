@@ -26,19 +26,19 @@
  * This design is experimental.
  *)
 signature REDUCE = sig
-   structure Reduce : OPEN_REP
+   structure ReduceRep : OPEN_REP
 
    val makeReduce :
        'r
        -> 'r BinOp.t
        -> ('a -> 'r)
-       -> ('a, 'x) Reduce.t
-       -> (('a, 'x) Reduce.t -> ('b, 'y) Reduce.t)
+       -> ('a, 'x) ReduceRep.t
+       -> (('a, 'x) ReduceRep.t -> ('b, 'y) ReduceRep.t)
        -> 'b -> 'r
    (** Creates a reduce operation. *)
 end
 
 signature REDUCE_CASES = sig
    include OPEN_CASES REDUCE
-   sharing Rep = Reduce
+   sharing Rep = ReduceRep
 end

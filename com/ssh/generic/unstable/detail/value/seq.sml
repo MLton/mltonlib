@@ -55,21 +55,21 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
        case getX bX
         of bE => fn (a2b, _) => fn (e, bp) => bE (e, Sq.map a2b bp)
 
-   structure Seq = LayerRep
+   structure SeqRep = LayerRep
      (structure Outer = Arg.Rep
       structure Closed = MkClosedRep (type 'a t = 'a t))
 
-   open Seq.This
+   open SeqRep.This
 
    fun seq t =
        case getT t
-        of eq => fn xy => eq (HashMap.new {eq = HashUniv.eq,
-                                           hash = HashUniv.hash}, xy)
+        of eq => fn xy =>
+           eq (HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash}, xy)
    fun notSeq t = negate (seq t)
    fun withSeq eq = mapT (const (lift eq))
 
    structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = Seq
+     (structure Outer = Arg and Result = SeqRep
 
       fun iso        ? = iso' getT ?
       fun isoProduct ? = iso' getP ?
