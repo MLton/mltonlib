@@ -48,6 +48,8 @@ in
 
          detail/mk-closed-rep.fun
 
+         detail/opt-int.sml (* XXX Should really go to Extended Basis? *)
+
          local
             local
                $(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb

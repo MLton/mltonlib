@@ -61,17 +61,6 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
    fun surround (n, p) = nest n o enclose p
    fun atomize (a, d) = if ATOMIC = a then d else surround parens d
 
-   structure OptInt = struct
-      type t = Int.t Option.t
-      local
-         fun mk bop =
-          fn (SOME l, SOME r) => SOME (bop (l, r))
-           | _                => NONE
-      in
-         val op - = mk op -
-      end
-   end
-
    structure Fmt = struct
       structure Opts = MkOpts (type 'a t = 'a)
 
@@ -255,7 +244,9 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
           ((), E ({cnt = cnt, fmt = fmt, map = map}, v))
 
       fun getRemDepth (e as E (_, {maxDepth})) = (maxDepth, e)
-      fun setRemDepth maxDepth (E (c, _)) = ((), E (c, {maxDepth = maxDepth}))
+      fun setRemDepth remDepth =
+          (Fmt.notNegOpt remDepth
+         ; fn (E (c, _)) => ((), E (c, {maxDepth = remDepth})))
 
       structure Fixity = Fixity
 

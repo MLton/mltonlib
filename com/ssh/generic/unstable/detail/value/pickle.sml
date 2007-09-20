@@ -165,18 +165,6 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       end
    end
 
-   structure OptInt = struct
-      type t = Int.t Option.t
-      local
-         fun mk bop =
-          fn (SOME l, SOME r) => SOME (bop (l, r))
-           | _                => NONE
-      in
-         val op +   = mk op +
-         val op div = mk op div
-      end
-   end
-
    datatype 'a t =
       P of {rd : 'a I.monad,
             wr : 'a -> Unit.t O.monad,

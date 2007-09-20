@@ -43,6 +43,7 @@ group is
    ../../hash-univ.sml
    ../../layer-generic.fun
    ../../mk-closed-rep.fun
+   ../../opt-int.sml
    ../../reg-basis-exns.fun
    ../../root-generic.sml
    ../../sml-syntax.sml
