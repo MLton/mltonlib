@@ -121,6 +121,9 @@ in
          public/value/seq.sig
          detail/value/seq.sml
 
+         public/value/size.sig
+         detail/value/size.sml
+
          public/value/transform.sig
          detail/value/transform.sml
 

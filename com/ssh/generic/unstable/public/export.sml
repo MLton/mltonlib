@@ -150,6 +150,10 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = WithReduce (Arg)
 signature SEQ = SEQ and SEQ_CASES = SEQ_CASES and WITH_SEQ_DOM = WITH_SEQ_DOM
 functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = WithSeq (Arg)
 
+signature SIZE = SIZE and SIZE_CASES = SIZE_CASES
+      and WITH_SIZE_DOM = WITH_SIZE_DOM
+functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = WithSize (Arg)
+
 signature SOME = SOME and SOME_CASES = SOME_CASES
       and WITH_SOME_DOM = WITH_SOME_DOM
 functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = WithSome (Arg)
