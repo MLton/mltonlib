@@ -12,4 +12,5 @@ signature MK_UNIT_TEST_DOM = sig
    include ARBITRARY sharing Open.Rep = ArbitraryRep
    include EQ        sharing Open.Rep = EqRep
    include PRETTY    sharing Open.Rep = PrettyRep
+   include SIZE      sharing Open.Rep = SizeRep
 end

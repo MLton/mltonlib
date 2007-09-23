@@ -4,6 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(* XXX indentation formatting option(s) *)
+
 functor MkOpts (type 'a t) = struct
    type t = {intRadix  : StringCvt.radix t,
              wordRadix : StringCvt.radix t,
@@ -225,11 +227,9 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
    fun iso' bP = inj bP o Iso.to
 
    structure PrettyRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = struct
-         type 'a t = 'a t
-         type 'a s = 'a t
-         type ('a, 'k) p = 'a p
+     (open Arg
+      structure Rep = struct
+         type 'a t = 'a t and 'a s = 'a t and ('a, 'k) p = 'a p
       end)
 
    open PrettyRep.This
@@ -300,10 +300,8 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
    fun pretty t = fmt t Fmt.default
    fun show t = Prettier.render NONE o pretty t
 
-   structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = PrettyRep
-
-      fun iso        aT = iso' (getT aT)
+   structure Open = LayerDepCases
+     (fun iso        aT = iso' (getT aT)
       fun isoProduct aP = iso' (getP aP)
       fun isoSum     aS = iso' (getS aS)
 
@@ -342,9 +340,10 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       fun regExn0 c = case C0 c of uP => regExn uP o Pair.snd
       fun regExn1 c aT = case C1 c aT of aP => regExn aP o Pair.snd
 
-      fun refc aT = cyclic (Arg.refc ignore aT) o flip inj ! |< C1 ctorRef aT
+      fun refc aT =
+          cyclic (Arg.Open.refc ignore aT) o flip inj ! |< C1 ctorRef aT
       fun array aT =
-          cyclic (Arg.array ignore aT) |<
+          cyclic (Arg.Open.array ignore aT) |<
           sequ hashParens ArraySlice.full ArraySlice.getItem (T aT)
       fun vector aT =
           sequ hashBrackets VectorSlice.full VectorSlice.getItem (T aT)
@@ -387,7 +386,7 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
 
       val word8  = mkWord Word8.fmt
       val word32 = mkWord Word32.fmt
-      val word64 = mkWord Word64.fmt)
+      val word64 = mkWord Word64.fmt
 
-   open Layered
+      open Arg PrettyRep)
 end

@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithTypeHash (Arg : OPEN_CASES) : TYPE_HASH_CASES = struct
+functor WithTypeHash (Arg : WITH_TYPE_HASH_DOM) : TYPE_HASH_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
@@ -22,15 +22,13 @@ functor WithTypeHash (Arg : OPEN_CASES) : TYPE_HASH_CASES = struct
    end
 
    structure TypeHashRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = Word32.t))
+     (open Arg
+      structure Rep = MkClosedRep (type 'a t = Word32.t))
 
    val typeHash = TypeHashRep.This.getT
 
-   structure Layered = LayerCases
-     (structure Outer=Arg and Result=TypeHashRep and Rep=TypeHashRep.Closed
-
-      fun iso        ? _ = unary 0wxD00B6B6B ?
+   structure Open = LayerCases
+     (fun iso        ? _ = unary 0wxD00B6B6B ?
       fun isoProduct ? _ = unary 0wxC01B56DB ?
       fun isoSum     ? _ = unary 0wxB006B6DB ?
 
@@ -76,7 +74,7 @@ functor WithTypeHash (Arg : OPEN_CASES) : TYPE_HASH_CASES = struct
 
       val word8  = 0wxB6DB6809 : Word32.t
       val word32 = 0wxCDB6D501 : Word32.t
-      val word64 = 0wxDB6DB101 : Word32.t)
+      val word64 = 0wxDB6DB101 : Word32.t
 
-   open Layered
+      open Arg TypeHashRep)
 end

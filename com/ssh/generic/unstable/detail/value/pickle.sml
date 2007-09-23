@@ -373,7 +373,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
           sz = NONE : OptInt.t}
 
    val string =
-       share (Arg.string ())
+       share (Arg.Open.string ())
              (seq {length = String.length, toSlice = Substring.full,
                    getItem = Substring.getc, fromList = String.fromList}
                   char)
@@ -458,8 +458,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    end
 
    structure PickleRep = LayerRep
-      (structure Outer = Arg.Rep
-       structure Closed = struct
+      (open Arg
+       structure Rep = struct
           type 'a t = 'a t and 'a s = 'a s and ('a, 'k) p = 'a t
        end)
 
@@ -499,15 +499,13 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
        Pair.fst o unpickler t (IOSMonad.fromReader Substring.getc) o
        Substring.full
 
-   structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = PickleRep
-
-      fun iso bT aIb = let
+   structure Open = LayerDepCases
+     (fun iso bT aIb = let
          val bP = getT bT
          val aP = iso' bP aIb
       in
          if case sz bP of NONE => true | SOME n => 8 < n
-         then share (Arg.iso (const (const ())) bT aIb) aP
+         then share (Arg.Open.iso (const (const ())) bT aIb) aP
          else aP
       end
 
@@ -587,7 +585,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
 
       fun refc aT = let
          val P {rd, wr, ...} = getT aT
-         val self = Arg.refc ignore aT
+         val self = Arg.Open.refc ignore aT
       in
          if Arg.mayBeCyclic self
          then cyclic {readProxy = I.thunk (ref o const (Arg.some aT)),
@@ -620,16 +618,16 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
                   in
                      wr size (Array.length a) >>= (fn () => lp 0)
                   end,
-                  self = Arg.array ignore aT}
+                  self = Arg.Open.array ignore aT}
       end
 
       fun list aT =
-          share (Arg.list ignore aT)
+          share (Arg.Open.list ignore aT)
                 (seq {length = List.length, toSlice = id,
                       getItem = List.getItem, fromList = id} (getT aT))
 
       fun vector aT =
-          share (Arg.vector ignore aT)
+          share (Arg.Open.vector ignore aT)
                 (seq {length = Vector.length, toSlice = VectorSlice.full,
                       getItem = VectorSlice.getItem,
                       fromList = Vector.fromList} (getT aT))
@@ -672,7 +670,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
 
       val word8  = word8
       val word32 = word32
-      val word64 = bits false Word64.ops Iso.id)
+      val word64 = bits false Word64.ops Iso.id
 
-   open Layered
+      open Arg PickleRep)
 end

@@ -6,8 +6,11 @@
 
 library
    library(lib.cm)
-   source(detail/unit-test.sml)
+   source(-)
 is
+   ../../extended-basis/unstable/basis.cm
    ../../generic/unstable/lib-with-default.cm
+   ../../random/unstable/lib.cm
+   detail/generic.sml
    detail/unit-test.sml
    lib.cm

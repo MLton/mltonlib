@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
+functor WithDynamic (Arg : WITH_DYNAMIC_DOM) : DYNAMIC_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix <-->
@@ -42,8 +42,8 @@ functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
    fun isoUnsupported text = (failing text, failing text)
 
    structure DynamicRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = ('a, t) Iso.t))
+     (open Arg
+      structure Rep = MkClosedRep (type 'a t = ('a, t) Iso.t))
 
    open DynamicRep.This
 
@@ -51,10 +51,8 @@ functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
    fun fromDynamic t d =
        SOME (Iso.from (getT t) d) handle Dynamic.Dynamic => NONE
 
-   structure Layered = LayerCases
-     (structure Outer=Arg and Result=DynamicRep and Rep=DynamicRep.Closed
-
-      fun iso bId aIb = bId <--> aIb
+   structure Open = LayerCases
+     (fun iso bId aIb = bId <--> aIb
       val isoProduct = iso
       val isoSum     = iso
 
@@ -102,7 +100,7 @@ functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = struct
 
       val word8  = (WORD8,  fn WORD8  ? => ? | _ => raise Dynamic)
       val word32 = (WORD32, fn WORD32 ? => ? | _ => raise Dynamic)
-      val word64 = (WORD64, fn WORD64 ? => ? | _ => raise Dynamic))
+      val word64 = (WORD64, fn WORD64 ? => ? | _ => raise Dynamic)
 
-   open Layered
+      open Arg DynamicRep)
 end

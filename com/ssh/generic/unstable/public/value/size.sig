@@ -30,11 +30,13 @@ signature SIZE = sig
 end
 
 signature SIZE_CASES = sig
-   include OPEN_CASES SIZE
-   sharing Rep = SizeRep
+   structure Open : OPEN_CASES
+   include SIZE
+   sharing Open.Rep = SizeRep
 end
 
 signature WITH_SIZE_DOM = sig
-   include OPEN_CASES HASH TYPE_INFO
-   sharing Rep = HashRep = TypeInfoRep
+   structure Open : OPEN_CASES
+   include HASH TYPE_INFO
+   sharing Open.Rep = HashRep = TypeInfoRep
 end

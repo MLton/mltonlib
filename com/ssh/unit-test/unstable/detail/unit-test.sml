@@ -4,4 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure UnitTest = MkUnitTest (Generic)
+structure UnitTest = MkUnitTest
+  (open Generic
+   structure ArbitraryRep = Open.Rep and EqRep = Open.Rep
+         and PrettyRep = Open.Rep and SizeRep = Open.Rep)

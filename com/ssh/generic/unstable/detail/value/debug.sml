@@ -4,7 +4,11 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = struct
+signature WITH_DEBUG_DOM = sig
+   structure Open : OPEN_CASES
+end
+
+functor WithDebug (Arg : WITH_DEBUG_DOM) : OPEN_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
@@ -20,18 +24,19 @@ functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = struct
 
    fun addN kind (xs, ys) = foldl (add1 kind) xs ys
 
-   structure Check = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = struct
+   val exns : String.t List.t Ref.t = ref []
+   fun regExn c = exns := add1 "exception constructor" (Con.toString c, !exns)
+
+   structure DebugRep = LayerRep
+     (open Arg
+      structure Rep = struct
          type 'a t = Unit.t
          type 'a s = String.t List.t
          type ('a, 'k) p = String.t List.t
       end)
 
    structure Layered = LayerCases
-     (structure Outer = Arg and Result = Check and Rep = Check.Closed
-
-      val iso        = const
+     (val iso        = const
       val isoProduct = const
       val isoSum     = const
 
@@ -51,10 +56,7 @@ functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = struct
 
       val op --> = ignore
 
-      val exns : String.t List.t Ref.t = ref []
       val exn = ()
-      fun regExn c =
-          exns := add1 "exception constructor" (Con.toString c, !exns)
       fun regExn0 c _ = regExn c
       fun regExn1 c _ _ = regExn c
 
@@ -78,7 +80,9 @@ functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = struct
 
       val word8  = ()
       val word32 = ()
-      val word64 = ())
+      val word64 = ()
+
+      open Arg DebugRep)
 
    open Layered
 end

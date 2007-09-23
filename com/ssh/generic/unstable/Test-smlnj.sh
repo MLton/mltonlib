@@ -14,5 +14,13 @@ time \
 echo '' | \
 sml -m test.cm \
     $eb/public/export/{open-top-level.sml,infixes.sml}   \
-    test/utils.sml                                       \
-    $(find test/ -name '*.sml' -a -not -name 'utils.sml')
+    test/utils.fun                                       \
+    with/reg-basis-exns.sml                              \
+    with/data-rec-info.sml                               \
+    with/some.sml                                        \
+    with/pickle.sml                                      \
+    with/seq.sml                                         \
+    with/reduce.sml                                      \
+    with/transform.sml                                   \
+    with/close-pretty-with-extra.sml                     \
+    $(find test/ -name '*.sml')

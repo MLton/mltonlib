@@ -9,5 +9,14 @@ local
    $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
 in
    lib.mlb
-   detail/generic.sml
+
+   (* Order matters: *)
+   with/generic.sml
+   with/eq.sml
+   with/type-hash.sml
+   with/type-info.sml
+   with/hash.sml
+   with/ord.sml
+   with/pretty.sml
+   with/close-pretty-with-extra.sml
 end

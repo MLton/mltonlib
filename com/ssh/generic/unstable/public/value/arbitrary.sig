@@ -24,12 +24,14 @@ signature ARBITRARY = sig
 end
 
 signature ARBITRARY_CASES = sig
-   include OPEN_CASES ARBITRARY
-   sharing Rep = ArbitraryRep
+   structure Open : OPEN_CASES
+   include ARBITRARY
+   sharing Open.Rep = ArbitraryRep
 end
 
 signature WITH_ARBITRARY_DOM = sig
-   include OPEN_CASES HASH TYPE_INFO
-   sharing Rep = HashRep = TypeInfoRep
+   structure Open : OPEN_CASES
+   include HASH TYPE_INFO
+   sharing Open.Rep = HashRep = TypeInfoRep
    structure RandomGen : RANDOM_GEN
 end

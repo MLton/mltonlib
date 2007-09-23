@@ -5,8 +5,16 @@
  *)
 
 local
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    $(MLTON_LIB)/com/ssh/generic/unstable/lib-with-default.mlb
+   $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
 in
    lib.mlb
+
+   (* Order matters: *)
+   $(MLTON_LIB)/com/ssh/generic/unstable/with/size.sml
+   $(MLTON_LIB)/com/ssh/generic/unstable/with/arbitrary.sml
+   $(MLTON_LIB)/com/ssh/generic/unstable/with/close-pretty-with-extra.sml
+
    detail/unit-test.sml
 end

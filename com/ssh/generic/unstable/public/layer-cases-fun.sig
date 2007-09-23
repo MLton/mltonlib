@@ -8,9 +8,8 @@
  * Signature for the domain of the {LayerCases} functor.
  *)
 signature LAYER_CASES_DOM = sig
-   structure Outer : OPEN_CASES
-   structure Result : LAYERED_REP
-   sharing Outer.Rep = Result.Outer
-   include CLOSED_CASES
-   sharing Rep = Result.Closed
+   structure Open : OPEN_CASES
+   include LAYERED_REP CLOSED_CASES
+   sharing Open.Rep = Outer
+   sharing Rep = This
 end

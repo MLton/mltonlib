@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
+functor WithDataRecInfo (Arg : WITH_DATA_REC_INFO_DOM) : DATA_REC_INFO_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  2 andAlso
@@ -35,8 +35,8 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
        INT {exn = exn, pure = false, recs = recs}
 
    structure DataRecInfoRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = struct
+     (open Arg
+      structure Rep = struct
          type  'a      t = t
          type  'a      s = s
          type ('a, 'k) p = p
@@ -52,11 +52,8 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
    fun mayBeCyclic   ? =
        (isMutableType andAlso (mayContainExn orElse mayBeRecData)) ?
 
-   structure Layered = LayerCases
-     (structure Outer=Arg and Result=DataRecInfoRep
-         and Rep=DataRecInfoRep.Closed
-
-      val iso        = const
+   structure Open = LayerCases
+     (val iso        = const
       val isoProduct = const
       val isoSum     = const
 
@@ -112,7 +109,7 @@ functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES = struct
 
       val word8  = base
       val word32 = base
-      val word64 = base)
+      val word64 = base
 
-   open Layered
+      open Arg DataRecInfoRep)
 end

@@ -13,8 +13,8 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
    fun iso' b (_, b2a) = b2a o b
 
    structure SomeRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (Thunk))
+     (open Arg
+      structure Rep = MkClosedRep (Thunk))
 
    open SomeRep.This
 
@@ -24,10 +24,8 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
    fun withNone ? = mapT (const (raising Option)) ?
    fun withSome v = mapT (const (const v))
 
-   structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = SomeRep
-
-      fun iso        ? = iso' (getT ?)
+   structure Open = LayerDepCases
+     (fun iso        ? = iso' (getT ?)
       fun isoProduct ? = iso' (getP ?)
       fun isoSum     ? = iso' (getS ?)
 
@@ -88,7 +86,7 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
 
       val word8  = fn () => 0w0 : Word8.t
       val word32 = fn () => 0w0 : Word32.t
-      val word64 = fn () => 0w0 : Word64.t)
+      val word64 = fn () => 0w0 : Word64.t
 
-   open Layered
+      open Arg SomeRep)
 end

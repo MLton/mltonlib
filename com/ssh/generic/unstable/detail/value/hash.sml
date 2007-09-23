@@ -41,8 +41,8 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
    val exns : (Exn.t * p -> Word.t Option.t) Buffer.t = Buffer.new ()
 
    structure HashRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = 'a t))
+     (open Arg
+      structure Rep = MkClosedRep (type 'a t = 'a t))
 
    open HashRep.This
 
@@ -60,10 +60,8 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
 
    fun hash t = hashParam t defaultHashParam
 
-   structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = HashRep
-
-      fun iso        ? = iso' (getT ?)
+   structure Open = LayerDepCases
+     (fun iso        ? = iso' (getT ?)
       fun isoProduct ? = iso' (getP ?)
       fun isoSum     ? = iso' (getS ?)
 
@@ -177,7 +175,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
 
       val word8  = prim Word8.toWord
       val word32 = prim Word32.toWord
-      val word64 = viaWord id op mod Word64.isoWord)
+      val word64 = viaWord id op mod Word64.isoWord
 
-   open Layered
+      open Arg HashRep)
 end

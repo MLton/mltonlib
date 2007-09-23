@@ -63,18 +63,16 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
    end
 
    structure ArbitraryRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = 'a t))
+     (open Arg
+      structure Rep = MkClosedRep (type 'a t = 'a t))
 
    open ArbitraryRep.This
 
    fun arbitrary ? = #gen (out (getT ?))
    fun withGen gen = mapT (fn IN {cog, ...} => IN {gen = gen, cog = cog})
 
-   structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = ArbitraryRep
-
-      fun iso        aT = iso' (getT aT)
+   structure Open = LayerDepCases
+     (fun iso        aT = iso' (getT aT)
       fun isoProduct aP = iso' (getP aP)
       fun isoSum     aS = iso' (getS aS)
 
@@ -126,7 +124,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
       val exn = IN {gen = G.return () >>= (fn () =>
                           G.intInRange (0, Buffer.length exns-1) >>= (fn i =>
                           Buffer.sub (exns, i))),
-                    cog = G.variant o Arg.hash (Arg.exn ())}
+                    cog = G.variant o Arg.hash (Arg.Open.exn ())}
       fun regExn0 _ (e, _) = Buffer.push exns (G.return e)
       fun regExn1 _ aT (a2e, _) = Buffer.push exns (map a2e (arbitrary aT))
 
@@ -137,24 +135,26 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
 
       fun refc a = iso' (getT a) (!, ref)
 
-      val fixedInt = mkInt FixedInt.precision FixedInt.fromLarge Arg.fixedInt
-      val largeInt = mkInt LargeInt.precision LargeInt.fromLarge Arg.largeInt
+      val fixedInt =
+          mkInt FixedInt.precision FixedInt.fromLarge Arg.Open.fixedInt
+      val largeInt =
+          mkInt LargeInt.precision LargeInt.fromLarge Arg.Open.largeInt
 
       val largeWord =
-          mkWord LargeWord.wordSize LargeWord.fromLargeInt Arg.largeWord
-      val largeReal = mkReal R.toLarge Arg.largeReal
+          mkWord LargeWord.wordSize LargeWord.fromLargeInt Arg.Open.largeWord
+      val largeReal = mkReal R.toLarge Arg.Open.largeReal
 
       val bool = IN {gen = G.bool, cog = G.variant o W.fromInt o Bool.toInt}
       val char = IN {gen = map Byte.byteToChar G.word8,
                      cog = G.variant o Word8.toWord o Byte.charToByte}
-      val int = mkInt Int.precision Int.fromLarge Arg.int
-      val real = mkReal id Arg.real
+      val int = mkInt Int.precision Int.fromLarge Arg.Open.int
+      val real = mkReal id Arg.Open.real
       val string = iso' (list' char) String.isoList
       val word = IN {gen = G.lift G.RNG.value, cog = G.variant}
 
       val word8 = IN {gen = G.word8, cog = G.variant o Word8.toWord}
-      val word32 = mkWord Word32.wordSize Word32.fromLargeInt Arg.word32
-      val word64 = mkWord Word64.wordSize Word64.fromLargeInt Arg.word64)
+      val word32 = mkWord Word32.wordSize Word32.fromLargeInt Arg.Open.word32
+      val word64 = mkWord Word64.wordSize Word64.fromLargeInt Arg.Open.word64
 
-   open Layered
+      open Arg ArbitraryRep)
 end

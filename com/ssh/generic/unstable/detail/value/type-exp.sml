@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = struct
+functor WithTypeExp (Arg : WITH_TYPE_EXP_DOM) : TYPE_EXP_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
@@ -22,19 +22,17 @@ functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = struct
      | ELEM e        => ELEM (f e)
 
    structure TypeExpRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = struct
+     (open Arg
+      structure Rep = struct
          type 'a t = TypeVar.t Ty.t
-         type 'a s = TypeVar.t Ty.t Sum.t
-         type ('a, 'k) p = (Label.t Option.t * TypeVar.t Ty.t) Product.t
+          and 'a s = TypeVar.t Ty.t Sum.t
+          and ('a, 'k) p = (Label.t Option.t * TypeVar.t Ty.t) Product.t
       end)
 
    val ty = TypeExpRep.This.getT
 
-   structure Layered = LayerCases
-     (structure Outer = Arg and Result = TypeExpRep and Rep = TypeExpRep.Closed
-
-      fun iso        bT _ = ISO         bT
+   structure Open = LayerCases
+     (fun iso        bT _ = ISO         bT
       fun isoProduct bP _ = ISO_PRODUCT bP
       fun isoSum     bS _ = ISO_SUM     bS
 
@@ -82,7 +80,7 @@ functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = struct
 
       val word8  = CON0 WORD8
       val word32 = CON0 WORD32
-      val word64 = CON0 WORD64)
+      val word64 = CON0 WORD64
 
-   open Layered
+      open Arg TypeExpRep)
 end

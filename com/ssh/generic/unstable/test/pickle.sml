@@ -5,16 +5,6 @@
  *)
 
 local
-   structure Generic = struct
-      open Generic
-      local
-         structure Open = WithSeq (open Generic Open)
-         structure Extra = CloseWithExtra (Open)
-      in
-         open Open Extra
-      end
-   end
-
    structure Graph = MkGraph (Generic)
    structure ExnArray = MkExnArray (Generic)
 
@@ -53,9 +43,6 @@ in
           (chkSeq (largeReal &` largeWord))
           (chkSeq (tuple3 (word8, word32, word64)))
           (chkSeq (bool &` char &` int &` real &` string &` word))
-
-          (sizeFn (fn i => i*50+1))
-          (chkSeq largeInt)
 
           (title "Generic.Pickle.Cyclic")
 

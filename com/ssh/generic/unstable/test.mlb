@@ -5,11 +5,10 @@
  *)
 
 local
-   $(MLTON_LIB)/com/ssh/unit-test/unstable/lib-with-default.mlb
-
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    $(MLTON_LIB)/com/ssh/prettier/unstable/lib.mlb
-   lib-with-default.mlb
+   $(MLTON_LIB)/com/ssh/unit-test/unstable/lib-with-default.mlb
+   lib.mlb
 
    ann
       "nonexhaustiveExnMatch ignore"
@@ -17,13 +16,41 @@ local
       "warnUnused true"
    in
       local
-         test/utils.sml
+         with/reg-basis-exns.sml
+         test/utils.fun
       in
-         test/pickle.sml
+         local
+            with/data-rec-info.sml
+            with/some.sml
+            with/pickle.sml
+            with/seq.sml
+            with/close-pretty-with-extra.sml
+         in
+            test/pickle.sml
+         end
+
          test/pretty.sml
-         test/reduce.sml
-         test/some.sml
-         test/transform.sml
+
+         local
+            with/reduce.sml
+            with/close-pretty-with-extra.sml
+         in
+            test/reduce.sml
+         end
+
+         local
+            with/some.sml
+            with/close-pretty-with-extra.sml
+         in
+            test/some.sml
+         end
+
+         local
+            with/transform.sml
+            with/close-pretty-with-extra.sml
+         in
+            test/transform.sml
+         end
       end
    end
 in

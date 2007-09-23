@@ -4,29 +4,6 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(* Helper for adding a new generic. *)
-functor CloseWithExtra (Open : OPEN_CASES) = struct
-   local
-      structure Extra = WithExtra
-         (structure Open = Open and Closed = CloseCases (Open) open Closed)
-   in
-      open Extra
-   end
-   structure ArbitraryRep   = Open.Rep
-   structure DataRecInfoRep = Open.Rep
-   structure EqRep          = Open.Rep
-   structure HashRep        = Open.Rep
-   structure OrdRep         = Open.Rep
-   structure PickleRep      = Open.Rep
-   structure PrettyRep      = Open.Rep
-   structure SomeRep        = Open.Rep
-   structure TypeHashRep    = Open.Rep
-   structure TypeInfoRep    = Open.Rep
-end
-
-(* Register basis library exceptions for the default generics. *)
-local structure ? = RegBasisExns (Generic) open ? in end
-
 (* A simplistic graph for testing with cyclic data. *)
 functor MkGraph (include GENERIC_EXTRA) :> sig
    type 'a t

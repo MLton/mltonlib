@@ -31,8 +31,9 @@ signature SEQ = sig
 end
 
 signature SEQ_CASES = sig
-   include OPEN_CASES SEQ
-   sharing Rep = SeqRep
+   structure Open : OPEN_CASES
+   include SEQ
+   sharing Open.Rep = SeqRep
 end
 
 signature WITH_SEQ_DOM = HASH_CASES

@@ -55,8 +55,8 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
      | DYNAMIC bS => fn (a2b, _) => DYNAMIC (bS o Pair.map (id, a2b))
 
    structure SizeRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = 'a t))
+     (open Arg
+      structure Rep = MkClosedRep (type 'a t = 'a t))
 
    open SizeRep.This
 
@@ -71,10 +71,8 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
       | DYNAMIC f => fn x =>
         f (HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash} , x)
 
-   structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = SizeRep
-
-      fun iso        bT = iso' (getT bT)
+   structure Open = LayerDepCases
+     (fun iso        bT = iso' (getT bT)
       fun isoProduct bP = iso' (getP bP)
       fun isoSum     bS = iso' (getS bS)
 
@@ -139,11 +137,11 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
       fun vector xT = DYNAMIC (sequ Vector.length Vector.foldl (getT xT))
 
       fun array xT =
-          cyclic (Arg.array ignore xT)
+          cyclic (Arg.Open.array ignore xT)
                  (sequ Array.length Array.foldl (getT xT))
 
       fun refc xT =
-          cyclic (Arg.refc ignore xT)
+          cyclic (Arg.Open.refc ignore xT)
                  (case getT xT
                    of STATIC s => const (s + wordSize)
                     | DYNAMIC f => fn (e, x) => wordSize + f (e, !x))
@@ -163,7 +161,7 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
 
       val word8  = mkWord  Word8.wordSize :  Word8.t t
       val word32 = mkWord Word32.wordSize : Word32.t t
-      val word64 = mkWord Word64.wordSize : Word64.t t)
+      val word64 = mkWord Word64.wordSize : Word64.t t
 
-   open Layered
+      open Arg SizeRep)
 end

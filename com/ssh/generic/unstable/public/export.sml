@@ -34,24 +34,16 @@ structure RootGeneric : OPEN_CASES = RootGeneric
 functor MkClosedRep (type 'a t) : CLOSED_REP = MkClosedRep (type 'a t = 'a t)
 (** Makes a closed representation by replicating the given type. *)
 
-functor CloseCases (Arg : OPEN_CASES) :>
-   CLOSED_CASES
-      where type  'a      Rep.t = ('a,     Unit.t) Arg.Rep.t
-      where type  'a      Rep.s = ('a,     Unit.t) Arg.Rep.s
-      where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Arg.Rep.p =
-   CloseCases (Arg)
-(** Closes open structural cases. *)
-
-signature LAYER_REP_DOM = LAYER_REP_DOM
+signature LAYER_REP_DOM = LAYER_REP_DOM and LAYER_REP_COD = LAYER_REP_COD
 functor LayerRep (Arg : LAYER_REP_DOM) :>
-   LAYERED_REP
-      where type  'a      Closed.t =  'a      Arg.Closed.t
-      where type  'a      Closed.s =  'a      Arg.Closed.s
-      where type ('a, 'k) Closed.p = ('a, 'k) Arg.Closed.p
+   LAYER_REP_COD
+      where type  'a      This.t =  'a      Arg.Rep.t
+      where type  'a      This.s =  'a      Arg.Rep.s
+      where type ('a, 'k) This.p = ('a, 'k) Arg.Rep.p
 
-      where type ('a,     'x) Outer.t = ('a,     'x) Arg.Outer.t
-      where type ('a,     'x) Outer.s = ('a,     'x) Arg.Outer.s
-      where type ('a, 'k, 'x) Outer.p = ('a, 'k, 'x) Arg.Outer.p =
+      where type ('a,     'x) Outer.t = ('a,     'x) Arg.Open.Rep.t
+      where type ('a,     'x) Outer.s = ('a,     'x) Arg.Open.Rep.s
+      where type ('a, 'k, 'x) Outer.p = ('a, 'k, 'x) Arg.Open.Rep.p =
    LayerRep (Arg)
 (**
  * Creates a layered representation for {LayerCases} and {LayerDepCases}.
@@ -60,9 +52,9 @@ functor LayerRep (Arg : LAYER_REP_DOM) :>
 signature LAYER_CASES_DOM = LAYER_CASES_DOM
 functor LayerCases (Arg : LAYER_CASES_DOM) :>
    OPEN_CASES
-      where type ('a,     'x) Rep.t = ('a,     'x) Arg.Result.t
-      where type ('a,     'x) Rep.s = ('a,     'x) Arg.Result.s
-      where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
+      where type ('a,     'x) Rep.t = ('a,     'x) Arg.t
+      where type ('a,     'x) Rep.s = ('a,     'x) Arg.s
+      where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.p =
    LayerCases (Arg)
 (**
  * Joins an outer open generic function and a closed generic function.
@@ -71,14 +63,24 @@ functor LayerCases (Arg : LAYER_CASES_DOM) :>
 signature LAYER_DEP_CASES_DOM = LAYER_DEP_CASES_DOM
 functor LayerDepCases (Arg : LAYER_DEP_CASES_DOM) :>
    OPEN_CASES
-      where type ('a,     'x) Rep.t = ('a,     'x) Arg.Result.t
-      where type ('a,     'x) Rep.s = ('a,     'x) Arg.Result.s
-      where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Result.p =
+      where type ('a,     'x) Rep.t = ('a,     'x) Arg.t
+      where type ('a,     'x) Rep.s = ('a,     'x) Arg.s
+      where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.p =
    LayerDepCases (Arg)
 (**
  * Joins an outer open generic function and a closed generic function that
  * depends on the outer generic.
  *)
+
+(** === Closing Generics === *)
+
+functor CloseCases (Arg : OPEN_CASES) :>
+   CLOSED_CASES
+      where type  'a      Rep.t = ('a,     Unit.t) Arg.Rep.t
+      where type  'a      Rep.s = ('a,     Unit.t) Arg.Rep.s
+      where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Arg.Rep.p =
+   CloseCases (Arg)
+(** Closes open structural cases. *)
 
 signature GENERIC_EXTRA = GENERIC_EXTRA
 functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
@@ -88,6 +90,13 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = WithExtra (Arg)
  * over time.
  *)
 
+functor ClosePrettyWithExtra (Arg : PRETTY_CASES) : GENERIC_EXTRA =
+   ClosePrettyWithExtra (Arg)
+(**
+ * Convenience for the common case of closing a collection of generics
+ * including {Pretty} with extra type representations.
+ *)
+
 functor RegBasisExns (Arg : CLOSED_CASES) = RegBasisExns (Arg)
 (** Registers handlers for most standard exceptions as a side-effect. *)
 
@@ -95,10 +104,12 @@ functor RegBasisExns (Arg : CLOSED_CASES) = RegBasisExns (Arg)
 
 signature DATA_REC_INFO = DATA_REC_INFO
       and DATA_REC_INFO_CASES = DATA_REC_INFO_CASES
-functor WithDataRecInfo (Arg : OPEN_CASES) : DATA_REC_INFO_CASES =
+      and WITH_DATA_REC_INFO_DOM = WITH_DATA_REC_INFO_DOM
+functor WithDataRecInfo (Arg : WITH_DATA_REC_INFO_DOM) : DATA_REC_INFO_CASES =
    WithDataRecInfo (Arg)
 
-functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = WithDebug (Arg)
+signature WITH_DEBUG_DOM = WITH_DEBUG_DOM
+functor WithDebug (Arg : WITH_DEBUG_DOM) : OPEN_CASES = WithDebug (Arg)
 (**
  * Checks dynamically that
  * - labels are unique within each record,
@@ -107,10 +118,14 @@ functor WithDebug (Arg : OPEN_CASES) : OPEN_CASES = WithDebug (Arg)
  *)
 
 signature TYPE_EXP = TYPE_EXP and TYPE_EXP_CASES = TYPE_EXP_CASES
-functor WithTypeExp (Arg : OPEN_CASES) : TYPE_EXP_CASES = WithTypeExp (Arg)
+      and WITH_TYPE_EXP_DOM = WITH_TYPE_EXP_DOM
+functor WithTypeExp (Arg : WITH_TYPE_EXP_DOM) : TYPE_EXP_CASES =
+   WithTypeExp (Arg)
 
 signature TYPE_INFO = TYPE_INFO and TYPE_INFO_CASES = TYPE_INFO_CASES
-functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = WithTypeInfo (Arg)
+      and WITH_TYPE_INFO_DOM = WITH_TYPE_INFO_DOM
+functor WithTypeInfo (Arg : WITH_TYPE_INFO_DOM) : TYPE_INFO_CASES =
+   WithTypeInfo (Arg)
 
 (** == Generics ==
  *
@@ -124,10 +139,11 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES =
    WithArbitrary (Arg)
 
 signature DYNAMIC = DYNAMIC and DYNAMIC_CASES = DYNAMIC_CASES
-functor WithDynamic (Arg : OPEN_CASES) : DYNAMIC_CASES = WithDynamic (Arg)
+      and WITH_DYNAMIC_DOM = WITH_DYNAMIC_DOM
+functor WithDynamic (Arg : WITH_DYNAMIC_DOM) : DYNAMIC_CASES = WithDynamic (Arg)
 
-signature EQ = EQ and EQ_CASES = EQ_CASES
-functor WithEq (Arg : OPEN_CASES) : EQ_CASES = WithEq (Arg)
+signature EQ = EQ and EQ_CASES = EQ_CASES and WITH_EQ_DOM = WITH_EQ_DOM
+functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = WithEq (Arg)
 
 signature HASH = HASH and HASH_CASES = HASH_CASES
       and WITH_HASH_DOM = WITH_HASH_DOM
@@ -145,7 +161,8 @@ signature PRETTY = PRETTY and PRETTY_CASES = PRETTY_CASES
 functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = WithPretty (Arg)
 
 signature REDUCE = REDUCE and REDUCE_CASES = REDUCE_CASES
-functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = WithReduce (Arg)
+      and WITH_REDUCE_DOM = WITH_REDUCE_DOM
+functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = WithReduce (Arg)
 
 signature SEQ = SEQ and SEQ_CASES = SEQ_CASES and WITH_SEQ_DOM = WITH_SEQ_DOM
 functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = WithSeq (Arg)
@@ -164,4 +181,6 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES =
    WithTransform (Arg)
 
 signature TYPE_HASH = TYPE_HASH and TYPE_HASH_CASES = TYPE_HASH_CASES
-functor WithTypeHash (Arg : OPEN_CASES) : TYPE_HASH_CASES = WithTypeHash (Arg)
+      and WITH_TYPE_HASH_DOM = WITH_TYPE_HASH_DOM
+functor WithTypeHash (Arg : WITH_TYPE_HASH_DOM) : TYPE_HASH_CASES =
+   WithTypeHash (Arg)

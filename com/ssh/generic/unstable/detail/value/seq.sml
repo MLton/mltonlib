@@ -56,8 +56,8 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
         of bE => fn (a2b, _) => fn (e, bp) => bE (e, Sq.map a2b bp)
 
    structure SeqRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = 'a t))
+     (open Arg
+      structure Rep = MkClosedRep (type 'a t = 'a t))
 
    open SeqRep.This
 
@@ -68,10 +68,8 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
    fun notSeq t = negate (seq t)
    fun withSeq eq = mapT (const (lift eq))
 
-   structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = SeqRep
-
-      fun iso        ? = iso' getT ?
+   structure Open = LayerDepCases
+     (fun iso        ? = iso' getT ?
       fun isoProduct ? = iso' getP ?
       fun isoSum     ? = iso' getS ?
 
@@ -111,31 +109,31 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
       fun regExn0 _ (e, p) = regExn unit (const e, p)
       fun regExn1 _ = regExn o getT
 
-      fun array aT = cyclic (Arg.array ignore aT)
+      fun array aT = cyclic (Arg.Open.array ignore aT)
                             (sequ {toSlice = ArraySlice.full,
                                    getItem = ArraySlice.getItem} (getT aT))
       fun list aT = sequ {toSlice = id, getItem = List.getItem} (getT aT)
       fun vector aT = sequ {toSlice = VectorSlice.full,
                             getItem = VectorSlice.getItem} (getT aT)
 
-      fun refc aT = cyclic (Arg.refc ignore aT) (iso aT (!, undefined))
+      fun refc aT = cyclic (Arg.Open.refc ignore aT) (iso aT (!, undefined))
 
-      val fixedInt = lift (op = : FixedInt.t BinPr.t)
-      val largeInt = lift (op = : LargeInt.t BinPr.t)
+      val fixedInt = lift op = : FixedInt.t t
+      val largeInt = lift op = : LargeInt.t t
 
-      val largeWord = lift (op = : LargeWord.t BinPr.t)
+      val largeWord = lift op = : LargeWord.t t
       val largeReal = iso' id (lift op =) CastLargeReal.isoBits
 
-      val bool   = lift (op = : Bool.t BinPr.t)
-      val char   = lift (op = : Char.t BinPr.t)
-      val int    = lift (op = : Int.t BinPr.t)
+      val bool   = lift op = : Bool.t t
+      val char   = lift op = : Char.t t
+      val int    = lift op = : Int.t t
       val real   = iso' id (lift op =) CastReal.isoBits
-      val string = lift (op = : String.t BinPr.t)
-      val word   = lift (op = : Word.t BinPr.t)
+      val string = lift op = : String.t t
+      val word   = lift op = : Word.t t
 
-      val word8  = lift (op = : Word8.t BinPr.t)
-      val word32 = lift (op = : Word32.t BinPr.t)
-      val word64 = lift (op = : Word64.t BinPr.t))
+      val word8  = lift op = : Word8.t t
+      val word32 = lift op = : Word32.t t
+      val word64 = lift op = : Word64.t t
 
-   open Layered
+      open Arg SeqRep)
 end

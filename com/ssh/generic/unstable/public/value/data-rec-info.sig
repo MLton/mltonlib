@@ -55,6 +55,11 @@ signature DATA_REC_INFO = sig
 end
 
 signature DATA_REC_INFO_CASES = sig
-   include OPEN_CASES DATA_REC_INFO
-   sharing Rep = DataRecInfoRep
+   structure Open : OPEN_CASES
+   include DATA_REC_INFO
+   sharing Open.Rep = DataRecInfoRep
+end
+
+signature WITH_DATA_REC_INFO_DOM = sig
+   structure Open : OPEN_CASES
 end

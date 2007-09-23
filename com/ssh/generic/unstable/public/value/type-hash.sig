@@ -17,6 +17,11 @@ signature TYPE_HASH = sig
 end
 
 signature TYPE_HASH_CASES = sig
-   include OPEN_CASES TYPE_HASH
-   sharing Rep = TypeHashRep
+   structure Open : OPEN_CASES
+   include TYPE_HASH
+   sharing Open.Rep = TypeHashRep
+end
+
+signature WITH_TYPE_HASH_DOM = sig
+   structure Open : OPEN_CASES
 end

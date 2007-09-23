@@ -5,16 +5,6 @@
  *)
 
 local
-   structure Generic = struct
-      open Generic
-      local
-         structure Open = WithTransform (open Generic Open)
-         structure Extra = CloseWithExtra (Open)
-      in
-         open Open Extra
-      end
-   end
-
    open Generic UnitTest
 
    fun testTransform unOp t t2t value expect = let

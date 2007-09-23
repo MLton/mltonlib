@@ -30,8 +30,9 @@ signature SOME = sig
 end
 
 signature SOME_CASES = sig
-   include OPEN_CASES SOME
-   sharing Rep = SomeRep
+   structure Open : OPEN_CASES
+   include SOME
+   sharing Open.Rep = SomeRep
 end
 
 signature WITH_SOME_DOM = TYPE_INFO_CASES

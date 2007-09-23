@@ -28,6 +28,8 @@ struct
       val eq = eq
       val exn = exn
       val pretty = pretty
+      val show = show
+      fun sizeOf t v = Arg.sizeOf t v handle _ => 0
    end
 
    local
@@ -39,7 +41,6 @@ struct
       val dot = dot
       val group = group
       val op <^> = op <^>
-      val render = render
 
       local
          open Maybe
@@ -93,8 +94,9 @@ struct
                      ; updCfg (U#idx (idx + 1)) $ cfg))
 
    fun header (IN {title, idx, ...}) =
-       case title of NONE   => "An untitled test"
-                   | SOME t => concat [i2s idx, ". ", t, " test"]
+       case title
+        of NONE   => "An untitled test"
+         | SOME t => concat [i2s idx, ". ", t, " test"]
 
    (* We assume here that we're the first call to atExit so that it
     * is (relatively) safe to call terminate in our atExit effect.
@@ -173,7 +175,12 @@ struct
 
    (* RANDOM TESTING INTERFACE *)
 
-   type law = (Bool.t Option.t * String.t List.t * Prettier.t List.t) G.t
+   datatype result =
+      BUG of Int.t * Prettier.t List.t
+    | OK of String.t List.t
+    | SKIP
+
+   type law = result G.t
 
    local
       fun mk field value = Fold.mapSt (updCfg (U field value) $)
@@ -204,7 +211,7 @@ struct
    fun chk prop =
        runTest
           (fn cfg as IN {size, passM, skipM, ...} => let
-              fun done msg passN tags =
+              fun done (msg, passN, tags) =
                   ((println o indent)
                       ((str o concat)
                           [header cfg, ":\n", msg, " ", i2s passN,
@@ -216,53 +223,76 @@ struct
                                     table passN tags) <^> dot]))
                  ; true)
 
-              fun lp passN skipN allTags =
-                  if passM <= passN then
-                     done "OK," passN allTags
-                  else if skipM <= skipN then
-                     done "Arguments exhausted after" passN allTags
+              fun gen passN =
+                  G.generate (size passN)
+                             (!rng before Ref.modify G.RNG.next rng)
+                             prop
+
+              fun minimize (genSz, origSz, minSz, minMsgs) =
+                  if genSz < 0
+                  then (println |< indent
+                           [str (header cfg ^ " failed."),
+                            indent (str "Falsifiable:"::minMsgs) <^> dot,
+                            (str o concat)
+                               (if minSz < origSz
+                                then ["Reduced counterexample from size ",
+                                      Int.toString origSz, " to size ",
+                                      Int.toString minSz, "."]
+                                else ["Couldn't find a counterexample smaller\
+                                      \ than size ", Int.toString origSz, "."])]
+                      ; false)
                   else
-                     case G.generate (size passN)
-                                     (!rng before Ref.modify G.RNG.next rng)
-                                     prop of
-                        (NONE, _, _) =>
-                        lp passN (skipN + 1) allTags
-                      | (SOME true, tags, _) =>
-                        lp (passN + 1) skipN (List.revAppend (tags, allTags))
-                      | (SOME false, _, msgs) =>
-                        ((println o indent)
-                            [str (header cfg ^ " failed."),
-                             indent (str "Falsifiable:"::msgs) <^> dot]
-                       ; false)
+                     case gen genSz
+                      of BUG (sz, msgs) =>
+                         if sz < minSz
+                         then minimize (genSz-1, origSz, sz, msgs)
+                         else minimize (genSz-1, origSz, minSz, minMsgs)
+                       | _ =>
+                         minimize (genSz-1, origSz, minSz, minMsgs)
+
+              fun find (passN, skipN, allTags) =
+                  if passM <= passN then
+                     done ("OK,", passN, allTags)
+                  else if skipM <= skipN then
+                     done ("Arguments exhausted after", passN, allTags)
+                  else
+                     case gen (size passN)
+                      of SKIP =>
+                         find (passN, skipN + 1, allTags)
+                       | OK tags =>
+                         find (passN + 1, skipN, List.revAppend (tags, allTags))
+                       | BUG (sz, msgs) =>
+                         minimize (size passN, sz, sz, msgs)
            in
-              lp 0 0 []
+              find (0, 0, [])
            end)
 
    fun all t toProp =
        G.>>= (arbitrary t,
               fn v => fn ? =>
                  (G.>>= (toProp v,
-                         fn (r as SOME false, ts, msgs) =>
-                            G.return (r, ts, named t "with" v :: msgs)
-                          | p =>
-                            G.return p) ?
+                      fn BUG (sz, msgs) =>
+                         G.return (BUG (sz + sizeOf t v,
+                                        named t "with" v :: msgs))
+                       | p =>
+                         G.return p) ?
                   handle e =>
-                         G.return (SOME false, [],
-                                   [named t "with" v,
-                                    named exn "raised" e <^> dot,
-                                    history e]) ?))
+                     G.return (BUG (sizeOf t v,
+                                    [named t "with" v,
+                                     named exn "raised" e <^> dot,
+                                     history e])) ?))
 
-   fun that b = G.return (SOME b, [], [])
-   val skip : law = G.return (NONE, [], [])
+   fun that b = G.return (if b then OK [] else BUG (0, []))
+   val skip = G.return SKIP
 
-   fun classify tOpt p =
-       G.Monad.map (fn p as (r, ts, msg) =>
-                       case tOpt & r of
-                          NONE & _ => p
-                        | _ & NONE => p
-                        | SOME t & _ => (r, t::ts, msg)) p
+   fun classify tOpt =
+       G.Monad.map (fn r =>
+                       case tOpt & r
+                        of SOME t & OK ts => OK (t::ts)
+                         | _              => r)
    fun trivial b = classify (if b then SOME "trivial" else NONE)
 
-   fun collect t v p =
-       G.Monad.map (fn (r, ts, msg) => (r, render NONE (pretty t v)::ts, msg)) p
+   fun collect t v =
+       G.Monad.map (fn OK ts => OK (show t v::ts)
+                     | res   => res)
 end

@@ -61,6 +61,11 @@ signature DYNAMIC = sig
 end
 
 signature DYNAMIC_CASES = sig
-   include OPEN_CASES DYNAMIC
-   sharing Rep = DynamicRep
+   structure Open : OPEN_CASES
+   include DYNAMIC
+   sharing Open.Rep = DynamicRep
+end
+
+signature WITH_DYNAMIC_DOM = sig
+   structure Open : OPEN_CASES
 end

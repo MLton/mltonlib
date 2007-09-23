@@ -29,22 +29,21 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
       lp (e, toSlice l, toSlice r)
    end
 
-   fun cyclic aT aO = let
-      val (to, _) = HashUniv.new {eq = op =, hash = Arg.hash aT}
-   in
-      fn (e, (l, r)) => let
-            val lD = to l
-            val rD = to r
-         in
-            if case HashMap.find e lD
-                of SOME rD' => HashUniv.eq (rD, rD')
-                 | NONE     => false
-            then EQUAL
-            else (HashMap.insert e (lD, rD)
-                ; HashMap.insert e (rD, lD)
-                ; aO (e, (l, r)))
-         end
-   end
+   fun cyclic aT aO =
+       case HashUniv.new {eq = op =, hash = Arg.hash aT}
+        of (to, _) =>
+           fn (e, (l, r)) => let
+                 val lD = to l
+                 val rD = to r
+              in
+                 if case HashMap.find e lD
+                     of SOME rD' => HashUniv.eq (rD, rD')
+                      | NONE     => false
+                 then EQUAL
+                 else (HashMap.insert e (lD, rD)
+                     ; HashMap.insert e (rD, lD)
+                     ; aO (e, (l, r)))
+              end
 
    val exns : (e * Exn.t Sq.t -> Order.t Option.t) Buffer.t = Buffer.new ()
    fun regExn aO (_, e2a) =
@@ -59,8 +58,8 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
    fun iso' getX bX (a2b, _) (e, bp) = getX bX (e, Sq.map a2b bp)
 
    structure OrdRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = 'a t))
+     (open Arg
+      structure Rep = MkClosedRep (type 'a t = 'a t))
 
    open OrdRep.This
 
@@ -71,10 +70,8 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
    end
    fun withOrd cmp = mapT (const (lift cmp))
 
-   structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = OrdRep
-
-      fun iso        ? = iso' getT ?
+   structure Open = LayerDepCases
+     (fun iso        ? = iso' getT ?
       fun isoProduct ? = iso' getP ?
       fun isoSum     ? = iso' getS ?
 
@@ -119,14 +116,14 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
       fun regExn0 _ = regExn unit
       fun regExn1 _ = regExn o getT
 
-      fun array aT = cyclic (Arg.array ignore aT)
+      fun array aT = cyclic (Arg.Open.array ignore aT)
                             (sequ {toSlice = ArraySlice.full,
                                    getItem = ArraySlice.getItem} (getT aT))
       fun list aT = sequ {toSlice = id, getItem = List.getItem} (getT aT)
       fun vector aT = sequ {toSlice = VectorSlice.full,
                             getItem = VectorSlice.getItem} (getT aT)
 
-      fun refc aT = cyclic (Arg.refc ignore aT) (iso aT (!, undefined))
+      fun refc aT = cyclic (Arg.Open.refc ignore aT) (iso aT (!, undefined))
 
       val fixedInt = lift FixedInt.compare
       val largeInt = lift LargeInt.compare
@@ -144,7 +141,7 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
 
       val word8  = lift Word8.compare
       val word32 = lift Word32.compare
-      val word64 = lift Word64.compare)
+      val word64 = lift Word64.compare
 
-   open Layered
+      open Arg OrdRep)
 end

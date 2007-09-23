@@ -5,16 +5,6 @@
  *)
 
 local
-   structure Generic = struct
-      open Generic
-      local
-         structure Open = WithReduce (Open)
-         structure Extra = CloseWithExtra (Open)
-      in
-         open Open Extra
-      end
-   end
-
    open Generic UnitTest
 
    structure BinTree = MkBinTree (Generic)

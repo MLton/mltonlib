@@ -32,8 +32,9 @@ signature TRANSFORM = sig
 end
 
 signature TRANSFORM_CASES = sig
-   include OPEN_CASES TRANSFORM
-   sharing Rep = TransformRep
+   structure Open : OPEN_CASES
+   include TRANSFORM
+   sharing Open.Rep = TransformRep
 end
 
 signature WITH_TRANSFORM_DOM = HASH_CASES

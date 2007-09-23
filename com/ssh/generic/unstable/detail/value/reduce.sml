@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
+functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix  0 &
@@ -24,8 +24,8 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
    fun default (z, _, _) = z
 
    structure ReduceRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep
+     (open Arg
+      structure Rep = MkClosedRep
         (type 'a t = Univ.t * Univ.t BinOp.t * 'a -> Univ.t))
 
    open ReduceRep.This
@@ -40,10 +40,8 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
       fn x => from (bR (z, p, x))
    end
 
-   structure Layered = LayerCases
-     (structure Outer = Arg and Result = ReduceRep and Rep = ReduceRep.Closed
-
-      fun iso bR (a2b, _) (z, p, a) = bR (z, p, a2b a)
+   structure Open = LayerCases
+     (fun iso bR (a2b, _) (z, p, a) = bR (z, p, a2b a)
       val isoProduct = iso
       val isoSum     = iso
 
@@ -91,7 +89,7 @@ functor WithReduce (Arg : OPEN_CASES) : REDUCE_CASES = struct
 
       val word8  = default
       val word32 = default
-      val word64 = default)
+      val word64 = default
 
-   open Layered
+      open Arg ReduceRep)
 end

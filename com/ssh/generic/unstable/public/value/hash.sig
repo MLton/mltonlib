@@ -41,11 +41,13 @@ signature HASH = sig
 end
 
 signature HASH_CASES = sig
-   include OPEN_CASES HASH
-   sharing Rep = HashRep
+   structure Open : OPEN_CASES
+   include HASH
+   sharing Open.Rep = HashRep
 end
 
 signature WITH_HASH_DOM = sig
-   include OPEN_CASES TYPE_HASH TYPE_INFO
-   sharing Rep = TypeHashRep = TypeInfoRep
+   structure Open : OPEN_CASES
+   include TYPE_HASH TYPE_INFO
+   sharing Open.Rep = TypeHashRep = TypeInfoRep
 end

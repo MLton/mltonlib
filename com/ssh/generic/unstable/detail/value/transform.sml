@@ -36,8 +36,8 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
    fun iso' getX bX (a2b, b2a) = un (Fn.map (Pair.map (a2b, id), b2a)) (getX bX)
 
    structure TransformRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = MkClosedRep (type 'a t = 'a t))
+     (open Arg
+      structure Rep = MkClosedRep (type 'a t = 'a t))
 
    open TransformRep.This
 
@@ -46,10 +46,8 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
         of (_, f) =>
            fn x => f (x, HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash})
 
-   structure Layered = LayerDepCases
-     (structure Outer = Arg and Result = TransformRep
-
-      fun iso        ? = iso' getT ?
+   structure Open = LayerDepCases
+     (fun iso        ? = iso' getT ?
       fun isoProduct ? = iso' getP ?
       fun isoSum     ? = iso' getS ?
 
@@ -91,12 +89,12 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
       fun vector aT = un (fn xF => fn (v, e) => Vector.map (xF /> e) v) (getT aT)
 
       fun array aT =
-          un (fn xF => cyclic (Arg.array ignore aT)
+          un (fn xF => cyclic (Arg.Open.array ignore aT)
                               (fn (a, e) => (Array.modify (xF /> e) a ; a)))
              (getT aT)
 
       fun refc aT =
-          un (fn xF => cyclic (Arg.refc ignore aT)
+          un (fn xF => cyclic (Arg.Open.refc ignore aT)
                               (fn (r, e) => (r := xF (!r, e) ; r)))
              (getT aT)
 
@@ -115,7 +113,7 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
 
       val word8  = default
       val word32 = default
-      val word64 = default)
+      val word64 = default
 
-   open Layered
+      open Arg TransformRep)
 end

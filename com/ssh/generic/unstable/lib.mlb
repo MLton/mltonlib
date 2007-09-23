@@ -129,6 +129,10 @@ in
 
          public/value/type-exp.sig
          detail/value/type-exp.sml
+
+         (* Convenience *)
+
+         detail/close-pretty-with-extra.fun
       in
          public/export.sml
       end

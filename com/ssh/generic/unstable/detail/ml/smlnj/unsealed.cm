@@ -38,6 +38,7 @@ group is
    ../../../public/value/type-hash.sig
    ../../../public/value/type-info.sig
    ../../close-generic.fun
+   ../../close-pretty-with-extra.fun
    ../../generics-util.sml
    ../../generics.sml
    ../../hash-map.sml

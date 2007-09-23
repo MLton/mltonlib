@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
+functor WithTypeInfo (Arg : WITH_TYPE_INFO_DOM) : TYPE_INFO_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
@@ -17,8 +17,8 @@ functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
    fun pure (INT {...}) = INT {base = true}
 
    structure TypeInfoRep = LayerRep
-     (structure Outer = Arg.Rep
-      structure Closed = struct
+     (open Arg
+      structure Rep = struct
          type  'a      t = t
          type  'a      s = s
          type ('a, 'k) p = p
@@ -34,10 +34,8 @@ functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
 
    fun numElems     ? = (#elems o outP o getP) ?
 
-   structure Layered = LayerCases
-     (structure Outer=Arg and Result=TypeInfoRep and Rep=TypeInfoRep.Closed
-
-      val iso        = const
+   structure Open = LayerCases
+     (val iso        = const
       val isoProduct = const
       val isoSum     = const
 
@@ -84,7 +82,7 @@ functor WithTypeInfo (Arg : OPEN_CASES) : TYPE_INFO_CASES = struct
 
       val word8  = base
       val word32 = base
-      val word64 = base)
+      val word64 = base
 
-   open Layered
+      open Arg TypeInfoRep)
 end

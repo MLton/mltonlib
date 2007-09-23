@@ -138,12 +138,14 @@ signature PICKLE = sig
 end
 
 signature PICKLE_CASES = sig
-   include OPEN_CASES PICKLE
-   sharing Rep = PickleRep
+   structure Open : OPEN_CASES
+   include PICKLE
+   sharing Open.Rep = PickleRep
 end
 
 signature WITH_PICKLE_DOM = sig
-   include OPEN_CASES DATA_REC_INFO EQ HASH SOME TYPE_HASH TYPE_INFO
-   sharing Rep = DataRecInfoRep = EqRep = HashRep = SomeRep = TypeHashRep
+   structure Open : OPEN_CASES
+   include DATA_REC_INFO EQ HASH SOME TYPE_HASH TYPE_INFO
+   sharing Open.Rep = DataRecInfoRep = EqRep = HashRep = SomeRep = TypeHashRep
          = TypeInfoRep
 end

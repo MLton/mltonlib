@@ -20,6 +20,11 @@ signature TYPE_EXP = sig
 end
 
 signature TYPE_EXP_CASES = sig
-   include OPEN_CASES TYPE_EXP
-   sharing Rep = TypeExpRep
+   structure Open : OPEN_CASES
+   include TYPE_EXP
+   sharing Open.Rep = TypeExpRep
+end
+
+signature WITH_TYPE_EXP_DOM = sig
+   structure Open : OPEN_CASES
 end

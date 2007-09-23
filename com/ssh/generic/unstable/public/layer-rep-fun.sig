@@ -8,6 +8,17 @@
  * Signature for the domain of the {LayerRep} functor.
  *)
 signature LAYER_REP_DOM = sig
-   structure Outer : OPEN_REP
-   structure Closed : CLOSED_REP
+   structure Open : sig
+      structure Rep : OPEN_REP
+   end
+   structure Rep : CLOSED_REP
+end
+
+(**
+ * Signature for the codomain of the {LayerRep} functor.
+ *)
+signature LAYER_REP_COD = sig
+   include LAYERED_REP
+   structure Rep : CLOSED_REP
+   sharing Rep = This
 end
