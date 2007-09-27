@@ -4,6 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(* This whole file is a SML/NJ workaround. *)
+
 signature Generic = sig structure Open : OPEN_CASES end
 structure Generic : Generic = struct
    structure Open = RootGeneric

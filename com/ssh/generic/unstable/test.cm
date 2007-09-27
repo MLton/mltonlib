@@ -9,8 +9,11 @@ group
    library(../../prettier/unstable/lib.cm)
    library(../../unit-test/unstable/lib-with-default.cm)
    library(lib.cm)
+   source(-)
 is
    ../../extended-basis/unstable/basis.cm
    ../../prettier/unstable/lib.cm
    ../../unit-test/unstable/lib-with-default.cm
    lib.cm
+   test/generic.sml
+   test/utils.fun

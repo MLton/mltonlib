@@ -62,6 +62,11 @@ functor MkBinTree (include GENERIC_EXTRA) :> sig
    datatype 'a t = LF | BR of 'a t * 'a * 'a t
    val t : 'a Rep.t -> 'a t Rep.t
 end = struct
+   (* <--- SML/NJ workaround *)
+   open TopLevel
+   infix +`
+   (* SML/NJ workaround --> *)
+
    datatype 'a t = LF | BR of 'a t * 'a * 'a t
    local
       val cLF = C "LF"
@@ -98,6 +103,11 @@ functor MkLambda (include GENERIC_EXTRA
    val t' : t Rep.t UnOp.t
    val t : t Rep.t
 end = struct
+   (* <--- SML/NJ workaround *)
+   open TopLevel
+   infix +`
+   (* SML/NJ workaround --> *)
+
    structure Id = Id
 
    datatype 't f =
