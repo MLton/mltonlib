@@ -83,8 +83,13 @@ signature UNIT_TEST = sig
    (** == Collecting Statistics == *)
 
    type table
+   (** Type of tables for collecting data. *)
+
    val withFreq : table Effect.t Effect.t
+   (** Prints a table of frequencies after the test has finished succesfully. *)
+
    val collect : ('a, 'x) Rep.t -> table -> 'a Effect.t
+   (** Adds a data point to the table. *)
 
    (** == Assertions == *)
 
