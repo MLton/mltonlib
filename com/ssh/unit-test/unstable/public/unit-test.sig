@@ -25,140 +25,92 @@ signature UNIT_TEST = sig
    val title : String.t -> 'a s
    (** {title string} specifies the title for subsequent tests. *)
 
-   (** === Test Registration Interface === *)
+   (** === Test Registration === *)
 
    val test : Unit.t Effect.t -> 'a s
    (**
-    * Registers an ad hoc test.  An ad hoc test should indicate failure by
-    * raising an exception.
+    * Registers a test.  A test is just an arbitrary unit effect that
+    * should indicate failure by raising an exception.
     *)
 
    val testEq : ('a, 'x) Rep.t -> {actual : 'a, expect : 'a} Thunk.t -> 'b s
    (** Tests that the expected and actual values are equal. *)
 
-   val testTrue  : Bool.t Thunk.t -> 'a s
-   (** Tests that the thunk evaluates to {true}. *)
-
-   val testFalse : Bool.t Thunk.t -> 'a s
-   (** Tests that the thunk evaluates to {false}. *)
-
-   val testFailsWith : Exn.t UnPr.t -> 'a Thunk.t -> 'b s
+   val testRaises' : Exn.t Effect.t -> 'a Thunk.t -> 'b s
+   val testRaises : Exn.t UnPr.t -> 'a Thunk.t -> 'b s
    (** Tests that the thunk raises an exception satisfying the predicate. *)
 
    val testFails : 'a Thunk.t -> 'b s
    (** Tests that the thunk raises an exception. *)
 
-   val testRaises : Exn.t -> 'a Thunk.t -> 'b s
+   (** == Random Testing == *)
+
+   val testAll : ('a, 'x) Rep.t -> 'a Effect.t -> 'b s
+   (** {testAll ty body} is equivalent to {test (fn () => all ty body)}. *)
+
+   val all : ('a, 'x) Rep.t -> 'a Effect.t Effect.t
    (**
-    * Tests that the thunk raises an exception equal to the given one.
-    * The exception constructor must be registered with {regExn}.
-    *)
-
-   (** == Random Testing Interface == *)
-
-   val sizeFn : Int.t UnOp.t -> 'a s
-   (**
-    * Sets the function to determine the "size" of generated random test
-    * data.  The argument to the function is the number of tests passed.
-    * The default function is {fn n => n div 2 + 3}.
-    *)
-
-   val maxPass : Int.t -> 'a s
-   (**
-    * Sets the maximum number of passed random test cases to try per test.
-    * The default is 100.
-    *)
-
-   val maxSkip : Int.t -> 'a s
-   (**
-    * Sets the maximum number of skipped random test cases to accept per
-    * test.  The default is 200.  If a lot of tests are being skipped, you
-    * should implement a better test data generator or a more
-    * comprehensive law.
-    *)
-
-   type law
-   (** The type of testable laws or properties. *)
-
-   val chk : law -> 'b s
-   (**
-    * Tries to find counter examples to a given law by testing the law
-    * with randomly generated cases.
-    *)
-
-   val all : ('a, 'x) Rep.t -> ('a -> law) -> law
-   (**
-    * Specifies that a law must hold for all values of type {'a}.  For
-    * example,
+    * Procedurally, tries to fault the given test effect by calling it
+    * with randomly generated data.
+    *
+    * Declaratively, specifies that a law must hold for all values of type
+    * {'a}.  For example,
     *
     *> all int (fn x => that (x = x))
     *
     * specifies that all integers must be equal to themselves.
     *)
 
-   val that : Bool.t -> law
+   val skip : 'a Thunk.t
    (**
-    * Specifies a primitive boolean law.  For example,
-    *
-    *> that (1 <= 2)
-    *
-    * specifies that {1} is less than or equal to {2}.
-    *)
-
-   val skip : law
-   (**
-    * Specifies that the premises of a conditional law aren't satisfied so
-    * the specific test case of the law should be ignored.  For example,
+    * Calling {skip ()} specifies that the premises of a conditional law
+    * aren't satisfied so the specific test case of the law should be
+    * ignored.  For example,
     *
     *> all (sq int)
     *>     (fn (x, y) =>
     *>         if x <= y
     *>         then that (Int.max (x, y) = y)
-    *>         else skip)
+    *>         else skip ())
     *
     * specifies that if {x <= y} then {Int.max (x, y) = y}.
+    *
+    * Skipping tests is inefficient.  If a lot of tests are being skipped,
+    * you should implement a better test data generator or a more
+    * comprehensive law.
     *)
 
-   val classify : String.t Option.t -> law UnOp.t
-   (**
-    * Classifies cases of a law.  The distribution of classified cases
-    * will be logged.
-    *)
+   (** == Collecting Statistics == *)
 
-   val trivial : Bool.t -> law UnOp.t
-   (** Convenience function to classify cases of a law as "trivial". *)
+   type table
+   val withFreq : table Effect.t Effect.t
+   val collect : ('a, 'x) Rep.t -> table -> 'a Effect.t
 
-   val collect : ('a, 'x) Rep.t -> 'a -> law UnOp.t
-   (**
-    * Classifies test cases by value of type {'a}.  The distribution as
-    * well as the (pretty printed) values will be logged.
-    *)
-
-   (** == Ad Hoc Testing Helpers == *)
+   (** == Assertions == *)
 
    exception Failure of Prettier.t
-   (** Exception for reporting prettier errors. *)
+   (**
+    * Exception for reporting prettier errors from tests.  Unlike other
+    * exceptions, the unit test framework just prints the document
+    * contained by a {Failure} exception with a dot at the end.
+    *)
 
-   val verifyEq : ('a, 'x) Rep.t -> {actual : 'a, expect : 'a} Effect.t
-   (** Verifies that the expected and actual values are equal. *)
-
-   val verifyTrue : Bool.t Effect.t
+   val that : Bool.t Effect.t
    (** Verifies that the given value is {true}. *)
 
-   val verifyFalse : Bool.t Effect.t
+   val thatNot : Bool.t Effect.t
    (** Verifies that the given value is {false}. *)
 
-   val verifyFailsWith : Exn.t UnPr.t -> 'a Thunk.t Effect.t
+   val thatEq : ('a, 'x) Rep.t -> {actual : 'a, expect : 'a} Effect.t
+   (** Verifies that the expected and actual values are equal. *)
+
+   val thatRaises' : Exn.t Effect.t -> 'a Thunk.t Effect.t
+   val thatRaises : Exn.t UnPr.t -> 'a Thunk.t Effect.t
    (**
     * Verifies that the thunk fails with an exception satisfying the
     * predicate.
     *)
 
-   val verifyFails : 'a Thunk.t Effect.t
+   val thatFails : 'a Thunk.t Effect.t
    (** Verifies that the given thunk fails with an exception. *)
-
-   val verifyRaises : Exn.t -> 'a Thunk.t Effect.t
-   (**
-    * Verifies that the thunk raises an exception equal to the given one.
-    *)
 end

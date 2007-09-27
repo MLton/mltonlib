@@ -10,27 +10,27 @@ local
 
    open Generic UnitTest
 
-   fun chkSeq t =
-       (chk o all t)
-          (fn x => let
-                 val p = pickle t x
-              in
-                 that (seq t (x, unpickle t p))
-              end)
+   fun thatSeq t args =
+       if seq t (#actual args, #expect args) then () else thatEq t args
+
+   fun thatPU t x = let
+      val p = pickle t x
+   in
+      thatSeq t {expect = x, actual = unpickle t p}
+   end
+
+   fun testAllSeq t =
+       testAll t (thatPU t)
 
    fun testSeq t x =
-       test (fn () => let
-                   val p = pickle t x
-                in
-                   verifyTrue (seq t (x, unpickle t p))
-                end)
+       test (fn () => thatPU t x)
 
    fun testTypeMismatch t u =
        test (fn () => let
                    val p = pickle t (some t)
                 in
-                   verifyFailsWith
-                      (fn Pickle.TypeMismatch => true | _ => false)
+                   thatRaises'
+                      (fn Pickle.TypeMismatch => ())
                       (fn () => unpickle u p)
                 end)
 in
@@ -38,11 +38,11 @@ in
        unitTests
           (title "Generic.Pickle")
 
-          (chkSeq (vector (option (list real))))
-          (chkSeq (tuple2 (fixedInt, largeInt)))
-          (chkSeq (largeReal &` largeWord))
-          (chkSeq (tuple3 (word8, word32, word64)))
-          (chkSeq (bool &` char &` int &` real &` string &` word))
+          (testAllSeq (vector (option (list real))))
+          (testAllSeq (tuple2 (fixedInt, largeInt)))
+          (testAllSeq (largeReal &` largeWord))
+          (testAllSeq (tuple3 (word8, word32, word64)))
+          (testAllSeq (bool &` char &` int &` real &` string &` word))
 
           (title "Generic.Pickle.Cyclic")
 
@@ -52,8 +52,8 @@ in
           (title "Generic.Pickle.TypeMismatch")
 
           (testTypeMismatch int word)
-          (testTypeMismatch (list char) (vector char))
-          (testTypeMismatch (array real) (option real))
+          (testTypeMismatch (list char) (vector word8))
+          (testTypeMismatch (array real) (option largeReal))
 
           $
 end

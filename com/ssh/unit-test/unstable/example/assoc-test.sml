@@ -12,18 +12,19 @@
 val () = let
    open Generic UnitTest
 
-   fun assoc op + t =
+   fun thatAssoc op + t =
        all (t &` t &` t)
            (fn x & y & z =>
-               that (eq t ((x + y) + z, x + (y + z))))
+               thatEq t {actual = (x + y) + z,
+                         expect = x + (y + z)})
 in
    unitTests
       (title "Assoc")
 
-      (chk (assoc op + word))
+      (test (fn () => thatAssoc op + word))
       (* This law holds. *)
 
-      (chk (assoc op + real))
+      (test (fn () => thatAssoc op + real))
       (* This law does not hold. *)
 
       $

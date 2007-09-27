@@ -4,6 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+(* This whole file is a SML/NJ workaround. *)
+
 (*
  * We assume here that {Eq} and {Pretty} have already been provided.  The
  * {Arbitrary} generic is rather specific to randomized testing and has

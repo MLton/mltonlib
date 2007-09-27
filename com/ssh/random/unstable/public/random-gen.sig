@@ -12,8 +12,7 @@
 signature RANDOM_GEN = sig
    structure RNG : RNG
 
-   type 'a dom and 'a cod
-   type 'a t = 'a dom -> 'a cod
+   type 'a t
 
    val generate : Int.t -> RNG.t -> 'a t -> 'a
 
@@ -39,7 +38,7 @@ signature RANDOM_GEN = sig
 
    val inRange : ('b Sq.t -> 'b t) -> ('a, 'b) Iso.t -> 'a Sq.t -> 'a t
 
-   val intInRange  : Int.t  Sq.t -> Int.t  t
+   val  intInRange :  Int.t Sq.t ->  Int.t t
    val realInRange : Real.t Sq.t -> Real.t t
    val wordInRange : Word.t Sq.t -> Word.t t
 

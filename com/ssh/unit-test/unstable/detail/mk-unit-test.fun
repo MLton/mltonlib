@@ -12,97 +12,49 @@ functor MkUnitTest (Arg : MK_UNIT_TEST_DOM) :>
 struct
    (* <-- SML/NJ workaround *)
    open TopLevel
-   infix <^> <\ >| &
+   infix <$> <^> <\ >| &
    infixr @` |<
    (* SML/NJ workaround --> *)
 
-   structure G=Arg.RandomGen and I=Int
+   open Arg Prettier
 
-   structure Rep = Arg.Open.Rep
+   structure Rep = Open.Rep
 
+   fun sizeOf t v = Arg.sizeOf t v handle _ => 0
+   fun named t n v = group (nest 2 (str n <$> pretty t v))
+   val strs = str o concat
    local
-      open Arg
+      open Maybe
+      val I = Int.fromString
+      val cols = Monad.sum [S"-w"@`I, L"--width"@`I, E"COLUMNS"@`I, `70]
    in
-      val arbitrary = arbitrary
-      val bool = bool
-      val eq = eq
-      val exn = exn
-      val pretty = pretty
-      val show = show
-      fun sizeOf t v = Arg.sizeOf t v handle _ => 0
+      val println = println (get cols)
    end
 
-   local
-      open Prettier
-   in
-      val indent = nest 2 o sep
-      fun named t n v = str n <^> nest 2 (line <^> pretty t v)
-      val comma = comma
-      val dot = dot
-      val group = group
-      val op <^> = op <^>
-
-      local
-         open Maybe
-         val I = I.fromString
-         val cols = Monad.sum [S"-w"@`I, L"--width"@`I, E"COLUMNS"@`I, `70]
-      in
-         val println = println (get cols)
-      end
-
-      val punctuate = punctuate
-      val str = str
-   end
+   val i2s = Int.toString
 
    datatype t =
       IN of {title : String.t Option.t,
-             idx : Int.t,
-             size : Int.t UnOp.t,
-             passM : Int.t,
-             skipM : Int.t}
+             idx : Int.t}
    type 'a s = (t, t, Unit.t, t, t, Unit.t, 'a) Fold.s
 
    exception Failure of Prettier.t
-   fun failure ? = Exn.throw (Failure ?)
+   fun failure d = raise Failure d
 
    val defaultCfg =
        IN {title = NONE,
-           idx   = 1,
-           size  = fn n => n div 2 + 3,
-           passM = 100,
-           skipM = 200}
-
-   local
-      val ~ = (fn {title=a, idx=b, size=c, passM=d, skipM=e} => a&b&c&d&e,
-               fn a&b&c&d&e => {title=a, idx=b, size=c, passM=d, skipM=e})
-      open FRU
-   in
-      val U = U
-      fun updCfg ? = fruData (fn IN ? => ?, IN) A5 $ ~ ~ ?
-   end
+           idx = 1}
 
    val succeeded = ref 0
    val failed = ref 0
 
-   val i2s = I.toString
-
    fun inc r = r := !r + 1
 
-   fun runTest safeTest =
-       Fold.mapSt (fn cfg as IN {idx, ...} =>
-                      (inc (if safeTest cfg then succeeded else failed)
-                     ; updCfg (U#idx (idx + 1)) $ cfg))
-
-   fun header (IN {title, idx, ...}) =
-       case title
-        of NONE   => "An untitled test"
-         | SOME t => concat [i2s idx, ". ", t, " test"]
+   val printlnStrs = println o group o strs
 
    (* We assume here that we're the first call to atExit so that it
     * is (relatively) safe to call terminate in our atExit effect.
     *)
-
-   val printlnStrs = println o group o str o concat
    val () =
        OS.Process.atExit
           (fn () =>
@@ -114,185 +66,150 @@ struct
                                i2s (!failed), " failed."]
                 ; OS.Process.terminate OS.Process.failure))
 
-   (* TEST SPECIFICATION INTERFACE *)
+   fun namedExn label e =
+       named exn label e <^> dot <$>
+       (case Exn.history e
+         of [] => str "No exception history available"
+          | hs => nest 2 (sep (str "Exception history:" ::
+                               punctuate comma (map str hs))))
 
    fun unitTests ? = Fold.wrap (defaultCfg, ignore) ?
-   fun title title = Fold.mapSt (updCfg (U #idx 1) (U #title (SOME title)) $)
+   fun title title = Fold.mapSt (const (IN {title = SOME title, idx = 1}))
 
-   (* AD HOC TESTING HELPERS *)
-
-   fun verifyEq t {actual, expect} =
+   fun thatEq t {actual, expect} =
        if eq t (actual, expect) then ()
-       else failure (indent [str "Equality test failed:",
-                             named t "expected" expect <^> comma,
-                             named t "but got" actual])
+       else failure (nest 2 (sep [str "equality test failed:",
+                                  named t "expected" expect <^> comma,
+                                  named t "but got" actual]))
 
-   fun verifyTrue  b = verifyEq bool {expect = true,  actual = b}
-   fun verifyFalse b = verifyEq bool {expect = false, actual = b}
+   fun that b = thatEq bool {expect = true, actual = b}
+   fun thatNot b = thatEq bool {expect = false, actual = b}
 
-   fun verifyFailsWith ePr th =
+   fun thatRaises exnPr th =
        try (th,
-            fn _ => failure (str "Test didn't raise an exception as expected"),
-            fn e => if ePr e then ()
-                    else failure o group |<
-                            named exn "Test raised an unexpected exception" e)
-
-   fun verifyFails ? = verifyFailsWith (const true) ?
-   fun verifyRaises e = verifyFailsWith (e <\ eq exn)
+            fn _ => failure (str "didn't get an exception as expected"),
+            fn e => if exnPr e then ()
+                    else failure (namedExn "got an unexpected exception" e))
+   fun thatRaises' exnEf =
+       thatRaises (fn e => (exnEf e : Unit.t ; true) handle Match => false)
+   fun thatFails ? = thatRaises (const true) ?
 
    (* TEST REGISTRATION INTERFACE *)
 
-   fun history e =
-       case Exn.history e
-        of [] => str "No exception history available"
-         | hs => indent (map str ("Exception history:"::hs))
-
    fun test body =
-       runTest
-          (fn cfg =>
-              try (body,
-                   fn _ =>
-                      (printlnStrs [header cfg, " succeeded."]
-                     ; true),
-                   fn e =>
-                      ((println o indent)
-                          [str (header cfg ^ " failed."),
-                           case e
-                            of Failure doc => doc <^> dot
-                             | _ => indent [str "Unhandled exception",
-                                            str (Exn.message e) <^> dot],
-                           history e <^> dot]
-                     ; false)))
+       Fold.mapSt
+          (fn IN {title, idx} =>
+              (printlnStrs (case title
+                             of NONE   => ["An untitled test"]
+                              | SOME t => [i2s idx, ". ", t, " test"])
+             ; try (body,
+                    fn () =>
+                       inc succeeded,
+                    fn e =>
+                       (inc failed
+                      ; println
+                        (indent 2
+                         (txt "FAILED:" <$>
+                          indent 2
+                          (case e
+                            of Failure d => d
+                             | _ => namedExn "with exception" e) <^> dot))))
+             ; IN {title = title, idx = idx + 1}))
 
-   fun testEq t th = test (verifyEq t o th)
+   fun testEq t th = test (thatEq t o th)
 
-   fun testTrue  th = test (verifyTrue  o th)
-   fun testFalse th = test (verifyFalse o th)
-
-   fun testFailsWith ep th = test (fn () => verifyFailsWith ep th)
-   fun testFails th = test (fn () => verifyFails th)
-   fun testRaises e th = test (fn () => verifyRaises e th)
-
-   (* RANDOM TESTING INTERFACE *)
+   fun testRaises' exnEf th = test (fn () => thatRaises' exnEf th)
+   fun testRaises exnPr th = test (fn () => thatRaises exnPr th)
+   fun testFails th = test (fn () => thatFails th)
 
    datatype result =
-      BUG of Int.t * Prettier.t List.t
-    | OK of String.t List.t
+      BUG of Int.t * Prettier.t
+    | OK
     | SKIP
 
-   type law = result G.t
-
    local
-      fun mk field value = Fold.mapSt (updCfg (U field value) $)
+      open RandomGen.RNG
+      val rng =
+          ref (make (Seed.fromWord let
+                        open Maybe
+                        val W = Word.fromString
+                     in
+                        getOpt (get (Monad.sum [S"-s"@`W, L"--seed"@`W,
+                                                mk RandomDev.seed ()]),
+                                0w0)
+                     end))
    in
-      fun sizeFn  ? = mk #size  ?
-      fun maxPass ? = mk #passM ?
-      fun maxSkip ? = mk #skipM ?
+      fun nextRNG () = !rng before Ref.modify next rng
    end
 
-   val rng = ref (G.RNG.make (G.RNG.Seed.fromWord let
-                                 open Maybe
-                                 val W = Word.fromString
-                              in
-                                 getOpt (get (Monad.sum [S"-s"@`W, L"--seed"@`W,
-                                                         mk RandomDev.seed ()]),
-                                         0w0)
-                              end))
+   exception Skip
 
-   fun sort ? = SortedList.stableSort #n ?
+   fun allParam {size, maxPass, maxSkip} t ef = let
+      fun genTest passN = let
+         val v = RandomGen.generate (size passN) (nextRNG ()) (arbitrary t)
+      in
+         (ef v : Unit.t ; OK)
+         handle Skip      => SKIP
+              | Failure d => BUG (sizeOf t v, named t "with" v <$> d)
+              | e         => BUG (sizeOf t v,
+                                  named t "with" v <$> namedExn "raised" e)
+      end
 
-   fun table n =
-       punctuate comma o
-       map (fn (n, m) => str (concat [i2s n, "% ", m])) o
-       sort (I.compare o Pair.swap o Pair.map (Sq.mk Pair.fst)) o
-       map (Pair.map (fn l => Int.quot (100 * length l, n), hd) o Sq.mk) o
-       List.divideByEq op =
+      fun minimize (genSz, origSz, minSz, minMsg) =
+          if genSz < 0
+          then failure minMsg
+          else case genTest genSz
+                of BUG (sz, msg) =>
+                   if sz < minSz
+                   then minimize (genSz-1, origSz, sz, msg)
+                   else minimize (genSz-1, origSz, minSz, minMsg)
+                 | _ => minimize (genSz-1, origSz, minSz, minMsg)
 
-   fun chk prop =
-       runTest
-          (fn cfg as IN {size, passM, skipM, ...} => let
-              fun done (msg, passN, tags) =
-                  ((println o indent)
-                      ((str o concat)
-                          [header cfg, ":\n", msg, " ", i2s passN,
-                           " random cases passed."]::
-                       (if null tags then
-                           []
-                        else
-                           [indent (str "Statistics:" ::
-                                    table passN tags) <^> dot]))
-                 ; true)
+      fun find (passN, skipN) =
+          if maxPass <= passN then
+             ()
+          else if maxSkip <= skipN then
+             println (indent 2 (strs ["Arguments exhausted after ", i2s passN,
+                                      " tests."]))
+          else
+             case genTest (size passN)
+              of SKIP =>
+                 find (passN, skipN + 1)
+               | OK =>
+                 find (passN + 1, skipN)
+               | BUG (sz, ms) =>
+                 minimize (size passN, sz, sz, ms)
+   in
+      find (0, 0)
+   end
 
-              fun gen passN =
-                  G.generate (size passN)
-                             (!rng before Ref.modify G.RNG.next rng)
-                             prop
+   fun all t =
+       allParam {size = fn n => n div 2 + 3,
+                 maxPass = 100,
+                 maxSkip = 100} t
 
-              fun minimize (genSz, origSz, minSz, minMsgs) =
-                  if genSz < 0
-                  then (println |< indent
-                           [str (header cfg ^ " failed."),
-                            indent (str "Falsifiable:"::minMsgs) <^> dot,
-                            (str o concat)
-                               (if minSz < origSz
-                                then ["Reduced counterexample from size ",
-                                      Int.toString origSz, " to size ",
-                                      Int.toString minSz, "."]
-                                else ["Couldn't find a counterexample smaller\
-                                      \ than size ", Int.toString origSz, "."])]
-                      ; false)
-                  else
-                     case gen genSz
-                      of BUG (sz, msgs) =>
-                         if sz < minSz
-                         then minimize (genSz-1, origSz, sz, msgs)
-                         else minimize (genSz-1, origSz, minSz, minMsgs)
-                       | _ =>
-                         minimize (genSz-1, origSz, minSz, minMsgs)
+   fun testAll t ef = test (fn () => all t ef)
 
-              fun find (passN, skipN, allTags) =
-                  if passM <= passN then
-                     done ("OK,", passN, allTags)
-                  else if skipM <= skipN then
-                     done ("Arguments exhausted after", passN, allTags)
-                  else
-                     case gen (size passN)
-                      of SKIP =>
-                         find (passN, skipN + 1, allTags)
-                       | OK tags =>
-                         find (passN + 1, skipN, List.revAppend (tags, allTags))
-                       | BUG (sz, msgs) =>
-                         minimize (size passN, sz, sz, msgs)
-           in
-              find (0, 0, [])
-           end)
+   fun skip () = raise Skip
 
-   fun all t toProp =
-       G.>>= (arbitrary t,
-              fn v => fn ? =>
-                 (G.>>= (toProp v,
-                      fn BUG (sz, msgs) =>
-                         G.return (BUG (sz + sizeOf t v,
-                                        named t "with" v :: msgs))
-                       | p =>
-                         G.return p) ?
-                  handle e =>
-                     G.return (BUG (sizeOf t v,
-                                    [named t "with" v,
-                                     named exn "raised" e <^> dot,
-                                     history e])) ?))
+   fun table t = let
+      val n = length t
+   in
+      punctuate comma o
+      map (fn (n, m) => str (concat [i2s n, "% ", m])) o
+      List.sort (Int.compare o Pair.swap o Pair.map (Sq.mk Pair.fst)) o
+      map (Pair.map (fn l => Int.quot (100 * length l, n), hd) o Sq.mk) o
+      List.divideByEq op = |< List.map (render NONE) t
+   end
 
-   fun that b = G.return (if b then OK [] else BUG (0, []))
-   val skip = G.return SKIP
-
-   fun classify tOpt =
-       G.Monad.map (fn r =>
-                       case tOpt & r
-                        of SOME t & OK ts => OK (t::ts)
-                         | _              => r)
-   fun trivial b = classify (if b then SOME "trivial" else NONE)
-
-   fun collect t v =
-       G.Monad.map (fn OK ts => OK (show t v::ts)
-                     | res   => res)
+   type table = Prettier.t List.t Ref.t
+   fun withFreq tblEf = let
+      val tbl = ref []
+   in
+      tblEf tbl : Unit.t
+    ; println (indent 2 (nest 2 (sep (str "Statistics:" :: table (!tbl)))) <^>
+               dot)
+   end
+   fun collect t tbl x =
+       List.push tbl (pretty t x)
 end

@@ -37,29 +37,29 @@ in
    unitTests
       (title "Reverse")
 
-      (chk (all int
-                (fn x =>
-                    that (rev [x] = [x]))))
+      (testAll int
+               (fn x =>
+                   that (rev [x] = [x])))
 
       (* Read the above as:
        *
-       *   "check for all integers x that the reverse of the singleton
+       *   "test for all integers x that the reverse of the singleton
        *    list x equals the singleton list x"
        *
-       * (Of course, in reality, the property is only checked for a small
-       * finite number of random integers at a time.)
+       * Of course, in reality, the property is only checked for a small
+       * finite number of random integers at a time.
        *
-       * In contrast to QuickCheck/Haskell, one must explicitly lift
-       * boolean values to properties using {that}.
+       * In contrast to QuickCheck, properties are explicitly checked
+       * using {that} and other assertion procedures.
        *)
 
-      (chk (all (sq (list int))
-                (fn (xs, ys) =>
-                    that (rev (xs @ ys) = rev ys @ rev xs))))
+      (testAll (sq (list int))
+               (fn (xs, ys) =>
+                   that (rev (xs @ ys) = rev ys @ rev xs)))
 
-      (chk (all (list int)
-                (fn xs =>
-                    that (rev (rev xs) = xs))))
+      (testAll (list int)
+               (fn xs =>
+                   that (rev (rev xs) = xs)))
 
       (title "Functions")
 
@@ -68,10 +68,10 @@ in
          fun (f === g) x = that (f x = g x)
          (* An approximation of extensional equality for functions. *)
       in
-         chk (all (case unOp int of t => t &` t &` t)
-                  (fn f & g & h =>
-                      all int
-                          (f o (g o h) === (f o g) o h)))
+         testAll (case unOp int of t => t &` t &` t)
+                 (fn f & g & h =>
+                     all int
+                         (f o (g o h) === (f o g) o h))
 
          (* Note that one can (of course) also write local auxiliary
           * definitions inside let -expressions.
@@ -80,46 +80,53 @@ in
 
       (title "Conditional laws")
 
-      (chk (all (sq int)
-                (fn (x, y) =>
-                    if x <= y
-                    then that (Int.max (x, y) = y)
-                    else skip)))
+      (testAll (sq int)
+               (fn (x, y) =>
+                   if x <= y
+                   then that (Int.max (x, y) = y)
+                   else skip ()))
 
       (* Read the above as:
        *
-       *   "check for all integer pairs (x, y) that
+       *   "test for all integer pairs (x, y) that
        *    if x <= y then max (x, y) = y"
        *
-       * In contrast to QuickCheck/Haskell, conditional properties are
-       * specified using conditionals and {skip} rather than using an
-       * implication operator.
+       * In contrast to QuickCheck, conditional properties are specified
+       * using conditionals and {skip ()} rather than using an implication
+       * operator.
        *)
 
       (title "Monitoring test data")
 
-      (chk (all (int &` list int)
-                (fn x & xs =>
-                    if isSorted xs
-                    then (trivial (null xs))
-                            (that (isSorted (insert x xs)))
-                    else skip)))
+      (test (fn () =>
+          withFreq (fn tbl =>
+          all (int &` list int)
+              (fn x & xs =>
+                  if isSorted xs
+                  then (collect int tbl (length xs)
+                      ; that (isSorted (insert x xs)))
+                  else skip ()))))
 
-      (chk (all (int &` list int)
-                (fn x & xs =>
-                    if isSorted xs
-                    then (collect int (length xs))
-                            (that (isSorted (insert x xs)))
-                    else skip)))
+      (* Above we collect the generated sorted lists and print a table of
+       * the frequencies of their lengths using {withFreq} and {collect}.
+       *
+       * In contrast to QuickCheck, data collection is not bolted into the
+       * test framework.
+       *)
 
-      (chk (all (int &` sortedList)
-                (fn x & xs =>
-                    that o isSorted |< insert x xs)))
+      (test (fn () =>
+          withFreq (fn tbl =>
+          all (int &` sortedList)
+              (fn x & xs =>
+                  (collect int tbl (length xs)
+                 ; that (isSorted (insert x xs)))))))
 
       (* Above we use a custom test data generator for sorted (or ordered)
-       * lists.  In contrast to QuickCheck/Haskell, the custom data
-       * generator needs to be injected into a type-index (recall the use
-       * of {withGen} in the implementation of {sortedList} above).
+       * lists.
+       *
+       * In contrast to QuickCheck, the custom data generator is
+       * explicitly injected into a type representation.  Recall the use
+       * of {withGen} in the implementation of {sortedList} above.
        *)
 
       $
