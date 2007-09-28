@@ -20,7 +20,6 @@ struct
 
    structure Rep = Open.Rep
 
-   fun sizeOf t v = Arg.sizeOf t v handle _ => 0
    fun named t n v = group (nest 2 (str n <$> pretty t v))
    val strs = str o concat
    local
@@ -122,8 +121,8 @@ struct
    fun testRaises exnPr th = test (fn () => thatRaises exnPr th)
    fun testFails th = test (fn () => thatFails th)
 
-   datatype result =
-      BUG of Int.t * Prettier.t
+   datatype 'a result =
+      BUG of 'a * Prettier.t
     | OK
     | SKIP
 
@@ -145,25 +144,24 @@ struct
    exception Skip
 
    fun allParam {size, maxPass, maxSkip} t ef = let
-      fun genTest passN = let
-         val v = RandomGen.generate (size passN) (nextRNG ()) (arbitrary t)
-      in
-         (ef v : Unit.t ; OK)
-         handle Skip      => SKIP
-              | Failure d => BUG (sizeOf t v, named t "with" v <$> d)
-              | e         => BUG (sizeOf t v,
-                                  named t "with" v <$> namedExn "raised" e)
-      end
+      fun test v =
+          (ef v : Unit.t ; OK)
+          handle Skip      => SKIP
+               | Failure d => BUG (v, named t "with" v <$> d)
+               | e         => BUG (v, named t "with" v <$> namedExn "raised" e)
 
-      fun minimize (genSz, origSz, minSz, minMsg) =
-          if genSz < 0
-          then failure minMsg
-          else case genTest genSz
-                of BUG (sz, msg) =>
-                   if sz < minSz
-                   then minimize (genSz-1, origSz, sz, msg)
-                   else minimize (genSz-1, origSz, minSz, minMsg)
-                 | _ => minimize (genSz-1, origSz, minSz, minMsg)
+      fun genTest passN =
+          test (RandomGen.generate (size passN) (nextRNG ()) (arbitrary t))
+
+      fun minimize (v, ms) = let
+         fun lp []      = failure ms
+           | lp (v::vs) =
+             case test v
+              of BUG (v, ms) => minimize (v, ms)
+               | _           => lp vs
+      in
+         lp (shrink t v)
+      end
 
       fun find (passN, skipN) =
           if maxPass <= passN then
@@ -177,8 +175,8 @@ struct
                  find (passN, skipN + 1)
                | OK =>
                  find (passN + 1, skipN)
-               | BUG (sz, ms) =>
-                 minimize (size passN, sz, sz, ms)
+               | BUG (v, ms) =>
+                 minimize (v, ms)
    in
       find (0, 0)
    end

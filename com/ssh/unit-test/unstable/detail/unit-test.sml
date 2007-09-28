@@ -7,4 +7,5 @@
 structure UnitTest = MkUnitTest
   (open Generic
    structure ArbitraryRep = Open.Rep and EqRep = Open.Rep
-         and PrettyRep = Open.Rep and SizeRep = Open.Rep)
+         and PrettyRep = Open.Rep and ShrinkRep = Open.Rep
+         and SizeRep = Open.Rep)

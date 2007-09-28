@@ -9,9 +9,18 @@
 (*
  * We assume here that {Eq} and {Pretty} have already been provided.  The
  * {Arbitrary} generic is rather specific to randomized testing and has
- * little use otherwise.  The {Size} generic is probably also not used
- * much outside testing.
+ * probably little use otherwise.  The same goes for {Shrink}.  The {Size}
+ * generic is probably also not used much outside testing.
  *)
+
+signature Generic = sig include Generic ARBITRARY end
+structure Generic : Generic = struct
+   structure Open = WithArbitrary
+     (open Generic
+      structure HashRep = Open.Rep and TypeInfoRep = Open.Rep
+      structure RandomGen = RanQD1Gen)
+   open Generic Open
+end
 
 signature Generic = sig include Generic SIZE end
 structure Generic : Generic = struct
@@ -21,12 +30,11 @@ structure Generic : Generic = struct
    open Generic Open
 end
 
-signature Generic = sig include Generic ARBITRARY end
+signature Generic = sig include Generic SHRINK end
 structure Generic : Generic = struct
-   structure Open = WithArbitrary
+   structure Open = WithShrink
      (open Generic
-      structure HashRep = Open.Rep and TypeInfoRep = Open.Rep
-      structure RandomGen = RanQD1Gen)
+      structure OrdRep = Open.Rep and SizeRep = Open.Rep)
    open Generic Open
 end
 
