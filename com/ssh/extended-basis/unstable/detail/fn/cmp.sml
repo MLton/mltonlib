@@ -7,7 +7,14 @@
 structure Cmp :> CMP = struct
    open Cmp
 
+   infix &
+
    fun map b2a = Fn.map (Sq.map b2a, Fn.id)
+
+   fun op *` (aO, bO) (lA & lB, rA & rB) =
+       case aO (lA, rA)
+        of EQUAL => bO (lB, rB)
+         | other => other
 
    local
       open Order

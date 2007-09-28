@@ -15,6 +15,12 @@ signature CMP = sig
    val map : ('b -> 'a) -> 'a t -> 'b t
    (** Changes the domain of an ordering. *)
 
+   val *` : 'a t * 'b t -> ('a, 'b) Product.t t
+   (**
+    * Given orderings for {'a} and {'b} returns the lexicographic ordering
+    * for their product {('a, 'b) Product.t}.
+    *)
+
    val mkRelOps : 'a t -> {<  : 'a BinPr.t, <= : 'a BinPr.t,
                            >  : 'a BinPr.t, >= : 'a BinPr.t,
                            == : 'a BinPr.t, != : 'a BinPr.t}

@@ -56,7 +56,7 @@ structure UnPr = struct type 'a t = 'a -> Bool.t end
 structure Fix = struct type 'a t = 'a UnOp.t -> 'a end
 structure Reader = struct type ('a, 'b) t = 'b -> ('a * 'b) Option.t end
 structure Writer = struct type ('a, 'b) t = 'a * 'b -> 'b end
-structure Cmp = struct type 'a t = 'a Sq.t -> Order.t end
+structure Cmp = struct open Product type 'a t = 'a Sq.t -> Order.t end
 structure BinOp = struct type 'a t = 'a Sq.t -> 'a end
 structure BinPr = struct type 'a t = 'a Sq.t UnPr.t end
 structure Emb = struct type ('a, 'b) t = ('a -> 'b) * ('b -> 'a Option.t) end
