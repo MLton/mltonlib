@@ -31,6 +31,7 @@ group is
    ../../../public/value/pretty.sig
    ../../../public/value/reduce.sig
    ../../../public/value/seq.sig
+   ../../../public/value/shrink.sig
    ../../../public/value/size.sig
    ../../../public/value/some.sig
    ../../../public/value/transform.sig
@@ -61,6 +62,7 @@ group is
    ../../value/pretty.sml
    ../../value/reduce.sml
    ../../value/seq.sml
+   ../../value/shrink.sml
    ../../value/size.sml
    ../../value/some.sml
    ../../value/transform.sml

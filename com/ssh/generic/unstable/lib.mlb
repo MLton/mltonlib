@@ -124,6 +124,9 @@ in
          public/value/size.sig
          detail/value/size.sml
 
+         public/value/shrink.sig
+         detail/value/shrink.sml
+
          public/value/transform.sig
          detail/value/transform.sml
 

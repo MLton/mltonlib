@@ -167,6 +167,10 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = WithReduce (Arg)
 signature SEQ = SEQ and SEQ_CASES = SEQ_CASES and WITH_SEQ_DOM = WITH_SEQ_DOM
 functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = WithSeq (Arg)
 
+signature SHRINK = SHRINK and SHRINK_CASES = SHRINK_CASES
+      and WITH_SHRINK_DOM = WITH_SHRINK_DOM
+functor WithShrink (Arg : WITH_SHRINK_DOM) : SHRINK_CASES = WithShrink (Arg)
+
 signature SIZE = SIZE and SIZE_CASES = SIZE_CASES
       and WITH_SIZE_DOM = WITH_SIZE_DOM
 functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = WithSize (Arg)
