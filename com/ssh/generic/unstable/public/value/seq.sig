@@ -31,8 +31,7 @@ signature SEQ = sig
 end
 
 signature SEQ_CASES = sig
-   structure Open : OPEN_CASES
-   include SEQ
+   include CASES SEQ
    sharing Open.Rep = SeqRep
 end
 

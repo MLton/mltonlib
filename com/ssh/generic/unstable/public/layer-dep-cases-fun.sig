@@ -8,8 +8,7 @@
  * Signature for the domain of the {LayerDepCases} functor.
  *)
 signature LAYER_DEP_CASES_DOM = sig
-   structure Open : OPEN_CASES
-   include LAYERED_REP
+   include CASES LAYERED_REP
    sharing Open.Rep = Outer
    val iso : ('b, 'y) t -> ('a, 'b) Iso.t -> 'a This.t
    val isoProduct : ('b, 'k, 'y) p -> ('a, 'b) Iso.t -> ('a, 'k) This.p

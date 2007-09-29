@@ -39,11 +39,8 @@ signature REDUCE = sig
 end
 
 signature REDUCE_CASES = sig
-   structure Open : OPEN_CASES
-   include REDUCE
+   include CASES REDUCE
    sharing Open.Rep = ReduceRep
 end
 
-signature WITH_REDUCE_DOM = sig
-   structure Open : OPEN_CASES
-end
+signature WITH_REDUCE_DOM = CASES

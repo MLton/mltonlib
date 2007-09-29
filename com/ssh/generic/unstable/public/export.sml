@@ -12,6 +12,8 @@ signature CLOSED_REP = CLOSED_REP
 signature OPEN_CASES = OPEN_CASES
 signature OPEN_REP = OPEN_REP
 
+signature CASES = CASES
+
 signature LAYERED_REP = LAYERED_REP
 
 signature GENERIC = GENERIC
@@ -108,8 +110,7 @@ signature DATA_REC_INFO = DATA_REC_INFO
 functor WithDataRecInfo (Arg : WITH_DATA_REC_INFO_DOM) : DATA_REC_INFO_CASES =
    WithDataRecInfo (Arg)
 
-signature WITH_DEBUG_DOM = WITH_DEBUG_DOM
-functor WithDebug (Arg : WITH_DEBUG_DOM) : OPEN_CASES = WithDebug (Arg)
+functor WithDebug (Arg : CASES) : OPEN_CASES = WithDebug (Arg)
 (**
  * Checks dynamically that
  * - labels are unique within each record,

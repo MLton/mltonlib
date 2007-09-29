@@ -5,10 +5,8 @@
  *)
 
 (**
- * Signature for the domain of the {LayerCases} functor.
+ * A base signature for the "cases" of generics.
  *)
-signature LAYER_CASES_DOM = sig
-   include CASES LAYERED_REP CLOSED_CASES
-   sharing Open.Rep = Outer
-   sharing Rep = This
+signature CASES = sig
+   structure Open : OPEN_CASES
 end

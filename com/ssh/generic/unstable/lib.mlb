@@ -38,6 +38,8 @@ in
          public/open-rep.sig
          public/open-cases.sig
 
+         public/cases.sig
+
          public/generic.sig
          public/generic-extra.sig
 

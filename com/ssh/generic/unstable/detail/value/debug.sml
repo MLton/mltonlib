@@ -4,11 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-signature WITH_DEBUG_DOM = sig
-   structure Open : OPEN_CASES
-end
-
-functor WithDebug (Arg : WITH_DEBUG_DOM) : OPEN_CASES = struct
+functor WithDebug (Arg : CASES) : OPEN_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)

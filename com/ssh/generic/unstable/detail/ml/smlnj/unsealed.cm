@@ -8,6 +8,7 @@ group is
    ../../../../../extended-basis/unstable/basis.cm
    ../../../../../prettier/unstable/lib.cm
    ../../../../../random/unstable/lib.cm
+   ../../../public/cases.sig
    ../../../public/closed-cases.sig
    ../../../public/closed-rep.sig
    ../../../public/generic-extra.sig

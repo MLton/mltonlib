@@ -35,11 +35,8 @@ signature TYPE_INFO = sig
 end
 
 signature TYPE_INFO_CASES = sig
-   structure Open : OPEN_CASES
-   include TYPE_INFO
+   include CASES TYPE_INFO
    sharing Open.Rep = TypeInfoRep
 end
 
-signature WITH_TYPE_INFO_DOM = sig
-   structure Open : OPEN_CASES
-end
+signature WITH_TYPE_INFO_DOM = CASES

@@ -8,8 +8,7 @@
  * Base signature for a module of directly usable generics.
  *)
 signature GENERIC = sig
-   structure Open : OPEN_CASES
-
+   include CASES
    include CLOSED_CASES
       where type  'a      Rep.t = ('a,     Unit.t) Open.Rep.t
       where type  'a      Rep.s = ('a,     Unit.t) Open.Rep.s

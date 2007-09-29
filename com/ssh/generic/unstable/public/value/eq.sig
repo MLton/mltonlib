@@ -60,11 +60,8 @@ signature EQ = sig
 end
 
 signature EQ_CASES = sig
-   structure Open : OPEN_CASES
-   include EQ
+   include CASES EQ
    sharing Open.Rep = EqRep
 end
 
-signature WITH_EQ_DOM = sig
-   structure Open : OPEN_CASES
-end
+signature WITH_EQ_DOM = CASES

@@ -34,13 +34,11 @@ signature SHRINK = sig
 end
 
 signature SHRINK_CASES = sig
-   structure Open : OPEN_CASES
-   include SHRINK
+   include CASES SHRINK
    sharing Open.Rep = ShrinkRep
 end
 
 signature WITH_SHRINK_DOM = sig
-   structure Open : OPEN_CASES
-   include ORD SIZE
+   include CASES ORD SIZE
    sharing Open.Rep = OrdRep = SizeRep
 end

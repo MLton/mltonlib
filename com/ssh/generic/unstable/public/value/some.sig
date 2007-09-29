@@ -30,8 +30,7 @@ signature SOME = sig
 end
 
 signature SOME_CASES = sig
-   structure Open : OPEN_CASES
-   include SOME
+   include CASES SOME
    sharing Open.Rep = SomeRep
 end
 

@@ -174,8 +174,7 @@ signature PRETTY = sig
 end
 
 signature PRETTY_CASES = sig
-   structure Open : OPEN_CASES
-   include PRETTY
+   include CASES PRETTY
    sharing Open.Rep = PrettyRep
 end
 

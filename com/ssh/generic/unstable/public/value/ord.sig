@@ -46,8 +46,7 @@ signature ORD = sig
 end
 
 signature ORD_CASES = sig
-   structure Open : OPEN_CASES
-   include ORD
+   include CASES ORD
    sharing Open.Rep = OrdRep
 end
 
