@@ -39,7 +39,9 @@ end
 
 signature Generic = sig include Generic ORD end
 structure Generic = struct
-   structure Open = WithOrd (Generic)
+   structure Open = WithOrd
+     (open Generic
+      structure HashRep = Open.Rep)
    open Generic Open
 end
 
