@@ -47,6 +47,7 @@ group is
    ../../hash-univ.sml
    ../../layer-generic.fun
    ../../mk-closed-rep.fun
+   ../../ops.sml
    ../../opt-int.sml
    ../../reg-basis-exns.fun
    ../../root-generic.sml

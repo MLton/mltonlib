@@ -48,6 +48,8 @@ in
          public/generics-util.sig
          detail/generics-util.sml
 
+         detail/ops.sml
+
          detail/mk-closed-rep.fun
 
          detail/opt-int.sml (* XXX Should really go to Extended Basis? *)

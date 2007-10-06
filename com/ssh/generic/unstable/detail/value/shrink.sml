@@ -7,6 +7,9 @@
 functor WithShrink (Arg : WITH_SHRINK_DOM) : SHRINK_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
+   infix 7 >> << *`
+   infix 6 +`
+   infix 4 orb
    infix 0 &
    (* SML/NJ workaround --> *)
 
@@ -33,6 +36,41 @@ functor WithShrink (Arg : WITH_SHRINK_DOM) : SHRINK_CASES = struct
    val none =
        IN {kids = fn (_, e, _) => e,
            shrink = fn _ => []}
+
+   fun mkInt (Ops.I {precision, fromInt, maxInt, +`, *`, div, mod, ...}) =
+       if isSome precision
+       then IN {kids = fn (_, e, _) => e,
+                shrink = fn i => let
+                               val m = valOf maxInt div fromInt 2 +` fromInt 1
+                               fun lp (d, is) = let
+                                  val h = (i div d) div fromInt 2 *` d
+                                  val l = i mod d
+                                  val i' = h+`l
+                               in
+                                  if i' = i then is
+                                  else if d = m then i'::is
+                                  else lp (d *` fromInt 2, i'::is)
+                               end
+                            in
+                               lp (fromInt 1, [])
+                            end}
+       else none
+
+   fun mkWord (Ops.W {wordSize, <<, >>, orb, ...}) =
+       IN {kids = fn (_, e, _) => e,
+           shrink = fn w => let
+                          fun lp (s, ws) =
+                              if s = Word.fromInt wordSize then ws else let
+                                 val h = (w >> (s + 0w1)) << s
+                                 val s' = Word.fromInt wordSize - s
+                                 val l = (w << s') >> s'
+                                 val w' = h orb l
+                              in
+                                 if w' = w then ws else lp (s+0w1, w'::ws)
+                              end
+                       in
+                          lp (0w0, [])
+                       end}
 
    structure ShrinkRep = LayerRep
      (open Arg
@@ -142,22 +180,22 @@ functor WithShrink (Arg : WITH_SHRINK_DOM) : SHRINK_CASES = struct
 
       fun refc _ = none
 
-      val fixedInt  = none
-      val largeInt  = none
+      val fixedInt  = mkInt FixedIntOps.ops
+      val largeInt  = mkInt LargeIntOps.ops
 
       val largeReal = none
-      val largeWord = none
+      val largeWord = mkWord LargeWordOps.ops
 
       val bool   = none
       val char   = none
-      val int    = none
+      val int    = mkInt IntOps.ops
       val real   = none
       val string = iso' (list' char) String.isoList
-      val word   = none
+      val word   = mkWord WordOps.ops
 
-      val word8  = none
-      val word32 = none
-      val word64 = none
+      val word8  = mkWord Word8Ops.ops
+      val word32 = mkWord Word32Ops.ops
+      val word64 = mkWord Word64Ops.ops
 
       open Arg ShrinkRep)
 end

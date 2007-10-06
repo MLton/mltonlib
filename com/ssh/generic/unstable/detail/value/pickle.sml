@@ -75,22 +75,6 @@ end
 
 (************************************************************************)
 
-datatype 'a ops =
-   OPS of {wordSize : Int.t,
-           orb : 'a BinOp.t,
-           << : 'a ShiftOp.t,
-           ~>> : 'a ShiftOp.t,
-           isoWord8 : ('a, Word8.t) Iso.t,
-           isoWord8X : ('a, Word8.t) Iso.t}
-
-functor WordWithOps (Arg : WORD) = struct
-   open Arg
-   val ops = OPS {wordSize = wordSize, orb = op orb, << = op <<, ~>> = op ~>>,
-                  isoWord8 = isoWord8, isoWord8X = isoWord8X}
-end
-
-(************************************************************************)
-
 functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
@@ -109,13 +93,6 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    infix  0 before <|> &` &
    infixr 0 -->
    (* SML/NJ workaround --> *)
-
-   structure Word = WordWithOps (Word)
-   structure Word32 = WordWithOps (Word32)
-   structure Word64 = WordWithOps (Word64)
-   structure LargeWord = WordWithOps (LargeWord)
-   structure LargeRealWord = WordWithOps (CastLargeReal.Bits)
-   structure RealWord = WordWithOps (CastReal.Bits)
 
    structure Dyn = HashUniv
 
@@ -219,7 +196,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
 
    (* Encodes either 8, 16, 32, or 64 bits of data and an optional size. *)
    fun bits sized
-            (OPS {wordSize = n, orb, <<, ~>>, isoWord8 = (toW8, fromW8), ...})
+            (Ops.W {wordSize = n, orb, <<, ~>>, isoWord8 = (toW8, fromW8), ...})
             (toBits, fromBits) = let
       fun alts ` op o =
           if      n <= 8  then `0w0
@@ -252,11 +229,11 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
          sz = SOME ((n + 7) div 8 + Bool.toInt sized)}
    end
 
-   val word32 = bits false Word32.ops Iso.id
+   val word32 = bits false Word32Ops.ops Iso.id
 
    (* Encodes fixed size int as a size followed by little endian bytes. *)
-   fun mkFixedInt (OPS {orb, <<, ~>>, isoWord8 = (toW8, fromW8),
-                        isoWord8X = (_, fromW8X), ...})
+   fun mkFixedInt (Ops.W {orb, <<, ~>>, isoWord8 = (toW8, fromW8),
+                          isoWord8X = (_, fromW8X), ...})
                   (fromBitsX, toBits) =
        P {rd = let
              open I
@@ -292,7 +269,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
    val () = if LargeWord.wordSize < valOf FixedInt.precision
             then fail "LargeWord can't hold a FixedInt"
             else ()
-   val fixedInt = mkFixedInt LargeWord.ops LargeWord.isoFixedIntX
+   val fixedInt = mkFixedInt LargeWordOps.ops LargeWord.isoFixedIntX
 
    fun cyclic {readProxy, readBody, writeWhole, self} = let
       val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq self, hash = Arg.hash self}
@@ -657,20 +634,20 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       val bool = iso' char (swap Char.isoInt <--> Bool.isoInt)
       val int =
           if case Int.precision of NONE => false | SOME n => n <= Word.wordSize
-          then mkFixedInt Word.ops Word.isoIntX
+          then mkFixedInt WordOps.ops Word.isoIntX
           else if isSome Int.precision
           then iso' fixedInt Int.isoFixedInt
           else iso' largeInt Int.isoLargeInt
-      val real = bits true RealWord.ops CastReal.isoBits
+      val real = bits true RealWordOps.ops CastReal.isoBits
       val string = string
-      val word = mkFixedInt Word.ops Iso.id
+      val word = mkFixedInt WordOps.ops Iso.id
 
-      val largeReal = bits true LargeRealWord.ops CastLargeReal.isoBits
-      val largeWord = mkFixedInt LargeWord.ops Iso.id
+      val largeReal = bits true LargeRealWordOps.ops CastLargeReal.isoBits
+      val largeWord = mkFixedInt LargeWordOps.ops Iso.id
 
       val word8  = word8
       val word32 = word32
-      val word64 = bits false Word64.ops Iso.id
+      val word64 = bits false Word64Ops.ops Iso.id
 
       open Arg PickleRep)
 end
