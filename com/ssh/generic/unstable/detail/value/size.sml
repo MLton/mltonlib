@@ -130,9 +130,12 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
 
       fun list xT =
           case getT xT
-           of STATIC c  => DYNAMIC (fn (_, xs) => (c + wordSize) * length xs)
+           of STATIC c =>
+              DYNAMIC (fn (_, xs) => (c + wordSize) * length xs + wordSize)
             | DYNAMIC f =>
-              DYNAMIC (fn (e, xs) => foldl (fn (x, s) => s + f (e, x)) 0 xs)
+              DYNAMIC (fn (e, xs) =>
+                          foldl (fn (x, s) => s + wordSize + f (e, x))
+                                wordSize xs)
 
       fun vector xT = DYNAMIC (sequ Vector.length Vector.foldl (getT xT))
 
