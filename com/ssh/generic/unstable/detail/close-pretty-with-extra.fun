@@ -5,7 +5,7 @@
  *)
 
 functor ClosePrettyWithExtra (Arg : PRETTY_CASES) : GENERIC_EXTRA = struct
-   structure Rep = CloseCases (Arg.Open)
+   structure Rep = CloseCases (Arg)
    structure Rep = WithExtra (open Arg Rep)
    open Arg Rep
    local

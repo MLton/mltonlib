@@ -76,11 +76,11 @@ functor LayerDepCases (Arg : LAYER_DEP_CASES_DOM) :>
 
 (** === Closing Generics === *)
 
-functor CloseCases (Arg : OPEN_CASES) :>
-   CLOSED_CASES
-      where type  'a      Rep.t = ('a,     Unit.t) Arg.Rep.t
-      where type  'a      Rep.s = ('a,     Unit.t) Arg.Rep.s
-      where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Arg.Rep.p =
+functor CloseCases (Arg : CASES) :>
+   GENERIC
+      where type ('a,     'x) Open.Rep.t = ('a,     'x) Arg.Open.Rep.t
+      where type ('a,     'x) Open.Rep.s = ('a,     'x) Arg.Open.Rep.s
+      where type ('a, 'k, 'x) Open.Rep.p = ('a, 'k, 'x) Arg.Open.Rep.p =
    CloseCases (Arg)
 (** Closes open structural cases. *)
 

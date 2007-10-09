@@ -21,12 +21,13 @@ signature GENERIC_EXTRA = sig
     *)
 
    val C0' : String.t -> Unit.t Rep.s
-   val C1' : String.t -> 'a Rep.t -> 'a Rep.s
+   val C1' : String.t -> ('a, 'x) Open.Rep.t -> 'a Rep.s
 
-   val R' : String.t -> 'a Rep.t -> ('a, Record.t) Rep.p
+   val R' : String.t -> ('a, 'x) Open.Rep.t -> ('a, Record.t) Rep.p
 
    val regExn0' : String.t -> Exn.t -> (Exn.t -> Unit.t) Effect.t
-   val regExn1' : String.t -> 'a Rep.t -> ('a -> Exn.t) -> (Exn.t -> 'a) Effect.t
+   val regExn1' : String.t -> ('a, 'x) Open.Rep.t
+                  -> ('a -> Exn.t) -> (Exn.t -> 'a) Effect.t
 
    (** == Tuples ==
     *
@@ -40,10 +41,15 @@ signature GENERIC_EXTRA = sig
     *>          fn v1 & ... & vN => (v1, ..., vN))
     *)
 
-   val tuple2 : 'a Rep.t * 'b Rep.t -> ('a * 'b) Rep.t
-   val tuple3 : 'a Rep.t * 'b Rep.t * 'c Rep.t -> ('a * 'b * 'c) Rep.t
-   val tuple4 :
-       'a Rep.t * 'b Rep.t * 'c Rep.t * 'd Rep.t -> ('a * 'b * 'c * 'd) Rep.t
+   val tuple2 : ('a, 's) Open.Rep.t *
+                ('b, 't) Open.Rep.t -> ('a * 'b) Rep.t
+   val tuple3 : ('a, 's) Open.Rep.t *
+                ('b, 't) Open.Rep.t *
+                ('c, 'u) Open.Rep.t -> ('a * 'b * 'c) Rep.t
+   val tuple4 : ('a, 's) Open.Rep.t *
+                ('b, 't) Open.Rep.t *
+                ('c, 'u) Open.Rep.t *
+                ('d, 'v) Open.Rep.t -> ('a * 'b * 'c * 'd) Rep.t
 
    (** == Integer Types == *)
 
@@ -54,7 +60,7 @@ signature GENERIC_EXTRA = sig
 
    (** == Some Standard Datatypes == *)
 
-   val option : 'a Rep.t -> 'a Option.t Rep.t
+   val option : ('a, 'x) Open.Rep.t -> 'a Option.t Rep.t
    val order : Order.t Rep.t
 
    (** == Binary Sums and Products ==
@@ -65,12 +71,14 @@ signature GENERIC_EXTRA = sig
     * and sum types provided by the Extended Basis library.
     *)
 
-   val &` : 'a Rep.t * 'b Rep.t -> ('a, 'b) Product.t Rep.t
-   val |` : 'a Rep.t * 'b Rep.t -> ('a, 'b) Sum.t Rep.t
+   val &` : ('a, 'x) Open.Rep.t *
+            ('b, 'y) Open.Rep.t -> ('a, 'b) Product.t Rep.t
+   val |` : ('a, 'x) Open.Rep.t *
+            ('b, 'y) Open.Rep.t -> ('a, 'b) Sum.t Rep.t
 
    (** == Abbreviations for Common Types == *)
 
-   val sq : 'a Rep.t -> 'a Sq.t Rep.t
-   val unOp : 'a Rep.t -> 'a UnOp.t Rep.t
-   val binOp : 'a Rep.t -> 'a BinOp.t Rep.t
+   val sq : ('a, 'x) Open.Rep.t -> 'a Sq.t Rep.t
+   val unOp : ('a, 'x) Open.Rep.t -> 'a UnOp.t Rep.t
+   val binOp : ('a, 'x) Open.Rep.t -> 'a BinOp.t Rep.t
 end

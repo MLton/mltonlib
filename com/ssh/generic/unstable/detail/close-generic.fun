@@ -15,53 +15,54 @@ struct
    type ('a, 'k) p = ('a, 'k, Unit.t) p
 end
 
-functor CloseCases (Arg : OPEN_CASES) :>
-   CLOSED_CASES
-      where type  'a      Rep.t = ('a,     Unit.t) Arg.Rep.t
-      where type  'a      Rep.s = ('a,     Unit.t) Arg.Rep.s
-      where type ('a, 'k) Rep.p = ('a, 'k, Unit.t) Arg.Rep.p =
+functor CloseCases (Arg : CASES) :>
+   GENERIC
+      where type ('a,     'x) Open.Rep.t = ('a,     'x) Arg.Open.Rep.t
+      where type ('a,     'x) Open.Rep.s = ('a,     'x) Arg.Open.Rep.s
+      where type ('a, 'k, 'x) Open.Rep.p = ('a, 'k, 'x) Arg.Open.Rep.p =
 struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   structure Rep = CloseRep (Arg.Rep)
+   open Arg
+   structure Rep = CloseRep (Open.Rep)
 
    fun morph m = m (const ignore)
 
-   fun iso ? = morph Arg.iso ?
-   fun isoProduct ? = morph Arg.isoProduct ?
-   fun isoSum ? = morph Arg.isoSum ?
-   fun op *` ? = Arg.*` ignore ?
-   fun T ? = Arg.T ignore ?
-   fun R ? = Arg.R (const ignore) ?
-   fun tuple ? = Arg.tuple ignore ?
-   fun record ? = Arg.record ignore ?
-   fun op +` ? = Arg.+` ignore ?
-   fun C0 ? = Arg.C0 (const ()) ?
-   fun C1 ? = Arg.C1 (const ignore) ?
-   fun data ? = Arg.data ignore ?
-   val unit = Arg.unit ()
-   fun Y ? = Arg.Y (Tie.id ()) ?
-   fun op --> ? = Arg.--> ignore ?
-   val exn = Arg.exn ()
-   fun regExn0 ? = Arg.regExn0 (const ignore) ?
-   fun regExn1 ? = Arg.regExn1 (const (const ignore)) ?
-   fun array ? = Arg.array ignore ?
-   fun refc ? = Arg.refc ignore ?
-   fun vector ? = Arg.vector ignore ?
-   val fixedInt = Arg.fixedInt ()
-   val largeInt = Arg.largeInt ()
-   val largeReal = Arg.largeReal ()
-   val largeWord = Arg.largeWord ()
-   val word8 = Arg.word8 ()
-   val word32 = Arg.word32 ()
-   val word64 = Arg.word64 ()
-   fun list ? = Arg.list ignore ?
-   val bool = Arg.bool ()
-   val char = Arg.char ()
-   val int = Arg.int ()
-   val real = Arg.real ()
-   val string = Arg.string ()
-   val word = Arg.word ()
+   fun iso ? = morph Open.iso ?
+   fun isoProduct ? = morph Open.isoProduct ?
+   fun isoSum ? = morph Open.isoSum ?
+   fun op *` ? = Open.*` ignore ?
+   fun T ? = Open.T ignore ?
+   fun R ? = Open.R (const ignore) ?
+   fun tuple ? = Open.tuple ignore ?
+   fun record ? = Open.record ignore ?
+   fun op +` ? = Open.+` ignore ?
+   fun C0 ? = Open.C0 (const ()) ?
+   fun C1 ? = Open.C1 (const ignore) ?
+   fun data ? = Open.data ignore ?
+   val unit = Open.unit ()
+   fun Y ? = Open.Y (Tie.id ()) ?
+   fun op --> ? = Open.--> ignore ?
+   val exn = Open.exn ()
+   fun regExn0 ? = Open.regExn0 (const ignore) ?
+   fun regExn1 ? = Open.regExn1 (const (const ignore)) ?
+   fun array ? = Open.array ignore ?
+   fun refc ? = Open.refc ignore ?
+   fun vector ? = Open.vector ignore ?
+   val fixedInt = Open.fixedInt ()
+   val largeInt = Open.largeInt ()
+   val largeReal = Open.largeReal ()
+   val largeWord = Open.largeWord ()
+   val word8 = Open.word8 ()
+   val word32 = Open.word32 ()
+   val word64 = Open.word64 ()
+   fun list ? = Open.list ignore ?
+   val bool = Open.bool ()
+   val char = Open.char ()
+   val int = Open.int ()
+   val real = Open.real ()
+   val string = Open.string ()
+   val word = Open.word ()
 end

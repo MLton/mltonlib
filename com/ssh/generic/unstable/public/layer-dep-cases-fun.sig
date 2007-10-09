@@ -18,7 +18,7 @@ signature LAYER_DEP_CASES_DOM = sig
    val R : Generics.Label.t -> ('a, 'x) t -> ('a, Generics.Record.t) This.p
    val tuple : ('a, Generics.Tuple.t, 'x) p -> 'a This.t
    val record : ('a, Generics.Record.t, 'x) p -> 'a This.t
-   val +` : ('a, 'x) s * ('b, 'y) s -> (('a, 'b) Sum.t) This.s
+   val +` : ('a, 'x) s * ('b, 'y) s -> ('a, 'b) Sum.t This.s
    val C0 : Generics.Con.t -> Unit.t This.s
    val C1 : Generics.Con.t -> ('a, 'x) t -> 'a This.s
    val data : ('a, 'x) s -> 'a This.t
