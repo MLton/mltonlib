@@ -565,7 +565,11 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
          val self = Arg.Open.refc ignore aT
       in
          if Arg.mayBeCyclic self
-         then cyclic {readProxy = I.thunk (ref o const (Arg.some aT)),
+         then cyclic {readProxy = let
+                         val dummy = delay (fn () => Arg.some aT)
+                      in
+                         I.thunk (fn _ => ref (force dummy))
+                      end,
                       readBody = fn proxy => I.map (fn v => proxy := v) rd,
                       writeWhole = wr o !,
                       self = self}
@@ -575,7 +579,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) : PICKLE_CASES = struct
       fun array aT = let
          val P {rd = aR, wr = aW, ...} = getT aT
       in
-         mutable {readProxy = I.map (Array.array /> Arg.some aT) (rd size),
+         mutable {readProxy = let
+                     val dummy = delay (fn () => Arg.some aT)
+                  in
+                     I.map (fn n => (Array.array (n, force dummy)))
+                           (rd size)
+                  end,
                   readBody = fn a => let
                      open I
                      fun lp i = if i = Array.length a
