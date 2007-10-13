@@ -5,6 +5,6 @@
  *)
 
 structure Generic = struct
-   structure Rep = CloseCases (Generic.Open)
+   structure Rep = CloseCases (Generic)
    open Generic Rep
 end
