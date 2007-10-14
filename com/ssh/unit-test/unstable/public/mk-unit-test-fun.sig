@@ -13,5 +13,4 @@ signature MK_UNIT_TEST_DOM = sig
    include EQ        sharing Open.Rep = EqRep
    include PRETTY    sharing Open.Rep = PrettyRep
    include SHRINK    sharing Open.Rep = ShrinkRep
-   include SIZE      sharing Open.Rep = SizeRep
 end
