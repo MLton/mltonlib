@@ -8,9 +8,12 @@ signature Generic = sig
    include Generic SEQ
 end
 
-structure Generic : Generic = struct
-   structure Open = WithSeq
-     (open Generic
-      structure HashRep = Open.Rep)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure SeqRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithSeq (Generic)
+              open Generic Open)

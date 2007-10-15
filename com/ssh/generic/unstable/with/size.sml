@@ -8,9 +8,12 @@ signature Generic = sig
    include Generic SIZE
 end
 
-structure Generic : Generic = struct
-   structure Open = WithSize
-     (open Generic
-      structure HashRep = Open.Rep and TypeInfoRep = Open.Rep)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure SizeRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithSize (Generic)
+              open Generic Open)

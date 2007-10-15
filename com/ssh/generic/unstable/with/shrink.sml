@@ -8,9 +8,12 @@ signature Generic = sig
    include Generic SHRINK
 end
 
-structure Generic : Generic = struct
-   structure Open = WithShrink
-     (open Generic
-      structure OrdRep = Open.Rep and SizeRep = Open.Rep)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure ShrinkRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithShrink (Generic)
+              open Generic Open)

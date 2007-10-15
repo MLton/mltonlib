@@ -8,6 +8,8 @@ signature Generic = sig
    structure Open : OPEN_CASES
 end
 
-structure Generic : Generic = struct
+functor MkGeneric (Arg : Generic) : Generic = Arg
+
+structure Generic = struct
    structure Open = RootGeneric
 end

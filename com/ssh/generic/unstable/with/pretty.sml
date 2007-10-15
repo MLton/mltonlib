@@ -8,9 +8,12 @@ signature Generic = sig
    include Generic PRETTY
 end
 
-structure Generic : Generic = struct
-   structure Open = WithPretty
-     (open Generic
-      structure HashRep = Open.Rep)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure PrettyRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithPretty (Generic)
+              open Generic Open)

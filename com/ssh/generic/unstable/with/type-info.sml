@@ -8,7 +8,12 @@ signature Generic = sig
    include Generic TYPE_INFO
 end
 
-structure Generic : Generic = struct
-   structure Open = WithTypeInfo (Generic)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure TypeInfoRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithTypeInfo (Generic)
+              open Generic Open)

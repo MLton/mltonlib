@@ -8,11 +8,12 @@ signature Generic = sig
    include Generic PICKLE
 end
 
-structure Generic : Generic = struct
-   structure Open = WithPickle
-     (open Generic
-      structure DataRecInfoRep = Open.Rep and EqRep = Open.Rep
-            and HashRep = Open.Rep and SomeRep = Open.Rep
-            and TypeHashRep = Open.Rep and TypeInfoRep = Open.Rep)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure PickleRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithPickle (Generic)
+              open Generic Open)

@@ -8,7 +8,12 @@ signature Generic = sig
    include Generic EQ
 end
 
-structure Generic : Generic = struct
-   structure Open = WithEq (Generic)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure EqRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithEq (Generic)
+              open Generic Open)

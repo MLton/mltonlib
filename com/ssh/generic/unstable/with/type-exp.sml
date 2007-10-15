@@ -8,7 +8,12 @@ signature Generic = sig
    include Generic TYPE_EXP
 end
 
-structure Generic : Generic = struct
-   structure Open = WithTypeExp (Generic)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure TypeExpRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithTypeExp (Generic)
+              open Generic Open)

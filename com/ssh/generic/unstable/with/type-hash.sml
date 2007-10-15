@@ -8,7 +8,12 @@ signature Generic = sig
    include Generic TYPE_HASH
 end
 
-structure Generic : Generic = struct
-   structure Open = WithTypeHash (Generic)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure TypeHashRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithTypeHash (Generic)
+              open Generic Open)

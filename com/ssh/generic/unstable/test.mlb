@@ -16,41 +16,22 @@ local
       "warnUnused true"
    in
       local
+         with/data-rec-info.sml
+         with/some.sml
+         with/pickle.sml
+         with/seq.sml
+         with/reduce.sml
+         with/transform.sml
+         with/close-pretty-with-extra.sml
          with/reg-basis-exns.sml
+
          test/utils.fun
       in
-         local
-            with/data-rec-info.sml
-            with/some.sml
-            with/pickle.sml
-            with/seq.sml
-            with/close-pretty-with-extra.sml
-         in
-            test/pickle.sml
-         end
-
+         test/pickle.sml
          test/pretty.sml
-
-         local
-            with/reduce.sml
-            with/close-pretty-with-extra.sml
-         in
-            test/reduce.sml
-         end
-
-         local
-            with/some.sml
-            with/close-pretty-with-extra.sml
-         in
-            test/some.sml
-         end
-
-         local
-            with/transform.sml
-            with/close-pretty-with-extra.sml
-         in
-            test/transform.sml
-         end
+         test/reduce.sml
+         test/some.sml
+         test/transform.sml
       end
    end
 in

@@ -8,7 +8,12 @@ signature Generic = sig
    include Generic REDUCE
 end
 
-structure Generic : Generic = struct
-   structure Open = WithReduce (Generic)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure ReduceRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open = WithReduce (Generic)
+              open Generic Open)

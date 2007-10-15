@@ -8,10 +8,14 @@ signature Generic = sig
    include Generic ARBITRARY
 end
 
-structure Generic : Generic = struct
-   structure Open = WithArbitrary
-     (open Generic
-      structure HashRep = Open.Rep and TypeInfoRep = Open.Rep
-      structure RandomGen = RanQD1Gen)
-   open Generic Open
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure ArbitraryRep = Open.Rep
 end
+
+structure Generic =
+   MkGeneric (structure Open =
+                 WithArbitrary (open Generic
+                                structure RandomGen = RanQD1Gen)
+              open Generic Open)
