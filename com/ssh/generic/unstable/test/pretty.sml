@@ -9,8 +9,8 @@ local
 
    infix |`
 
-   fun tst n t s v =
-       testEq string (fn () => {expect = s, actual = render n (pretty t v)})
+   fun tst n f t s v =
+       testEq string (fn () => {expect = s, actual = render n (fmt t f v)})
 
    structure Graph = MkGraph (Generic)
    structure BinTree = MkBinTree (Generic)
@@ -19,30 +19,30 @@ in
        unitTests
           (title "Generic.Pretty")
 
-          (tst NONE unit "()" ())
+          (tst NONE Fmt.default unit "()" ())
 
-          (tst NONE word "0wx15" 0wx15)
+          (tst NONE Fmt.default word "0wx15" 0wx15)
 
-          (tst (SOME 6) (list int)
+          (tst (SOME 6) Fmt.default (list int)
                "[1,\n 2,\n 3]"
                [1, 2, 3])
 
-          (tst (SOME 2) (vector bool)
+          (tst (SOME 2) Fmt.default (vector bool)
                "#[true,\n\
                \  false]"
                (Vector.fromList [true, false]))
 
-          (tst (SOME 15) (tuple3 (option unit, string, exn))
+          (tst (SOME 15) Fmt.default (tuple3 (option unit, string, exn))
                "(NONE,\n\
                \ \"a\",\n\
                \ Empty)"
                (NONE, "a", Empty))
 
-          (tst NONE (array unit) "#()" (Array.array (0, ())))
+          (tst NONE Fmt.default (array unit) "#()" (Array.array (0, ())))
 
-          (tst NONE real "~3.141" ~3.141)
+          (tst NONE Fmt.default real "~3.141" ~3.141)
 
-          (tst (SOME 22)
+          (tst (SOME 22) Fmt.default
                ((order |` unit) &` order &` (unit |` order))
                "INL LESS\n\
                \& EQUAL\n\
@@ -50,7 +50,7 @@ in
                (INL LESS & EQUAL & INR GREATER))
 
           let
-             fun chk s e = tst (SOME 11) string e s
+             fun chk s e = tst (SOME 11) Fmt.default string e s
           in
           fn ? =>
              (pass ?)
@@ -63,31 +63,32 @@ in
           let
              exception Unknown
           in
-             tst NONE exn "#Unknown" Unknown
+             tst NONE Fmt.default exn "#Unknown" Unknown
           end
 
           (tst (SOME 9)
+               let open Fmt in default & fieldNest := SOME 4 end
                (iso (record (R' "1" int
-                             *` R' "+" (unOp int)
-                             *` R' "c" char))
-                    (fn {1 = a, + = b, c = c} => a & b & c,
-                     fn a & b & c => {1 = a, + = b, c = c}))
-               "{1 = 2,\n\
+                          *` R' "+" (unOp int)
+                          *` R' "long" char))
+                    (fn {1 = a, + = b, long = c} => a & b & c,
+                     fn a & b & c => {1 = a, + = b, long = c}))
+               "{1 = 200000000,\n\
                \ + = #fn,\n\
-               \ c =\n\
-               \  #\"d\"}"
-               {1 = 2, + = id, c = #"d"})
+               \ long =\n\
+               \     #\"d\"}"
+               {1 = 200000000, + = id, long = #"d"})
 
           let
              datatype s = S of s Option.t Ref.t Sq.t
              val x as S (l, r) = S (ref NONE, ref NONE)
              val () = (l := SOME x ; r := SOME x)
           in
-             tst (SOME 50)
-                 (Tie.fix Y
-                          (fn s =>
-                              iso (data (C1' "S" (sq (refc (option s)))))
-                                  (fn S ? => ?, S)))
+             tst (SOME 50) Fmt.default
+                 ((Tie.fix Y)
+                     (fn s =>
+                         iso (data (C1' "S" (sq (refc (option s)))))
+                             (fn S ? => ?, S)))
                  "S\n\
                  \ (#0=ref\n\
                  \   (SOME (S (#0, #1=ref (SOME (S (#0, #1)))))),\n\
@@ -95,8 +96,7 @@ in
                  x
           end
 
-          (tst (SOME 50)
-               (Graph.t int)
+          (tst (SOME 50) Fmt.default (Graph.t int)
                "ref\n\
                \ [VTX\n\
                \   (1,\n\
@@ -134,14 +134,13 @@ in
                  return (ATOMIC, angles d))
           in
              tst (SOME 30)
+                 let open Fmt in default & conNest := NONE end
                  (BinTree.t (mapPrinter withAngles int))
-                 "BR\n\
-                 \ (BR (LF, <0>, LF),\n\
-                 \  <1>,\n\
-                 \  BR\n\
-                 \   (LF,\n\
-                 \    <2>,\n\
-                 \    BR (LF, <3>, LF)))"
+                 "BR (BR (LF, <0>, LF),\n\
+                 \    <1>,\n\
+                 \    BR (LF,\n\
+                 \        <2>,\n\
+                 \        BR (LF, <3>, LF)))"
                  (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
           end
 

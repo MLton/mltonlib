@@ -60,19 +60,110 @@ signature PRETTY = sig
 
       val ! : 'a opt -> t -> 'a
 
-      (** == Options ==
+      (** == Options == *)
+
+      (** === Record Formatting Options === *)
+
+      val fieldNest : Int.t Option.t opt
+      (**
+       * Number of columns of nesting for field value on the next line.
+       *
+       * default: {SOME 1}
+       *
+       * Specifying {NONE} means that the value is always placed on the
+       * same line with the field name.  This usually results in wide
+       * layouts.
+       *
+       * If the field name is narrow enough (e.g. 1 or 2 chars) and the
+       * nesting is large enough (e.g. 4 columns) that placing the
+       * value on the next line does not decrease the indentation of
+       * the value, it will placed on the same line with the field name.
+       *)
+
+      (** === Scalar Formatting Options ===
        *
        * The defaults for scalar types have been chosen to match the
        * {X.toString} functions provided by the Basis library with the
        * exception.
        *)
 
-      val intRadix  : StringCvt.radix   opt (** default: {StringCvt.DEC} *)
-      val maxDepth  : Int.t Option.t    opt (** default: {NONE} *)
-      val maxLength : Int.t Option.t    opt (** default: {NONE} *)
-      val maxString : Int.t Option.t    opt (** default: {NONE} *)
-      val realFmt   : StringCvt.realfmt opt (** default: {StringCvt.GEN NONE} *)
-      val wordRadix : StringCvt.radix   opt (** default: {StringCvt.HEX} *)
+      val intRadix : StringCvt.radix opt
+      (**
+       * Integer radix.  Only applies to the formatting of int types.
+       *
+       * default: {StringCvt.DEC}
+       *)
+
+      val realFmt : StringCvt.realfmt opt
+      (**
+       * Real format.  Only applies to the formatting of real types.
+       *
+       * default: {StringCvt.GEN NONE}
+       *)
+
+      val wordRadix : StringCvt.radix opt
+      (**
+       * Word radix.  Only applies to the formatting of word types.
+       *
+       * default: {StringCvt.HEX}
+       *)
+
+      (** === Partial Output Options === *)
+
+      val maxDepth : Int.t Option.t opt
+      (**
+       * Maximum data depth to show.
+       *
+       * default: {NONE}
+       *)
+
+      val maxLength : Int.t Option.t opt
+      (**
+       * Maximum sequence length to show.
+       *
+       * default: {NONE}
+       *)
+
+      val maxString : Int.t Option.t opt
+      (**
+       * Maximum string size to show.
+       *
+       * default: {NONE}
+       *)
+
+      (** === String Formatting Options === *)
+
+      datatype cont_string =
+         ALWAYS_AT_NL
+       | AT_NL_TO_FIT
+       | NEVER_CONT
+
+      val contString : cont_string opt
+      (**
+       * How to use line continuations.
+       *
+       * default: {AT_NL_TO_FIT}
+       *)
+
+      (** === Datatype Formatting Options == *)
+
+      val conNest : Int.t Option.t opt
+      (**
+       * Number of columns of nesting for unary constructor argument on
+       * the next line.
+       *
+       * default: {SOME 1}
+       *
+       * Specifying {NONE} means that the argument is always placed on the
+       * same line with the constructor.  This usually results in wide
+       * layouts.
+       *
+       * If the constructor is narrow enough (e.g. 1 to 3 chars) and the
+       * nesting is large enough (e.g. 4 columns) that placing the
+       * argument on the next line does not decrease the indentation of
+       * the argument, it will placed on the same line with the
+       * constructor.
+       *)
    end
 
    (** Substructure for additional pretty printing combinators. *)

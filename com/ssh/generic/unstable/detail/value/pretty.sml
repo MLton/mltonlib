@@ -6,13 +6,22 @@
 
 (* XXX indentation formatting option(s) *)
 
+datatype cont_string =
+   ALWAYS_AT_NL
+ | AT_NL_TO_FIT
+ | NEVER_CONT
+
 functor MkOpts (type 'a t) = struct
-   type t = {intRadix  : StringCvt.radix t,
-             wordRadix : StringCvt.radix t,
-             realFmt   : StringCvt.realfmt t,
-             maxDepth  : Int.t Option.t t,
-             maxLength : Int.t Option.t t,
-             maxString : Int.t Option.t t}
+   type t =
+        {conNest : Int.t Option.t t,
+         contString : cont_string t,
+         fieldNest : Int.t Option.t t,
+         intRadix : StringCvt.radix t,
+         maxDepth : Int.t Option.t t,
+         maxLength : Int.t Option.t t,
+         maxString : Int.t Option.t t,
+         realFmt : StringCvt.realfmt t,
+         wordRadix : StringCvt.radix t}
 end
 
 functor MapOpts (type 'a dom and 'a cod
@@ -20,12 +29,15 @@ functor MapOpts (type 'a dom and 'a cod
    structure Dom = MkOpts (type 'a t = 'a dom)
    structure Cod = MkOpts (type 'a t = 'a cod)
    fun map (r : Dom.t) : Cod.t =
-       {intRadix  = f (#intRadix  r),
-        wordRadix = f (#wordRadix r),
-        realFmt   = f (#realFmt   r),
-        maxDepth  = f (#maxDepth  r),
+       {conNest = f (#conNest r),
+        contString = f (#contString r),
+        fieldNest = f (#fieldNest r),
+        intRadix = f (#intRadix r),
+        maxDepth = f (#maxDepth r),
         maxLength = f (#maxLength r),
-        maxString = f (#maxString r)}
+        maxString = f (#maxString r),
+        realFmt = f (#realFmt r),
+        wordRadix = f (#wordRadix r)}
 end
 
 functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
@@ -64,17 +76,22 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
    fun atomize (a, d) = if ATOMIC = a then d else surround parens d
 
    structure Fmt = struct
+      datatype cont_string = datatype cont_string
+
       structure Opts = MkOpts (type 'a t = 'a)
 
       datatype t = T of Opts.t
 
       val default =
-          T {intRadix  = StringCvt.DEC,
-             wordRadix = StringCvt.HEX,
-             realFmt   = StringCvt.GEN NONE,
-             maxDepth  = NONE,
+          T {conNest = SOME 1,
+             contString = AT_NL_TO_FIT,
+             fieldNest = SOME 1,
+             intRadix = StringCvt.DEC,
+             maxDepth = NONE,
              maxLength = NONE,
-             maxString = NONE}
+             maxString = NONE,
+             realFmt = StringCvt.GEN NONE,
+             wordRadix = StringCvt.HEX}
 
       structure RefOpts = MkOpts (Ref)
 
@@ -94,12 +111,15 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
           then raise Size
           else ()
 
-      val intRadix  = O {get = #intRadix,  set = #intRadix,  chk = ignore}
-      val wordRadix = O {get = #wordRadix, set = #wordRadix, chk = ignore}
-      val realFmt   = O {get = #realFmt,   set = #realFmt,   chk = chkRealFmt}
-      val maxDepth  = O {get = #maxDepth,  set = #maxDepth,  chk = notNegOpt}
+      val conNest = O {get = #conNest, set = #conNest, chk = notNegOpt}
+      val contString = O {get = #contString, set = #contString, chk = ignore}
+      val fieldNest = O {get = #fieldNest, set = #fieldNest, chk = notNegOpt}
+      val intRadix = O {get = #intRadix, set = #intRadix, chk = ignore}
+      val maxDepth = O {get = #maxDepth, set = #maxDepth, chk = notNegOpt}
       val maxLength = O {get = #maxLength, set = #maxLength, chk = notNegOpt}
       val maxString = O {get = #maxString, set = #maxString, chk = notNegOpt}
+      val realFmt = O {get = #realFmt, set = #realFmt, chk = chkRealFmt}
+      val wordRadix = O {get = #wordRadix, set = #wordRadix, chk = ignore}
 
       structure I = MapOpts (type 'a dom = 'a and 'a cod = 'a Ref.t val f = ref)
             and P = MapOpts (type 'a dom = 'a Ref.t and 'a cod = 'a val f = !)
@@ -167,7 +187,7 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
                                             of SOME (SOME u) => u <^> equals
                                              | _             => empty) <^> d))
 
-   fun sequ style toSlice getItem aP (e as E ({fmt, ...}, _), a) = let
+   fun sequ style toSlice getItem aP (e as E ({fmt = Fmt.T r, ...}, _), a) = let
       fun lp (n, d, s) =
           case getItem s
            of NONE        => surround style d
@@ -181,12 +201,12 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       open Fmt
    in
       (ATOMIC,
-       if SOME 0 = !maxLength fmt
+       if SOME 0 = #maxLength r
        then surround style txtDots
        else case getItem (toSlice a)
              of NONE        => op <^> (#2 style)
               | SOME (a, s) =>
-                lp (OptInt.- (!maxLength fmt, SOME 1), group (aP (e, a)), s))
+                lp (OptInt.- (#maxLength r, SOME 1), group (aP (e, a)), s))
    end
 
    val intPrefix =
@@ -214,6 +234,16 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
        if SOME 0 = maxDepth
        then (ATOMIC, txtDots)
        else aP (E (c, {maxDepth = OptInt.- (maxDepth, SOME 1)}), v)
+
+   fun nested (m, lhs, frhs, s) (ex as (E ({fmt = Fmt.T r, ...}, _), _)) = let
+      val rhs = frhs ex
+      fun next n = nest n (lhs <$> rhs)
+      fun same () = nest m (lhs <+> rhs)
+   in
+      group (case s r
+              of SOME n => if m <= n then same () else next n
+               | NONE   => same ())
+   end
 
    val exnHandler : Exn.t t Ref.t =
        ref (mark ATOMIC o txtHash <\ op <^> o txt o General.exnName o #2)
@@ -312,10 +342,13 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
          fn (e, a & b) => aP (e, a) <^> comma <$> bP (e, b)
       end
       fun T t = group o #2 o getT t
-      fun R l =
-          case txt (Generics.Label.toString l)
-           of l => fn aT => case T aT of aP => fn x =>
-              group (nest 1 (l </> equals </> aP x))
+      fun R l = let
+         val s = Generics.Label.toString l
+         val t = txt s <+> equals
+         val m = String.length s + 2
+      in
+         fn aT => nested (m, t, T aT, #fieldNest)
+      end
       fun tuple aP = mark ATOMIC o surround parens o getP aP
       fun record aP = mark ATOMIC o surround braces o getP aP
 
@@ -328,10 +361,13 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       end
       fun unit _ = (ATOMIC, txtUnit)
       fun C0 c = const (ATOMIC, txt (Generics.Con.toString c))
-      fun C1 c =
-          case txt (Generics.Con.toString c)
-           of c => fn aT => case getT aT of aP => fn ex =>
-              (NONFIX, nest 1 (group (c <$> atomize (aP ex))))
+      fun C1 c = let
+         val s = Generics.Con.toString c
+         val t = txt s
+         val m = String.length s + 1
+      in
+         fn aT => mark NONFIX o nested (m, t, atomize o getT aT, #conNest)
+      end
       fun data aS = depth (getS aS)
 
       val Y = Tie.function
@@ -354,20 +390,24 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = struct
       local
          val toLit = txt o Substring.translate Char.toString
       in
-         fun string (E ({fmt = Fmt.T {maxString, ...}, ...}, _), s) = let
-            val cut = isSome maxString andalso valOf maxString < size s
-            val suf = if cut then txtBsDots else empty
-            val s = if cut
-                    then Substring.substring (s, 0, valOf maxString)
-                    else Substring.full s
+         fun string (E ({fmt = Fmt.T r, ...}, _), s) = let
+            val l = size s
+            val n = Int.min (getOpt (#maxString r, l), l)
+            val suf = if n < l then txtBsDots else empty
+            val s = Substring.substring (s, 0, n)
+            fun wide () = toLit s
+            fun narrow () =
+                List.foldl1
+                   (fn (x, s) => s <^> txtNlBs <$> backslash <^> x)
+                   (List.map toLit (Substring.fields (#"\n" <\ op =) s))
          in
-            mark ATOMIC o dquotes |< choice
-               {wide = toLit s <^> suf,
-                narrow = lazy (fn () =>
-                   List.foldl1
-                      (fn (x, s) => s <^> txtNlBs <$> backslash <^> x)
-                      (List.map toLit (Substring.fields (#"\n" <\ op =) s)) <^>
-                   suf)}
+            (ATOMIC,
+             dquotes ((case #contString r
+                        of ALWAYS_AT_NL => narrow ()
+                         | AT_NL_TO_FIT =>
+                           choice {wide = wide (), narrow = lazy narrow}
+                         | NEVER_CONT => wide ())
+                      <^> suf))
          end
       end
 
