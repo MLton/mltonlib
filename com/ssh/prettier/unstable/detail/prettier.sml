@@ -17,12 +17,9 @@ structure Prettier :> PRETTIER = struct
    infixr 7 <^> <+>
    infixr 6 <$> <$$> </> <//>
 
-   val E = eager
-   val F = force
-   val L = lazy
-
-   datatype t' =
+   datatype t =
       EMPTY
+    | LAZY of t Lazy.t
     | LINE of bool
     | JOIN of t Sq.t
     | NEST of Int.t * t
@@ -30,41 +27,39 @@ structure Prettier :> PRETTIER = struct
     | CHOICE of {wide : t, narrow : t}
     | COLUMN of Int.t -> t
     | NESTING of Int.t -> t
-   withtype t = t' Lazy.t
 
-   val lazy = L
+   val lazy = LAZY o delay
 
-   val empty = E EMPTY
-   val line = E (LINE false)
-   val linebreak = E (LINE true)
-   val column = E o COLUMN
-   val nesting = E o NESTING
+   val empty = EMPTY
+   val line = LINE false
+   val linebreak = LINE true
+   val column = COLUMN
+   val nesting = NESTING
 
    local
       fun assertAllPrint str =
           if S.all C.isPrint str then ()
           else fail "Unprintable characters given to Prettier.txt"
    in
-      val txt' = E o TEXT
-      val txt = txt' o Effect.obs assertAllPrint
+      val txt = TEXT o Effect.obs assertAllPrint
       val chr = txt o str
    end
 
-   val parens   as (lparen,   rparen)   = (txt' "(", txt' ")")
-   val angles   as (langle,   rangle)   = (txt' "<", txt' ">")
-   val braces   as (lbrace,   rbrace)   = (txt' "{", txt' "}")
-   val brackets as (lbracket, rbracket) = (txt' "[", txt' "]")
-   val squote    = txt' "'"
-   val dquote    = txt' "\""
-   val semi      = txt' ";"
-   val colon     = txt' ":"
-   val comma     = txt' ","
-   val space     = txt' " "
-   val dot       = txt' "."
-   val backslash = txt' "\\"
-   val equals    = txt' "="
+   val parens   as (lparen,   rparen)   = (TEXT "(", TEXT ")")
+   val angles   as (langle,   rangle)   = (TEXT "<", TEXT ">")
+   val braces   as (lbrace,   rbrace)   = (TEXT "{", TEXT "}")
+   val brackets as (lbracket, rbracket) = (TEXT "[", TEXT "]")
+   val squote    = TEXT "'"
+   val dquote    = TEXT "\""
+   val semi      = TEXT ";"
+   val colon     = TEXT ":"
+   val comma     = TEXT ","
+   val space     = TEXT " "
+   val dot       = TEXT "."
+   val backslash = TEXT "\\"
+   val equals    = TEXT "="
 
-   val op <^> = E o JOIN
+   val op <^> = JOIN
 
    fun punctuate sep =
     fn []    => []
@@ -76,7 +71,7 @@ structure Prettier :> PRETTIER = struct
           lp [] d ds
        end
 
-   fun nest n = E o n <\ NEST
+   fun nest n = n <\ NEST
 
    fun spaces n = S.tabulate (n, const #" ")
 
@@ -96,19 +91,20 @@ structure Prettier :> PRETTIER = struct
 
    local
       fun flatten doc =
-          L (fn () =>
-                case F doc
-                 of EMPTY              => doc
-                  | JOIN (lhs, rhs)    => E (JOIN (flatten lhs, flatten rhs))
-                  | NEST (cols, doc)   => E (NEST (cols, flatten doc))
-                  | TEXT _             => doc
-                  | LINE b             => if b then empty else space
-                  | CHOICE {wide, ...} => wide
-                  | COLUMN f           => E (COLUMN (flatten o f))
-                  | NESTING f          => E (NESTING (flatten o f)))
+          lazy (fn () =>
+                   case doc
+                    of LAZY doc           => flatten (force doc)
+                     | EMPTY              => doc
+                     | JOIN (lhs, rhs)    => JOIN (flatten lhs, flatten rhs)
+                     | NEST (cols, doc)   => NEST (cols, flatten doc)
+                     | TEXT _             => doc
+                     | LINE b             => if b then empty else space
+                     | CHOICE {wide, ...} => wide
+                     | COLUMN f           => COLUMN (flatten o f)
+                     | NESTING f          => NESTING (flatten o f))
    in
       fun choice {wide, narrow} =
-          E (CHOICE {wide = flatten wide, narrow = narrow})
+          CHOICE {wide = flatten wide, narrow = narrow}
       fun group doc =
           choice {wide = doc, narrow = doc}
    end
@@ -154,55 +150,57 @@ structure Prettier :> PRETTIER = struct
    fun renderer maxCols w doc = let
       open IOSMonad
 
-      datatype t' =
+      datatype t =
          NIL
-       | PRINT of String.t * t
-       | LINEFEED of Int.t * t
-      withtype t = t' Lazy.t
+       | PRINT of String.t * t Lazy.t
+       | LINEFEED of Int.t * t Lazy.t
 
-      fun layout doc =
-          case F doc
-           of NIL                  => return ()
-            | PRINT (str, doc)     => w str >>= (fn () => layout doc)
-            | LINEFEED (cols, doc) => w "\n" >>= (fn () =>
-                                      w (spaces cols) >>= (fn () =>
-                                      layout doc))
+      val rec layout =
+       fn NIL                  => return ()
+        | PRINT (str, doc)     => w str >>= (fn () => layout (force doc))
+        | LINEFEED (cols, doc) => w "\n" >>= (fn () =>
+                                  w (spaces cols) >>= (fn () =>
+                                  layout (force doc)))
 
       fun fits usedCols doc =
-          NONE = maxCols orelse
-          usedCols <= valOf maxCols andalso
-          case F doc
-           of NIL              => true
-            | LINEFEED _       => true
-            | PRINT (str, doc) => fits (usedCols + size str) doc
+          isNone maxCols orelse let
+             fun lp usedCols doc =
+                 usedCols <= valOf maxCols andalso
+                 case force doc
+                  of NIL              => true
+                   | LINEFEED _       => true
+                   | PRINT (str, doc) => lp (usedCols + size str) doc
+          in
+             lp usedCols (eager doc)
+          end
 
-      fun best usedCols work =
-          L (fn () =>
-                case work
-                 of [] => E NIL
-                  | (nestCols, doc)::rest =>
-                    case F doc
-                     of EMPTY =>
-                        best usedCols rest
-                      | JOIN (lhs, rhs) =>
-                        best usedCols ((nestCols, lhs)::(nestCols, rhs)::rest)
-                      | NEST (cols, doc) =>
-                        best usedCols ((nestCols + cols, doc)::rest)
-                      | TEXT str =>
-                        E (PRINT (str, best (usedCols + size str) rest))
-                      | LINE _ =>
-                        E (LINEFEED (nestCols, best nestCols rest))
-                      | CHOICE {wide, narrow} => let
-                           val wide = best usedCols ((nestCols, wide)::rest)
-                        in
-                           if fits usedCols wide
-                           then wide
-                           else best usedCols ((nestCols, narrow)::rest)
-                        end
-                      | COLUMN f =>
-                        best usedCols ((nestCols, f usedCols)::rest)
-                      | NESTING f =>
-                        best usedCols ((nestCols, f nestCols)::rest))
+      fun best usedCols =
+       fn [] => NIL
+        | (nestCols, doc)::rest =>
+          case doc
+           of LAZY doc =>
+              best usedCols ((nestCols, force doc)::rest)
+            | EMPTY =>
+              best usedCols rest
+            | JOIN (lhs, rhs) =>
+              best usedCols ((nestCols, lhs)::(nestCols, rhs)::rest)
+            | NEST (cols, doc) =>
+              best usedCols ((nestCols + cols, doc)::rest)
+            | TEXT str =>
+              PRINT (str, delay (fn () => best (usedCols + size str) rest))
+            | LINE _ =>
+              LINEFEED (nestCols, delay (fn () => best nestCols rest))
+            | CHOICE {wide, narrow} => let
+                 val wide = best usedCols ((nestCols, wide)::rest)
+              in
+                 if fits usedCols wide
+                 then wide
+                 else best usedCols ((nestCols, narrow)::rest)
+              end
+            | COLUMN f =>
+              best usedCols ((nestCols, f usedCols)::rest)
+            | NESTING f =>
+              best usedCols ((nestCols, f nestCols)::rest)
    in
       layout (best 0 [(0, doc)])
    end
@@ -221,7 +219,7 @@ structure Prettier :> PRETTIER = struct
           join o
           map (Pair.map (SS.size,
                          fillSep o
-                         map (txt' o SS.string) o
+                         map (TEXT o SS.string) o
                          SS.fields C.isSpace) o
                SS.splitl C.isSpace) o
           SS.fields (#"\n" <\ op =) o
