@@ -75,9 +75,9 @@ signature PRETTY = sig
        * layouts.
        *
        * If the field name is narrow enough (e.g. 1 or 2 chars) and the
-       * nesting is large enough (e.g. 4 columns) that placing the
-       * value on the next line does not decrease the indentation of
-       * the value, it will placed on the same line with the field name.
+       * nesting is wide enough (e.g. 4 columns) that placing the value on
+       * the next line does not decrease the indentation of the value, it
+       * will placed on the same line with the field name.
        *)
 
       (** === Scalar Formatting Options ===
@@ -159,10 +159,9 @@ signature PRETTY = sig
        * layouts.
        *
        * If the constructor is narrow enough (e.g. 1 to 3 chars) and the
-       * nesting is large enough (e.g. 4 columns) that placing the
-       * argument on the next line does not decrease the indentation of
-       * the argument, it will placed on the same line with the
-       * constructor.
+       * nesting is wide enough (e.g. 4 columns) that placing the argument
+       * on the next line does not decrease the indentation of the
+       * argument, it will placed on the same line with the constructor.
        *)
    end
 
@@ -231,7 +230,7 @@ signature PRETTY = sig
        *>    fun a &` b =
        *>        iso (data (Pretty.infixL 0 et (a, b)
        *>                    (C1 et (tuple2 (a, b)))))
-       *>             (fn op & ? => ?, op &)
+       *>            (fn op & ? => ?, op &)
        *> end
        *
        * Now,
