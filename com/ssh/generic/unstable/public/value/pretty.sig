@@ -8,6 +8,30 @@
  * Signature for a generic function for pretty-printing values of
  * arbitrary Standard ML types.
  *
+ * Example:
+ *
+ *> - val t = iso (record (R' "id" int  *` R' "text" string))
+ *> =             (fn {id=a, text=b} => a & b,
+ *> =              fn a & b => {id=a, text=b}) ;
+ *> val t = - : {id : Int.t, text : String.t} Rep.t
+ *> - val v = {id = 0xF00BAA, text = "Text that spans\nmultiple lines."} ;
+ *> val v = {id = 15731626, text = "Text that spans\nmultiple lines."}
+ *>   : {id : Int.t, text : String.t}
+ *> - println |< show t v ;
+ *> {id = 15731626, text = "Text that spans\nmultiple lines."}
+ *> - val opts = let
+ *> =    open Fmt
+ *> = in
+ *> =    default & intRadix   := StringCvt.HEX
+ *> =            & fieldNest  := SOME 4
+ *> = end ;
+ *> val fmtOpts = - : Fmt.t
+ *> - println o Prettier.render (SOME 20) |< fmt t opts v ;
+ *> {id = 0xF00BAA,
+ *>  text =
+ *>      "Text that spans\n\
+ *>      \multiple lines."}
+ *
  * Features:
  * - The result is a document that can be rendered to a desired width
  * (number of columns).
@@ -19,6 +43,9 @@
  * "..." otherwise.
  * - The default formatting of integers, words, and reals can be
  * specified.
+ * - Can use line continuations in strings.
+ * - The nesting (or indentation) of record fields and datatype
+ * constructor can be specified.
  * - The radix of integers and words is shown in the output with a "b"
  * (binary ; HaMLet-S), "o" (octal ; non-standard), or "x" prefix.
  * - Sharing of mutable objects is shown in the output.  Each shared
@@ -133,16 +160,11 @@ signature PRETTY = sig
 
       (** === String Formatting Options === *)
 
-      datatype cont_string =
-         ALWAYS_AT_NL
-       | AT_NL_TO_FIT
-       | NEVER_CONT
-
-      val contString : cont_string opt
+      val contString : Bool.t opt
       (**
-       * How to use line continuations.
+       * Whether to use line continuations in strings or not.
        *
-       * default: {AT_NL_TO_FIT}
+       * default: {true}
        *)
 
       (** === Datatype Formatting Options == *)
