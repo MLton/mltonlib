@@ -61,9 +61,10 @@
  *   [5].
  *
  * {TypeHash}
- *   computes a type-representation specific hash.  The produced pickle
- *   contains the hash and unpickling raises {TypeMismatch} if the hash
- *   value does not match.
+ *   computes a type-representation specific hash.  When the PU-pair is
+ *   updated with {Pickle.withTypeHash}, the produced pickles contain the
+ *   hash and unpickling raises {TypeMismatch} if the hash value does not
+ *   match.
  *
  *   Note that while this may help to detect accidental type mismatches
  *   (pickling with one type and then unpickling with another) it is
@@ -112,7 +113,35 @@ signature PICKLE = sig
 
    structure Pickle : sig
       exception TypeMismatch
-      (** Raised by unpickling functions when a type-mismatch is detected. *)
+      (**
+       * Raised by an unpickler created with {withTypeHash} when a
+       * type-mismatch is detected.
+       *)
+
+      val withTypeHash : ('a, 'x) PickleRep.t UnOp.t
+      (**
+       * Updates the pickler to write and the unpickler to read and check
+       * a hash of the type representation.  If the type hash does not
+       * match during unpickling, the {TypeMismatch} exception is raised.
+       *)
+
+      (** == Monadic Combinator Interface == *)
+
+      structure P : MONAD_CORE and U : MONAD_CORE
+      (** The Pickler and Unpickler monads. *)
+
+      type 'a t = {pickler : 'a -> Unit.t P.monad,
+                   unpickler : 'a U.monad}
+      (** PU-pair type. *)
+
+      val getPU : ('a, 'x) PickleRep.t -> 'a t
+      (** Returns the PU-pair stored in a type representation. *)
+
+      val setPU : 'a t -> ('a, 'x) PickleRep.t UnOp.t
+      (** Functionally updates the PU-pair in a type rep. *)
+
+      val mapPU : 'a t UnOp.t -> ('a, 'x) PickleRep.t UnOp.t
+      (** {mapPU f t} is equivalent to {setPU (f (getPU t)) t}. *)
    end
 
    (** == Stream Interface ==

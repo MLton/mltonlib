@@ -27,6 +27,8 @@ local
 
    fun testTypeMismatch t u =
        test (fn () => let
+                   val t = Pickle.withTypeHash t
+                   val u = Pickle.withTypeHash u
                    val p = pickle t (some t)
                 in
                    thatRaises'
@@ -54,6 +56,85 @@ in
           (testTypeMismatch int word)
           (testTypeMismatch (list char) (vector word8))
           (testTypeMismatch (array real) (option largeReal))
+
+          (title "Generic.Pickle.Customization")
+
+          (test (fn () => let
+              (* This test shows how pickles can be versioned and multiple
+               * versions supported at the same time.
+               *)
+
+              open Pickle
+
+              val puInt = getPU int
+
+              (* First a plain old type rep for our data: *)
+              val t1 = iso (record (R' "id" int
+                                 *` R' "name" string))
+                           (fn {id = a, name = b} => a & b,
+                            fn a & b => {id = a, name = b})
+
+              (* Then we customize it to store and check a version number: *)
+              val pu1 = getPU t1
+              val t =
+                  setPU {pickler = let
+                            open Pickle.P
+                         in
+                            fn v =>
+                               #pickler puInt 1 >>= (fn () => #pickler pu1 v)
+                         end,
+                         unpickler = let
+                            open Pickle.U
+                         in
+                            #unpickler puInt
+                             >>= (fn 1 => #unpickler pu1
+                                   | n => raise Fail ("Bad "^Int.toString n))
+                         end}
+                        t1
+
+              val pickled = pickle t {id = 1, name = "whatever"}
+
+              (* Then a plain old type rep for our new data: *)
+              val t2 = iso (record (R' "id" int
+                                 *` R' "extra" bool
+                                 *` R' "name" string))
+                           (fn {id = a, extra = b, name = c} => a & b & c,
+                            fn a & b & c => {id = a, extra = b, name = c})
+
+              (* Then we customize it to store a version number and dispatch
+               * based on it: *)
+              val pu2 = getPU t2
+              val t =
+                  setPU {pickler = let
+                            open Pickle.P
+                         in
+                            fn v =>
+                               #pickler puInt 2 >>= (fn () => #pickler pu2 v)
+                         end,
+                         unpickler = let
+                            open Pickle.U
+                            fun fromR1 {id, name} =
+                                {id = id, extra = false, name = name}
+                         in
+                            #unpickler puInt
+                             >>= (fn 1 => #unpickler pu1 >>= return o fromR1
+                                   | 2 => #unpickler pu2
+                                   | n => raise Fail ("Bad "^Int.toString n))
+                         end}
+                        t2
+              (* Note that the original customized {t} is no longer
+               * needed.  In an actual program, you would have just edited
+               * the original definition instead of introducing a new one.
+               * However, the old type rep is required if you wish to be
+               * able unpickle old versions.
+               *)
+           in
+              thatEq t {expect = {id = 1, extra = false, name = "whatever"},
+                        actual = unpickle t pickled}
+            ; thatEq t {expect = {id = 3, extra = true, name = "whenever"},
+                        actual = unpickle t (pickle t {id = 3, extra = true,
+                                                       name = "whenever"})}
+           end))
 
           $
 end
