@@ -11,4 +11,5 @@ signature LAYER_CASES_DOM = sig
    include CASES LAYERED_REP CLOSED_CASES
    sharing Open.Rep = Outer
    sharing Rep = This
+   val hole : 'a Rep.t Thunk.t
 end

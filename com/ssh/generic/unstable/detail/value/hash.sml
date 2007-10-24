@@ -177,5 +177,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
       val word32 = prim Word32.toWord
       val word64 = viaWord id op mod Word64.isoWord
 
+      fun hole () = undefined
+
       open Arg HashRep)
 end

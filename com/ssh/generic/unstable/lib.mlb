@@ -110,6 +110,9 @@ in
          public/value/eq.sig
          detail/value/eq.sml
 
+         public/value/fmap.sig
+         detail/value/fmap.sml
+
          public/value/ord.sig
          detail/value/ord.sml
 

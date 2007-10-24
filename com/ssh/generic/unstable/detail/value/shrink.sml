@@ -197,5 +197,7 @@ functor WithShrink (Arg : WITH_SHRINK_DOM) : SHRINK_CASES = struct
       val word32 = mkWord Word32Ops.ops
       val word64 = mkWord Word64Ops.ops
 
+      fun hole () = IN {kids = undefined, shrink = undefined}
+
       open Arg ShrinkRep)
 end

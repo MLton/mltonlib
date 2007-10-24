@@ -683,6 +683,9 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          val word32 = word32
          val word64 = bits false Word64Ops.ops Iso.id
 
+         fun hole () = P {rd = let open I in return () >>= undefined end,
+                          wr = undefined, sz = NONE}
+
          open Arg PickleRep)
    end
 in

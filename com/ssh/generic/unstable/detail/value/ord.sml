@@ -143,5 +143,7 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
       val word32 = lift Word32.compare
       val word64 = lift Word64.compare
 
+      fun hole () = undefined
+
       open Arg OrdRep)
 end

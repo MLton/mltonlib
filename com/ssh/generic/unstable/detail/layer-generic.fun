@@ -118,6 +118,8 @@ struct
    fun real ? = op0t Open.real Arg.real ?
    fun string ? = op0t Open.string Arg.string ?
    fun word ? = op0t Open.word Arg.word ?
+
+   fun hole ? = Open.hole (This.mkT (Arg.hole (), ?))
 end
 
 functor LayerCases (Arg : LAYER_CASES_DOM) :>

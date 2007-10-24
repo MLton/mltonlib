@@ -106,6 +106,8 @@ functor WithDynamic (Arg : WITH_DYNAMIC_DOM) = let
          val word32 = (WORD32, fn WORD32 ? => ? | _ => raise Dynamic)
          val word64 = (WORD64, fn WORD64 ? => ? | _ => raise Dynamic)
 
+         fun hole () = (undefined, undefined)
+
          open Arg DynamicRep)
    end
 in

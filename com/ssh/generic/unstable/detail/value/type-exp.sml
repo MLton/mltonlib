@@ -83,6 +83,8 @@ functor WithTypeExp (Arg : WITH_TYPE_EXP_DOM) = let
          val word32 = CON0 WORD32
          val word64 = CON0 WORD64
 
+         fun hole () = CON0 UNIT
+
          open Arg TypeExpRep)
    end
 in

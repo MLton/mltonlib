@@ -1,0 +1,45 @@
+(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+group is
+   ../../../../../extended-basis/unstable/basis.cm
+   ../../../../../prettier/unstable/lib.cm
+   ../../../../../random/unstable/lib.cm
+   ../../../public/cases.sig
+   ../../../public/closed-cases.sig
+   ../../../public/closed-rep.sig
+   ../../../public/generic-extra.sig
+   ../../../public/generic.sig
+   ../../../public/generics-util.sig
+   ../../../public/generics.sig
+   ../../../public/layer-cases-fun.sig
+   ../../../public/layer-dep-cases-fun.sig
+   ../../../public/layer-rep-fun.sig
+   ../../../public/layered-rep.sig
+   ../../../public/open-cases.sig
+   ../../../public/open-rep.sig
+   ../../../public/ty.sig
+   ../../../public/value/arbitrary.sig
+   ../../../public/value/data-rec-info.sig
+   ../../../public/value/dynamic.sig
+   ../../../public/value/eq.sig
+   ../../../public/value/fmap.sig
+   ../../../public/value/hash.sig
+   ../../../public/value/ord.sig
+   ../../../public/value/pickle.sig
+   ../../../public/value/pretty.sig
+   ../../../public/value/reduce.sig
+   ../../../public/value/seq.sig
+   ../../../public/value/shrink.sig
+   ../../../public/value/size.sig
+   ../../../public/value/some.sig
+   ../../../public/value/transform.sig
+   ../../../public/value/type-exp.sig
+   ../../../public/value/type-hash.sig
+   ../../../public/value/type-info.sig
+   ../../generics.sml
+   ../../sml-syntax.sml
+   ../../ty.sml

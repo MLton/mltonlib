@@ -89,5 +89,7 @@ functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = struct
       val word32 = op = : Word32.t t
       val word64 = op = : Word64.t t
 
+      fun hole () = undefined
+
       open Arg EqRep)
 end

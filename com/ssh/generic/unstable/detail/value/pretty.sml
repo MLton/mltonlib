@@ -423,6 +423,8 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
          val word32 = mkWord Word32.fmt
          val word64 = mkWord Word64.fmt
 
+         fun hole () = undefined
+
          open Arg PrettyRep)
    end
 in

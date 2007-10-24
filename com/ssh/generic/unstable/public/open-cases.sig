@@ -46,4 +46,5 @@ signature OPEN_CASES = sig
    val real : 'x -> (Real.t, 'x) Rep.t
    val string : 'x -> (String.t, 'x) Rep.t
    val word : 'x -> (Word.t, 'x) Rep.t
+   val hole : 'x -> ('a, 'x) Rep.t
 end

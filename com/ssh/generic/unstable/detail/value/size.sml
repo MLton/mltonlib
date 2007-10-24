@@ -166,5 +166,7 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
       val word32 = mkWord Word32.wordSize : Word32.t t
       val word64 = mkWord Word64.wordSize : Word64.t t
 
+      fun hole () = DYNAMIC undefined
+
       open Arg SizeRep)
 end

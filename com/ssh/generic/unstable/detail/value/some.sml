@@ -88,5 +88,7 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
       val word32 = fn () => 0w0 : Word32.t
       val word64 = fn () => 0w0 : Word64.t
 
+      fun hole () = undefined
+
       open Arg SomeRep)
 end

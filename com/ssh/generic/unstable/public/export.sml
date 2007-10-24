@@ -146,6 +146,15 @@ functor WithDynamic (Arg : WITH_DYNAMIC_DOM) : DYNAMIC_CASES = WithDynamic (Arg)
 signature EQ = EQ and EQ_CASES = EQ_CASES and WITH_EQ_DOM = WITH_EQ_DOM
 functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = WithEq (Arg)
 
+structure FmapAux = FmapAux
+signature FMAP = FMAP and FMAP_CASES = FMAP_CASES
+      and WITH_FMAP_DOM = WITH_FMAP_DOM
+functor WithFmap (Arg : WITH_FMAP_DOM) : FMAP_CASES = WithFmap (Arg)
+signature MK_FMAP_DOM = MK_FMAP_DOM
+functor MkFmap (Arg : MK_FMAP_DOM) : sig
+   val map : ('a -> 'b) -> 'a Arg.t -> 'b Arg.t
+end = MkFmap (Arg)
+
 signature HASH = HASH and HASH_CASES = HASH_CASES
       and WITH_HASH_DOM = WITH_HASH_DOM
 functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = WithHash (Arg)

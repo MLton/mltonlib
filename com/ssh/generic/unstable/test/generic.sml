@@ -93,6 +93,20 @@ structure Generic =
    MkGeneric (structure Open = WithTransform (Generic)
               open Generic Open)
 
+signature Generic = sig
+   include Generic FMAP
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure FmapRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithFmap (Generic)
+              open Generic Open)
+
 structure Generic = struct
    structure Rep = ClosePrettyWithExtra
      (open Generic

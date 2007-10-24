@@ -4,45 +4,16 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-group is
+group
+   group(sigs.cm) - signature MK_FMAP_DOM - signature FMAP_CASES
+   source(-)
+is
    ../../../../../extended-basis/unstable/basis.cm
    ../../../../../prettier/unstable/lib.cm
    ../../../../../random/unstable/lib.cm
-   ../../../public/cases.sig
-   ../../../public/closed-cases.sig
-   ../../../public/closed-rep.sig
-   ../../../public/generic-extra.sig
-   ../../../public/generic.sig
-   ../../../public/generics-util.sig
-   ../../../public/generics.sig
-   ../../../public/layer-cases-fun.sig
-   ../../../public/layer-dep-cases-fun.sig
-   ../../../public/layer-rep-fun.sig
-   ../../../public/layered-rep.sig
-   ../../../public/open-cases.sig
-   ../../../public/open-rep.sig
-   ../../../public/ty.sig
-   ../../../public/value/arbitrary.sig
-   ../../../public/value/data-rec-info.sig
-   ../../../public/value/dynamic.sig
-   ../../../public/value/eq.sig
-   ../../../public/value/hash.sig
-   ../../../public/value/ord.sig
-   ../../../public/value/pickle.sig
-   ../../../public/value/pretty.sig
-   ../../../public/value/reduce.sig
-   ../../../public/value/seq.sig
-   ../../../public/value/shrink.sig
-   ../../../public/value/size.sig
-   ../../../public/value/some.sig
-   ../../../public/value/transform.sig
-   ../../../public/value/type-exp.sig
-   ../../../public/value/type-hash.sig
-   ../../../public/value/type-info.sig
    ../../close-generic.fun
    ../../close-pretty-with-extra.fun
    ../../generics-util.sml
-   ../../generics.sml
    ../../hash-map.sml
    ../../hash-univ.sml
    ../../layer-generic.fun
@@ -51,13 +22,12 @@ group is
    ../../opt-int.sml
    ../../reg-basis-exns.fun
    ../../root-generic.sml
-   ../../sml-syntax.sml
-   ../../ty.sml
    ../../value/arbitrary.sml
    ../../value/data-rec-info.sml
    ../../value/debug.sml
    ../../value/dynamic.sml
    ../../value/eq.sml
+   ../../value/fmap.sml
    ../../value/hash.sml
    ../../value/ord.sml
    ../../value/pickle.sml
@@ -74,3 +44,4 @@ group is
    ../../with-extra.fun
    extensions.cm
    hash-table.cm
+   sigs.cm

@@ -58,4 +58,6 @@ structure RootGeneric :> OPEN_CASES = struct
    val real = id
    val string = id
    val word = id
+
+   val hole = id
 end

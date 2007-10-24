@@ -22,11 +22,13 @@ local
          with/seq.sml
          with/reduce.sml
          with/transform.sml
+         with/fmap.sml
          with/close-pretty-with-extra.sml
          with/reg-basis-exns.sml
 
          test/utils.fun
       in
+         test/fmap.sml
          test/pickle.sml
          test/pretty.sml
          test/reduce.sml

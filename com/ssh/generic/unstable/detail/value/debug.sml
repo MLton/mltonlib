@@ -78,6 +78,8 @@ functor WithDebug (Arg : CASES) : OPEN_CASES = struct
       val word32 = ()
       val word64 = ()
 
+      fun hole () = ()
+
       open Arg DebugRep)
 
    open Layered

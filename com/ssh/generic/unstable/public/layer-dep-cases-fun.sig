@@ -45,4 +45,5 @@ signature LAYER_DEP_CASES_DOM = sig
    val real : Real.t This.t
    val string : String.t This.t
    val word : Word.t This.t
+   val hole : 'a This.t Thunk.t
 end

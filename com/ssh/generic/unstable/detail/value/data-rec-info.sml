@@ -111,5 +111,7 @@ functor WithDataRecInfo (Arg : WITH_DATA_REC_INFO_DOM) : DATA_REC_INFO_CASES = s
       val word32 = base
       val word64 = base
 
+      fun hole () = base
+
       open Arg DataRecInfoRep)
 end

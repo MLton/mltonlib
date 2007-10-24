@@ -76,5 +76,7 @@ functor WithTypeHash (Arg : WITH_TYPE_HASH_DOM) : TYPE_HASH_CASES = struct
       val word32 = 0wxCDB6D501 : Word32.t
       val word64 = 0wxDB6DB101 : Word32.t
 
+      fun hole () = 0w0 : Word32.t
+
       open Arg TypeHashRep)
 end
