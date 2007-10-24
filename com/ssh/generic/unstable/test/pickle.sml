@@ -61,8 +61,7 @@ in
 
           (test (fn () => let
               (* This test shows how pickles can be versioned and multiple
-               * versions supported at the same time.
-               *)
+               * versions supported at the same time. *)
 
               open Pickle
 
@@ -126,8 +125,7 @@ in
                * needed.  In an actual program, you would have just edited
                * the original definition instead of introducing a new one.
                * However, the old type rep is required if you wish to be
-               * able unpickle old versions.
-               *)
+               * able to unpickle old versions. *)
            in
               thatEq t {expect = {id = 1, extra = false, name = "whatever"},
                         actual = unpickle t pickled}
