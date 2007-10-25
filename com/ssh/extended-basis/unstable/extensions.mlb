@@ -23,11 +23,14 @@
 local
    local
       $(SML_LIB)/basis/basis.mlb
+
+      (* Workarounds (if any). *)
+      detail/ml/$(SML_COMPILER)/workarounds.mlb
    in
       detail/ml/common/basis.sml
       detail/ml/$(SML_COMPILER)/basis.sml
    end
-   $(SML_LIB)/basis/pervasive.mlb
+   detail/ml/$(SML_COMPILER)/pervasive.mlb
 in
    ann
       "forceUsed"
@@ -35,9 +38,6 @@ in
       "warnUnused true"
    in
       local
-         (* Workarounds (if any). *)
-         detail/ml/$(SML_COMPILER)/workarounds.mlb
-
          (* Minimal modules for bootstrapping. *)
          ann "warnUnused false" in
             detail/bootstrap.sml
