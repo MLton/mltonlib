@@ -5,3 +5,4 @@
  *)
 
 $(SML_LIB)/basis/basis.mlb
+workarounds.mlb
