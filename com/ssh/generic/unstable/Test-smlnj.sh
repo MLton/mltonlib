@@ -14,4 +14,4 @@ time \
 echo '' | \
 sml -m test.cm \
     $eb/public/export/{open-top-level.sml,infixes.sml}  \
-    $(find test/ -name '*.sml' -a -not -name 'generic.sml')
+    $(find test/ -name '*.sml' -a -not -name 'generic.sml' | sort)
