@@ -6,6 +6,8 @@
 
 signature REAL = sig
    include REAL
+   val radix : int
+   val precision : int
    val fromDecimal : IEEEReal.decimal_approx -> real option
    val fromLarge : IEEEReal.rounding_mode -> LargeReal.real -> real
    val fromLargeInt : LargeInt.int -> real

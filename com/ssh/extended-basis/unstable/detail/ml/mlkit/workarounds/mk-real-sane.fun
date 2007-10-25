@@ -10,6 +10,8 @@ functor MkRealSane (R : REAL) = struct
       val unsupported = Fail "unsupported"
       val unsupported = fn _ => raise unsupported
    in
+      val radix = 2
+      val precision = 53
       val fromDecimal = unsupported
       val fromLarge = unsupported
       val fromLargeInt = unsupported
