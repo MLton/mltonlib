@@ -13,4 +13,8 @@ in
    workarounds/mk-real-sane.fun
    workarounds/real.sig
    workarounds/reals.sml
+
+   workarounds/string.sig
+   workarounds/text.sig
+   workarounds/text.sml
 end
