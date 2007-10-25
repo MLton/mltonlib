@@ -29,7 +29,7 @@ structure Bool : BOOL = struct
            fn 0 : FixedInt.t => false | _ => true)
       val isoLargeInt as (toLargeInt, fromLargeInt) =
           (fn true => 1 | false => 0 : LargeInt.t,
-           fn 0 : LargeInt.t => false | _ => true)
+           fn i : LargeInt.t => 0 <> i)
    end
 
    structure Bounded = MkBounded (Core)
