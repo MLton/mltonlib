@@ -67,9 +67,31 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
           if intPrec (fn n => BasisInt.<= (wordSize, n))
           then BasisFixedInt.fromInt o toIntX
           else BasisFixedInt.fromLarge o toLargeIntX
-      val fromWord = fromLarge o BasisWord.toLarge
-      val fromWordX = fromLarge o BasisWord.toLargeX
-      val toWord8 = BasisWord8.fromLarge o toLarge
+      val maxAsWord =
+          BasisWord.- (BasisWord.<< (0w1, BasisWord.fromInt wordSize), 0w1)
+      val fromWord =
+          if intPrec (fn n => n = BasisWord.wordSize andalso n = wordSize)
+          then fromInt o BasisWord.toIntX
+          else if intPrec (fn n => BasisInt.< (wordSize, n))
+          then fromInt o
+               (if intPrec (fn n => n = BasisWord.wordSize)
+                then BasisWord.toIntX
+                else BasisWord.toInt o (fn w => BasisWord.andb (maxAsWord, w)))
+          else if BasisInt.<= (wordSize, BasisLargeWord.wordSize)
+          then fromLarge o BasisWord.toLarge
+          else fromLargeInt o BasisWord.toLargeInt (* SML/NJ workaround *)
+      val fromWordX =
+          if intPrec (fn n => n = BasisWord.wordSize andalso n = wordSize)
+          then fromInt o BasisWord.toIntX
+          else fromLarge o BasisWord.toLargeX
+      fun mask m w = W.andb (w, fromInt m)
+      val toWord8 =
+          BasisWord8.fromInt o
+          (if intPrec (fn n => n = wordSize)
+           then toIntX
+           else if intPrec (fn n => BasisInt.< (n, wordSize))
+           then toIntX o mask 0xFF
+           else toInt)
       val toWord8X = BasisWord8.fromLarge o toLargeX
       local
          fun mk idx w =
@@ -82,8 +104,18 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
          val toBigBytes = mk (fn i => BasisInt.- (BasisInt.- (numBytes, 1), i))
          val toLittleBytes = mk (fn i => i)
       end
-      val toWord = BasisWord.fromLarge o toLarge
-      val toWordX = BasisWord.fromLarge o toLargeX
+      val toWord =
+          if intPrec (fn n => n = BasisWord.wordSize andalso n = wordSize)
+          then BasisWord.fromInt o toIntX
+          else if intPrec (fn n => BasisInt.< (wordSize, n))
+          then BasisWord.fromInt o toInt
+          else if BasisInt.<= (wordSize, BasisLargeWord.wordSize)
+          then BasisWord.fromLarge o toLarge
+          else BasisWord.fromLargeInt o toLargeInt (* SML/NJ workaround *)
+      val toWordX =
+          if intPrec (fn n => n = BasisWord.wordSize andalso n = wordSize)
+          then BasisWord.fromInt o toIntX
+          else BasisWord.fromLarge o toLargeX
       val fromFixedInt =
           if intPrec (fn n => n = valOf BasisFixedInt.precision)
           then fromInt o BasisFixedInt.toInt
