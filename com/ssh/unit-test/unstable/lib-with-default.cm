@@ -12,5 +12,5 @@ is
    ../../generic/unstable/lib-with-default.cm
    ../../random/unstable/lib.cm
    detail/generic.sml
-   detail/unit-test.sml
    lib.cm
+   with/unit-test.sml

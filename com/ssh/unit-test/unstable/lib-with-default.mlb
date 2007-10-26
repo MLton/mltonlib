@@ -17,5 +17,5 @@ in
    ../../generic/unstable/with/shrink.sml
    ../../generic/unstable/with/close-pretty-with-extra.sml
 
-   detail/unit-test.sml
+   with/unit-test.sml
 end
