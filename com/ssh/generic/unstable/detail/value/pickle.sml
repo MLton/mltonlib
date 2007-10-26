@@ -371,7 +371,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
           i + IntInf.<<
                  (1,
                   Word.andb (Word.fromInt (IntInf.log2 (IntInf.notb i)) + 0w9,
-                             ~ 0w8))
+                             Word.~ 0w8))
    in
       fun i2h i =
           if i < 0
