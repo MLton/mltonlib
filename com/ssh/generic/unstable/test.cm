@@ -7,13 +7,15 @@
 group
    library(../../extended-basis/unstable/basis.cm)
    library(../../prettier/unstable/lib.cm)
-   library(../../unit-test/unstable/lib-with-default.cm)
+   library(../../random/unstable/lib.cm)
+   library(../../unit-test/unstable/lib.cm)
    library(lib.cm)
    source(-)
 is
    ../../extended-basis/unstable/basis.cm
    ../../prettier/unstable/lib.cm
-   ../../unit-test/unstable/lib-with-default.cm
+   ../../random/unstable/lib.cm
+   ../../unit-test/unstable/lib.cm
    lib.cm
    test/generic.sml
    test/utils.fun

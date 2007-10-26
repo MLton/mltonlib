@@ -10,6 +10,86 @@
  *)
 
 signature Generic = sig
+   structure Open : OPEN_CASES
+end
+
+functor MkGeneric (Arg : Generic) : Generic = Arg
+
+structure Generic = struct
+   structure Open = RootGeneric
+end
+
+signature Generic = sig
+   include Generic TYPE_INFO
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure TypeInfoRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithTypeInfo (Generic)
+              open Generic Open)
+
+signature Generic = sig
+   include Generic TYPE_HASH
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure TypeHashRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithTypeHash (Generic)
+              open Generic Open)
+
+signature Generic = sig
+   include Generic HASH
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure HashRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithHash (Generic)
+              open Generic Open)
+
+signature Generic = sig
+   include Generic PRETTY
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure PrettyRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithPretty (Generic)
+              open Generic Open)
+
+signature Generic = sig
+   include Generic EQ
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure EqRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithEq (Generic)
+              open Generic Open)
+
+signature Generic = sig
    include Generic DATA_REC_INFO
 end
 
@@ -107,11 +187,69 @@ structure Generic =
    MkGeneric (structure Open = WithFmap (Generic)
               open Generic Open)
 
+signature Generic = sig
+   include Generic ARBITRARY
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure ArbitraryRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open =
+                 WithArbitrary (open Generic
+                                structure RandomGen = RanQD1Gen)
+              open Generic Open)
+
+signature Generic = sig
+   include Generic SIZE
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure SizeRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithSize (Generic)
+              open Generic Open)
+
+signature Generic = sig
+   include Generic ORD
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure OrdRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithOrd (Generic)
+              open Generic Open)
+
+signature Generic = sig
+   include Generic SHRINK
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure ShrinkRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithShrink (Generic)
+              open Generic Open)
+
 structure Generic = struct
-   structure Rep = ClosePrettyWithExtra
-     (open Generic
-      structure PrettyRep = Open.Rep)
+   structure Rep = ClosePrettyWithExtra (Generic)
    open Generic Rep
 end
 
 local structure ? = RegBasisExns (Generic) open ? in end
+
+structure UnitTest = MkUnitTest (Generic)
