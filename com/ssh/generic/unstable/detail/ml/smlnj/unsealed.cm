@@ -43,5 +43,4 @@ is
    ../../value/type-info.sml
    ../../with-extra.fun
    extensions.cm
-   hash-table.cm
    sigs.cm

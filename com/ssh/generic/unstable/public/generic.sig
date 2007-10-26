@@ -40,7 +40,9 @@ signature GENERIC = sig
    val largeWord : LargeWord.t Rep.t
    val word8 : Word8.t  Rep.t
    val word32 : Word32.t Rep.t
+(*
    val word64 : Word64.t Rep.t
+*)
    val list : ('a, 'x) Open.Rep.t -> 'a List.t Rep.t
    val bool : Bool.t Rep.t
    val char : Char.t Rep.t

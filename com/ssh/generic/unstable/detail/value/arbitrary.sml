@@ -154,7 +154,9 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
 
       val word8 = IN {gen = G.word8, cog = G.variant o Word8.toWord}
       val word32 = mkWord Word32.wordSize Word32.fromLargeInt Arg.Open.word32
+(*
       val word64 = mkWord Word64.wordSize Word64.fromLargeInt Arg.Open.word64
+*)
 
       fun hole () = IN {gen = G.lift undefined, cog = undefined}
 

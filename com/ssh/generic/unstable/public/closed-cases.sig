@@ -114,7 +114,9 @@ signature CLOSED_CASES = sig
 
    val word8  : Word8.t  Rep.t
    val word32 : Word32.t Rep.t
+(*
    val word64 : Word64.t Rep.t
+*)
 
    (** == Support for Some Built-In Type Constructors == *)
 

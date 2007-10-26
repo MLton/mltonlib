@@ -50,7 +50,9 @@ structure RootGeneric :> OPEN_CASES = struct
    val largeWord = id
    val word8 = id
    val word32 = id
+(*
    val word64 = id
+*)
    val list = id
    val bool = id
    val char = id

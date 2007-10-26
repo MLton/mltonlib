@@ -37,7 +37,9 @@ signature LAYER_DEP_CASES_DOM = sig
    val largeWord : LargeWord.t This.t
    val word8 : Word8.t  This.t
    val word32 : Word32.t This.t
+(*
    val word64 : Word64.t This.t
+*)
    val list : ('a, 'x) t -> 'a List.t This.t
    val bool : Bool.t This.t
    val char : Char.t This.t

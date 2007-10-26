@@ -6,7 +6,7 @@
 
 functor RegBasisExns (include CLOSED_CASES) = struct
    val () = let
-      open Generics IEEEReal OS OS.IO OS.Path Time
+      open Generics (*IEEEReal*) OS OS.IO OS.Path Time
 
       local
          fun lift f a = SOME (f a) handle Match => NONE
@@ -27,12 +27,16 @@ functor RegBasisExns (include CLOSED_CASES) = struct
     ; regExn0' "Option"             Option       (fn Option       => ())
     ; regExn0' "Overflow"           Overflow     (fn Overflow     => ())
     ; regExn0' "OS.Path.Path"       Path         (fn Path         => ())
+(*
     ; regExn0' "OS.IO.Poll"         Poll         (fn Poll         => ())
+*)
     ; regExn0' "Size"               Size         (fn Size         => ())
     ; regExn0' "Span"               Span         (fn Span         => ())
     ; regExn0' "Subscript"          Subscript    (fn Subscript    => ())
     ; regExn0' "Time.Time"          Time         (fn Time         => ())
+(*
     ; regExn0' "IEEEReal.Unordered" Unordered    (fn Unordered    => ())
+*)
     ; regExn1' "Fail" string        Fail         (fn Fail       ? =>  ?)
       (* Handlers for some extended-basis exceptions: *)
     ; regExn0' "IOSMonad.EOS"       IOSMonad.EOS (fn IOSMonad.EOS => ())

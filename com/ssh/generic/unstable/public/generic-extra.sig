@@ -54,7 +54,9 @@ signature GENERIC_EXTRA = sig
    (** == Integer Types == *)
 
    val int32 : Int32.t Rep.t
+(*
    val int64 : Int64.t Rep.t
+*)
 
    val position : Position.t Rep.t
 

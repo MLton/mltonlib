@@ -113,7 +113,9 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
 
       val word8  = default
       val word32 = default
+(*
       val word64 = default
+*)
 
       fun hole () = (CUSTOM, undefined)
 

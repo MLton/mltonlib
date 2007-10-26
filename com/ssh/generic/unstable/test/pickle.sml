@@ -43,7 +43,7 @@ in
           (testAllSeq (vector (option (list real))))
           (testAllSeq (tuple2 (fixedInt, largeInt)))
           (testAllSeq (largeReal &` largeWord))
-          (testAllSeq (tuple3 (word8, word32, word64)))
+          (testAllSeq (tuple3 (word8, word32, int32)))
           (testAllSeq (bool &` char &` int &` real &` string &` word))
 
           (title "Generic.Pickle.Cyclic")

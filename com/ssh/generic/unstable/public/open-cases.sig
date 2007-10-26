@@ -38,7 +38,9 @@ signature OPEN_CASES = sig
    val largeWord : 'x -> (LargeWord.t, 'x) Rep.t
    val word8 : 'x -> (Word8.t, 'x) Rep.t
    val word32 : 'x -> (Word32.t, 'x) Rep.t
+(*
    val word64 : 'x -> (Word64.t, 'x) Rep.t
+*)
    val list : ('x -> 'y) -> ('a, 'x) Rep.t -> ('a List.t, 'y) Rep.t
    val bool : 'x -> (Bool.t, 'x) Rep.t
    val char : 'x -> (Char.t, 'x) Rep.t

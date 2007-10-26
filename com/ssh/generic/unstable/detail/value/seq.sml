@@ -133,7 +133,9 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
 
       val word8  = lift op = : Word8.t t
       val word32 = lift op = : Word32.t t
+(*
       val word64 = lift op = : Word64.t t
+*)
 
       fun hole () = undefined
 

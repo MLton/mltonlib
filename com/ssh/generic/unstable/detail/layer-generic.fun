@@ -110,7 +110,9 @@ struct
    fun largeWord ? = op0t Open.largeWord Arg.largeWord ?
    fun word8 ? = op0t Open.word8 Arg.word8 ?
    fun word32 ? = op0t Open.word32 Arg.word32 ?
+(*
    fun word64 ? = op0t Open.word64 Arg.word64 ?
+*)
    fun list ? = op1t Open.list Arg.list ?
    fun bool ? = op0t Open.bool Arg.bool ?
    fun char ? = op0t Open.char Arg.char ?

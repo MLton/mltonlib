@@ -4,7 +4,9 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-group
-   structure HashTable
-is
-   $/smlnj-lib.cm
+local
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+in
+   ../common/cast-real.sig
+   cast-real.sml
+end

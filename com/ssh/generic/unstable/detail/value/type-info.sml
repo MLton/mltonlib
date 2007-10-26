@@ -82,7 +82,9 @@ functor WithTypeInfo (Arg : WITH_TYPE_INFO_DOM) : TYPE_INFO_CASES = struct
 
       val word8  = base
       val word32 = base
+(*
       val word64 = base
+*)
 
       fun hole () = base
 

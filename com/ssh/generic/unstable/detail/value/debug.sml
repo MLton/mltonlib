@@ -76,7 +76,9 @@ functor WithDebug (Arg : CASES) : OPEN_CASES = struct
 
       val word8  = ()
       val word32 = ()
+(*
       val word64 = ()
+*)
 
       fun hole () = ()
 

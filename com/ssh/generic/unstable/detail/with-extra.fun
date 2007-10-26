@@ -43,7 +43,9 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
           else                                              iso largeInt large'
    in
       val int32 = let open Int32 in mk precision isoInt isoFixedInt isoLarge end
+(*
       val int64 = let open Int64 in mk precision isoInt isoFixedInt isoLarge end
+*)
       val position =
           let open Position in mk precision isoInt isoFixedInt isoLarge end
    end

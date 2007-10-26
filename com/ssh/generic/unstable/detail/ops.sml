@@ -40,7 +40,9 @@ structure LargeWordOps = MkWordOps (LargeWord)
 structure RealWordOps = MkWordOps (CastReal.Bits)
 structure WordOps = MkWordOps (Word)
 structure Word32Ops = MkWordOps (Word32)
+(*
 structure Word64Ops = MkWordOps (Word64)
+*)
 structure Word8Ops = MkWordOps (Word8)
 
 functor MkIntOps (Arg : INTEGER) = struct

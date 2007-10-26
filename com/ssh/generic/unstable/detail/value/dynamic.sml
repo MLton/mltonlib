@@ -32,7 +32,9 @@ functor WithDynamic (Arg : WITH_DYNAMIC_DOM) = let
           | WORD       of Word.t
           | WORD8      of Word8.t
           | WORD32     of Word32.t
+(*
           | WORD64     of Word64.t
+*)
          exception Dynamic
       end
 
@@ -104,7 +106,9 @@ functor WithDynamic (Arg : WITH_DYNAMIC_DOM) = let
 
          val word8  = (WORD8,  fn WORD8  ? => ? | _ => raise Dynamic)
          val word32 = (WORD32, fn WORD32 ? => ? | _ => raise Dynamic)
+(*
          val word64 = (WORD64, fn WORD64 ? => ? | _ => raise Dynamic)
+*)
 
          fun hole () = (undefined, undefined)
 

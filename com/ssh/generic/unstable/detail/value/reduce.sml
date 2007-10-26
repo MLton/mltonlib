@@ -89,7 +89,9 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
 
       val word8  = default
       val word32 = default
+(*
       val word64 = default
+*)
 
       fun hole () = undefined
 

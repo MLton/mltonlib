@@ -25,7 +25,9 @@ structure FmapAux = struct
     | WORD       of Word.t
     | WORD8      of Word8.t
     | WORD32     of Word32.t
+(*
     | WORD64     of Word64.t
+*)
     | ARGUMENT   of Univ.t
    datatype 'a i = ISO of ('a, u) Iso.t
    datatype 'a t = IN of 'a
@@ -115,7 +117,9 @@ functor WithFmap (Arg : WITH_FMAP_DOM) = let
 
          val word8  = ISO (WORD8,  fn WORD8  ? => ? | _ => raise Empty)
          val word32 = ISO (WORD32, fn WORD32 ? => ? | _ => raise Empty)
+(*
          val word64 = ISO (WORD64, fn WORD64 ? => ? | _ => raise Empty)
+*)
 
          fun hole () = ISO (undefined, undefined)
 

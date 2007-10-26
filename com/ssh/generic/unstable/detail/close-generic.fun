@@ -57,7 +57,9 @@ struct
    val largeWord = Open.largeWord ()
    val word8 = Open.word8 ()
    val word32 = Open.word32 ()
+(*
    val word64 = Open.word64 ()
+*)
    fun list ? = Open.list ignore ?
    val bool = Open.bool ()
    val char = Open.char ()

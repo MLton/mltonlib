@@ -8,6 +8,8 @@ local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    $(MLTON_LIB)/com/ssh/prettier/unstable/lib.mlb
    $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
+
+   detail/hash-map.sml
 in
    ann
       "forceUsed"
@@ -54,15 +56,6 @@ in
 
          detail/opt-int.sml (* XXX Should really go to Extended Basis? *)
 
-         local
-            local
-               $(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
-            in
-               structure HashTable
-            end
-         in
-            detail/hash-map.sml
-         end
          detail/hash-univ.sml
 
          (* Framework *)
