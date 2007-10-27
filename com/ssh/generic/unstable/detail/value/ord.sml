@@ -11,42 +11,43 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
    (* SML/NJ workaround --> *)
 
    type e = (HashUniv.t, HashUniv.t) HashMap.t
-   type 'a t = e * 'a Sq.t -> Order.t
+   datatype 'a t = IN of e * 'a Sq.t -> Order.t
 
-   fun lift (cmp : 'a Cmp.t) : 'a t = cmp o #2
+   fun lift (cmp : 'a Cmp.t) : 'a t = IN (cmp o #2)
 
-   fun sequ {toSlice, getItem} aO (e, (l, r)) = let
-      fun lp (e, l, r) =
-          case getItem l & getItem r
-           of NONE        & NONE        => EQUAL
-            | NONE        & SOME _      => LESS
-            | SOME _      & NONE        => GREATER
-            | SOME (x, l) & SOME (y, r) =>
-              case aO (e, (x, y))
-               of EQUAL => lp (e, l, r)
-                | res   => res
-   in
-      lp (e, toSlice l, toSlice r)
-   end
+   fun sequ {toSlice, getItem} (IN aO) =
+       IN (fn (e, (l, r)) => let
+                 fun lp (e, l, r) =
+                     case getItem l & getItem r
+                      of NONE        & NONE        => EQUAL
+                       | NONE        & SOME _      => LESS
+                       | SOME _      & NONE        => GREATER
+                       | SOME (x, l) & SOME (y, r) =>
+                         case aO (e, (x, y))
+                          of EQUAL => lp (e, l, r)
+                           | res   => res
+              in
+                 lp (e, toSlice l, toSlice r)
+              end)
 
-   fun cyclic aT aO =
+   fun cyclic aT (IN aO) =
        case HashUniv.new {eq = op =, hash = Arg.hash aT}
         of (to, _) =>
-           fn (e, (l, r)) => let
-                 val lD = to l
-                 val rD = to r
-              in
-                 if case HashMap.find e lD
-                     of SOME rD' => HashUniv.eq (rD, rD')
-                      | NONE     => false
-                 then EQUAL
-                 else (HashMap.insert e (lD, rD)
-                     ; HashMap.insert e (rD, lD)
-                     ; aO (e, (l, r)))
-              end
+           IN (fn (e, (l, r)) => let
+                     val lD = to l
+                     val rD = to r
+                  in
+                     if case HashMap.find e lD
+                         of SOME rD' => HashUniv.eq (rD, rD')
+                          | NONE     => false
+                     then EQUAL
+                     else (HashMap.insert e (lD, rD)
+                         ; HashMap.insert e (rD, lD)
+                         ; aO (e, (l, r)))
+                  end)
 
    val exns : (e * Exn.t Sq.t -> Order.t Option.t) Buffer.t = Buffer.new ()
-   fun regExn aO (_, e2a) =
+   fun regExn (IN aO) (_, e2a) =
        (Buffer.push exns)
           (fn (e, (l, r)) =>
               case e2a l & e2a r
@@ -55,7 +56,7 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
                 | NONE   & SOME _ => SOME LESS
                 | NONE   & NONE   => NONE)
 
-   fun iso' getX bX (a2b, _) (e, bp) = getX bX (e, Sq.map a2b bp)
+   fun iso' (IN bX) (a2b, _) = IN (fn (e, bp) => bX (e, Sq.map a2b bp))
 
    structure OrdRep = LayerRep
      (open Arg
@@ -63,26 +64,25 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
 
    open OrdRep.This
 
-   fun ord t = let
-      val ord = getT t
-   in
-      fn xy => ord (HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash}, xy)
-   end
+   fun ord t =
+       case getT t
+        of IN ord => fn xy =>
+           ord (HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash}, xy)
    fun withOrd cmp = mapT (const (lift cmp))
 
    structure Open = LayerDepCases
-     (fun iso        ? = iso' getT ?
-      fun isoProduct ? = iso' getP ?
-      fun isoSum     ? = iso' getS ?
+     (fun iso        bT = iso' (getT bT)
+      fun isoProduct bP = iso' (getP bP)
+      fun isoSum     bS = iso' (getS bS)
 
       fun op *` (aP, bP) = let
-         val aO = getP aP
-         val bO = getP bP
+         val IN aO = getP aP
+         val IN bO = getP bP
       in
-         fn (e, (lA & lB, rA & rB)) =>
-            case aO (e, (lA, rA))
-             of EQUAL => bO (e, (lB, rB))
-              | res   => res
+         IN (fn (e, (lA & lB, rA & rB)) =>
+                case aO (e, (lA, rA))
+                 of EQUAL => bO (e, (lB, rB))
+                  | res   => res)
       end
       val T      = getT
       fun R _    = getT
@@ -90,29 +90,29 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
       val record = getP
 
       fun op +` (aS, bS) = let
-         val aO = getS aS
-         val bO = getS bS
+         val IN aO = getS aS
+         val IN bO = getS bS
       in
-         fn (e, (l, r)) =>
-            case l & r
-             of INL l & INL r => aO (e, (l, r))
-              | INL _ & INR _ => LESS
-              | INR _ & INL _ => GREATER
-              | INR l & INR r => bO (e, (l, r))
+         IN (fn (e, (l, r)) =>
+                case l & r
+                 of INL l & INL r => aO (e, (l, r))
+                  | INL _ & INR _ => LESS
+                  | INR _ & INL _ => GREATER
+                  | INR l & INR r => bO (e, (l, r)))
       end
       val unit  = lift (fn ((), ()) => EQUAL)
       fun C0 _  = unit
       fun C1 _  = getT
       val data  = getS
 
-      val Y = Tie.function
+      fun Y ? = let open Tie in iso function end (fn IN ? => ?, IN) ?
 
-      fun op --> _ = failing "Ord.--> unsupported"
+      fun op --> _ = IN (failing "Ord.--> unsupported")
 
-      fun exn (e, lr) =
-          case Buffer.findSome (pass (e, lr)) exns
-           of NONE   => GenericsUtil.failExnSq lr
-            | SOME r => r
+      val exn = IN (fn (e, lr) =>
+                       case Buffer.findSome (pass (e, lr)) exns
+                        of NONE   => GenericsUtil.failExnSq lr
+                         | SOME r => r)
       fun regExn0 _ = regExn unit
       fun regExn1 _ = regExn o getT
 
@@ -130,12 +130,12 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
 
       val largeWord = lift LargeWord.compare
       val largeReal =
-          iso' id (lift CastLargeReal.Bits.compare) CastLargeReal.isoBits
+          iso' (lift CastLargeReal.Bits.compare) CastLargeReal.isoBits
 
       val bool   = lift Bool.compare
       val char   = lift Char.compare
       val int    = lift Int.compare
-      val real   = iso' id (lift CastReal.Bits.compare) CastReal.isoBits
+      val real   = iso' (lift CastReal.Bits.compare) CastReal.isoBits
       val string = lift String.compare
       val word   = lift Word.compare
 
@@ -145,7 +145,7 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
       val word64 = lift Word64.compare
 *)
 
-      fun hole () = undefined
+      fun hole () = IN undefined
 
       open Arg OrdRep)
 end

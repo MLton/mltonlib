@@ -11,47 +11,49 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
    (* SML/NJ workaround --> *)
 
    type e = (HashUniv.t, HashUniv.t) HashMap.t
-   type 'a t = e * 'a Sq.t -> Bool.t
+   datatype 'a t = IN of e * 'a Sq.t -> Bool.t
 
-   fun lift (eq : 'a BinPr.t) : 'a t = eq o #2
+   fun lift (eq : 'a BinPr.t) : 'a t = IN (eq o #2)
 
-   fun sequ {toSlice, getItem} aE (e, (l, r)) = let
-      fun lp (e, l, r) =
-          case getItem l & getItem r
-           of NONE        & NONE        => true
-            | NONE        & SOME _      => false
-            | SOME _      & NONE        => false
-            | SOME (x, l) & SOME (y, r) => aE (e, (x, y)) andalso lp (e, l, r)
-   in
-      lp (e, toSlice l, toSlice r)
-   end
+   fun sequ {toSlice, getItem} (IN aE) =
+       IN (fn (e, (l, r)) => let
+                 fun lp (e, l, r) =
+                     case getItem l & getItem r
+                      of NONE        & NONE        => true
+                       | NONE        & SOME _      => false
+                       | SOME _      & NONE        => false
+                       | SOME (x, l) & SOME (y, r) =>
+                         aE (e, (x, y)) andalso lp (e, l, r)
+              in
+                 lp (e, toSlice l, toSlice r)
+              end)
 
-   fun cyclic aT aE = let
+   fun cyclic aT (IN aE) = let
       val (to, _) = HashUniv.new {eq = op =, hash = Arg.hash aT}
    in
-      fn (e, (l, r)) => let
-            val lD = to l
-            val rD = to r
-         in
-            case HashMap.find e lD
-             of SOME rD' => HashUniv.eq (rD, rD')
-              | NONE     => isNone (HashMap.find e rD)
-                            andalso (HashMap.insert e (lD, rD)
-                                   ; HashMap.insert e (rD, lD)
-                                   ; aE (e, (l, r)))
-         end
+      IN (fn (e, (l, r)) => let
+                val lD = to l
+                val rD = to r
+             in
+                case HashMap.find e lD
+                 of SOME rD' => HashUniv.eq (rD, rD')
+                  | NONE     => isNone (HashMap.find e rD)
+                                andalso (HashMap.insert e (lD, rD)
+                                       ; HashMap.insert e (rD, lD)
+                                       ; aE (e, (l, r)))
+             end)
    end
 
    val exns : (e * Exn.t Sq.t -> Bool.t Option.t) Buffer.t = Buffer.new ()
-   fun regExn aE (_, e2a) =
-      (Buffer.push exns)
-         (fn (e, (l, r)) =>
-             case e2a l & e2a r
-              of SOME l & SOME r => SOME (aE (e, (l, r)))
-               | NONE   & NONE   => NONE
-               | _               => SOME false)
+   fun regExn (IN aE) (_, e2a) =
+       (Buffer.push exns)
+          (fn (e, (l, r)) =>
+              case e2a l & e2a r
+               of SOME l & SOME r => SOME (aE (e, (l, r)))
+                | NONE   & NONE   => NONE
+                | _               => SOME false)
 
-   fun iso' bE (a2b, _) (e, bp) = bE (e, Sq.map a2b bp)
+   fun iso' (IN bE) (a2b, _) = IN (fn (e, bp) => bE (e, Sq.map a2b bp))
 
    structure SeqRep = LayerRep
      (open Arg
@@ -61,7 +63,7 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
 
    fun seq t =
        case getT t
-        of eq => fn xy =>
+        of IN eq => fn xy =>
            eq (HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash}, xy)
    fun notSeq t = negate (seq t)
    fun withSeq eq = mapT (const (lift eq))
@@ -72,11 +74,11 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
       fun isoSum     bS = iso' (getS bS)
 
       fun op *` (aP, bP) = let
-         val aE = getP aP
-         val bE = getP bP
+         val IN aE = getP aP
+         val IN bE = getP bP
       in
-         fn (e, (lA & lB, rA & rB)) =>
-            aE (e, (lA, rA)) andalso bE (e, (lB, rB))
+         IN (fn (e, (lA & lB, rA & rB)) =>
+                aE (e, (lA, rA)) andalso bE (e, (lB, rB)))
       end
       val T      = getT
       fun R _    = getT
@@ -84,26 +86,26 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
       val record = getP
 
       fun op +` (aS, bS) = let
-         val aE = getS aS
-         val bE = getS bS
+         val IN aE = getS aS
+         val IN bE = getS bS
       in
-         fn (e, (INL l, INL r)) => aE (e, (l, r))
-          | (e, (INR l, INR r)) => bE (e, (l, r))
-          | _                   => false
+         IN (fn (e, (INL l, INL r)) => aE (e, (l, r))
+              | (e, (INR l, INR r)) => bE (e, (l, r))
+              | _                   => false)
       end
       val unit  = lift (fn ((), ()) => true)
       fun C0 _  = unit
       fun C1 _  = getT
       val data  = getS
 
-      val Y = Tie.function
+      fun Y ? = let open Tie in iso function end (fn IN ? => ?, IN) ?
 
-      fun op --> _ = failing "Seq.--> unsupported"
+      fun op --> _ = IN (failing "Seq.--> unsupported")
 
-      fun exn (e, lr) =
-          case Buffer.findSome (pass (e, lr)) exns
-           of NONE   => GenericsUtil.failExnSq lr
-            | SOME r => r
+      val exn = IN (fn (e, lr) =>
+                       case Buffer.findSome (pass (e, lr)) exns
+                        of NONE   => GenericsUtil.failExnSq lr
+                         | SOME r => r)
       fun regExn0 _ (e, p) = regExn unit (const e, p)
       fun regExn1 _ = regExn o getT
 
@@ -135,7 +137,7 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
       val word64 = lift op = : Word64.t t
 *)
 
-      fun hole () = undefined
+      fun hole () = IN undefined
 
       open Arg SeqRep)
 end
