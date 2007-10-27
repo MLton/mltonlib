@@ -6,7 +6,7 @@
 
 (** Extended {BOOL} signature. *)
 signature BOOL = sig
-   type bool = bool
+   datatype bool = datatype bool
    (** The {bool} datatype. *)
 
    type t = bool
