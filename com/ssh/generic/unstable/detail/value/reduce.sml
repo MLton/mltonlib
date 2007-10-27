@@ -9,24 +9,26 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
    open TopLevel
    infix  0 &
    (* SML/NJ workaround --> *)
+   
+   datatype 'a t = IN of Univ.t * Univ.t BinOp.t * 'a -> Univ.t
 
-   fun sequ toSlice getItem xR (z, p, xs) = let
-      fun lp (s, xs) =
-          case getItem xs
-           of NONE         => s
-            | SOME (x, xs) => lp (p (s, xR (z, p, x)), xs)
-   in
-      case getItem (toSlice xs)
-       of NONE         => z
-        | SOME (x, xs) => lp (xR (z, p, x), xs)
-   end
+   fun sequ toSlice getItem (IN xR) =
+       IN (fn (z, p, xs) => let
+                 fun lp (s, xs) =
+                     case getItem xs
+                      of NONE         => s
+                       | SOME (x, xs) => lp (p (s, xR (z, p, x)), xs)
+              in
+                 case getItem (toSlice xs)
+                  of NONE         => z
+                   | SOME (x, xs) => lp (xR (z, p, x), xs)
+              end)
 
-   fun default (z, _, _) = z
+   val default = IN (fn (z, _, _) => z)
 
    structure ReduceRep = LayerRep
      (open Arg
-      structure Rep = MkClosedRep
-        (type 'a t = Univ.t * Univ.t BinOp.t * 'a -> Univ.t))
+      structure Rep = MkClosedRep (type 'a t = 'a t))
 
    open ReduceRep.This
 
@@ -34,35 +36,35 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
       val (to, from) = Univ.Iso.new ()
       val z = to z
       val p = BinOp.map (from, to) p
-      val aT = mapT (const (to o a2r o #3)) aT
-      val bR = getT (aT2bT aT)
+      val aT = mapT (const (IN (to o a2r o #3))) aT
+      val IN bR = getT (aT2bT aT)
    in
       fn x => from (bR (z, p, x))
    end
 
    structure Open = LayerCases
-     (fun iso bR (a2b, _) (z, p, a) = bR (z, p, a2b a)
+     (fun iso (IN bR) (a2b, _) = IN (fn (z, p, a) => bR (z, p, a2b a))
       val isoProduct = iso
       val isoSum     = iso
 
-      fun op *` (aR, bR) (z, p, (a & b)) =
-          p (aR (z, p, a), bR (z, p, b))
+      fun op *` (IN aR, IN bR) =
+          IN (fn (z, p, (a & b)) => p (aR (z, p, a), bR (z, p, b)))
       val T      = id
       fun R _    = id
       val tuple  = id
       val record = id
 
-      fun op +` (aR, bR) =
-       fn (z, p, INL a) => aR (z, p, a)
-        | (z, p, INR b) => bR (z, p, b)
+      fun op +` (IN aR, IN bR) =
+          IN (fn (z, p, INL a) => aR (z, p, a)
+               | (z, p, INR b) => bR (z, p, b))
       val unit  = default
       fun C0 _  = unit
       fun C1 _  = id
       val data  = id
 
-      val Y = Tie.function
+      fun Y ? = let open Tie in iso function end (fn IN ? => ?, IN) ?
 
-      fun op --> _ = failing "Reduce.--> has no default"
+      fun op --> _ = IN (failing "Reduce.--> has no default")
 
       val exn = default
       fun regExn0 _ _ = ()
@@ -72,7 +74,7 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
       fun vector ? = sequ VectorSlice.full VectorSlice.getItem ?
       fun array  ? = sequ  ArraySlice.full  ArraySlice.getItem ?
 
-      fun refc aR (z, p, r) = aR (z, p, !r)
+      fun refc (IN aR) = IN (fn (z, p, r) => aR (z, p, !r))
 
       val fixedInt = default
       val largeInt = default
@@ -93,7 +95,7 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
       val word64 = default
 *)
 
-      fun hole () = undefined
+      fun hole () = IN undefined
 
       open Arg ReduceRep)
 end
