@@ -51,9 +51,7 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
                | NONE   & NONE   => NONE
                | _               => SOME false)
 
-   fun iso' getX bX =
-       case getX bX
-        of bE => fn (a2b, _) => fn (e, bp) => bE (e, Sq.map a2b bp)
+   fun iso' bE (a2b, _) (e, bp) = bE (e, Sq.map a2b bp)
 
    structure SeqRep = LayerRep
      (open Arg
@@ -69,9 +67,9 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
    fun withSeq eq = mapT (const (lift eq))
 
    structure Open = LayerDepCases
-     (fun iso        ? = iso' getT ?
-      fun isoProduct ? = iso' getP ?
-      fun isoSum     ? = iso' getS ?
+     (fun iso        bT = iso' (getT bT)
+      fun isoProduct bP = iso' (getP bP)
+      fun isoSum     bS = iso' (getS bS)
 
       fun op *` (aP, bP) = let
          val aE = getP aP
@@ -122,12 +120,12 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
       val largeInt = lift op = : LargeInt.t t
 
       val largeWord = lift op = : LargeWord.t t
-      val largeReal = iso' id (lift op =) CastLargeReal.isoBits
+      val largeReal = iso' (lift op =) CastLargeReal.isoBits
 
       val bool   = lift op = : Bool.t t
       val char   = lift op = : Char.t t
       val int    = lift op = : Int.t t
-      val real   = iso' id (lift op =) CastReal.isoBits
+      val real   = iso' (lift op =) CastReal.isoBits
       val string = lift op = : String.t t
       val word   = lift op = : Word.t t
 
