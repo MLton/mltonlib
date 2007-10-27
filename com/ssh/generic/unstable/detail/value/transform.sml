@@ -16,24 +16,24 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
    val join = Word.orb
 
    type e = (HashUniv.t, Unit.t) HashMap.t
-   type 'a t = c * ('a * e -> 'a)
+   datatype 'a t = IN of c * ('a * e -> 'a)
 
    fun lift f = f o Pair.fst
 
-   val default : 'a t = (ID, #1)
+   val default = IN (ID, #1)
 
-   fun un f2f (c, f) = if ID = c then default else (c, f2f f)
-   fun bin fs2f ((aC, aT), (bC, bT)) =
-       case join (aC, bC) of c => if ID = c then default else (c, fs2f (aT, bT))
+   fun un f2f (IN (c, f)) = if ID = c then default else IN (c, f2f f)
+   fun bin fs2f (IN (aC, aT), IN (bC, bT)) =
+       case join (aC, bC)
+        of c => if ID = c then default else IN (c, fs2f (aT, bT))
 
    fun cyclic aT aF =
        case HashUniv.new {eq = op =, hash = Arg.hash aT}
-        of (to, _) =>
-           fn (x, e) =>
-              case to x of xD => if isSome (HashMap.find e xD) then x
-                                 else (HashMap.insert e (xD, ()) ; aF (x, e))
+        of (to, _) => fn (x, e) => case to x of xD =>
+           if isSome (HashMap.find e xD) then x
+           else (HashMap.insert e (xD, ()) ; aF (x, e))
 
-   fun iso' getX bX (a2b, b2a) = un (Fn.map (Pair.map (a2b, id), b2a)) (getX bX)
+   fun iso' bX (a2b, b2a) = un (Fn.map (Pair.map (a2b, id), b2a)) bX
 
    structure TransformRep = LayerRep
      (open Arg
@@ -42,14 +42,14 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
    open TransformRep.This
 
    fun makeTransform a2a t t2u =
-       case getT (t2u (mapT (const (CUSTOM, lift a2a)) t))
-        of (_, f) =>
+       case getT (t2u (mapT (const (IN (CUSTOM, lift a2a))) t))
+        of IN (_, f) =>
            fn x => f (x, HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash})
 
    structure Open = LayerDepCases
-     (fun iso        ? = iso' getT ?
-      fun isoProduct ? = iso' getP ?
-      fun isoSum     ? = iso' getS ?
+     (fun iso        bT = iso' (getT bT)
+      fun isoProduct bP = iso' (getP bP)
+      fun isoSum     bS = iso' (getS bS)
 
       fun op *` (aP, bP) =
           bin (fn (aT, bT) => fn (a & b, e) => aT (a, e) & bT (b, e))
@@ -71,14 +71,14 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
       fun Y ? = Tie.pure (fn () => let
                                 val r = ref (raising Fix.Fix)
                              in
-                                ((REC, fn x => !r x),
-                                 fn (c, f) =>
+                                (IN (REC, fn x => !r x),
+                                 fn IN (c, f) =>
                                     if c <= REC
                                     then default
-                                    else (r := f ; (CUSTOM, f)))
+                                    else (r := f ; IN (CUSTOM, f)))
                              end) ?
 
-      fun op --> _ = (ID, failing "Transform.--> has no default")
+      fun op --> _ = IN (ID, failing "Transform.--> has no default")
 
       val exn = default
       fun regExn0 _ _ = ()
@@ -117,7 +117,7 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
       val word64 = default
 *)
 
-      fun hole () = (CUSTOM, undefined)
+      fun hole () = IN (CUSTOM, undefined)
 
       open Arg TransformRep)
 end
