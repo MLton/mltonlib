@@ -6,26 +6,25 @@
 
 (************************************************************************)
 
-functor MkStateMonad (Arg : sig include MONAD_CORE T end) :> sig
+functor MkPassMonad (Arg : sig include MONAD_CORE T end) :> sig
    include MONAD_CORE
    val Y : 'a monad Tie.t
    val get : Arg.t monad
-   val set : Arg.t -> Unit.t monad
-   val run : Arg.t -> 'a monad -> ('a * Arg.t) Arg.monad
+   val run : Arg.t -> 'a monad -> 'a Arg.monad
    val lift : 'a Arg.monad -> 'a monad
    val liftFn : ('a -> 'b Arg.monad) -> 'a -> 'b monad
 end = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
-   type 'a monad = Arg.t -> ('a * Arg.t) Arg.monad
-   fun return x t = Arg.return (x, t)
-   fun op >>= (aM, a2bM) t = Arg.>>= (aM t, uncurry a2bM)
-   val Y = Tie.function
-   fun get t = Arg.return (t, t)
-   fun set t = const (Arg.return ((), t))
-   val run = pass
-   fun lift m t = Arg.>>= (m, flip return t)
+   datatype 'a monad = IN of Arg.t -> 'a Arg.monad
+   fun return x = IN (const (Arg.return x))
+   fun op >>= (IN aM, a2bM) =
+       IN (fn t => Arg.>>= (aM t, (fn IN bM => bM t) o a2bM))
+   fun Y ? = let open Tie in iso function end (fn IN ? => ?, IN) ?
+   val get = IN Arg.return
+   fun run t (IN aM) = aM t
+   fun lift m = IN (const m)
    fun liftFn a2bM = lift o a2bM
 end
 
@@ -98,48 +97,44 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
       structure Dyn = HashUniv
 
       structure I = let
-         structure SMC = MkStateMonad
+         structure PMC = MkPassMonad
            (open Istream
             type t = Dyn.t ResizableArray.t)
-         structure M = MkMonad (SMC)
+         structure M = MkMonad (PMC)
       in
          struct
             open M
-            structure Map = SMC
+            structure Map = PMC
             structure Key = struct
                local
                   val dummy = #1 (Dyn.new {eq = undefined, hash = undefined}) ()
                in
-                  val alloc = SMC.get >>= (fn arr =>
+                  val alloc = PMC.get >>= (fn arr =>
                               (ResizableArray.push arr dummy
                              ; return (ResizableArray.length arr)))
                end
             end
-            fun run s = Istream.run o SMC.run s
-            val read = SMC.lift Istream.read
-            val Y = SMC.Y
+            fun run s = Istream.run o PMC.run s
+            val read = PMC.lift Istream.read
+            val Y = PMC.Y
          end
       end
       structure O = let
-         structure SMC = MkStateMonad
+         structure PMC = MkPassMonad
            (open Ostream
-            type t = Int.t * (Dyn.t, Int.t) HashMap.t)
-         structure M = MkMonad (SMC)
+            type t = Int.t Ref.t * (Dyn.t, Int.t) HashMap.t)
+         structure M = MkMonad (PMC)
       in
          struct
             open M
             structure Map = struct
-               val get = map #2 SMC.get
+               val get = map #2 PMC.get
             end
             structure Key = struct
-               val alloc = SMC.get >>= (fn (n, m) =>
-                           SMC.set (n+1, m) >>
-                           return (n+1))
+               val alloc = PMC.get >>= (fn (n, _) => (n := !n+1 ; return (!n)))
             end
-            fun run s w =
-                Ostream.run
-                   (fn v => Ostream.>>= (SMC.run s (w v), Ostream.return o #1))
-            fun write ? = SMC.liftFn Ostream.write ?
+            fun run s w = Ostream.run (PMC.run s o w)
+            val write = PMC.liftFn Ostream.write
          end
       end
 
@@ -406,13 +401,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                     (fn () => lp (s, i))
                  end
           in
-             fn 0 => wr size 0
-              | i => let
-                   val s = i2h i
-                   val n = String.length s
-                in
-                   wr size (Int.quot (n, 2)) >>= (fn () => lp (s, n))
-                end
+             fn i => if 0 = i then wr size 0 else let
+                        val s = i2h i
+                        val n = String.length s
+                     in
+                        wr size (Int.quot (n, 2)) >>= (fn () => lp (s, n))
+                     end
           end,
           rd = let
              open I
@@ -479,23 +473,17 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          end
       end
 
-      fun pickler aT = let
-         val aW = wr (getT aT)
-      in
-         fn a => O.run (0, HashMap.new {eq = Dyn.eq, hash = Dyn.hash}) aW a
-      end
-      fun unpickler aT = let
-         val aR = rd (getT aT)
-      in
-         fn cR => fn s =>
-            IOSMonad.map #1 (I.run (ResizableArray.new ()) aR cR) s
-      end
+      fun pickler aT =
+          case wr (getT aT)
+           of aW => fn a =>
+              O.run (ref 0, HashMap.new {eq = Dyn.eq, hash = Dyn.hash}) aW a
+      fun unpickler aT =
+          case rd (getT aT)
+           of aR => fn cR => fn s => I.run (ResizableArray.new ()) aR cR s
 
-      fun pickle t = let
-         val aP = pickler t (IOSMonad.fromPutter (uncurry Buffer.push))
-      in
-         fn a => Buffer.toString o Pair.snd o aP a |< Buffer.new ()
-      end
+      fun pickle t =
+          case pickler t (IOSMonad.fromPutter (uncurry Buffer.push))
+           of aP => fn a => Buffer.toString o Pair.snd o aP a |< Buffer.new ()
       fun unpickle t =
           Pair.fst o unpickler t (IOSMonad.fromReader Substring.getc) o
           Substring.full
@@ -592,7 +580,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
             then cyclic {readProxy = let
                             val dummy = delay (fn () => Arg.some aT)
                          in
-                            I.thunk (fn _ => ref (force dummy))
+                            I.thunk (fn () => ref (force dummy))
                          end,
                          readBody = fn proxy => I.map (fn v => proxy := v) rd,
                          writeWhole = wr o !,
