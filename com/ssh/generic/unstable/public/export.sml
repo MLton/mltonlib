@@ -29,7 +29,7 @@ structure GenericsUtil : GENERICS_UTIL = GenericsUtil
 signature TY = TY
 structure Ty : TY = Ty
 
-structure RootGeneric : OPEN_CASES = RootGeneric
+structure RootGeneric : CASES = RootGeneric
 
 (** == Framework Functors == *)
 

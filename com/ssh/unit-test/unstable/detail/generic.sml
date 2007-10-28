@@ -54,8 +54,8 @@ structure Generic =
               open Generic Open)
 
 structure Generic = struct
-   structure Rep = ClosePrettyWithExtra
-     (open Generic
-      structure PrettyRep = Open.Rep)
+   structure Rep = ClosePrettyWithExtra (Generic)
    open Generic Rep
 end
+
+structure UnitTest = MkUnitTest (Generic)

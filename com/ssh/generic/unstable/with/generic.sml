@@ -4,12 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-signature Generic = sig
-   structure Open : OPEN_CASES
-end
+signature Generic = CASES
 
 functor MkGeneric (Arg : Generic) : Generic = Arg
 
-structure Generic = struct
-   structure Open = RootGeneric
-end
+structure Generic = RootGeneric

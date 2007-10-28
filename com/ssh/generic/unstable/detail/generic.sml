@@ -9,15 +9,11 @@
  *> Generate-combination.sh lib-with-default.mlb detail/generic.sml
  *)
 
-signature Generic = sig
-   structure Open : OPEN_CASES
-end
+signature Generic = CASES
 
 functor MkGeneric (Arg : Generic) : Generic = Arg
 
-structure Generic = struct
-   structure Open = RootGeneric
-end
+structure Generic = RootGeneric
 
 signature Generic = sig
    include Generic EQ
@@ -104,8 +100,6 @@ structure Generic =
               open Generic Open)
 
 structure Generic = struct
-   structure Rep = ClosePrettyWithExtra
-     (open Generic
-      structure PrettyRep = Open.Rep)
+   structure Rep = ClosePrettyWithExtra (Generic)
    open Generic Rep
 end

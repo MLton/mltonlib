@@ -9,15 +9,11 @@
  *> Generate-combination.sh test.mlb test/generic.sml
  *)
 
-signature Generic = sig
-   structure Open : OPEN_CASES
-end
+signature Generic = CASES
 
 functor MkGeneric (Arg : Generic) : Generic = Arg
 
-structure Generic = struct
-   structure Open = RootGeneric
-end
+structure Generic = RootGeneric
 
 signature Generic = sig
    include Generic TYPE_INFO

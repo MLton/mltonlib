@@ -13,4 +13,3 @@ is
    ../../random/unstable/lib.cm
    detail/generic.sml
    lib.cm
-   with/unit-test.sml
