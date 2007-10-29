@@ -109,6 +109,8 @@ functor MkRandomGen (RNG : RNG) :>
    local
       val () = if R.radix <> 2 then fail "Real.radix <> 2" else ()
       val d = R.fromLargeInt (IntInf.<< (1, W.fromInt R.precision) - 1)
+          handle _ => Math.pow (2.0, real R.precision) - 1.0
+          (* XXX The handler is/was a MLKit workaround; see Extended Basis *)
    in
       fun realInRange (l, h) =
           (assert (fn () => l <= h)
