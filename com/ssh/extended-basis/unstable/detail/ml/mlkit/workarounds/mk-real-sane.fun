@@ -6,20 +6,15 @@
 
 functor MkRealSane (R : REAL) = struct
    open R
-   local
-      val unsupported = Fail "unsupported"
-      val unsupported = fn _ => raise unsupported
-   in
-      val radix = 2
-      val precision = 53
-      val fromDecimal = unsupported
-      val fromLarge = unsupported
-      val fromLargeInt = unsupported
-      val fromManExp = unsupported
-      val toDecimal = unsupported
-      val toInt = unsupported
-      val toLarge = unsupported
-      val toLargeInt = unsupported
-      val toManExp = unsupported
-   end
+   val radix = 2
+   val precision = 53
+   fun fromDecimal _ = raise Fail "Real?.fromDecimal unsupported"
+   fun fromLarge _ = raise Fail "Real?.fromLarge unsupported"
+   fun fromLargeInt _ = raise Fail "Real?.fromLargeInt unsupported"
+   fun fromManExp _ = raise Fail "Real?.fromManExp unsupported"
+   fun toDecimal _ = raise Fail "Real?.toDecimal unsupported"
+   fun toInt _ = raise Fail "Real?.toInt unsupported"
+   fun toLarge _ = raise Fail "Real?.toLarge unsupported"
+   fun toLargeInt _ = raise Fail "Real?.toLargeInt unsupported"
+   fun toManExp _ = raise Fail "Real?.toManExp unsupported"
 end
