@@ -15,7 +15,7 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
 
    fun lift (eq : 'a BinPr.t) : 'a t = IN (eq o #2)
 
-   fun sequ {toSlice, getItem} (IN aE) =
+   fun sequ (Ops.S {toSlice, getItem, ...}) (IN aE) =
        IN (fn (e, (l, r)) => let
                  fun lp (e, l, r) =
                      case getItem l & getItem r
@@ -109,12 +109,10 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
       fun regExn0 _ (e, p) = regExn unit (const e, p)
       fun regExn1 _ = regExn o getT
 
-      fun array aT = cyclic (Arg.Open.array ignore aT)
-                            (sequ {toSlice = ArraySlice.full,
-                                   getItem = ArraySlice.getItem} (getT aT))
-      fun list aT = sequ {toSlice = id, getItem = List.getItem} (getT aT)
-      fun vector aT = sequ {toSlice = VectorSlice.full,
-                            getItem = VectorSlice.getItem} (getT aT)
+      fun array aT =
+          cyclic (Arg.Open.array ignore aT) (sequ ArrayOps.ops (getT aT))
+      fun list aT = sequ ListOps.ops (getT aT)
+      fun vector aT = sequ VectorOps.ops (getT aT)
 
       fun refc aT = cyclic (Arg.Open.refc ignore aT) (iso aT (!, undefined))
 

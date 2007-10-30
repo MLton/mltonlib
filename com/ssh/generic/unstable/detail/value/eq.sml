@@ -10,7 +10,7 @@ functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = struct
    infix  0 &
    (* SML/NJ workaround --> *)
 
-   fun seq length sub eq (l, r) = let
+   fun sequ (Ops.S {length, sub, ...}) eq (l, r) = let
       val lL = length l
       val lR = length r
       fun lp i = let
@@ -67,7 +67,7 @@ functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = struct
 
       val list = ListPair.allEq
 
-      fun vector ? = seq Vector.length Vector.sub ?
+      fun vector ? = sequ VectorOps.ops ?
 
       fun array _ = op = : 'a Array.t t
       fun refc  _ = op = : 'a Ref.t t

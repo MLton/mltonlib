@@ -182,7 +182,7 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
                                          of SOME (SOME u) => u <^> equals
                                           | _             => empty) <^> d))
 
-      fun sequ style toSlice getItem aP
+      fun sequ style (Ops.S {toSlice, getItem, ...}) aP
                (e as E ({fmt = Fmt.T r, ...}, _), a) = let
          fun lp (n, d, s) =
              case getItem s
@@ -377,10 +377,9 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
              cyclic (Arg.Open.refc ignore aT) o flip inj ! |< C1 ctorRef aT
          fun array aT =
              cyclic (Arg.Open.array ignore aT) |<
-                    sequ hashParens ArraySlice.full ArraySlice.getItem (T aT)
-         fun vector aT =
-             sequ hashBrackets VectorSlice.full VectorSlice.getItem (T aT)
-         fun list aT = sequ brackets id List.getItem (T aT)
+                    sequ hashParens ArrayOps.ops (T aT)
+         fun vector aT = sequ hashBrackets VectorOps.ops (T aT)
+         fun list aT = sequ brackets ListOps.ops (T aT)
 
          fun op --> _ = const (ATOMIC, txtFn)
 

@@ -12,7 +12,7 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
    
    datatype 'a t = IN of Univ.t * Univ.t BinOp.t * 'a -> Univ.t
 
-   fun sequ toSlice getItem (IN xR) =
+   fun sequ (Ops.S {toSlice, getItem, ...}) (IN xR) =
        IN (fn (z, p, xs) => let
                  fun lp (s, xs) =
                      case getItem xs
@@ -70,9 +70,9 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
       fun regExn0 _ _ = ()
       fun regExn1 _ _ _ = ()
 
-      fun list   ? = sequ             id          List.getItem ?
-      fun vector ? = sequ VectorSlice.full VectorSlice.getItem ?
-      fun array  ? = sequ  ArraySlice.full  ArraySlice.getItem ?
+      fun list   ? = sequ   ListOps.ops ?
+      fun vector ? = sequ VectorOps.ops ?
+      fun array  ? = sequ  ArrayOps.ops ?
 
       fun refc (IN aR) = IN (fn (z, p, r) => aR (z, p, !r))
 

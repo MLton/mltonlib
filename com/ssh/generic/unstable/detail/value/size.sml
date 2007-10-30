@@ -24,7 +24,7 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
 
    val wordSize = bytes Word.wordSize
 
-   fun sequ length foldl =
+   fun sequ (Ops.S {length, foldl, ...}) =
     fn STATIC s  => (fn (_, a) => (s * length a + 2 * wordSize))
      | DYNAMIC f => (fn (e, a) =>
                         foldl (fn (x, s) => s + f (e, x)) (2 * wordSize) a)
@@ -137,11 +137,11 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
                           foldl (fn (x, s) => s + wordSize + f (e, x))
                                 wordSize xs)
 
-      fun vector xT = DYNAMIC (sequ Vector.length Vector.foldl (getT xT))
+      fun vector xT = DYNAMIC (sequ VectorOps.ops (getT xT))
 
       fun array xT =
           cyclic (Arg.Open.array ignore xT)
-                 (sequ Array.length Array.foldl (getT xT))
+                 (sequ ArrayOps.ops (getT xT))
 
       fun refc xT =
           cyclic (Arg.Open.refc ignore xT)

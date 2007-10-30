@@ -22,7 +22,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
 
    fun iso' bH (a2b, _) = bH o Pair.map (a2b, id)
 
-   fun sequ length sub hashElem (s, {totWidth, maxDepth}) = let
+   fun sequ (Ops.S {length, sub, ...}) hashElem (s, {totWidth, maxDepth}) = let
       val n = length s
       val h = Word.fromInt n
    in
@@ -137,11 +137,11 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
             end
       end
 
-      fun array  aT = sequ Array.length  Array.sub  (getT aT)
-      fun vector aT = sequ Vector.length Vector.sub (getT aT)
+      fun array  aT = sequ  ArrayOps.ops (getT aT)
+      fun vector aT = sequ VectorOps.ops (getT aT)
 
       val char = prim (Word.fromInt o ord)
-      val string = sequ String.length String.sub char
+      val string = sequ StringOps.ops char
 
       fun exn (e, {maxDepth, totWidth}) =
           if maxDepth = 0 then 0wx1A35B599

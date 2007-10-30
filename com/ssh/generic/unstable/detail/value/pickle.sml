@@ -327,7 +327,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                            wr = writeWhole,
                            sz = NONE})
 
-   fun seq {length, toSlice, getItem, fromList} (P {rd = aR, wr = aW, ...}) =
+   fun sequ (Ops.S {length, toSlice, getItem, fromList, ...})
+            (P {rd = aR, wr = aW, ...}) =
        P {rd = let
              open I
              fun lp (0, es) = return (fromList (rev es))
@@ -347,11 +348,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
           end,
           sz = NONE : OptInt.t}
 
-   val string =
-       share (Arg.Open.string ())
-             (seq {length = String.length, toSlice = Substring.full,
-                   getItem = Substring.getc, fromList = String.fromList}
-                  char)
+   val string = share (Arg.Open.string ()) (sequ StringOps.ops char)
 
    val c2b = Byte.charToByte
    val b2c = Byte.byteToChar
@@ -621,15 +618,10 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          end
 
          fun list aT =
-             share (Arg.Open.list ignore aT)
-                   (seq {length = List.length, toSlice = id,
-                         getItem = List.getItem, fromList = id} (getT aT))
+             share (Arg.Open.list ignore aT) (sequ ListOps.ops (getT aT))
 
          fun vector aT =
-             share (Arg.Open.vector ignore aT)
-                   (seq {length = Vector.length, toSlice = VectorSlice.full,
-                         getItem = VectorSlice.getItem,
-                         fromList = Vector.fromList} (getT aT))
+             share (Arg.Open.vector ignore aT) (sequ VectorOps.ops (getT aT))
 
          val exn : Exn.t t =
              P {rd = let

@@ -15,7 +15,7 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
 
    fun lift (cmp : 'a Cmp.t) : 'a t = IN (cmp o #2)
 
-   fun sequ {toSlice, getItem} (IN aO) =
+   fun sequ (Ops.S {toSlice, getItem, ...}) (IN aO) =
        IN (fn (e, (l, r)) => let
                  fun lp (e, l, r) =
                      case getItem l & getItem r
@@ -116,12 +116,10 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
       fun regExn0 _ = regExn unit
       fun regExn1 _ = regExn o getT
 
-      fun array aT = cyclic (Arg.Open.array ignore aT)
-                            (sequ {toSlice = ArraySlice.full,
-                                   getItem = ArraySlice.getItem} (getT aT))
-      fun list aT = sequ {toSlice = id, getItem = List.getItem} (getT aT)
-      fun vector aT = sequ {toSlice = VectorSlice.full,
-                            getItem = VectorSlice.getItem} (getT aT)
+      fun array aT =
+          cyclic (Arg.Open.array ignore aT) (sequ ArrayOps.ops (getT aT))
+      fun list aT = sequ ListOps.ops (getT aT)
+      fun vector aT = sequ VectorOps.ops (getT aT)
 
       fun refc aT = cyclic (Arg.Open.refc ignore aT) (iso aT (!, undefined))
 
