@@ -14,6 +14,7 @@ local
    detail/sorted-list.sml
 
    example/assoc-test.sml
+   example/innocent.sml
    example/qc-test.sml
 in
 end
