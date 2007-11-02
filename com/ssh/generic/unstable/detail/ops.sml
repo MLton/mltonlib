@@ -23,6 +23,11 @@ structure Ops = struct
             mod : 'a BinOp.t,
             precision : Int.t Option.t}
 
+   datatype 'a rops =
+      R of {bytesPerElem : Int.t,
+            subArr : Word8Array.t * Int.t -> 'a,
+            toBytes : 'a -> Word8Vector.t}
+
    datatype ('elem, 'list, 'result, 'seq, 'slice) sops =
       S of {foldl : ('elem * 'result -> 'result) -> 'result -> 'seq -> 'result,
             fromList : 'list -> 'seq,
@@ -55,6 +60,14 @@ end
 structure FixedIntOps = MkIntOps (FixedInt)
 structure IntOps = MkIntOps (Int)
 structure LargeIntOps = MkIntOps (LargeInt)
+
+functor MkRealOps (include PACK_REAL) = struct
+   val ops = Ops.R {bytesPerElem = bytesPerElem, subArr = subArr,
+                    toBytes = toBytes}
+end
+
+structure PackRealLittleOps = MkRealOps (PackRealLittle)
+structure PackLargeRealLittleOps = MkRealOps (PackLargeRealLittle)
 
 functor MkSeqOps (structure Seq : sig
                      type 'a t
