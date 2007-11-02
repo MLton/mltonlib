@@ -15,6 +15,13 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
 
    fun lift (cmp : 'a Cmp.t) : 'a t = IN (cmp o #2)
 
+   fun iso' (IN bX) (a2b, _) = IN (fn (e, bp) => bX (e, Sq.map a2b bp))
+
+   fun mkReal isoBits compare toBytes =
+       case isoBits
+        of SOME isoBits => iso' (lift compare) isoBits
+         | NONE => lift (Cmp.map toBytes (Word8Vector.collate Word8.compare))
+
    fun sequ (Ops.S {toSlice, getItem, ...}) (IN aO) =
        IN (fn (e, (l, r)) => let
                  fun lp (e, l, r) =
@@ -55,8 +62,6 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
                 | SOME _ & NONE   => SOME GREATER
                 | NONE   & SOME _ => SOME LESS
                 | NONE   & NONE   => NONE)
-
-   fun iso' (IN bX) (a2b, _) = IN (fn (e, bp) => bX (e, Sq.map a2b bp))
 
    structure OrdRep = LayerRep
      (open Arg
@@ -127,13 +132,13 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
       val largeInt = lift LargeInt.compare
 
       val largeWord = lift LargeWord.compare
-      val largeReal =
-          iso' (lift CastLargeReal.Bits.compare) CastLargeReal.isoBits
-
+      val largeReal = mkReal CastLargeReal.isoBits CastLargeReal.Bits.compare
+                             PackLargeRealBig.toBytes
       val bool   = lift Bool.compare
       val char   = lift Char.compare
       val int    = lift Int.compare
-      val real   = iso' (lift CastReal.Bits.compare) CastReal.isoBits
+      val real   = mkReal CastLargeReal.isoBits CastLargeReal.Bits.compare
+                          PackRealBig.toBytes
       val string = lift String.compare
       val word   = lift Word.compare
 

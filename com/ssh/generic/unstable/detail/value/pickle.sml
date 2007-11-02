@@ -229,204 +229,213 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
 
       val word32 = bits false Word32Ops.ops Iso.id
 
-   (* Encodes fixed size int as a size followed by little endian bytes. *)
-   fun mkFixedInt (Ops.W {orb, <<, ~>>, isoWord8 = (toW8, fromW8),
-                          isoWord8X = (_, fromW8X), ...})
-                  (fromBitsX, toBits) =
-       P {rd = let
-             open I
-             fun lp (1, s, w) =
-                 rd word8 >>= (fn b =>
-                 return (fromBitsX (fromW8X b << s orb w)))
-               | lp (n, s, w) =
-                 rd word8 >>= (fn b =>
-                 lp (n - 1, s + 0w8, fromW8 b << s orb w))
-          in
-             rd size >>= (fn 0 => return (fromBitsX (fromW8 0w0))
-                           | n => lp (n, 0w0, fromW8 0w0))
-          end,
-          wr = let
-             open O
-             fun lp (n, w, wr') = let
-                val n = n+1
-                val b = toW8 w
-                val wr' = wr' >> wr word8 b
+      fun mkReal isoBits ops =
+          case isoBits
+           of SOME isoBits => bits true ops isoBits
+            | NONE => fail "Pickle.mkReal" (* XXX *)
+
+      (* Encodes fixed size int as a size followed by little endian bytes. *)
+      fun mkFixedInt (Ops.W {orb, <<, ~>>, isoWord8 = (toW8, fromW8),
+                             isoWord8X = (_, fromW8X), ...})
+                     (fromBitsX, toBits) =
+          P {rd = let
+                open I
+                fun lp (1, s, w) =
+                    rd word8 >>= (fn b =>
+                    return (fromBitsX (fromW8X b << s orb w)))
+                  | lp (n, s, w) =
+                    rd word8 >>= (fn b =>
+                    lp (n - 1, s + 0w8, fromW8 b << s orb w))
              in
-                if fromW8X b = w
-                then wr size n >> wr'
-                else lp (n, w ~>> 0w8, wr')
-             end
-          in
-             fn i => case toBits i
-                      of w => if w = fromW8 0w0
-                              then wr size 0
-                              else lp (0, w, return ())
-          end,
-          sz = SOME 4}
+                rd size >>= (fn 0 => return (fromBitsX (fromW8 0w0))
+                              | n => lp (n, 0w0, fromW8 0w0))
+             end,
+             wr = let
+                open O
+                fun lp (n, w, wr') = let
+                   val n = n+1
+                   val b = toW8 w
+                   val wr' = wr' >> wr word8 b
+                in
+                   if fromW8X b = w
+                   then wr size n >> wr'
+                   else lp (n, w ~>> 0w8, wr')
+                end
+             in
+                fn i => case toBits i
+                         of w => if w = fromW8 0w0
+                                 then wr size 0
+                                 else lp (0, w, return ())
+             end,
+             sz = SOME 4}
 
-   val () = if LargeWord.wordSize < valOf FixedInt.precision
-            then fail "LargeWord can't hold a FixedInt"
-            else ()
-   val fixedInt = mkFixedInt LargeWordOps.ops LargeWord.isoFixedIntX
+      val () = if LargeWord.wordSize < valOf FixedInt.precision
+               then fail "LargeWord can't hold a FixedInt"
+               else ()
+      val fixedInt = mkFixedInt LargeWordOps.ops LargeWord.isoFixedIntX
 
-   fun cyclic {readProxy, readBody, writeWhole, self} = let
-      val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq self, hash = Arg.hash self}
-      open I
-   in
-      P {rd = rd size >>& Map.get >>= (fn key & arr =>
-              if 0 = key
-              then Key.alloc >>& readProxy >>= (fn key & proxy =>
-                   (ResizableArray.update (arr, key-1, toDyn proxy)
-                  ; readBody proxy >> return proxy))
-              else return (fromDyn (ResizableArray.sub (arr, key-1)))),
-         wr = fn v => let
-                    val d = toDyn v
-                    open O
-                 in
-                    Map.get >>= (fn mp =>
-                    case HashMap.find mp d
-                     of SOME key => wr size key
-                      | NONE     => Key.alloc >>= (fn key =>
-                                    (HashMap.insert mp (d, key)
-                                   ; wr size 0 >> writeWhole v)))
-                 end,
-         sz = NONE}
-   end
+      fun cyclic {readProxy, readBody, writeWhole, self} = let
+         val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq self, hash = Arg.hash self}
+         open I
+      in
+         P {rd = rd size >>& Map.get >>= (fn key & arr =>
+                 if 0 = key
+                 then Key.alloc >>& readProxy >>= (fn key & proxy =>
+                      (ResizableArray.update (arr, key-1, toDyn proxy)
+                     ; readBody proxy >> return proxy))
+                 else return (fromDyn (ResizableArray.sub (arr, key-1)))),
+            wr = fn v => let
+                       val d = toDyn v
+                       open O
+                    in
+                       Map.get >>= (fn mp =>
+                       case HashMap.find mp d
+                        of SOME key => wr size key
+                         | NONE     => Key.alloc >>= (fn key =>
+                                       (HashMap.insert mp (d, key)
+                                      ; wr size 0 >> writeWhole v)))
+                    end,
+            sz = NONE}
+      end
 
-   fun share aT (P {rd = aR, wr = aW, ...}) = let
-      val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq aT, hash = Arg.hash aT}
-      open I
-   in
-      P {rd = rd size >>& Map.get >>= (fn key & arr =>
-              if 0 = key
-              then Key.alloc >>& aR >>= (fn key & v =>
-                   (ResizableArray.update (arr, key-1, toDyn v)
-                  ; return v))
-              else return (fromDyn (ResizableArray.sub (arr, key-1)))),
-         wr = fn v => let
-                    val d = toDyn v
-                    open O
-                 in
-                    Map.get >>= (fn mp =>
-                    case HashMap.find mp d
-                     of SOME key => wr size key
-                      | NONE     => wr size 0 >> Key.alloc >>= (fn key =>
-                                    aW v >>= (fn () =>
-                                    (if isSome (HashMap.find mp d) then () else
-                                     HashMap.insert mp (d, key)
-                                   ; return ()))))
-                 end,
-         sz = SOME 5}
-   end
+      fun share aT (P {rd = aR, wr = aW, ...}) = let
+         val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq aT, hash = Arg.hash aT}
+         open I
+      in
+         P {rd = rd size >>& Map.get >>= (fn key & arr =>
+                 if 0 = key
+                 then Key.alloc >>& aR >>= (fn key & v =>
+                      (ResizableArray.update (arr, key-1, toDyn v)
+                     ; return v))
+                 else return (fromDyn (ResizableArray.sub (arr, key-1)))),
+            wr = fn v => let
+                       val d = toDyn v
+                       open O
+                    in
+                       Map.get >>= (fn mp =>
+                       case HashMap.find mp d
+                        of SOME key => wr size key
+                         | NONE     => wr size 0 >> Key.alloc >>= (fn key =>
+                                       aW v >>= (fn () =>
+                                       (if isSome (HashMap.find mp d)
+                                        then ()
+                                        else HashMap.insert mp (d, key)
+                                      ; return ()))))
+                    end,
+            sz = SOME 5}
+      end
 
-   fun mutable (methods as {readProxy, readBody, writeWhole, self}) =
-       if Arg.mayBeCyclic self
-       then cyclic methods
-       else share self (P {rd = let open I in readProxy >>= (fn p =>
-                                              readBody p >> return p) end,
-                           wr = writeWhole,
-                           sz = NONE})
+      fun mutable (methods as {readProxy, readBody, writeWhole, self}) =
+          if Arg.mayBeCyclic self
+          then cyclic methods
+          else share self (P {rd = let open I in readProxy >>= (fn p =>
+                                                 readBody p >> return p) end,
+                              wr = writeWhole,
+                              sz = NONE})
 
-   fun sequ (Ops.S {length, toSlice, getItem, fromList, ...})
-            (P {rd = aR, wr = aW, ...}) =
-       P {rd = let
-             open I
+      fun sequ (Ops.S {length, toSlice, getItem, fromList, ...})
+               (P {rd = aR, wr = aW, ...}) =
+          P {rd = let
+                open I
              fun lp (0, es) = return (fromList (rev es))
                | lp (n, es) = aR >>= (fn e => lp (n-1, e::es))
-          in
-             rd size >>= lp /> []
-          end,
-          wr = let
-             open O
-             fun lp sl =
-                 case getItem sl
-                  of NONE         => return ()
-                   | SOME (e, sl) => aW e >>= (fn () => lp sl)
-          in
-             fn seq => wr size (length seq) >>= (fn () =>
-                       lp (toSlice seq))
-          end,
-          sz = NONE : OptInt.t}
-
-   val string = share (Arg.Open.string ()) (sequ StringOps.ops char)
-
-   val c2b = Byte.charToByte
-   val b2c = Byte.byteToChar
-   fun h2n c =
-       c2b c - (if      Char.inRange (#"0", #"9") c then c2b #"0"
-                else if Char.inRange (#"a", #"f") c then c2b #"a" - 0w10
-                else if Char.inRange (#"A", #"F") c then c2b #"A" - 0w10
-                else fail "Bug in fmt")
-   fun n2h n = b2c (n + (if n < 0w10 then c2b #"0" else c2b #"a" - 0w10))
-   local
-      fun makePos8 i =
-          i + IntInf.<<
-                 (1,
-                  Word.andb (Word.fromInt (IntInf.log2 (IntInf.notb i)) + 0w9,
-                             Word.~ 0w8))
-   in
-      fun i2h i =
-          if i < 0
-          then if i = ~1 then "ff" else IntInf.fmt StringCvt.HEX (makePos8 i)
-          else let
-                val s = IntInf.fmt StringCvt.HEX i
-                val (t, f) =
-                    if Int.isOdd (String.size s) then ("0", "0") else ("00", "")
              in
-                (if 0w8 <= h2n (String.sub (s, 0)) then t else f) ^ s
-             end
-   end
-   fun h2i h = let
-      val i = valOf (StringCvt.scanString (IntInf.scan StringCvt.HEX) h)
-   in
-      if 0w8 <= h2n (String.sub (h, 0))
-      then i - IntInf.<< (1, Word.fromInt (IntInf.log2 i + 1))
-      else i
-   end
+                rd size >>= lp /> []
+             end,
+             wr = let
+                open O
+                fun lp sl =
+                    case getItem sl
+                     of NONE         => return ()
+                      | SOME (e, sl) => aW e >>= (fn () => lp sl)
+             in
+                fn seq => wr size (length seq) >>= (fn () =>
+                          lp (toSlice seq))
+             end,
+             sz = NONE : OptInt.t}
 
-   val intInf =
-       P {wr = let
-             open O
-             fun lp (_, 0) = return ()
-               | lp (s, i) =
-                 case i - 1 of i => pl (s, i, h2n (String.sub (s, i)))
-             and pl (_, 0, b) = wr word8 b
-               | pl (s, i, b) = let
-                    val i = i - 1
-                 in
-                    wr word8 (b + Word8.<< (h2n (String.sub (s, i)), 0w4)) >>=
-                    (fn () => lp (s, i))
-                 end
-          in
-             fn i => if 0 = i then wr size 0 else let
-                        val s = i2h i
-                        val n = String.length s
-                     in
-                        wr size (Int.quot (n, 2)) >>= (fn () => lp (s, n))
-                     end
-          end,
-          rd = let
-             open I
-             fun lp (cs, 0) = return (h2i (implode cs))
-               | lp (cs, n) =
-                 rd word8 >>= (fn b =>
-                 lp (n2h (Word8.>> (b, 0w4))::
-                     n2h (Word8.andb (b, 0wxF))::cs, n-1))
-          in
-             rd size >>= (fn 0 => return 0 | n => lp ([], n))
-          end,
-          sz = NONE : OptInt.t}
+      val string = share (Arg.Open.string ()) (sequ StringOps.ops char)
 
-   val exns : {rd : String.t -> Exn.t I.monad Option.t,
-               wr : Exn.t -> Unit.t O.monad Option.t} Buffer.t = Buffer.new ()
-   fun regExn c (P {rd = aR, wr = aW, ...}) (a2e, e2a) = let
-      val c = Generics.Con.toString c
-      val eR = I.map a2e aR
-   in
-      (Buffer.push exns)
-         {rd = fn c' => if c' = c then SOME eR else NONE,
-          wr = Option.map (fn a => O.>> (wr string c, aW a)) o e2a}
-   end
+      val c2b = Byte.charToByte
+      val b2c = Byte.byteToChar
+      fun h2n c =
+          c2b c - (if      Char.inRange (#"0", #"9") c then c2b #"0"
+                   else if Char.inRange (#"a", #"f") c then c2b #"a" - 0w10
+                   else if Char.inRange (#"A", #"F") c then c2b #"A" - 0w10
+                   else fail "Bug in fmt")
+      fun n2h n = b2c (n + (if n < 0w10 then c2b #"0" else c2b #"a" - 0w10))
+      local
+         fun makePos8 i =
+             i + IntInf.<<
+                    (1,
+                     Word.andb
+                        (Word.fromInt (IntInf.log2 (IntInf.notb i)) + 0w9,
+                         Word.~ 0w8))
+      in
+         fun i2h i =
+             if i < 0
+             then if i = ~1 then "ff" else IntInf.fmt StringCvt.HEX (makePos8 i)
+             else let
+                   val s = IntInf.fmt StringCvt.HEX i
+                   val (t, f) = if Int.isOdd (String.size s)
+                                then ("0", "0")
+                                else ("00", "")
+                in
+                   (if 0w8 <= h2n (String.sub (s, 0)) then t else f) ^ s
+                end
+      end
+      fun h2i h = let
+         val i = valOf (StringCvt.scanString (IntInf.scan StringCvt.HEX) h)
+      in
+         if 0w8 <= h2n (String.sub (h, 0))
+         then i - IntInf.<< (1, Word.fromInt (IntInf.log2 i + 1))
+         else i
+      end
+
+      val intInf =
+          P {wr = let
+                open O
+                fun lp (_, 0) = return ()
+                  | lp (s, i) =
+                    case i - 1 of i => pl (s, i, h2n (String.sub (s, i)))
+                and pl (_, 0, b) = wr word8 b
+                  | pl (s, i, b) = let
+                       val i = i - 1
+                    in
+                       wr word8 (b + Word8.<< (h2n (String.sub (s, i)), 0w4))
+                          >>= (fn () => lp (s, i))
+                    end
+             in
+                fn i => if 0 = i then wr size 0 else let
+                           val s = i2h i
+                           val n = String.length s
+                        in
+                           wr size (Int.quot (n, 2)) >>= (fn () => lp (s, n))
+                        end
+             end,
+             rd = let
+                open I
+                fun lp (cs, 0) = return (h2i (implode cs))
+                  | lp (cs, n) =
+                    rd word8 >>= (fn b =>
+                    lp (n2h (Word8.>> (b, 0w4))::
+                        n2h (Word8.andb (b, 0wxF))::cs, n-1))
+             in
+                rd size >>= (fn 0 => return 0 | n => lp ([], n))
+             end,
+             sz = NONE : OptInt.t}
+
+      val exns : {rd : String.t -> Exn.t I.monad Option.t,
+                  wr : Exn.t -> Unit.t O.monad Option.t} Buffer.t =
+          Buffer.new ()
+      fun regExn c (P {rd = aR, wr = aW, ...}) (a2e, e2a) = let
+         val c = Generics.Con.toString c
+         val eR = I.map a2e aR
+      in
+         (Buffer.push exns)
+            {rd = fn c' => if c' = c then SOME eR else NONE,
+             wr = Option.map (fn a => O.>> (wr string c, aW a)) o e2a}
+      end
 
       structure PickleRep = LayerRep
         (open Arg
@@ -652,11 +661,11 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
              else if isSome Int.precision
              then iso' fixedInt Int.isoFixedInt
              else iso' largeInt Int.isoLargeInt
-         val real = bits true RealWordOps.ops CastReal.isoBits
+         val real = mkReal CastReal.isoBits RealWordOps.ops
          val string = string
          val word = mkFixedInt WordOps.ops Iso.id
 
-         val largeReal = bits true LargeRealWordOps.ops CastLargeReal.isoBits
+         val largeReal = mkReal CastLargeReal.isoBits LargeRealWordOps.ops
          val largeWord = mkFixedInt LargeWordOps.ops Iso.id
 
          val word8  = word8

@@ -10,4 +10,5 @@ local
 in
    ../common/cast-real.sig
    cast-real.sml
+   pack-real.sml
 end

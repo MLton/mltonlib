@@ -55,6 +55,11 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
 
    fun iso' (IN bE) (a2b, _) = IN (fn (e, bp) => bE (e, Sq.map a2b bp))
 
+   fun mkReal isoBits toBytes =
+       case isoBits
+        of SOME isoBits => iso' (lift op =) isoBits
+         | NONE => iso' (lift op =) (toBytes, undefined)
+
    structure SeqRep = LayerRep
      (open Arg
       structure Rep = MkClosedRep (type 'a t = 'a t))
@@ -120,12 +125,12 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
       val largeInt = lift op = : LargeInt.t t
 
       val largeWord = lift op = : LargeWord.t t
-      val largeReal = iso' (lift op =) CastLargeReal.isoBits
+      val largeReal = mkReal CastLargeReal.isoBits PackLargeRealLittle.toBytes
 
       val bool   = lift op = : Bool.t t
       val char   = lift op = : Char.t t
       val int    = lift op = : Int.t t
-      val real   = iso' (lift op =) CastReal.isoBits
+      val real   = mkReal CastReal.isoBits PackRealLittle.toBytes
       val string = lift op = : String.t t
       val word   = lift op = : Word.t t
 

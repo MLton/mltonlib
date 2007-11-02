@@ -28,7 +28,7 @@ structure CastReal : CAST_REAL where type t = Real.t = struct
                     set = C.Set.double',
                     get = C.Get.double'}
    in
-      val isoBits = (cast real64 word64, cast word64 real64)
+      val isoBits = SOME (cast real64 word64, cast word64 real64)
    end
 end
 

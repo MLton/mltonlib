@@ -7,5 +7,5 @@
 signature CAST_REAL = sig
    type t
    structure Bits : WORD
-   val isoBits : (t, Bits.t) Iso.t
+   val isoBits : (t, Bits.t) Iso.t Option.t
 end

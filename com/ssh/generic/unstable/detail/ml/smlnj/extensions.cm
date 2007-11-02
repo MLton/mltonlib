@@ -9,3 +9,4 @@ group is
    ../../../../../extended-basis/unstable/basis.cm
    ../common/cast-real.sig
    cast-real.sml
+   pack-real.sml

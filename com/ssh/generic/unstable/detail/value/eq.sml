@@ -23,6 +23,13 @@ functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = struct
       lL = lR andalso lp lL
    end
 
+   fun iso b (a2b, _) = BinPr.map a2b b
+
+   fun mkReal isoBits toBytes =
+       case isoBits
+        of SOME isoBits => iso op = isoBits
+         | NONE => iso op = (toBytes, undefined)
+
    val exnHandler : Exn.t BinPr.t Ref.t = ref GenericsUtil.failExnSq
    fun regExn t (_, e2to) =
        Ref.modify (fn exnHandler =>
@@ -41,7 +48,7 @@ functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = struct
    fun withEq eq = mapT (const eq)
 
    structure Open = LayerCases
-     (fun iso b (a2b, _) = BinPr.map a2b b
+     (val iso        = iso
       val isoProduct = iso
       val isoSum     = iso
 
@@ -75,13 +82,13 @@ functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = struct
       val fixedInt = op = : FixedInt.t t
       val largeInt = op = : LargeInt.t t
 
-      val largeReal = iso op = CastLargeReal.isoBits
+      val largeReal = mkReal CastLargeReal.isoBits PackLargeRealLittle.toBytes
       val largeWord = op = : LargeWord.t t
 
       val bool   = op = : Bool.t t
       val char   = op = : Char.t t
       val int    = op = : Int.t t
-      val real   = iso op = CastReal.isoBits
+      val real   = mkReal CastReal.isoBits PackRealLittle.toBytes
       val string = op = : String.t t
       val word   = op = : Word.t t
 
