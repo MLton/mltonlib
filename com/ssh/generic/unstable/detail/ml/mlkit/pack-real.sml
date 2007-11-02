@@ -4,10 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-local
-   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
-in
-   ../common/cast-real.sig
-   cast-real.sml
-   pack-real.sml
-end
+structure PackLargeRealLittle : PACK_REAL where type real = LargeReal.t =
+   PackRealLittle
+structure PackLargeRealBig    : PACK_REAL where type real = LargeReal.t =
+   PackRealBig
