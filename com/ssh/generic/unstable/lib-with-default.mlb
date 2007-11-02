@@ -4,19 +4,14 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-local
-   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
-   $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
-in
-   lib.mlb
+lib.mlb
 
-   (* Order matters: *)
-   with/generic.sml
-   with/eq.sml
-   with/type-hash.sml
-   with/type-info.sml
-   with/hash.sml
-   with/ord.sml
-   with/pretty.sml
-   with/close-pretty-with-extra.sml
-end
+(* Order matters: *)
+with/generic.sml
+with/eq.sml
+with/type-hash.sml
+with/type-info.sml
+with/hash.sml
+with/ord.sml
+with/pretty.sml
+with/close-pretty-with-extra.sml
