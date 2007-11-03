@@ -11,17 +11,18 @@ is
    ../../../../../extended-basis/unstable/basis.cm
    ../../../../../prettier/unstable/lib.cm
    ../../../../../random/unstable/lib.cm
-   ../../close-generic.fun
-   ../../close-pretty-with-extra.fun
-   ../../generics-util.sml
-   ../../hash-map.sml
-   ../../hash-univ.sml
-   ../../layer-generic.fun
-   ../../mk-closed-rep.fun
-   ../../ops.sml
-   ../../opt-int.sml
-   ../../reg-basis-exns.fun
-   ../../root-generic.sml
+   ../../extra/close-pretty-with-extra.fun
+   ../../extra/reg-basis-exns.fun
+   ../../extra/with-extra.fun
+   ../../framework/close-generic.fun
+   ../../framework/layer-generic.fun
+   ../../framework/mk-closed-rep.fun
+   ../../framework/root-generic.sml
+   ../../util/generics-util.sml
+   ../../util/hash-map.sml
+   ../../util/hash-univ.sml
+   ../../util/ops.sml
+   ../../util/opt-int.sml
    ../../value/arbitrary.sml
    ../../value/data-rec-info.sml
    ../../value/debug.sml
@@ -41,6 +42,5 @@ is
    ../../value/type-exp.sml
    ../../value/type-hash.sml
    ../../value/type-info.sml
-   ../../with-extra.fun
    extensions.cm
    sigs.cm

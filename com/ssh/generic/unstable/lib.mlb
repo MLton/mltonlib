@@ -9,7 +9,7 @@ local
    $(MLTON_LIB)/com/ssh/prettier/unstable/lib.mlb
    $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
 
-   detail/hash-map.sml
+   detail/util/hash-map.sml
 in
    ann
       "forceUsed"
@@ -22,58 +22,43 @@ in
 
          (* Support *)
 
-         public/generics.sig
+         public/framework/generics.sig
          local
-            detail/sml-syntax.sml
+            detail/util/sml-syntax.sml
          in
-            detail/generics.sml
+            detail/framework/generics.sml
          end
 
-         public/ty.sig
-         detail/ty.sml
+         public/framework/ty.sig
+         detail/framework/ty.sml
 
          (* Concepts *)
 
-         public/closed-rep.sig
-         public/closed-cases.sig
-
-         public/open-rep.sig
-         public/open-cases.sig
-
-         public/cases.sig
-
-         public/generic.sig
-         public/generic-extra.sig
+         public/framework/closed-rep.sig
+         public/framework/closed-cases.sig
+         public/framework/open-rep.sig
+         public/framework/open-cases.sig
+         public/framework/cases.sig
+         public/framework/generic.sig
 
          (* Utilities *)
 
-         public/generics-util.sig
-         detail/generics-util.sml
-
-         detail/ops.sml
-
-         detail/mk-closed-rep.fun
-
-         detail/opt-int.sml (* XXX Should really go to Extended Basis? *)
-
-         detail/hash-univ.sml
+         public/util/generics-util.sig
+         detail/util/generics-util.sml
+         detail/util/ops.sml
+         detail/util/opt-int.sml (* XXX Should really go to Extended Basis? *)
+         detail/util/hash-univ.sml
 
          (* Framework *)
 
-         detail/with-extra.fun
-         ann "nonexhaustiveExnMatch ignore" in
-            detail/reg-basis-exns.fun
-         end
-
-         detail/root-generic.sml
-
-         detail/close-generic.fun
-
-         public/layered-rep.sig
-         public/layer-dep-cases-fun.sig
-         public/layer-cases-fun.sig
-         public/layer-rep-fun.sig
-         detail/layer-generic.fun
+         detail/framework/mk-closed-rep.fun
+         detail/framework/root-generic.sml
+         detail/framework/close-generic.fun
+         public/framework/layered-rep.sig
+         public/framework/layer-dep-cases-fun.sig
+         public/framework/layer-cases-fun.sig
+         public/framework/layer-rep-fun.sig
+         detail/framework/layer-generic.fun
 
          (* Values *)
 
@@ -133,9 +118,16 @@ in
          public/value/type-exp.sig
          detail/value/type-exp.sml
 
-         (* Convenience *)
+         (* Extra *)
 
-         detail/close-pretty-with-extra.fun
+         public/extra/generic-extra.sig
+         detail/extra/with-extra.fun
+
+         detail/extra/close-pretty-with-extra.fun
+
+         ann "nonexhaustiveExnMatch ignore" in
+            detail/extra/reg-basis-exns.fun
+         end
       in
          public/export.sml
       end
