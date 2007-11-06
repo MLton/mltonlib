@@ -166,5 +166,6 @@ in
         "public/export/"^compiler^".sml",
         "public/export/common.sml",
         "public/export/top-level.sml",
-        "public/export/infixes.sml"]
+        "public/export/infixes.sml",
+        "public/export/open-top-level.sml"]
 end
