@@ -6,6 +6,7 @@
 
 structure SMLofNJ = SMLofNJ
 
+structure BasisFixedInt = FixedInt
 structure BasisInt31 = Int31
 structure BasisInt32 = Int32
 structure BasisInt64 = Int64

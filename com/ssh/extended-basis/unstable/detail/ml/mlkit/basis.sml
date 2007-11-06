@@ -4,6 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+structure BasisFixedInt = FixedInt
 structure BasisInt31 = Int31
 structure BasisInt32 = Int32
 structure BasisIntInf = IntInf
