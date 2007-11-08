@@ -7,3 +7,5 @@
 (** == Extended {INTEGER} and {INT_INF} modules for Poly/ML == *)
 
 structure IntInf : INT_INF = MkIntInfExt (IntInf)
+
+structure Int32 : INTEGER = MkIntegerExt (Int32)
