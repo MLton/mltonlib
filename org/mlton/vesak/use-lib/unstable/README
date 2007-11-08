@@ -1,0 +1,94 @@
+UseLib
+------
+
+   This library implements a simple library and program definition
+   framework based on the de facto standard use-function provided by most
+   SML implementations with a REPL.
+
+
+Info
+----
+
+   License:         MLton license (a BSD-style license)
+   Portability:     requires the use-function
+   Supports:        Moscow ML, Poly/ML, and SML/NJ
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
+
+
+About Library Organization
+--------------------------
+
+   public/
+
+      This directory contains the documented signature definitions (*.sig)
+      and listings of all top-level bindings exported by this library
+      (export.sml).  The contents of this directory should ideally provide
+      sufficient documentation to use the library.
+
+   {mosml,polyml,smlnj}.use
+
+      These build files define the framework.
+
+   detail/
+
+      This directory contains the implementation details of the library.
+
+   detail/ml/$(SML_COMPILER)/
+
+      These directories (e.g. detail/ml/mlton/) contain compiler specific
+      implementation details.
+
+
+Motivation
+----------
+
+   The Definition of Standard ML does not specify nor is there a de facto
+   standard on how a SML program composed of multiple source files is
+   compiled.  Each SML implementation has its own mutually incompatible
+   extensions for that purpose.  For example, SML/NJ has the "Compilation
+   Manager", MLton and MLKit have the "ML Basis System", Poly/ML has the
+   "Make System".  Getting a program composed of a large number of source
+   files organized into libraries to compile on multiple SML
+   implementations is a non-trivial task.
+
+   In addition to the more sophisticated and mutually incompatible systems
+   mentioned earlier, most interactive SML implementations, including
+   Alice ML, HaMLet, Moscow ML, Poly/ML, and SML/NJ, provide a crude
+   top-level bound function with the specification
+
+     val use : string -> unit
+
+   for loading new source files interactively as if the contents of the
+   source file were entered at the top-level.  This library builds on the
+   use-function provided by an implementation to create a system that
+   allows one to define libraries and programs by writing SML source files
+   that one can then load using the use-function.  When defined carefully,
+   such use files can work on multiple implementations --- possibly even
+   on all implementations providing a use function.
+
+   Frankly, however, this library should be regarded as a workaround.  It
+   would be much better if all SML implementations would support the ML
+   Basis System or the Compilation Manager or something even better.
+
+
+Contributions
+-------------
+
+   The signatures and structures defined by this library are not meant to
+   be cast in stone!  We welcome contributions including new functionality,
+   bug fixes, and ports to new compilers.  The recommended submit method
+   for small contributions to this library is to send a message with a
+   brief description of the proposed contribution as well as a patch
+   containing full code and documentation (signature comments) to either
+   the MLton-user list
+
+      mlton-user@mlton.org
+
+   or the MLton list
+
+      mlton@mlton.org .
+
+   For larger extensions or changes we recommend that you first contact
+   the active maintainer(s) of this library.  The preferred contact method
+   is through the above mailing lists.
