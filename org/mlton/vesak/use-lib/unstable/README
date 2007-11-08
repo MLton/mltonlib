@@ -1,5 +1,5 @@
-UseLib
-------
+Use Library
+-----------
 
    This library implements a simple library and program definition
    framework based on the de facto standard use-function provided by most
