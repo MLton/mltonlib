@@ -28,7 +28,8 @@ About Library Organization
 
    {mosml,polyml,smlnj}.use
 
-      These build files define the framework.
+      These build files define the framework.  These files are generated
+      using the Make.sh script.
 
    detail/
 
