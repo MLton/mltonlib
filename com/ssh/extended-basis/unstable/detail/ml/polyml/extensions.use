@@ -4,6 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-val () =
+UseLib.Trace.disabled
+(fn () =>
     app use
-        ["detail/ml/common/ext.sml"]
+        ["detail/ml/common/ext.sml"]) ;

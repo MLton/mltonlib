@@ -4,7 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-val () =
+UseLib.Trace.disabled
+(fn () =>
     app (fn file => use ("detail/ml/smlnj/workarounds/"^file))
         ["mk-real-sane.fun",
          "char.sig",
@@ -12,6 +13,6 @@ val () =
          "reals.sml",
          "string.sig",
          "text.sig",
-         "text.sml"]
+         "text.sml"]) ;
 
 (* XXX Is there a way to "forget" top-level bindings in SML/NJ? *)

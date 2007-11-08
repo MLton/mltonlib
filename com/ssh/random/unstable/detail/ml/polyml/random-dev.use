@@ -5,4 +5,6 @@
  *)
 
 (* XXX implement better seed/useed for Poly/ML *)
-use "detail/ml/common/random-dev.sml" ;
+UseLib.Trace.disabled
+(fn () =>
+    use "detail/ml/common/random-dev.sml") ;

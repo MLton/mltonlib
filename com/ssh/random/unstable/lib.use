@@ -12,5 +12,5 @@ lib {reqs = ["../../extended-basis/unstable/basis.use"],
              "detail/numerical-recipes.sml",
              "detail/ranqd1-gen.sml",
              "public/random-dev.sig",
-             "detail/ml/$(SML_COMPILER)/random-dev.use",
+             "detail/ml/${SML_COMPILER}/random-dev.use",
              "public/export.sml"]} ;

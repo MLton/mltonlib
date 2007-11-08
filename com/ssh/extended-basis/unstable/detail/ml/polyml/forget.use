@@ -4,7 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-val () =
+UseLib.Trace.disabled
+(fn () =>
     (app PolyML.Compiler.forgetFunctor
          ["MkIntInfExt",
           "MkIntegerExt",
@@ -18,4 +19,4 @@ val () =
           "MkMonoArraySliceExt",
           "MkTextExt"]
    ; app PolyML.Compiler.forgetStructure
-         ["Ext"])
+         ["Ext"])) ;

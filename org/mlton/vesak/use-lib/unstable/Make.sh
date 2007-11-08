@@ -20,10 +20,10 @@ function gen {
 
     echo "$code"                                \
   | grep -v '^ *(\?\*'                          \
-  | sed -e "s/\\\$(SML_COMPILER)/\"$1\"/g"      \
-        -e "s/\\\$(SILENT)/$(echo -n $2)/g"     \
-        -e "s/\\\$(VERBOSE)/$(echo -n $3)/g"    \
-        -e "s/\\\$(PRELUDE)/$(echo -n $4)/g"    \
+  | sed -e "s/\\\${SML_COMPILER}/\"$1\"/g"      \
+        -e "s/\\\${SILENT}/$(echo -n $2)/g"     \
+        -e "s/\\\${VERBOSE}/$(echo -n $3)/g"    \
+        -e "s/\\\${PRELUDE}/$(echo -n $4)/g"    \
   >> "$1.use"
     echo "Wrote $1.use"
 }
@@ -52,3 +52,8 @@ gen smlnj                                       \
     ''
 
 gen mosml '()' 'ignore' 'val () = load "OS" ;'
+
+if which poly > /dev/null ; then
+    echo 'PolyML.print_depth 0 ; use "polyml.use" ;' | poly -q
+    echo
+fi
