@@ -6,4 +6,4 @@
 
 val () =
     app use
-        ["detail/smlnj/ext.sml"]
+        ["detail/ml/smlnj/ext.sml"]

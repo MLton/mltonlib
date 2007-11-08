@@ -5,12 +5,13 @@
  *)
 
 val () =
-    app (fn file => use ("detail/smlnj/workarounds/"^file))
+    app (fn file => use ("detail/ml/smlnj/workarounds/"^file))
         ["mk-real-sane.fun",
+         "char.sig",
          "real.sig",
          "reals.sml",
-         "mk-word-sane.fun",
-         "word.sig",
-         "words.sml"]
+         "string.sig",
+         "text.sig",
+         "text.sml"]
 
 (* XXX Is there a way to "forget" top-level bindings in SML/NJ? *)
