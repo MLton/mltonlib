@@ -7,3 +7,4 @@
 (** == Extended {WORD} modules for Poly/ML == *)
 
 structure SysWord : WORD = MkWordExt (SysWord)
+structure Word32 : WORD = MkWordExt (Word32)
