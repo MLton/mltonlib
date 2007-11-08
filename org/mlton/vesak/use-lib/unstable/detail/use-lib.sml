@@ -52,40 +52,43 @@ structure UseLib :> USE_LIB = struct
    end
 
    structure Trace = struct
-      datatype t =
-         CHDIR of string
-       | USE   of string
       local
-         val theTrace : t list ref = ref []
-         val recTrace = ref false
+         val theTrace : string list ref = ref []
+         val traceRoot : string option ref = ref NONE
          fun scoped t th =
-             case !recTrace
-              of old => (recTrace := t
-                       ; after (th, fn () => recTrace := old))
+             case !traceRoot
+              of old => (traceRoot := t
+                       ; after (th, fn () => traceRoot := old))
       in
          fun load path =
-             scoped true (fn () => (useNoTrace path
-                                  ; rev (!theTrace) before theTrace := []))
+             scoped (SOME (OS.FileSys.getDir ()))
+                    (fn () => (useNoTrace path
+                             ; rev (!theTrace) before theTrace := []))
 
          fun fmt {expandVars = e} = let
             val expandVars = if e then expandVars else fn x => x
          in
             concat o List.concat o
-            map (fn CHDIR path =>
-                    ["OS.FileSys.chDir \"", expandVars path, "\" ;\n"]
-                  | USE path =>
-                    ["use \"", expandVars path, "\" ;\n"])
+            map (fn path => ["use \"", expandVars path, "\" ;\n"])
          end
 
-         fun disabled th = scoped false th
+         fun disabled th = scoped NONE th
 
-         fun trace th = if !recTrace then theTrace := th () :: !theTrace else ()
+         fun trace path =
+             case !traceRoot
+              of NONE => ()
+               | SOME root =>
+                 theTrace := OS.Path.joinDirFile
+                                {dir = OS.Path.mkRelative
+                                          {path = OS.FileSys.getDir (),
+                                           relativeTo = root},
+                                 file = path} :: !theTrace
       end
    end
 
    open Trace
 
-   fun use path = (trace (fn () => USE path) ; useNoTrace path)
+   fun use path = (trace path ; useNoTrace path)
 
    val loading : string list ref = ref []
    val loaded : string list ref = ref []
@@ -102,12 +105,7 @@ structure UseLib :> USE_LIB = struct
            else let
                  val cwd = OS.FileSys.getDir ()
                  val dir = OS.Path.dir path
-                 val () = if dir <> cwd
-                          then (OS.FileSys.chDir dir
-                              ; trace (fn () => CHDIR (OS.Path.mkRelative
-                                                          {path = dir,
-                                                           relativeTo = cwd})))
-                          else ()
+                 val () = OS.FileSys.chDir dir
                  val cv = ${SILENT}
                  val was = !loading
               in
@@ -119,12 +117,6 @@ structure UseLib :> USE_LIB = struct
                         fn () =>
                            (${VERBOSE} cv
                           ; loading := was
-                          ; if dir <> cwd
-                            then (OS.FileSys.chDir cwd
-                                ; trace (fn () =>
-                                            CHDIR (OS.Path.mkRelative
-                                                      {path = cwd,
-                                                       relativeTo = dir})))
-                            else ()))
+                          ; OS.FileSys.chDir cwd))
               end
 end

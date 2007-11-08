@@ -26,14 +26,10 @@ signature USE_LIB = sig
     * Interface for recording flat traces of library loading.
     *)
    structure Trace : sig
-      datatype t =
-         CHDIR of string
-       | USE   of string
+      val load : string -> string list
+      (** Load the specified library and return a list of used files. *)
 
-      val load : string -> t list
-      (** Load the specified library and return a trace. *)
-
-      val fmt : {expandVars : bool} -> t list -> string
+      val fmt : {expandVars : bool} -> string list -> string
       (** Formats given trace as a flat use file. *)
 
       val disabled : (unit -> 'a) -> 'a
