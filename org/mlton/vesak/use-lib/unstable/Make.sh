@@ -26,9 +26,12 @@ function gen {
         -e "s/\\\${PRELUDE}/$(echo -n $4)/g"    \
   >> .tmp
 
-    if test "$(cat $1.use)" != "$(cat .tmp)" ; then
+    if test ! -f $1.use ; then
         mv .tmp $1.use
-        echo "Wrote $1.use"
+        echo "Created $1.use"
+    elif test "$(cat $1.use)" != "$(cat .tmp)" ; then
+        mv .tmp $1.use
+        echo "Updated $1.use"
     else
         rm .tmp
     fi
