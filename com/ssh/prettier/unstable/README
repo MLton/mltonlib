@@ -42,7 +42,7 @@ About Library Organization
 
       This directory contains examples related to this library.
 
-   lib.{cm,mlb}
+   lib.{cm,mlb,use}
 
       These build files define the library.
 
