@@ -4,5 +4,5 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(* XXX implement better seed/useed for SML/NJ *)
+(* XXX implement better seed/useed for Poly/ML *)
 use "detail/ml/common/random-dev.sml" ;

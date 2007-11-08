@@ -5,7 +5,6 @@
  *)
 
 structure RandomDev : RANDOM_DEV = struct
-   (* XXX implement better seed/useed for MLKit *)
    val cnt = ref 0w0
    fun seed () =
        SOME (Word.xorb

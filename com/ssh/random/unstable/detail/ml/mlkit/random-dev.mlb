@@ -13,6 +13,6 @@ in
       "warnUnused true"
    in
       ../../../public/random-dev.sig
-      random-dev.sml
+      ../common/random-dev.sml (* XXX implement better seed/useed for MLKit *)
    end
 end
