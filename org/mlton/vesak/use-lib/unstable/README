@@ -35,11 +35,6 @@ About Library Organization
 
       This directory contains the implementation details of the library.
 
-   detail/ml/$(SML_COMPILER)/
-
-      These directories (e.g. detail/ml/mlton/) contain compiler specific
-      implementation details.
-
 
 Motivation
 ----------
