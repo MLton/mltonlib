@@ -4,4 +4,4 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure BasisFixedInt = Int (* XXX This is a workaround! *)
+structure BasisFixedInt = Int32
