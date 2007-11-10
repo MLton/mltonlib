@@ -20,8 +20,7 @@ functor MkRandomGen (RNG : RNG) :>
 
    structure RNG = RNG
 
-   type 'a dom = Int.t * RNG.t and 'a cod = 'a
-   type 'a t = 'a dom -> 'a cod
+   type 'a t = Int.t * RNG.t -> 'a
 
    fun generate n t =
        pass (W.toInt (RNG.value t mod W.fromInt n), RNG.next t)
