@@ -13,4 +13,4 @@ group is
   ../../mk-random-gen.fun
   ../../numerical-recipes.sml
   ../../ranqd1-gen.sml
-  random-dev.sml
+  ../common/random-dev.sml
