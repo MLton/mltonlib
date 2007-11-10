@@ -6,5 +6,6 @@
 (bg-build
  :name  "Generics Test"
  :shell "export COLUMNS=80 &&
+         nice -n5 ./Test-polyml.sh &&
          nice -n5 ./Test-mlton.sh &&
          nice -n5 ./Test-smlnj.sh")
