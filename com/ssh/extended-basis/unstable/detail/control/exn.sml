@@ -12,5 +12,6 @@ structure Exn : EXN = struct
    fun eval th = apply th ()
    fun throw e = raise e
    fun try (th, fv, fe) = Sum.sum (fe, fv) (eval th)
-   fun finally (th, ef) = try (th, Effect.past ef, throw o Effect.past ef)
+   fun after (th, ef) = try (th, Effect.past ef, throw o Effect.past ef)
+   val finally = after
 end

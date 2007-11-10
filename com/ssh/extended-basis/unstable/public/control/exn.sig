@@ -17,8 +17,11 @@ signature EXN = sig
    val eval : 'a Thunk.t -> (t, 'a) Sum.t
    (** Evaluate a thunk ({eval th = INR (th ()) handle e => INL e}). *)
 
+   val after : 'a Thunk.t * Unit.t Effect.t -> 'a
+   (** {after (th, ef) = try (th, past ef, throw o past ef)}. *)
+
    val finally : 'a Thunk.t * Unit.t Effect.t -> 'a
-   (** {finally (th, ef) = try (th, past ef, throw o past ef)}. *)
+   (** DEPRECATED: This is an Alice ML reserved word. *)
 
    val throw : t -> 'a
    (** Raise exception ({throw exn = raise exn}). *)

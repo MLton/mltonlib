@@ -25,7 +25,8 @@ structure TopLevel = struct
 
    (** == Exn == *)
 
-   val finally = Exn.finally
+   val after = Exn.after
+   val finally = Exn.finally (** DEPRECATED: This is an Alice ML reserved word. *)
    val try = Exn.try
 
    (** == Fn == *)
