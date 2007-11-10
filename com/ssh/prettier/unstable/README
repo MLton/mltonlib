@@ -22,7 +22,8 @@ Info
 ----
 
    License:         MLton license (a BSD-style license)
-   Portability:     portable (MLton and SML/NJ are supported)
+   Portability:     portable
+   Ported to:       MLKit, MLton, Poly/ML, and SML/NJ
    Stability:       experimental
    Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
 

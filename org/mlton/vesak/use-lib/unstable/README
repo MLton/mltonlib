@@ -11,7 +11,7 @@ Info
 
    License:         MLton license (a BSD-style license)
    Portability:     requires the use-function
-   Supports:        Moscow ML, Poly/ML, and SML/NJ
+   Ported to:       Moscow ML, Poly/ML, and SML/NJ
    Stability:       experimental
    Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
 
