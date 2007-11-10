@@ -8,6 +8,11 @@
 set -e
 set -x
 
+if ! which poly ; then
+    echo 'Skipping test with Poly/ML as it does not seem to be installed.'
+    exit 0
+fi
+
 time \
 echo 'use "../../../../org/mlton/vesak/use-lib/unstable/polyml.use" ;
       use "test.use" ;' | poly

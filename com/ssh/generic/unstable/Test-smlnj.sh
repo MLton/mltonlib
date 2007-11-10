@@ -8,6 +8,11 @@
 set -e
 set -x
 
+if ! which sml ; then
+    echo 'Skipping test with SML/NJ as it does not seem to be installed.'
+    exit 0
+fi
+
 eb=../../extended-basis/unstable
 
 time \

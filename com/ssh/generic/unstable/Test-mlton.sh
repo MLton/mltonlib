@@ -8,6 +8,11 @@
 set -e
 set -x
 
+if ! which mlton ; then
+    echo 'Skipping test with MLton as it does not seem to be installed.'
+    exit 0
+fi
+
 mkdir -p generated
 
 echo "SML_COMPILER mlton
