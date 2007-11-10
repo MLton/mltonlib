@@ -63,6 +63,11 @@ structure TopLevel = struct
 
    val isNone = Option.isNone
 
+   (** == Phantom == *)
+
+   type yes = Phantom.yes
+   type no = Phantom.no
+
    (** == Product == *)
 
    datatype product = datatype Product.product

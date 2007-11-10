@@ -81,4 +81,5 @@ is
    ../../../public/text/string.sig
    ../../../public/text/substring.sig
    ../../../public/text/text.sig
+   ../../../public/typing/phantom.sig
    bootstrap.cm

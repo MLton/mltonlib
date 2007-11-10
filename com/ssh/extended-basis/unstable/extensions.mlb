@@ -46,6 +46,10 @@ in
          (* Compiler specific extensions (if any). *)
          detail/ml/$(SML_COMPILER)/extensions.mlb
 
+         (* Typing *)
+         public/typing/phantom.sig
+         detail/typing/phantom.sml
+
          (* Concept signatures *)
          public/concept/bitwise.sig
          public/concept/bounded.sig
