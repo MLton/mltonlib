@@ -18,4 +18,10 @@ signature TEXT_IO = sig
     *
     *> (output (stdOut, s) ; output1 (stdOut, #"\n") ; flushOut stdOut)
     *)
+
+   val readFile : String.t -> vector
+   (** Reads all data from the specified file. *)
+
+   val writeFile : {file : String.t, data : vector} Effect.t
+   (** Overwrites the specified file with the specified data. *)
 end

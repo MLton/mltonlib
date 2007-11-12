@@ -9,4 +9,12 @@ structure TextIO = struct
 
    fun println s =
        (output (stdOut, s) ; output1 (stdOut, #"\n") ; flushOut stdOut)
+
+   fun readFile file =
+       case openIn file
+        of s => Exn.after (fn () => inputAll s, fn () => closeIn s)
+
+   fun writeFile {file, data} =
+       case openOut file
+        of s => Exn.after (fn () => output (s, data), fn () => closeOut s)
 end
