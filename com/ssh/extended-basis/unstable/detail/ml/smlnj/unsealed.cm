@@ -61,6 +61,7 @@ is
    ../../../detail/numeric/mk-integer-ext.fun
    ../../../detail/numeric/mk-real-ext.fun
    ../../../detail/numeric/mk-word-ext.fun
+   ../../../detail/os/os.sml
    ../../../detail/sequence/array-slice.sml
    ../../../detail/sequence/array.sml
    ../../../detail/sequence/buffer.sml

@@ -65,6 +65,8 @@ is
    ../../../public/numeric/integer.sig
    ../../../public/numeric/real.sig
    ../../../public/numeric/word.sig
+   ../../../public/os/os-file-sys.sig
+   ../../../public/os/os.sig
    ../../../public/sequence/array-slice.sig
    ../../../public/sequence/array.sig
    ../../../public/sequence/buffer.sig

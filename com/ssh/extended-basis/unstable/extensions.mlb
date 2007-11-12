@@ -299,6 +299,11 @@ in
          public/io/text-io.sig
          detail/io/text-io.sml
 
+         (* OS *)
+         public/os/os-file-sys.sig
+         public/os/os.sig
+         detail/os/os.sml
+
          (* MkWordFlags *)
          detail/concept/mk-word-flags.fun
       in
