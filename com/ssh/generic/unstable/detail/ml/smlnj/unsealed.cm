@@ -8,6 +8,7 @@ group
    group(sigs.cm) - signature MK_FMAP_DOM - signature FMAP_CASES
    source(-)
 is
+   ../../../../../../../org/mlton/vesak/ds/unstable/lib.cm
    ../../../../../extended-basis/unstable/basis.cm
    ../../../../../prettier/unstable/lib.cm
    ../../../../../random/unstable/lib.cm
@@ -19,7 +20,6 @@ is
    ../../framework/mk-closed-rep.fun
    ../../framework/root-generic.sml
    ../../util/generics-util.sml
-   ../../util/hash-map.sml
    ../../util/hash-univ.sml
    ../../util/ops.sml
    ../../util/opt-int.sml

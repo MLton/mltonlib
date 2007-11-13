@@ -4,11 +4,11 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib {reqs = ["../../extended-basis/unstable/basis.use",
+lib {reqs = ["../../../../org/mlton/vesak/ds/unstable/lib.use",
+             "../../extended-basis/unstable/basis.use",
              "../../prettier/unstable/lib.use",
              "../../random/unstable/lib.use"],
-     self = ["detail/util/hash-map.sml",
-             "detail/ml/common/cast-real.sig",
+     self = ["detail/ml/common/cast-real.sig",
              "detail/ml/${SML_COMPILER}/extensions.use",
              "public/framework/generics.sig",
              "detail/util/sml-syntax.sml",
