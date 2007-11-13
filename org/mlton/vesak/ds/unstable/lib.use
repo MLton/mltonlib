@@ -1,0 +1,17 @@
+(* Copyright (C) 2007 Vesa Karvonen
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+lib {reqs = ["../../../../../com/ssh/extended-basis/unstable/basis.use"],
+     self = ["public/node.sig",
+             "detail/node.sml",
+             "public/queue.sig",
+             "public/linked-queue.sig",
+             "detail/linked-queue.sml",
+             "public/unlinkable-list.sig",
+             "detail/unlinkable-list.sml",
+             "public/hash-map.sig",
+             "detail/hash-map.sml",
+             "public/export.sml"]} ;
