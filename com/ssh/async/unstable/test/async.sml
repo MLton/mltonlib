@@ -9,9 +9,9 @@
  *)
 val () = let
    open Generic UnitTest Async Async.Handler
-   fun eq ex ac = verifyEq int {actual = ac, expect = ex}
-   fun eql ex ac = verifyEq (list int) {actual = ac, expect = ex}
-   val full = verifyFailsWith (fn Full => true | _ => false)
+   fun eq ex ac = thatEq int {actual = ac, expect = ex}
+   fun eql ex ac = thatEq (list int) {actual = ac, expect = ex}
+   val full = thatRaises' (fn Full => ())
    fun inc v () = v := !v + 1
    val push = List.push
 in

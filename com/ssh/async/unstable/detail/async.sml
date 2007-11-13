@@ -5,6 +5,11 @@
  *)
 
 structure Async :> ASYNC = struct
+   (* <-- SML/NJ workaround *)
+   open TopLevel
+   infix <|>
+   (* SML/NJ workaround --> *)
+
    exception Full
 
    structure Queue = LinkedQueue
@@ -17,7 +22,7 @@ structure Async :> ASYNC = struct
       fun pushFront ul (h as T t) =
           (List.push (#unlink t) (UnlinkableList.pushFront ul h)
          ; false)
-      val handlers = Queue.new ()
+      val handlers : Unit.t Effect.t Queue.t = Queue.new ()
       fun schedule a (T {unlink, effect}) =
           (app (pass ()) (!unlink)
          ; Queue.enque handlers (fn () => effect a))
