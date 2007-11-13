@@ -7,6 +7,8 @@
 structure Async :> ASYNC = struct
    exception Full
 
+   structure Queue = LinkedQueue
+
    structure Handler = struct
       datatype 'a t =
          T of {unlink : Unit.t Effect.t List.t Ref.t, effect : 'a Effect.t}

@@ -6,7 +6,7 @@
 
 local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
-   $(MLTON_LIB)/com/ssh/misc-util/unstable/lib.mlb
+   $(MLTON_LIB)/org/mlton/vesak/ds/unstable/lib.mlb
 in
    ann
       "forceUsed"
