@@ -1,0 +1,13 @@
+(* Copyright (C) 2007 Vesa Karvonen
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+lib {reqs = ["../../../../extended-basis/unstable/basis.use",
+             "../../lib.use",
+             "../poll-loop/lib.use"],
+     self = ["text-io.sml",
+             "text-prim-io.sml",
+             "smlbot.sml",
+             "main.sml"]} ;
