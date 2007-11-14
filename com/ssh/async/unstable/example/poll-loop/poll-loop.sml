@@ -23,7 +23,7 @@ end = struct
    fun findDesc d k =
        recur ([] & !descs) (fn lp =>
           fn _ & [] => fail "findDesc"
-           | fs & e::es => if #1e=d then k (fs, e, es) else lp (e::fs & es))
+           | fs & e::es => if #1 e = d then k (fs, e, es) else lp (e::fs & es))
    val addDesc = List.push descs
    fun remDesc d =
        findDesc d (fn (fs, _, es) => descs := List.revAppend (fs, es))
@@ -34,7 +34,7 @@ end = struct
    in
       recur ([] & !timeouts) (fn lp =>
          fn fs & [] => here fs [(absTime, action)]
-          | fs & e::es => if Time.<= (#1e, absTime) then lp (e::fs & es)
+          | fs & e::es => if Time.<= (#1 e, absTime) then lp (e::fs & es)
                           else here fs ((absTime, action)::es))
    end
    fun relTimeout (relTime, action) =
