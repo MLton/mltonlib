@@ -31,8 +31,8 @@ end = struct
        ; IVar.read ch
       end
    in
-      val sockEvt = mk Socket.ioDesc
-      val iodEvt = mk id
+      fun sockEvt ? = mk Socket.ioDesc ?
+      fun iodEvt ? = mk id ?
    end
 
    val print = ignore
