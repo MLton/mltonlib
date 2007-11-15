@@ -7,8 +7,19 @@
 
 set -e
 
-echo "Run example tests with SML/NJ..."
-if sml -h > /dev/null ; then 
+if which poly > /dev/null ; then
+    echo "Run example tests with Poly/ML..."
+
+    pushd ../../../../org/mlton/vesak/use-lib/unstable
+    ./Make.sh
+    popd
+    if echo 'use "../../../../org/mlton/vesak/use-lib/unstable/polyml.use" ;
+             use "example.use" ;' | poly ; then echo "Unexpected!" ; fi
+fi
+
+if which sml > /dev/null ; then 
+    echo "Run example tests with SML/NJ..."
+
     eb=../../extended-basis/unstable
 
     if echo ''                                                   \
@@ -17,8 +28,9 @@ if sml -h > /dev/null ; then
               example/*.sml ; then echo "Unexpected!" ; fi
 fi
 
-echo "Compile example tests with MLton and run them..."
-if mlton  > /dev/null ; then
+if which mlton > /dev/null ; then
+    echo "Compile example tests with MLton and run them..."
+
     mkdir -p generated
 
     echo "SML_COMPILER mlton
