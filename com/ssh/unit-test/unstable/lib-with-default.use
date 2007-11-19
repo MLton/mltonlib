@@ -4,12 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib {reqs = ["../../extended-basis/unstable/basis.use",
-             "../../generic/unstable/lib-with-default.use",
-             "../../random/unstable/lib.use",
-             "lib.use"],
-     self = ["../../generic/unstable/with/arbitrary.sml",
-             "../../generic/unstable/with/size.sml",
-             "../../generic/unstable/with/shrink.sml",
-             "../../generic/unstable/with/close-pretty-with-extra.sml",
-             "with/unit-test.sml"]} ;
+lib ["../../extended-basis/unstable/basis.use",
+     "../../generic/unstable/lib-with-default.use",
+     "../../random/unstable/lib.use",
+     "lib.use",
+     "../../generic/unstable/with/arbitrary.sml",
+     "../../generic/unstable/with/size.sml",
+     "../../generic/unstable/with/shrink.sml",
+     "../../generic/unstable/with/close-pretty-with-extra.sml",
+     "with/unit-test.sml"] ;

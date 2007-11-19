@@ -33,7 +33,7 @@ structure OS = struct
                            else case Path.splitDirFile p
                                  of {dir, file} =>
                                     (if "" <> dir then chDir dir else ()
-                                   ; Path.joinDirFile {dir = dir, file = file}),
+                                   ; Path.joinDirFile {dir = getDir (), file = file}),
                         fn () => chDir cwd)
       end
    end

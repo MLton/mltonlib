@@ -4,10 +4,10 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib {reqs = ["../../../../extended-basis/unstable/basis.use",
-             "../../lib.use",
-             "../poll-loop/lib.use"],
-     self = ["text-io.sml",
-             "text-prim-io.sml",
-             "smlbot.sml",
-             "main.sml"]} ;
+lib ["../../../../extended-basis/unstable/basis.use",
+     "../../lib.use",
+     "../poll-loop/lib.use",
+     "text-io.sml",
+     "text-prim-io.sml",
+     "smlbot.sml",
+     "main.sml"] ;

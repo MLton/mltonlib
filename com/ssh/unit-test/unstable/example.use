@@ -4,11 +4,11 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib {reqs = ["lib-with-default.use",
-             "../../extended-basis/unstable/basis.use",
-             "../../generic/unstable/lib.use",
-             "../../random/unstable/lib.use"],
-     self = ["detail/sorted-list.sml", (* XXX this is also used in the library? *)
-             "example/assoc-test.sml",
-             "example/innocent.sml",
-             "example/qc-test.sml"]} ;
+lib ["lib-with-default.use",
+     "../../extended-basis/unstable/basis.use",
+     "../../generic/unstable/lib.use",
+     "../../random/unstable/lib.use",
+     "detail/sorted-list.sml", (* XXX this is also used in the library? *)
+     "example/assoc-test.sml",
+     "example/innocent.sml",
+     "example/qc-test.sml"] ;

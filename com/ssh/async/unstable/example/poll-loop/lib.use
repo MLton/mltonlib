@@ -4,5 +4,5 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib {reqs = ["../../../..//extended-basis/unstable/basis.use"],
-     self = ["poll-loop.sml"]} ;
+lib ["../../../../extended-basis/unstable/basis.use",
+     "poll-loop.sml"] ;

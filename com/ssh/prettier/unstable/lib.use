@@ -4,8 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib {reqs = ["../../extended-basis/unstable/basis.use"],
-     self = ["public/prettier.sig",
-             "detail/prettier.sml",
-             "public/export.sml",
-             "public/infixes.sml"]} ;
+lib ["../../extended-basis/unstable/basis.use",
+     "public/prettier.sig",
+     "detail/prettier.sml",
+     "public/export.sml",
+     "public/infixes.sml"] ;

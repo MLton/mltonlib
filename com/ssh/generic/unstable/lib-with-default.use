@@ -4,12 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib {reqs = ["lib.use"],
-     self = ["with/generic.sml",
-             "with/eq.sml",
-             "with/type-hash.sml",
-             "with/type-info.sml",
-             "with/hash.sml",
-             "with/ord.sml",
-             "with/pretty.sml",
-             "with/close-pretty-with-extra.sml"]} ;
+lib ["lib.use",
+     "with/generic.sml",
+     "with/eq.sml",
+     "with/type-hash.sml",
+     "with/type-info.sml",
+     "with/hash.sml",
+     "with/ord.sml",
+     "with/pretty.sml",
+     "with/close-pretty-with-extra.sml"] ;

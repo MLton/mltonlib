@@ -4,7 +4,4 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-UseLib.Trace.disabled
-(fn () =>
-    app use
-        ["detail/ml/smlnj/ext.sml"]) ;
+lib ["ext.sml"] ;

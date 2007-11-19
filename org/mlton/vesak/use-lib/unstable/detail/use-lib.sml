@@ -13,110 +13,100 @@ structure UseLib :> USE_LIB = struct
 
    fun error strs = raise Fail (concat strs)
 
-   val vars = ref [("SML_COMPILER", ${SML_COMPILER})]
+   structure Var = struct
+      val vars = ref [("SML_COMPILER", ${SML_COMPILER})]
 
-   fun getVar var =
-       case List.find (fn (i, _) => i = var) (!vars)
-        of SOME (_, v) => v
-         | NONE =>
-           case OS.Process.getEnv var
-            of NONE   => error ["Undefined variable: ", var]
-             | SOME v => v
+      fun get var =
+          case List.find (fn (i, _) => i = var) (!vars)
+           of SOME (_, v) => v
+            | NONE =>
+              case OS.Process.getEnv var
+               of NONE   => error ["Undefined variable: ", var]
+                | SOME v => v
 
-   fun expandVars path = let
-      fun outside os =
-       fn #"$" :: #"{" :: is => inside os [] is
-        | c            :: is => outside (c::os) is
-        |                 [] => implode (rev os)
-      and inside os vs =
-       fn #"}" :: is => outside os (explode (getVar (implode (rev vs))) @ is)
-        | c    :: is => inside os (c::vs) is
-        |         [] => error ["Unclosed variable reference"]
-   in
-      outside [] (explode path)
-   end
-
-   val using : string option ref = ref NONE
-
-   fun useNoTrace path = let
-      val path = expandVars path
-      val () = if OS.FileSys.access (path, [OS.FileSys.A_READ])
-               then ()
-               else error ["Unreadable file: ", path]
-      val path = OS.FileSys.fullPath path
-      val oldUsing = !using
-   in
-      using := SOME path
-    ; after (fn () => use path,
-             fn () => using := oldUsing)
-   end
-
-   structure Trace = struct
-      local
-         val theTrace : string list ref = ref []
-         val traceRoot : string option ref = ref NONE
-         fun scoped t th =
-             case !traceRoot
-              of old => (traceRoot := t
-                       ; after (th, fn () => traceRoot := old))
+      fun expand path = let
+         fun outside os =
+          fn #"$" :: #"{" :: is => inside os [] is
+           | c            :: is => outside (c::os) is
+           |                 [] => implode (rev os)
+         and inside os vs =
+          fn #"}" :: is => outside os (explode (get (implode (rev vs))) @ is)
+           | c    :: is => inside os (c::vs) is
+           |         [] => error ["Unclosed variable reference"]
       in
-         fun load path =
-             scoped (SOME (OS.FileSys.getDir ()))
-                    (fn () => (useNoTrace path
-                             ; rev (!theTrace) before theTrace := []))
-
-         fun fmt {expandVars = e} = let
-            val expandVars = if e then expandVars else fn x => x
-         in
-            concat o List.concat o
-            map (fn path => ["use \"", expandVars path, "\" ;\n"])
-         end
-
-         fun disabled th = scoped NONE th
-
-         fun trace path =
-             case !traceRoot
-              of NONE => ()
-               | SOME root =>
-                 theTrace := OS.Path.joinDirFile
-                                {dir = OS.Path.mkRelative
-                                          {path = OS.FileSys.getDir (),
-                                           relativeTo = root},
-                                 file = path} :: !theTrace
+         outside [] (explode path)
       end
    end
 
-   open Trace
+   local
+      type entry = {path : string, loading : string list}
+      val libStack : entry list list ref = ref []
+      val useQueue : entry list ref = ref []
+   in
+      fun pushUse e = useQueue := !useQueue @ [e]
+      fun popUse () =
+          case !useQueue
+           of [] => error ["Each lib must be used as a unique .use file"]
+            | e::es => (useQueue := es ; e)
+      fun pushLib () =
+          (libStack := !useQueue :: !libStack
+         ; useQueue := [])
+      fun popLib () =
+          case !libStack
+           of [] => error ["Internal error: Unmatched popLib"]
+            | e::es => (libStack := es
+                      ; useQueue := !useQueue @ e)
+      fun clear () = (libStack := [] ; useQueue := [])
+   end
 
-   fun use path = (trace path ; useNoTrace path)
+   fun useLoading loading path = let
+      val path = Var.expand path
+      val () = if OS.FileSys.access (path, [OS.FileSys.A_READ])
+               then ()
+               else error ["File ", path, " is unreadable from ",
+                           OS.FileSys.getDir ()]
+      val path = OS.FileSys.fullPath path
+   in
+      if not (String.isSuffix ".use" path)
+      then ()
+      else if List.exists (fn p => path = p) loading
+      then error ("Cyclic library dependency: "::
+                  foldl (fn (p, ps) => p::" -> "::ps) [path] loading)
+      else pushUse {path = path, loading = loading}
+    ; use path
+   end
 
-   val loading : string list ref = ref []
-   val loaded : string list ref = ref []
+   local
+      val loaded : string list ref = ref []
+   in
+      fun lib paths = let
+         val {path, loading} = popUse ()
+      in
+         if List.exists (fn p => path = p) (!loaded)
+         then ()
+         else let
+               val dir = OS.Path.mkRelative
+                            {path = OS.Path.dir path,
+                             relativeTo = OS.FileSys.getDir ()}
+               val cv = ${SILENT}
+               val loading = path :: loading
+            in
+               pushLib ()
+             ; after (fn () =>
+                         (app (fn file =>
+                                  useLoading
+                                     loading
+                                     (OS.Path.concat (dir, file))) paths
+                        ; loaded := path :: !loaded),
+                      fn () =>
+                         (popLib ()
+                        ; ${VERBOSE} cv))
+            end
+      end
+   end
 
-   fun lib {reqs, self} =
-       case !using
-        of NONE      => error ["Current file unknown"]
-         | SOME path =>
-           if List.exists (fn p => path = p) (!loaded)
-           then ()
-           else if List.exists (fn p => path = p) (!loading)
-           then error ("Cyclic library dependency: " ::
-                       foldl (fn (p, ps) => p::" -> "::ps) [path] (!loading))
-           else let
-                 val cwd = OS.FileSys.getDir ()
-                 val dir = OS.Path.dir path
-                 val () = OS.FileSys.chDir dir
-                 val cv = ${SILENT}
-                 val was = !loading
-              in
-                 loading := path :: was
-               ; after (fn () =>
-                           (app useNoTrace reqs
-                          ; app use self
-                          ; loaded := path :: !loaded),
-                        fn () =>
-                           (${VERBOSE} cv
-                          ; loading := was
-                          ; OS.FileSys.chDir cwd))
-              end
+   val use = useLoading []
+
+   val use = fn path => use path handle e => (clear () ; raise e)
+   val lib = fn paths => lib paths handle e => (clear () ; raise e)
 end

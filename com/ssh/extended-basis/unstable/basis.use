@@ -8,5 +8,4 @@
  * directory of this library (the directory of this file).
  *)
 
-lib {reqs = ["extensions.use"],
-     self = []} ;
+lib ["extensions.use"] ;

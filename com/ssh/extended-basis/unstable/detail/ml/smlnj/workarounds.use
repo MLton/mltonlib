@@ -4,15 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-UseLib.Trace.disabled
-(fn () =>
-    app (fn file => use ("detail/ml/smlnj/workarounds/"^file))
-        ["mk-real-sane.fun",
-         "char.sig",
-         "real.sig",
-         "reals.sml",
-         "string.sig",
-         "text.sig",
-         "text.sml"]) ;
+lib ["workarounds/mk-real-sane.fun",
+     "workarounds/char.sig",
+     "workarounds/real.sig",
+     "workarounds/reals.sml",
+     "workarounds/string.sig",
+     "workarounds/text.sig",
+     "workarounds/text.sml"] ;
 
 (* XXX Is there a way to "forget" top-level bindings in SML/NJ? *)

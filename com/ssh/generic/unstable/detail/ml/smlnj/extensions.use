@@ -6,7 +6,4 @@
 
 if CM.make "$c/c.cm" then () else fail "Couldn't make ML-NLFFI" ;
 
-UseLib.Trace.disabled
-(fn () =>
-    (use "detail/ml/smlnj/cast-real.sml"
-   ; use "detail/ml/smlnj/pack-real.sml")) ;
+lib ["cast-real.sml", "pack-real.sml"] ;
