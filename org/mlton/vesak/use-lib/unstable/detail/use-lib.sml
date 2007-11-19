@@ -4,8 +4,6 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-${PRELUDE}
-
 structure UseLib :> USE_LIB = struct
    fun after (th, ef) =
        ((case th () of v => fn () => (ef () ; v))

@@ -29,7 +29,6 @@ function gen {
   | sed -e "s/\\\${SML_COMPILER}/\"$1\"/g"      \
         -e "s/\\\${SILENT}/$(echo -n $2)/g"     \
         -e "s/\\\${VERBOSE}/$(echo -n $3)/g"    \
-        -e "s/\\\${PRELUDE}/$(echo -n $4)/g"    \
   >> .tmp
 
     if test ! -f $1.use ; then
@@ -43,15 +42,14 @@ function gen {
     fi
 }
 
-gen alice '()' 'ignore' ''
+gen alice '()' 'ignore'
 
-gen mosml '()' 'ignore' 'val () = load "OS" ;'
+gen mosml '()' 'ignore'
 
 gen polyml                                      \
     '(PolyML.get_print_depth ()                 \
       before PolyML.print_depth 0)'             \
-    'PolyML.print_depth'                        \
-    ''
+    'PolyML.print_depth'
 
 gen smlnj                                       \
     'let                                        \
@@ -67,8 +65,7 @@ gen smlnj                                       \
      in                                         \
         fn old => (printDepth := #depth old     \
                  ; signatures := #sigs old)     \
-     end'                                       \
-    ''
+     end'
 
 if which poly > /dev/null ; then
     echo 'PolyML.print_depth 0 ; use "polyml.use" ;' | poly -q
