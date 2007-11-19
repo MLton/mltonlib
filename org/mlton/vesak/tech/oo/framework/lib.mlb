@@ -4,11 +4,9 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-local
-   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
-in
-   any.sig
-   any.sml
-   sub.fun
-   var.sml
-end
+$(SML_LIB)/basis/basis.mlb
+prelude.sml
+any.sig
+any.sml
+sub.fun
+var.sml

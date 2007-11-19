@@ -5,7 +5,6 @@
  *)
 
 local
-   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    ../framework/lib.mlb
 
    shape.sig

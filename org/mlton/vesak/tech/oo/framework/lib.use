@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib ["../../../../../../com/ssh/extended-basis/unstable/basis.use",
+lib ["prelude.sml",
      "any.sig",
      "any.sml",
      "sub.fun",
