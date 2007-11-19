@@ -1,9 +1,9 @@
 Use Library
 -----------
 
-   This library implements a simple library and program definition
-   framework based on the de facto standard use-function provided by most
-   SML implementations with a REPL.
+   This is a simple library for defining separately loadable program
+   components based on the de facto standard use -function provided by
+   most Standard ML implementations with a REPL.
 
 
 Info
@@ -11,7 +11,7 @@ Info
 
    License:         MLton license (a BSD-style license)
    Portability:     requires the use-function
-   Ported to:       Moscow ML, Poly/ML, and SML/NJ
+   Ported to:       Alice ML, Moscow ML, Poly/ML, and SML/NJ
    Stability:       experimental
    Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
 
@@ -34,6 +34,13 @@ About Library Organization
    detail/
 
       This directory contains the implementation details of the library.
+
+   detail/ml/$(SML_COMPILER)/workarounds.sml
+
+      These files contain compiler specific workarounds.  On a fully
+      conforming compiler this file is not needed.  You can help by
+      implementing missing Basis library features and fixing bugs and
+      deviations in compilers.
 
 
 Motivation
