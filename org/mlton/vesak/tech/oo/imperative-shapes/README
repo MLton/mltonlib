@@ -8,6 +8,25 @@ OO Shapes Example
     http://onestepback.org/articles/poly/
     http://www.angelfire.com/tx4/cus/shapes/
 
+  To try this example, first check out the mltonlib repository:
+
+    svn co svn://mlton.org/mltonlib/trunk mltonlib
+
+  To run the example with Alice ML, Moscow ML, Poly/ML, or SML/NJ, you
+  first need to build the UseLib library:
+
+    cd <mltonlib>/org/mlton/vesak/use-lib/unstable
+    ./Make.sh
+
+  This generates a compiler specific version of the UseLib library.  To
+  run the example, write the following in the REPL of your SML
+  implementation:
+
+    use "<mltonlib>/org/mlton/vesak/use-lib/unstable/<compiler>.use" ;
+    use "<mltonlib>/org/mlton/vesak/tech/oo/imperative-shapes/main.use" ;
+
+  Replace <mltonlib> and <compiler> appropriately.
+
   I might write a more thorough explanation of this code at some point,
   but below are some random notes for starters.
 
