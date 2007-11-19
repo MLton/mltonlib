@@ -26,7 +26,7 @@ About Library Organization
       (export.sml).  The contents of this directory should ideally provide
       sufficient documentation to use the library.
 
-   {mosml,polyml,smlnj}.use
+   {alice,mosml,polyml,smlnj}.use
 
       These build files define the framework.  These files are generated
       using the Make.sh script.

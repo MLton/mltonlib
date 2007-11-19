@@ -45,6 +45,8 @@ function gen {
 
 gen alice '()' 'ignore' ''
 
+gen mosml '()' 'ignore' 'val () = load "OS" ;'
+
 gen polyml                                      \
     '(PolyML.get_print_depth ()                 \
       before PolyML.print_depth 0)'             \
@@ -67,8 +69,6 @@ gen smlnj                                       \
                  ; signatures := #sigs old)     \
      end'                                       \
     ''
-
-gen mosml '()' 'ignore' 'val () = load "OS" ;'
 
 if which poly > /dev/null ; then
     echo 'PolyML.print_depth 0 ; use "polyml.use" ;' | poly -q
