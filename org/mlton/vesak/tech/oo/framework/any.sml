@@ -6,7 +6,7 @@
 
 structure Any : ANY = struct
    type 'a t = 'a
-   fun part _ = ()
+   fun partOf _ = ()
    val getSub = id
    val mapSub = id
 end

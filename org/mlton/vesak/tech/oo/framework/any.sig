@@ -6,7 +6,7 @@
 
 signature ANY = sig
    type 'a t
-   val part : 'a t -> Unit.t t
+   val partOf : 'a t -> Unit.t t
    val getSub : 'a t -> 'a
    val mapSub : ('a -> 'b) -> 'a t -> 'b t
 end

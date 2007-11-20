@@ -11,8 +11,8 @@ fun drawAndMove s =
    ; Shape.draw s)
 
 (* Create some shapes: *)
-val scribble = [Shape.part (Rectangle.new {x=10, y=20, w=5, h=6}),
-                Shape.part (Circle.new {x=15, y=25, r=8})]
+val scribble = [Shape.partOf (Rectangle.new {x=10, y=20, w=5, h=6}),
+                Shape.partOf (Circle.new {x=15, y=25, r=8})]
 
 (* Handle shapes polymorphically: *)
 val () = app drawAndMove scribble

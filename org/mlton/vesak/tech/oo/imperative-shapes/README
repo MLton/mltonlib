@@ -47,7 +47,7 @@ OO Shapes Example
 
   No implementation inheritance is used in the example.
 
-  The "part" function specified in the ANY signature is for coercing an
+  The "partOf" function specified in the ANY signature is for coercing an
   object to one of its supertypes.  I would have preferred to call it
   "from", so a call could be read naturally as in
 
