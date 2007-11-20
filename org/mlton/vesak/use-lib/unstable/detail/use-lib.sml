@@ -12,15 +12,16 @@ structure UseLib :> USE_LIB = struct
    fun error strs = raise Fail (concat strs)
 
    structure Var = struct
-      val vars = ref [("SML_COMPILER", ${SML_COMPILER})]
+      val vars = ref [("SML_COMPILER", ${SML_COMPILER}),
+                      ("MLTON_LIB",    ${MLTON_LIB})]
 
       fun get var =
-          case List.find (fn (i, _) => i = var) (!vars)
-           of SOME (_, v) => v
-            | NONE =>
-              case OS.Process.getEnv var
-               of NONE   => error ["Undefined variable: ", var]
-                | SOME v => v
+          case OS.Process.getEnv var
+           of SOME v => v
+            | NONE   =>
+              case List.find (fn (i, _) => i = var) (!vars)
+               of SOME (_, v) => v
+                | NONE        => error ["Undefined variable: ", var]
 
       fun expand path = let
          fun outside os =
@@ -57,8 +58,11 @@ structure UseLib :> USE_LIB = struct
       fun clear () = (libStack := [] ; useQueue := [])
    end
 
-   fun useLoading loading path = let
+   fun use' loading dir path = let
       val path = Var.expand path
+      val path = if OS.Path.isRelative path
+                 then OS.Path.concat (dir, path)
+                 else path
       val () = if OS.FileSys.access (path, [OS.FileSys.A_READ])
                then ()
                else error ["File ", path, " is unreadable from ",
@@ -91,10 +95,7 @@ structure UseLib :> USE_LIB = struct
             in
                pushLib ()
              ; after (fn () =>
-                         (app (fn file =>
-                                  useLoading
-                                     loading
-                                     (OS.Path.concat (dir, file))) paths
+                         (app (use' loading dir) paths
                         ; loaded := path :: !loaded),
                       fn () =>
                          (popLib ()
@@ -103,7 +104,7 @@ structure UseLib :> USE_LIB = struct
       end
    end
 
-   val use = useLoading []
+   fun use path = use' [] (OS.FileSys.getDir ()) path
 
    val use = fn path => use path handle e => (clear () ; raise e)
    val lib = fn paths => lib paths handle e => (clear () ; raise e)

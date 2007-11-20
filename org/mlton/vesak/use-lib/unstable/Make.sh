@@ -7,6 +7,8 @@
 
 set -e
 
+MLTON_LIB=`cd ../../../../.. && pwd`
+
 sources="public/use-lib.sig detail/use-lib.sml public/export.sml"
 
 function gen {
@@ -24,11 +26,12 @@ function gen {
         grep -v '^ *(\?\*' $workarounds >> .tmp
     fi
 
-    cat $sources                                \
-  | grep -v '^ *(\?\*'                          \
-  | sed -e "s/\\\${SML_COMPILER}/\"$1\"/g"      \
-        -e "s/\\\${SILENT}/$(echo -n $2)/g"     \
-        -e "s/\\\${VERBOSE}/$(echo -n $3)/g"    \
+    cat $sources                                  \
+  | grep -v '^ *(\?\*'                            \
+  | sed -e "s|\\\${SML_COMPILER}|\"$1\"|g"        \
+        -e "s|\\\${MLTON_LIB}|\"${MLTON_LIB}\"|g" \
+        -e "s|\\\${SILENT}|$(echo -n $2)|g"       \
+        -e "s|\\\${VERBOSE}|$(echo -n $3)|g"      \
   >> .tmp
 
     if test ! -f $1.use ; then

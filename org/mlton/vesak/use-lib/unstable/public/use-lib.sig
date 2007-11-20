@@ -17,8 +17,10 @@
  * at most once.
  *
  * Paths given to the {lib} and {use} functions may contain references to
- * environment variables, e.g. "${VARIABLE}".  The predefined variable
- * "${SML_COMPILER}" gives the mnemonic name of the SML compiler.
+ * environment variables, e.g. "${VARIABLE}".  The predefined variables
+ * "${SML_COMPILER}" and "${MLTON_LIB}" give the mnemonic name of the SML
+ * compiler and the absolute location of the root of the mltonlib tree,
+ * respectively.
  *
  * For example, suppose you have the file "foo.sig" containing the code:
  *
