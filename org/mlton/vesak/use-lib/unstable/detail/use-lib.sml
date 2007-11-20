@@ -48,13 +48,13 @@ structure UseLib :> USE_LIB = struct
            of [] => error ["Each lib must be used as a unique .use file"]
             | e::es => (useQueue := es ; e)
       fun pushLib () =
-          (libStack := rev (!useQueue) :: !libStack
+          (libStack := !useQueue :: !libStack
          ; useQueue := [])
       fun popLib () =
           case !libStack
            of [] => error ["Internal error: Unmatched popLib"]
             | e::es => (libStack := es
-                      ; useQueue := !useQueue @ e)
+                      ; useQueue := List.revAppend (!useQueue, e))
       fun clear () = (libStack := [] ; useQueue := [])
    end
 
