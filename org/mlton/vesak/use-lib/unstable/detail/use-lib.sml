@@ -42,13 +42,13 @@ structure UseLib :> USE_LIB = struct
       val libStack : entry list list ref = ref []
       val useQueue : entry list ref = ref []
    in
-      fun pushUse e = useQueue := !useQueue @ [e]
+      fun pushUse e = useQueue := e :: !useQueue
       fun popUse () =
           case !useQueue
            of [] => error ["Each lib must be used as a unique .use file"]
             | e::es => (useQueue := es ; e)
       fun pushLib () =
-          (libStack := !useQueue :: !libStack
+          (libStack := rev (!useQueue) :: !libStack
          ; useQueue := [])
       fun popLib () =
           case !libStack
