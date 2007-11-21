@@ -1,4 +1,4 @@
-structure MersenneTwister : RNG = struct
+structure MersenneTwister :> RNG = struct
    open Word32
    val && = andb
    val || = orb
@@ -11,7 +11,7 @@ structure MersenneTwister : RNG = struct
    datatype t = D of {mt: word array, i: word ref}
 
    fun new seed = let
-      val mt = Array.array(toIntX n, 0w0)
+      val mt = Array.array (toIntX n, 0w0)
       val _ = Array.update (mt, 0, seed)
       fun loop (prev, i) =
           if i < n then

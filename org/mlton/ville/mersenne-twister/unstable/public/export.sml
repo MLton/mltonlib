@@ -1,2 +1,2 @@
 signature RNG = RNG
-structure MersenneTwister : RNG = MersenneTwister
+structure MersenneTwister :> RNG = MersenneTwister
