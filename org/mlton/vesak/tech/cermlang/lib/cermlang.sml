@@ -30,29 +30,49 @@ structure CerMLang :> CERMLANG = struct
    fun spawn ef = let
       val i = SyncVar.iVar ()
    in
-      ignore (CML.spawn (fn () => (Proc.new ()
-                                 ; SyncVar.iPut (i, Proc.current ())
-                                 ; ef ())))
+      (ignore o CML.spawn)
+         (fn () => (Proc.new ()
+                  ; SyncVar.iPut (i, Proc.current ())
+                  ; ef ()))
     ; SyncVar.iGet i
    end
    val self = Proc.current
-   fun recv handler = let
-      val {mbox, more} = Proc.msgs ()
-      fun lpRecv tried =
-          case Mailbox.recv mbox
-           of m => try (fn () => handler m,
-                        fn th => (more := rev tried ; th ()),
-                        fn Match => lpRecv (m::tried)
-                         | other => (more := rev tried ; raise other))
-      fun lpMsgs tried =
-       fn []    => lpRecv tried
-        | m::ms => try (fn () => handler m,
-                        fn th => (more := ms @ tried ; th ()),
-                        fn Match => lpMsgs (m::tried) ms
-                         | other => (more := ms @ tried ; raise other))
+   local
+      exception Timer of Unit.t Ref.t Option.t
+      fun receive ident handler = let
+         val {mbox, more} = Proc.msgs ()
+         fun lpRecv tried =
+             case Mailbox.recv mbox
+              of Timer i => if i = ident
+                            then (more := rev tried ; handler Time ())
+                            else lpRecv tried
+               | m       => try (fn () => handler m,
+                                 fn th => (more := rev tried ; th ()),
+                                 fn Match => lpRecv (m::tried)
+                                  | other => (more := rev tried ; raise other))
+         fun lpMsgs tried =
+          fn []    => lpRecv tried
+           | m::ms => try (fn () => handler m,
+                           fn th => (more := ms @ tried ; th ()),
+                           fn Match => lpMsgs (m::tried) ms
+                            | other => (more := ms @ tried ; raise other))
+      in
+         lpMsgs [] (!more before more := [])
+      end
    in
-      lpMsgs [] (!more before more := [])
+      fun recv handler = receive NONE handler
+      fun recvIn time handler =
+          case time
+           of NONE => receive NONE handler
+            | SOME period => let
+                 val ident = SOME (ref ())
+                 val mbox = #mbox (Proc.msgs ())
+              in
+                 (ignore o CML.spawn)
+                    (fn () => (CML.sync (CML.timeOutEvt period)
+                             ; Mailbox.send (mbox, Timer ident)))
+               ; receive ident handler
+              end
    end
-   val recvIn = undefined
    fun t <- m = Mailbox.send (#mbox (Proc.msgsOf t), m)
 end
