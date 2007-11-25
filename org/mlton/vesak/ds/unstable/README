@@ -1,0 +1,63 @@
+Data Structure Library
+----------------------
+
+   This library implements a number of data structures.  At this point,
+   this library is pretty much just a stub and will hopefully grow in the
+   future to a comprehensive collection of data structures.  Contributions
+   are welcome!
+
+
+Info
+----
+
+   License:         MLton license (a BSD-style license)
+   Portability:     portable
+   Ported to:       MLKit, MLton, Poly/ML, and SML/NJ
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
+
+
+About Library Organization
+--------------------------
+
+   public/
+
+      This directory contains the documented signature definitions (*.sig)
+      and listings of all top-level bindings exported by this library
+      (export.sml).  The contents of this directory should ideally provide
+      sufficient documentation to use the library.
+
+   lib.{cm,mlb,use}
+
+      These build files define the framework.
+
+   detail/
+
+      This directory contains the implementation details of the library.
+
+   detail/ml/$(SML_COMPILER)/
+
+      These directories (e.g. detail/ml/mlton/) contain compiler specific
+      implementation details.
+
+
+Contributions
+-------------
+
+   The signatures and structures defined by this library are not meant to
+   be cast in stone!  We welcome contributions including new
+   functionality, bug fixes, and ports to new compilers.  The recommended
+   submit method for small contributions to this library is to send a
+   message with a brief description of the proposed contribution as well
+   as a patch containing full code and documentation (signature comments)
+   to either the MLton-user list
+
+      mlton-user@mlton.org
+
+   or the MLton list
+
+      mlton@mlton.org .
+
+   For larger extensions or changes we recommend that you first contact
+   the active maintainer(s) of this library.  The preferred contact method
+   is through the above mailing lists.
