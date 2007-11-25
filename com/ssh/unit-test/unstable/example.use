@@ -5,9 +5,9 @@
  *)
 
 lib ["lib-with-default.use",
-     "../../extended-basis/unstable/basis.use",
-     "../../generic/unstable/lib.use",
-     "../../random/unstable/lib.use",
+     "${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
+     "${MLTON_LIB}/com/ssh/generic/unstable/lib.use",
+     "${MLTON_LIB}/com/ssh/random/unstable/lib.use",
      "detail/sorted-list.sml", (* XXX this is also used in the library? *)
      "example/assoc-test.sml",
      "example/innocent.sml",

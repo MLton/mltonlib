@@ -4,12 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib ["../../extended-basis/unstable/basis.use",
-     "../../generic/unstable/lib-with-default.use",
-     "../../random/unstable/lib.use",
+lib ["${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
+     "${MLTON_LIB}/com/ssh/generic/unstable/lib-with-default.use",
+     "${MLTON_LIB}/com/ssh/random/unstable/lib.use",
      "lib.use",
-     "../../generic/unstable/with/arbitrary.sml",
-     "../../generic/unstable/with/size.sml",
-     "../../generic/unstable/with/shrink.sml",
-     "../../generic/unstable/with/close-pretty-with-extra.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/arbitrary.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/size.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/shrink.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/close-pretty-with-extra.sml",
      "with/unit-test.sml"] ;

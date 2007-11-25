@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib ["../../extended-basis/unstable/basis.use",
+lib ["${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
      "public/rng.sig",
      "public/random-gen.sig",
      "detail/mk-random-gen.fun",

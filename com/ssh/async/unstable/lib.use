@@ -4,8 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib ["../../../../org/mlton/vesak/ds/unstable/lib.use",
-     "../../extended-basis/unstable/basis.use",
+lib ["${MLTON_LIB}/org/mlton/vesak/ds/unstable/lib.use",
+     "${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
      "public/async.sig",
      "detail/async.sml",
      "public/export.sml"] ;

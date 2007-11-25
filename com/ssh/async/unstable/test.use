@@ -4,8 +4,8 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib ["../../generic/unstable/lib-with-default.use",
-     "../../unit-test/unstable/lib-with-default.use",
-     "../../extended-basis/unstable/basis.use",
+lib ["${MLTON_LIB}/com/ssh/generic/unstable/lib-with-default.use",
+     "${MLTON_LIB}/com/ssh/unit-test/unstable/lib-with-default.use",
+     "${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
      "lib.use",
      "test/async.sml"] ;

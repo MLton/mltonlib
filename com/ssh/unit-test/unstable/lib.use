@@ -4,10 +4,10 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib ["../../extended-basis/unstable/basis.use",
-     "../../generic/unstable/lib.use",
-     "../../prettier/unstable/lib.use",
-     "../../random/unstable/lib.use",
+lib ["${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
+     "${MLTON_LIB}/com/ssh/generic/unstable/lib.use",
+     "${MLTON_LIB}/com/ssh/prettier/unstable/lib.use",
+     "${MLTON_LIB}/com/ssh/random/unstable/lib.use",
      "detail/sorted-list.sml",
      "public/unit-test.sig",
      "public/mk-unit-test-fun.sig",
