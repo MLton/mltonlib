@@ -7,7 +7,7 @@
 local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    $(SML_LIB)/mlnlffi-lib/mlnlffi-lib.mlb
-   generated/$(TARGET_ARCH)-$(TARGET_OS)/nlffi-generated.mlb
+   generated/$(TARGET_ARCH)-$(TARGET_OS)/$(SML_COMPILER)/nlffi-generated.mlb
    generated/$(TARGET_ARCH)-$(TARGET_OS)/constants.sml
 in
    ann
