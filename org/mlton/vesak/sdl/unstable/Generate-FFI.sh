@@ -44,7 +44,8 @@ $SDL/SDL_thread.h
 $SDL/SDL_timer.h
 $SDL/SDL_types.h
 $SDL/SDL_version.h
-$SDL/SDL_video.h"
+$SDL/SDL_video.h
+detail/lib/util.h"
 
 ##########################################################################
 # MLton Platform
@@ -57,10 +58,12 @@ outdir=generated/$target
 mkdir -p $outdir
 
 ##########################################################################
-# Generate ML-NLFFI
+# Generate FFI for MLton
 
+rm -rf $outdir/mlton
+mkdir -p $outdir/mlton
 mlnlffigen -linkage static                             \
-           -dir $outdir                                \
+           -dir $outdir/mlton                          \
            -cppopt "-include detail/config/$target.h"  \
            $headers
 
