@@ -59,10 +59,10 @@ mkdir -p $outdir
 ##########################################################################
 # Generate ML-NLFFI
 
-#mlnlffigen -linkage static                             \
-#           -dir $outdir                                \
-#           -cppopt "-include detail/config/$target.h"  \
-#           $headers
+mlnlffigen -linkage static                             \
+           -dir $outdir                                \
+           -cppopt "-include detail/config/$target.h"  \
+           $headers
 
 ##########################################################################
 # Generate #define constants
