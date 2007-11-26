@@ -9,7 +9,7 @@ structure Word32Flags = MkWordFlags (Word32)
 structure SDL :> SDL = struct
    fun raiseError () = raise Fail (ZString.toML' (F_SDL_GetError.f' ()))
    fun checkInt code = if 0 = code then () else raiseError ()
-   fun checkPtr ptr = if C.Ptr.isNull' ptr then ptr else raiseError ()
+   fun checkPtr ptr = if C.Ptr.isNull' ptr then raiseError () else ptr
 
    structure Init = struct
       open Word32Flags
