@@ -38,14 +38,10 @@ fun main () = let
    val obs =
        Vector.tabulate
           (!Opt.num,
-           fn _ => let
-                 open G
-              in
-                 {x = ref (gen (realInRange (0.0, xMax))),
-                  y = ref (gen (realInRange (0.0, yMax))),
-                  dx = ref (gen (realInRange (~5.0, 5.0))),
-                  dy = ref (gen (realInRange (~5.0, 5.0)))}
-              end)
+           fn _ => {x = ref (G.gen (G.realInRange (0.0, xMax))),
+                    y = ref (G.gen (G.realInRange (0.0, yMax))),
+                    dx = ref (G.gen (G.realInRange (~5.0, 5.0))),
+                    dy = ref (G.gen (G.realInRange (~5.0, 5.0)))})
 
    fun render () =
        (fillRect surface black NONE
@@ -58,17 +54,16 @@ fun main () = let
       ; Surface.updateRect surface NONE)
 
    fun animate () =
-       Vector.app (fn {x, y, dx, dy} =>
-                      (if !x < 0.0 andalso !dx < 0.0 orelse
-                          xMax < !x andalso 0.0 < !dx then
-                          dx := ~ (!dx)
-                       else ()
-                     ; if !y < 0.0 andalso !dy < 0.0 orelse
-                          yMax < !y andalso 0.0 < !dy then
-                          dy := ~ (!dy)
-                       else ()
-                     ; x := !x + !dx
-                     ; y := !y + !dy))
+       Vector.app (fn {x, y, dx, dy} => let
+                         fun upd (v, dv, vMax) =
+                             (if !v < 0.0 andalso !dv < 0.0 orelse
+                                 vMax < !v andalso 0.0 < !dv
+                              then dv := ~ (!dv) else ()
+                            ; v := !v + !dv)
+                      in
+                         upd (x, dx, xMax)
+                       ; upd (y, dy, yMax)
+                      end)
                   obs
 
    fun sleep () = OS.Process.sleep (Time.fromMilliseconds 20)
