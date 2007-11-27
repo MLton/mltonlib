@@ -7,6 +7,7 @@
 (** == Exported Signatures == *)
 
 signature SDL = SDL
+signature SDL_KEY = SDL_KEY
 
 (** == Exported Structures == *)
 

@@ -16,7 +16,10 @@ in
       "warnUnused true"
    in
       local
+         public/sdl-key.sig
          public/sdl.sig
+
+         detail/sdl-key.sml
          detail/sdl.sml
       in
          public/export.sml

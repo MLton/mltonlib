@@ -4,9 +4,12 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure Word32Flags = MkWordFlags (Word32)
-
 structure SDL :> SDL = struct
+   structure Word32Flags = MkWordFlags (Word32)
+
+   fun withNew size = With.around (fn () => C.new' size) C.discard'
+   val one = With.one
+
    fun raiseError () = raise Fail (ZString.toML' (F_SDL_GetError.f' ()))
    fun checkInt code = if 0 = code then () else raiseError ()
    fun checkPtr ptr = if C.Ptr.isNull' ptr then raiseError () else ptr
@@ -45,9 +48,11 @@ structure SDL :> SDL = struct
       val NOFRAME    = `SDL_NOFRAME
    end
 
-   structure Rect = struct
-      type t = {x : Int.t, y : Int.t, w : Int.t, h : Int.t}
-   end
+   type xy = {x : Int.t, y : Int.t}
+   type wh = {w : Int.t, h : Int.t}
+   type xywh = {x : Int.t, y : Int.t, w : Int.t, h : Int.t}
+   type rgb = {r : Word8.t, g : Word8.t, b : Word8.t}
+   type rgba = {r : Word8.t, g : Word8.t, b : Word8.t, a : Word8.t}
 
    structure Surface = struct
       type 'a t = (T_SDL_Surface.t, C.rw) C.obj C.ptr'
@@ -62,8 +67,6 @@ structure SDL :> SDL = struct
    end
 
    structure Color = struct
-      type rgb = {r : Word8.t, g : Word8.t, b : Word8.t}
-      type rgba = {r : Word8.t, g : Word8.t, b : Word8.t, a : Word8.t}
       type t = Word32.t
       fun fromRGB surface {r, g, b} =
           F_SDL_MapRGB.f' (Surface.getPixelFormat surface, r, g, b)
@@ -72,7 +75,7 @@ structure SDL :> SDL = struct
    end
 
    structure Video = struct
-      fun setMode {w, h, bpp, props} =
+      fun setMode props {bpp} {w, h} =
           checkPtr (F_SDL_SetVideoMode.f' (w, h, bpp, props))
       val getSurface = checkPtr o F_SDL_GetVideoSurface.f'
    end
@@ -82,4 +85,75 @@ structure SDL :> SDL = struct
      | SOME {x, y, w, h} =>
        checkInt (F_SML_SDL_FillRect.f'
                     (surface, x, y, Word.fromInt w, Word.fromInt h, color))
+
+   structure ScanCode = Word8
+
+   structure Key = SDLKey
+
+   structure Alt = struct
+      open Word32Flags
+      local
+         open E_'SDLMod
+      in
+         val toML = Word32.fromInt o E_'SDLMod.m2i
+
+         val LSHIFT = toML e_KMOD_LSHIFT
+         val RSHIFT = toML e_KMOD_RSHIFT
+         val LCTRL  = toML e_KMOD_LCTRL
+         val RCTRL  = toML e_KMOD_RCTRL
+         val LALT   = toML e_KMOD_LALT
+         val RALT   = toML e_KMOD_RALT
+         val LMETA  = toML e_KMOD_LMETA
+         val RMETA  = toML e_KMOD_RMETA
+         val NUM    = toML e_KMOD_NUM
+         val CAPS   = toML e_KMOD_CAPS
+         val MODE   = toML e_KMOD_MODE
+      end
+   end
+
+   structure Event = struct
+      datatype t =
+         KEY of {down : Bool.t,
+                 pressed : Bool.t,
+                 code : ScanCode.t,
+                 key : Key.t,
+                 alt : Alt.flags}
+
+      fun toML event = let
+         val t = C.Get.uchar' (U_SDL_Event.f_type' event)
+         open E_SDL_Events
+         fun is e = m2i e = MLRep.Char.Unsigned.toInt t
+      in
+         if is e_SDL_KEYDOWN orelse is e_SDL_KEYUP
+         then let
+               val ke = U_SDL_Event.f_key' event
+               val ks = S_SDL_KeyboardEvent.f_keysym' ke
+            in
+               SOME (KEY {down = is e_SDL_KEYDOWN,
+                          pressed = Word8.fromLargeInt SDL_PRESSED =
+                                    C.Get.uchar' (S_SDL_KeyboardEvent.f_state' ke),
+                          code = C.Get.uchar' (S_SDL_keysym.f_scancode' ks),
+                          key = C.Get.enum' (S_SDL_keysym.f_sym' ks),
+                          alt = Alt.toML (C.Get.enum' (S_SDL_keysym.f_mod' ks))})
+            end
+         else NONE (* We just ignore other events for now *)
+      end
+
+      fun poll () =
+          one (withNew U_SDL_Event.size)
+              (fn event =>
+                  case F_SDL_PollEvent.f' (C.Ptr.|&! event)
+                   of 0 => NONE
+                    | 1 => toML event
+                    | _ => raiseError ())
+
+      fun wait () =
+          one (withNew U_SDL_Event.size)
+              (fn event =>
+                  case F_SDL_WaitEvent.f' (C.Ptr.|&! event)
+                   of 1 => (case toML event
+                             of NONE => wait ()
+                              | SOME e => e)
+                    | _ => raiseError ())
+   end
 end

@@ -27,7 +27,7 @@ signature SDL = sig
    val init : Init.flags Effect.t
    val initSubSystem : Init.flags Effect.t
    val quitSubSystem : Init.flags Effect.t
-   val wasInit : Init.flags -> Init.flags
+   val wasInit : Init.flags UnOp.t
    val quit : Unit.t Effect.t
 
    structure Prop : sig
@@ -45,30 +45,61 @@ signature SDL = sig
       val NOFRAME : flags
    end
 
-   structure Rect : sig
-      type t = {x : Int.t, y : Int.t, w : Int.t, h : Int.t}
-   end
+   type xy = {x : Int.t, y : Int.t}
+   type wh = {w : Int.t, h : Int.t}
+   type xywh = {x : Int.t, y : Int.t, w : Int.t, h : Int.t}
+   type rgb = {r : Word8.t, g : Word8.t, b : Word8.t}
+   type rgba = {r : Word8.t, g : Word8.t, b : Word8.t, a : Word8.t}
 
    structure Surface : sig
       type 'a t
       val free : {video : no} t Effect.t
-      val updateRect : 'any t -> Rect.t Option.t Effect.t
+      val updateRect : 'any t -> xywh Option.t Effect.t
       val flip : 'any t Effect.t
    end
 
    structure Color : sig
-      type rgb = {r : Word8.t, g : Word8.t, b : Word8.t}
-      type rgba = {r : Word8.t, g : Word8.t, b : Word8.t, a : Word8.t}
       type t
       val fromRGB : 'any Surface.t -> rgb -> t
       val fromRGBA : 'any Surface.t -> rgba -> t
    end
 
    structure Video : sig
-      val setMode : {w : Int.t, h : Int.t, bpp : Int.t, props : Prop.flags}
-                    -> {video : yes} Surface.t
+      val setMode : Prop.flags -> {bpp : Int.t} -> wh -> {video : yes} Surface.t
       val getSurface : {video : yes} Surface.t Thunk.t
    end
 
-   val fillRect : 'any Surface.t -> Color.t -> Rect.t Option.t Effect.t
+   val fillRect : 'any Surface.t -> Color.t -> xywh Option.t Effect.t
+
+   structure ScanCode : sig
+      eqtype t
+   end
+
+   structure Key : SDL_KEY
+
+   structure Alt : sig
+      include FLAGS where type flags_word = Word32.t
+      val LSHIFT : flags
+      val RSHIFT : flags
+      val LCTRL : flags
+      val RCTRL : flags
+      val LALT : flags
+      val RALT : flags
+      val LMETA : flags
+      val RMETA : flags
+      val NUM : flags
+      val CAPS : flags
+      val MODE : flags
+   end
+
+   structure Event : sig
+      datatype t =
+         KEY of {down : Bool.t,
+                 pressed : Bool.t,
+                 code : ScanCode.t,
+                 key : Key.t,
+                 alt : Alt.flags}
+      val poll : t Option.t Thunk.t
+      val wait : t Thunk.t
+   end
 end
