@@ -14,6 +14,7 @@ structure Opt = struct
    val bpp = ref 16
    val size = ref 4
    val num = ref 100
+   val fps = ref 50
 end
 
 structure G = struct
@@ -66,7 +67,17 @@ fun main () = let
                       end)
                   obs
 
-   fun sleep () = OS.Process.sleep (Time.fromMilliseconds 20)
+   local
+      open Time
+      val slice = fromMicroseconds (toMicroseconds (fromSeconds 1) div
+                                    Int.toLarge (!Opt.fps))
+      val minSleep = fromMicroseconds 1
+      val next = ref (now () + slice)
+   in
+      fun sleep () =
+          (OS.Process.sleep (Cmp.max compare (!next - now (), minSleep))
+         ; next := !next + slice)
+   end
 
    fun lp () =
        case Event.poll ()
@@ -85,4 +96,5 @@ val () =
         | "-h"    :: v :: xs => (Opt.h    := valOf (Int.fromString v) ; lp xs)
         | "-size" :: v :: xs => (Opt.size := valOf (Int.fromString v) ; lp xs)
         | "-num"  :: v :: xs => (Opt.num  := valOf (Int.fromString v) ; lp xs)
+        | "-fps"  :: v :: xs => (Opt.fps  := valOf (Int.fromString v) ; lp xs)
         | x :: _             => (printlns ["Invalid option: ", x]))
