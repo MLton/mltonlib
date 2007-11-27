@@ -6,8 +6,13 @@
 
 local
    $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+   $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
    ../../lib.mlb
 
-   bounce.sml
+   ann
+      "sequenceNonUnit warn"
+   in
+      bounce.sml
+   end
 in
 end

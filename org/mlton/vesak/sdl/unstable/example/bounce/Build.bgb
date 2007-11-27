@@ -5,4 +5,4 @@
 
 (bg-build
  :name  "Bounce SDL example"
- :shell "./Build.sh")
+ :shell "nice -n 10 ./Build.sh")
