@@ -11,6 +11,7 @@ local
 
    ann
       "sequenceNonUnit warn"
+      "warnUnused true"
    in
       bounce.sml
    end

@@ -67,6 +67,8 @@ signature SDL = sig
    structure Video : sig
       val setMode : Prop.flags -> {bpp : Int.t} -> wh -> {video : yes} Surface.t
       val getSurface : {video : yes} Surface.t Thunk.t
+      val getDriverName : String.t Thunk.t
+      val listModes : Prop.flags -> wh List.t Option.t
    end
 
    val fillRect : 'any Surface.t -> Color.t -> xywh Option.t Effect.t

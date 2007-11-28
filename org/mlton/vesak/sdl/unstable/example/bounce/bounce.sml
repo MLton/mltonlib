@@ -11,6 +11,7 @@ val printlns = println o concat
 structure Opt = struct
    val w = ref 640
    val h = ref 480
+   val fs = ref false
    val bpp = ref 16
    val size = ref 4
    val num = ref 100
@@ -26,9 +27,13 @@ structure G = struct
    end
 end
 
-fun main () = let
+fun demo () = let
    val surface =
-       Video.setMode Prop.HWSURFACE {bpp = !Opt.bpp} {w = !Opt.w, h = !Opt.h}
+       Video.setMode
+          let open Prop in
+             flags ([HWSURFACE] @ (if !Opt.fs then [FULLSCREEN] else [])) end
+          {bpp = !Opt.bpp}
+          {w = !Opt.w, h = !Opt.h}
 
    val black = Color.fromRGB surface {r=0w0, g=0w0, b=0w0}
    val white = Color.fromRGB surface {r=0w255, g=0w255, b=0w255}
@@ -88,6 +93,17 @@ in
    lp ()
 end
 
+fun main () =
+    (printlns ["Driver name: ", Video.getDriverName ()]
+   ; print "Available full screen modes: "
+   ; case Video.listModes let open Prop in flags [HWSURFACE, FULLSCREEN] end
+      of NONE    => println "Any resolution is OK?"
+       | SOME [] => println "None"
+       | SOME rs =>
+         println o String.concatWith ", " |< map
+            (fn {w, h} => concat [Int.toString w, "x", Int.toString h]) rs
+   ; demo ())
+
 val () =
     recur (CommandLine.arguments ()) (fn lp =>
        fn []                 => (init Init.VIDEO ; after (main, quit))
@@ -97,4 +113,5 @@ val () =
         | "-size" :: v :: xs => (Opt.size := valOf (Int.fromString v) ; lp xs)
         | "-num"  :: v :: xs => (Opt.num  := valOf (Int.fromString v) ; lp xs)
         | "-fps"  :: v :: xs => (Opt.fps  := valOf (Int.fromString v) ; lp xs)
+        | "-fs"        :: xs => (Opt.fs   := true                     ; lp xs)
         | x :: _             => (printlns ["Invalid option: ", x]))

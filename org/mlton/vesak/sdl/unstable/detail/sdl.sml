@@ -8,11 +8,15 @@ structure SDL :> SDL = struct
    structure Word32Flags = MkWordFlags (Word32)
 
    fun withNew size = With.around (fn () => C.new' size) C.discard'
+   fun withAlloc alloc = With.around alloc C.free'
+   fun withBuf length = withAlloc (fn () => C.alloc' C.S.uchar length)
    val one = With.one
 
    fun raiseError () = raise Fail (ZString.toML' (F_SDL_GetError.f' ()))
    fun checkInt code = if 0 = code then () else raiseError ()
    fun checkPtr ptr = if C.Ptr.isNull' ptr then raiseError () else ptr
+
+   val minus1ptr : C.voidptr = C.U.i2p (C.Cvt.c_ulong (~ 0w1))
 
    structure Init = struct
       open Word32Flags
@@ -78,6 +82,31 @@ structure SDL :> SDL = struct
       fun setMode props {bpp} {w, h} =
           checkPtr (F_SDL_SetVideoMode.f' (w, h, bpp, props))
       val getSurface = checkPtr o F_SDL_GetVideoSurface.f'
+      val maxDriverNameSz = 256 (* XXX is this large enough? *)
+      fun getDriverName () =
+         one (withBuf (Word.fromInt maxDriverNameSz))
+             (fn buf =>
+                 if C.Ptr.isNull' (F_SDL_VideoDriverName.f'
+                                      (buf, maxDriverNameSz))
+                 then fail "Cannot get driver name.  Is SDL video initialized?"
+                 else ZString.toML' buf)
+      fun listModes props =
+          case F_SDL_ListModes.f' (C.Ptr.null', props)
+           of modes =>
+              if C.Ptr.isNull' modes then SOME []
+              else if minus1ptr = C.Ptr.inject' modes then NONE
+              else recur (modes, []) (fn lp =>
+                      fn (modes, ms) =>
+                         if C.Ptr.isNull' (C.Get.ptr' (C.Ptr.|*! modes))
+                         then SOME ms
+                         else let
+                               val r = C.Ptr.|*! (C.Get.ptr' (C.Ptr.|*! modes))
+                               fun `f = Word16.toInt (C.Get.ushort' (f r))
+                            in
+                               lp (C.Ptr.|+! C.S.ptr (modes, 1),
+                                   {w = `S_SDL_Rect.f_w',
+                                    h = `S_SDL_Rect.f_h'}::ms)
+                            end)
    end
 
    fun fillRect surface color =
