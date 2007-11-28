@@ -48,8 +48,8 @@ signature SDL = sig
    type xy = {x : Int.t, y : Int.t}
    type wh = {w : Int.t, h : Int.t}
    type xywh = {x : Int.t, y : Int.t, w : Int.t, h : Int.t}
-   type rgb = {r : Word8.t, g : Word8.t, b : Word8.t}
-   type rgba = {r : Word8.t, g : Word8.t, b : Word8.t, a : Word8.t}
+   type 'a rgb = {r : 'a, g : 'a, b : 'a}
+   type 'a rgba = {r : 'a, g : 'a, b : 'a, a : 'a}
 
    structure Surface : sig
       type 'a t
@@ -60,8 +60,8 @@ signature SDL = sig
 
    structure Color : sig
       type t
-      val fromRGB : 'any Surface.t -> rgb -> t
-      val fromRGBA : 'any Surface.t -> rgba -> t
+      val fromRGB : 'any Surface.t -> Word8.t rgb -> t
+      val fromRGBA : 'any Surface.t -> Word8.t rgba -> t
    end
 
    structure Video : sig
@@ -69,6 +69,7 @@ signature SDL = sig
       val getSurface : {video : yes} Surface.t Thunk.t
       val getDriverName : String.t Thunk.t
       val listModes : Prop.flags -> wh List.t Option.t
+      val setGamma : Real.t rgb Effect.t
    end
 
    val fillRect : 'any Surface.t -> Color.t -> xywh Option.t Effect.t

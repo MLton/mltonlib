@@ -55,8 +55,8 @@ structure SDL :> SDL = struct
    type xy = {x : Int.t, y : Int.t}
    type wh = {w : Int.t, h : Int.t}
    type xywh = {x : Int.t, y : Int.t, w : Int.t, h : Int.t}
-   type rgb = {r : Word8.t, g : Word8.t, b : Word8.t}
-   type rgba = {r : Word8.t, g : Word8.t, b : Word8.t, a : Word8.t}
+   type 'a rgb = {r : 'a, g : 'a, b : 'a}
+   type 'a rgba = {r : 'a, g : 'a, b : 'a, a : 'a}
 
    structure Surface = struct
       type 'a t = (T_SDL_Surface.t, C.rw) C.obj C.ptr'
@@ -107,6 +107,9 @@ structure SDL :> SDL = struct
                                    {w = `S_SDL_Rect.f_w',
                                     h = `S_SDL_Rect.f_h'}::ms)
                             end)
+      val toFloat = Real32.fromLarge IEEEReal.TO_NEAREST
+      fun setGamma {r, g, b} =
+          checkInt (F_SDL_SetGamma.f' (toFloat r, toFloat g, toFloat b))
    end
 
    fun fillRect surface color =
