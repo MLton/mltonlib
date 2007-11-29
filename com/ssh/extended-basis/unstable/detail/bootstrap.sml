@@ -28,7 +28,10 @@ structure LargeReal = struct open BasisLargeReal type t = real end
 structure LargeWord = struct open BasisLargeWord type t = word end
 structure List = struct open BasisList type 'a t = 'a list end
 structure Option = struct open BasisOption type 'a t = 'a option end
-structure Order = struct datatype order = datatype order type t = order end
+structure Order = struct
+   datatype order = datatype BasisGeneral.order
+   type t = order
+end
 structure String = struct open BasisString type t = string end
 structure Substring = struct open BasisSubstring type t = substring end
 structure Vector = struct open BasisVector type 'a t = 'a vector end
@@ -64,3 +67,4 @@ structure Iso = struct type ('a, 'b) t = ('a -> 'b) * ('b -> 'a) end
 structure ShiftOp = struct type 'a t = 'a * Word.t -> 'a end
 structure BinFn = struct type ('a, 'b) t = 'a Sq.t -> 'b end
 structure IEEEReal = BasisIEEEReal
+structure Time = struct open BasisTime type t = time end

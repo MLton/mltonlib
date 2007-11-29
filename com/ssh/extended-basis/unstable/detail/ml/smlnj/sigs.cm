@@ -83,5 +83,6 @@ is
    ../../../public/text/string.sig
    ../../../public/text/substring.sig
    ../../../public/text/text.sig
+   ../../../public/time/time.sig
    ../../../public/typing/phantom.sig
    bootstrap.cm

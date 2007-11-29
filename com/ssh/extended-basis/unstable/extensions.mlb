@@ -306,6 +306,9 @@ in
 
          (* MkWordFlags *)
          detail/concept/mk-word-flags.fun
+
+         (* Time *)
+         public/time/time.sig
       in
          public/export/$(SML_COMPILER).sml
          public/export/common.sml
