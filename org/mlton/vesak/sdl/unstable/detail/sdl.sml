@@ -6,12 +6,14 @@
 
 structure SDL :> SDL = struct
    structure Word32Flags = MkWordFlags (Word32)
+   structure Word8Flags = MkWordFlags (Word8)
 
    val op >>& = With.Monad.>>&
    fun withNew size = With.around (fn () => C.new' size) C.discard'
    fun withAlloc alloc = With.around alloc C.free'
    fun withZs mlStr = withAlloc (fn () => ZString.dupML' mlStr)
-   fun withBuf length = withAlloc (fn () => C.alloc' C.S.uchar length)
+   fun withArray size length = withAlloc (fn () => C.alloc' size length)
+   fun withBuf length = withArray C.S.uchar length
    val one = With.one
 
    fun raiseError () = raise Fail (ZString.toML' (F_SDL_GetError.f' ()))
@@ -149,37 +151,68 @@ structure SDL :> SDL = struct
           checkInt (F_SDL_SetGamma.f' (toFloat r, toFloat g, toFloat b))
    end
 
-
    structure Key = struct
       structure Code = Word8
-      structure Sym = SDLKeySym
+      structure Sym = struct
+         fun toString sym = ZString.toML' (checkPtr (F_SDL_GetKeyName.f' sym))
+         open SDLKeySym
+      end
+      structure Mod = struct
+         open Word32Flags
+         local
+            open E_'SDLMod
+         in
+            val toML = Word32.fromInt o E_'SDLMod.m2i
+            val LSHIFT = toML e_KMOD_LSHIFT
+            val RSHIFT = toML e_KMOD_RSHIFT
+            val LCTRL  = toML e_KMOD_LCTRL
+            val RCTRL  = toML e_KMOD_RCTRL
+            val LALT   = toML e_KMOD_LALT
+            val RALT   = toML e_KMOD_RALT
+            val LMETA  = toML e_KMOD_LMETA
+            val RMETA  = toML e_KMOD_RMETA
+            val NUM    = toML e_KMOD_NUM
+            val CAPS   = toML e_KMOD_CAPS
+            val MODE   = toML e_KMOD_MODE
+         end
+      end
       val setRepeat =
        fn NONE => checkInt (F_SDL_EnableKeyRepeat.f' (0, 0))
         | SOME {delay, interval} =>
           checkInt (F_SDL_EnableKeyRepeat.f'
                        (Int.fromLarge (Time.toMilliseconds delay),
                         Int.fromLarge (Time.toMilliseconds interval)))
+      val keys = checkPtr (F_SDL_GetKeyState.f' C.Ptr.null')
+      fun isPressed sym =
+          C.Get.uchar' (C.Ptr.sub' C.S.uchar (keys, E_'SDLKey.m2i sym)) <> 0w0
    end
 
-   structure Alt = struct
-      open Word32Flags
-      local
-         open E_'SDLMod
-      in
-         val toML = Word32.fromInt o E_'SDLMod.m2i
-
-         val LSHIFT = toML e_KMOD_LSHIFT
-         val RSHIFT = toML e_KMOD_RSHIFT
-         val LCTRL  = toML e_KMOD_LCTRL
-         val RCTRL  = toML e_KMOD_RCTRL
-         val LALT   = toML e_KMOD_LALT
-         val RALT   = toML e_KMOD_RALT
-         val LMETA  = toML e_KMOD_LMETA
-         val RMETA  = toML e_KMOD_RMETA
-         val NUM    = toML e_KMOD_NUM
-         val CAPS   = toML e_KMOD_CAPS
-         val MODE   = toML e_KMOD_MODE
+   structure Mouse = struct
+      structure Button = struct
+         open Word8Flags
+         val LEFT = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_LEFT)
+         val MIDDLE = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_MIDDLE)
+         val RIGHT = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_RIGHT)
+         val WHEELDOWN = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_WHEELDOWN)
+         val WHEELUP = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_WHEELUP)
       end
+
+      local
+         fun getMouse f =
+             one (withArray C.S.sint 0w2)
+                 (fn xy =>
+                     (ignore (f (xy, C.Ptr.|+! C.S.sint (xy, 1)))
+                    ; {x = C.Get.sint' (C.Ptr.|*! xy),
+                       y = C.Get.sint' (C.Ptr.sub' C.S.sint (xy, 1))}))
+      in
+         fun getPos () = getMouse F_SDL_GetMouseState.f'
+         fun getDelta () = getMouse F_SDL_GetRelativeMouseState.f'
+      end
+      fun getButtons () = F_SDL_GetMouseState.f' (C.Ptr.null', C.Ptr.null')
+      fun showCursor b =
+          ignore (F_SDL_ShowCursor.f' (if b
+                                       then Int.fromLarge SDL_ENABLE
+                                       else Int.fromLarge SDL_DISABLE))
    end
 
    structure Event = struct
@@ -188,7 +221,7 @@ structure SDL :> SDL = struct
                  pressed : Bool.t,
                  code : Key.Code.t,
                  sym : Key.Sym.t,
-                 alt : Alt.flags}
+                 mods : Key.Mod.flags}
 
       fun toML event = let
          val t = C.Get.uchar' (U_SDL_Event.f_type' event)
@@ -199,13 +232,15 @@ structure SDL :> SDL = struct
          then let
                val ke = U_SDL_Event.f_key' event
                val ks = S_SDL_KeyboardEvent.f_keysym' ke
+               open S_SDL_keysym
             in
                SOME (KEY {down = is e_SDL_KEYDOWN,
                           pressed = Word8.fromLargeInt SDL_PRESSED =
-                                    C.Get.uchar' (S_SDL_KeyboardEvent.f_state' ke),
-                          code = C.Get.uchar' (S_SDL_keysym.f_scancode' ks),
-                          sym = C.Get.enum' (S_SDL_keysym.f_sym' ks),
-                          alt = Alt.toML (C.Get.enum' (S_SDL_keysym.f_mod' ks))})
+                                    C.Get.uchar'
+                                       (S_SDL_KeyboardEvent.f_state' ke),
+                          code = C.Get.uchar' (f_scancode' ks),
+                          sym = C.Get.enum' (f_sym' ks),
+                          mods = Key.Mod.toML (C.Get.enum' (f_mod' ks))})
             end
          else NONE (* We just ignore other events for now *)
       end
@@ -226,6 +261,8 @@ structure SDL :> SDL = struct
                              of NONE => wait ()
                               | SOME e => e)
                     | _ => raiseError ())
+
+      val pump = F_SDL_PumpEvents.f'
    end
 
    structure Image = struct

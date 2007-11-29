@@ -6,6 +6,7 @@
 
 signature SDL_KEY_SYM = sig
    eqtype t
+   val toString : t -> String.t
    val BACKSPACE : t
    val TAB : t
    val CLEAR : t

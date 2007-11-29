@@ -53,9 +53,7 @@ signature SDL = sig
 
    structure Pixel : sig
       eqtype t
-
       structure Format : sig eqtype t end
-
       val fromRGB : Format.t -> Word8.t RGB.t -> t
       val fromRGBA : Format.t -> Word8.t RGBA.t -> t
    end
@@ -74,7 +72,8 @@ signature SDL = sig
    end
 
    structure Video : sig
-      val setMode : Prop.flags -> {bpp : Int.t} -> Int.t Dim.t -> {video : yes} Surface.t
+      val setMode : Prop.flags -> {bpp : Int.t} -> Int.t Dim.t
+                    -> {video : yes} Surface.t
       val getSurface : {video : yes} Surface.t Thunk.t
       val getDriverName : String.t Thunk.t
       val listModes : Prop.flags -> Int.t Dim.t List.t Option.t
@@ -82,26 +81,39 @@ signature SDL = sig
    end
 
    structure Key : sig
-      structure Code : sig
-         eqtype t
-      end
+      structure Code : sig eqtype t end
       structure Sym : SDL_KEY_SYM
+      structure Mod : sig
+         include FLAGS where type flags_word = Word32.t
+         val LSHIFT : flags
+         val RSHIFT : flags
+         val LCTRL : flags
+         val RCTRL : flags
+         val LALT : flags
+         val RALT : flags
+         val LMETA : flags
+         val RMETA : flags
+         val NUM : flags
+         val CAPS : flags
+         val MODE : flags
+      end
       val setRepeat : {delay : Time.t, interval : Time.t} Option.t Effect.t
+      val isPressed : Sym.t UnPr.t
    end
 
-   structure Alt : sig
-      include FLAGS where type flags_word = Word32.t
-      val LSHIFT : flags
-      val RSHIFT : flags
-      val LCTRL : flags
-      val RCTRL : flags
-      val LALT : flags
-      val RALT : flags
-      val LMETA : flags
-      val RMETA : flags
-      val NUM : flags
-      val CAPS : flags
-      val MODE : flags
+   structure Mouse : sig
+      structure Button : sig
+         include FLAGS where type flags_word = Word8.t
+         val LEFT : flags
+         val MIDDLE : flags
+         val RIGHT : flags
+         val WHEELDOWN : flags
+         val WHEELUP : flags
+      end
+      val getPos : Int.t Pos.t Thunk.t
+      val getDelta : Int.t Pos.t Thunk.t
+      val getButtons : Button.flags Thunk.t
+      val showCursor : Bool.t Effect.t
    end
 
    structure Event : sig
@@ -110,9 +122,10 @@ signature SDL = sig
                  pressed : Bool.t,
                  code : Key.Code.t,
                  sym : Key.Sym.t,
-                 alt : Alt.flags}
+                 mods : Key.Mod.flags}
       val poll : t Option.t Thunk.t
       val wait : t Thunk.t
+      val pump : Unit.t Effect.t
    end
 
    structure Image : sig
