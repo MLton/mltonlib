@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure SDLKey = struct
+structure SDLKeySym = struct
    type t = E_'SDLKey.mlrep
    local
       open E_'SDLKey

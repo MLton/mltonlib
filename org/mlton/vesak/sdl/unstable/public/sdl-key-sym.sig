@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-signature SDL_KEY = sig
+signature SDL_KEY_SYM = sig
    eqtype t
    val BACKSPACE : t
    val TAB : t

@@ -31,12 +31,15 @@ fun demo () = let
    val surface =
        Video.setMode
           let open Prop in
-             flags ([HWSURFACE] @ (if !Opt.fs then [FULLSCREEN] else [])) end
+             flags ([DOUBLEBUF] @
+                    (if !Opt.fs then [HWSURFACE, FULLSCREEN] else [])) end
           {bpp = !Opt.bpp}
           {w = !Opt.w, h = !Opt.h}
 
-   val black = Color.fromRGB surface {r=0w0, g=0w0, b=0w0}
-   val white = Color.fromRGB surface {r=0w255, g=0w255, b=0w255}
+   val format = Surface.pixelFormat surface
+
+   val black = Pixel.fromRGB format {r=0w0, g=0w0, b=0w0}
+   val white = Pixel.fromRGB format {r=0w255, g=0w255, b=0w255}
 
    val xMax = real (!Opt.w - !Opt.size)
    val yMax = real (!Opt.h - !Opt.size)
@@ -49,15 +52,18 @@ fun demo () = let
                     dx = ref (G.gen (G.realInRange (~5.0, 5.0))),
                     dy = ref (G.gen (G.realInRange (~5.0, 5.0)))})
 
+   val obDim = {w = !Opt.size, h = !Opt.size}
+
    fun render () =
-       (fillRect surface black NONE
+       (Surface.fill surface black
       ; Vector.app (fn {x, y, ...} =>
-                       fillRect surface white (SOME {x = trunc (!x),
-                                                     y = trunc (!y),
-                                                     w = !Opt.size,
-                                                     h = !Opt.size}))
+                       Surface.fillRect
+                          surface
+                          white
+                          {dim = obDim,
+                           pos = {x = trunc (!x), y = trunc (!y)}})
                    obs
-      ; Surface.updateRect surface NONE)
+      ; Surface.flip surface)
 
    fun animate () =
        Vector.app (fn {x, y, dx, dy} => let
@@ -86,8 +92,8 @@ fun demo () = let
 
    fun lp () =
        case Event.poll ()
-        of SOME (Event.KEY {key, pressed = true, down = true, ...}) =>
-           if key = Key.Q orelse key = Key.ESCAPE then () else lp ()
+        of SOME (Event.KEY {sym, pressed = true, down = true, ...}) =>
+           if sym = Key.Sym.Q orelse sym = Key.Sym.ESCAPE then () else lp ()
          | _ => (render () ; animate () ; sleep () ; lp ())
 in
    lp ()
@@ -96,7 +102,8 @@ end
 fun main () =
     (printlns ["Driver name: ", Video.getDriverName ()]
    ; print "Available full screen modes: "
-   ; case Video.listModes let open Prop in flags [HWSURFACE, FULLSCREEN] end
+   ; case Video.listModes
+             let open Prop in flags [DOUBLEBUF, HWSURFACE, FULLSCREEN] end
       of NONE    => println "Any resolution is OK?"
        | SOME [] => println "None"
        | SOME rs =>

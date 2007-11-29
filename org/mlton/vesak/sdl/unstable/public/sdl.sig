@@ -45,40 +45,49 @@ signature SDL = sig
       val NOFRAME : flags
    end
 
-   type xy = {x : Int.t, y : Int.t}
-   type wh = {w : Int.t, h : Int.t}
-   type xywh = {x : Int.t, y : Int.t, w : Int.t, h : Int.t}
-   type 'a rgb = {r : 'a, g : 'a, b : 'a}
-   type 'a rgba = {r : 'a, g : 'a, b : 'a, a : 'a}
+   structure Pos : sig type 'e t = {x : 'e, y : 'e} end
+   structure Dim : sig type 'e t = {w : 'e, h : 'e} end
+   structure Rect : sig type 'e t = {pos : 'e Pos.t, dim : 'e Dim.t} end
+   structure RGB : sig type 'e t = {r : 'e, g : 'e, b : 'e} end
+   structure RGBA : sig type 'e t = {r : 'e, g : 'e, b : 'e, a : 'e} end
+
+   structure Pixel : sig
+      eqtype t
+
+      structure Format : sig eqtype t end
+
+      val fromRGB : Format.t -> Word8.t RGB.t -> t
+      val fromRGBA : Format.t -> Word8.t RGBA.t -> t
+   end
 
    structure Surface : sig
       type 'a t
+      val pixelFormat : 'any t -> Pixel.Format.t
       val free : {video : no} t Effect.t
-      val updateRect : 'any t -> xywh Option.t Effect.t
-      val flip : 'any t Effect.t
-   end
-
-   structure Color : sig
-      type t
-      val fromRGB : 'any Surface.t -> Word8.t rgb -> t
-      val fromRGBA : 'any Surface.t -> Word8.t rgba -> t
+      val flip : 'dst t Effect.t
+      val update : 'dst t Effect.t
+      val updateRect : 'dst t -> Int.t Rect.t Effect.t
+      val fill : 'dst t -> Pixel.t Effect.t
+      val fillRect : 'dst t -> Pixel.t -> Int.t Rect.t Effect.t
+      val blit : 'src t -> 'dst t Effect.t
+      val blitRect : 'src t -> Int.t Rect.t -> 'dst t -> Int.t Rect.t Effect.t
    end
 
    structure Video : sig
-      val setMode : Prop.flags -> {bpp : Int.t} -> wh -> {video : yes} Surface.t
+      val setMode : Prop.flags -> {bpp : Int.t} -> Int.t Dim.t -> {video : yes} Surface.t
       val getSurface : {video : yes} Surface.t Thunk.t
       val getDriverName : String.t Thunk.t
-      val listModes : Prop.flags -> wh List.t Option.t
-      val setGamma : Real.t rgb Effect.t
+      val listModes : Prop.flags -> Int.t Dim.t List.t Option.t
+      val setGamma : Real.t RGB.t Effect.t
    end
 
-   val fillRect : 'any Surface.t -> Color.t -> xywh Option.t Effect.t
-
-   structure ScanCode : sig
-      eqtype t
+   structure Key : sig
+      structure Code : sig
+         eqtype t
+      end
+      structure Sym : SDL_KEY_SYM
+      val setRepeat : {delay : Time.t, interval : Time.t} Option.t Effect.t
    end
-
-   structure Key : SDL_KEY
 
    structure Alt : sig
       include FLAGS where type flags_word = Word32.t
@@ -99,10 +108,15 @@ signature SDL = sig
       datatype t =
          KEY of {down : Bool.t,
                  pressed : Bool.t,
-                 code : ScanCode.t,
-                 key : Key.t,
+                 code : Key.Code.t,
+                 sym : Key.Sym.t,
                  alt : Alt.flags}
       val poll : t Option.t Thunk.t
       val wait : t Thunk.t
+   end
+
+   structure Image : sig
+      val loadBMP : String.t -> {video : no} Surface.t
+      val saveBMP : 'any Surface.t -> String.t Effect.t
    end
 end

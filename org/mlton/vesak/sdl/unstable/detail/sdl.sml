@@ -7,8 +7,10 @@
 structure SDL :> SDL = struct
    structure Word32Flags = MkWordFlags (Word32)
 
+   val op >>& = With.Monad.>>&
    fun withNew size = With.around (fn () => C.new' size) C.discard'
    fun withAlloc alloc = With.around alloc C.free'
+   fun withZs mlStr = withAlloc (fn () => ZString.dupML' mlStr)
    fun withBuf length = withAlloc (fn () => C.alloc' C.S.uchar length)
    val one = With.one
 
@@ -52,30 +54,65 @@ structure SDL :> SDL = struct
       val NOFRAME    = `SDL_NOFRAME
    end
 
-   type xy = {x : Int.t, y : Int.t}
-   type wh = {w : Int.t, h : Int.t}
-   type xywh = {x : Int.t, y : Int.t, w : Int.t, h : Int.t}
-   type 'a rgb = {r : 'a, g : 'a, b : 'a}
-   type 'a rgba = {r : 'a, g : 'a, b : 'a, a : 'a}
+   structure Pos = struct type 'a t = {x : 'a, y : 'a} end
+   structure Dim = struct type 'a t = {w : 'a, h : 'a} end
+   structure Rect = struct type 'a t = {pos : 'a Pos.t, dim : 'a Dim.t} end
+   structure RGB = struct type 'a t = {r : 'a, g : 'a, b : 'a} end
+   structure RGBA = struct type 'a t = {r : 'a, g : 'a, b : 'a, a : 'a} end
+
+   structure Pixel = struct
+      type t = Word32.t
+
+      structure Format = struct
+         type t = {mask : t RGBA.t,
+                   shift : Word8.t RGBA.t,
+                   loss : Word8.t RGBA.t}
+      end
+
+      fun fromRGBA ({shift, loss, ...} : Format.t) {r, g, b, a} = let
+         open Word32
+         fun pack (v, s, l) =
+             (Word32.fromWord8 v >> Word.fromWord8 l) << Word.fromWord8 s
+      in
+         pack (r, #r shift, #r loss) orb
+         pack (g, #g shift, #g loss) orb
+         pack (b, #b shift, #b loss) orb
+         pack (a, #a shift, #a loss)
+      end
+      fun fromRGB format {r, g, b} =
+          fromRGBA format {r=r, g=g, b=b, a=0w255}
+   end
 
    structure Surface = struct
       type 'a t = (T_SDL_Surface.t, C.rw) C.obj C.ptr'
+      fun pixelFormat surface = let
+         val pf = C.Ptr.|*! (C.Get.ptr' (S_SDL_Surface.f_format' (C.Ptr.|*! surface)))
+         fun m f = C.Get.uint' (f pf)
+         fun s f = C.Get.uchar' (f pf)
+         val l = s
+         open S_SDL_PixelFormat
+      in
+         {mask  = {r = m f_Rmask',  g = m f_Gmask',  b = m f_Bmask',  a = m f_Amask'},
+          shift = {r = s f_Rshift', g = s f_Gshift', b = s f_Bshift', a = s f_Ashift'},
+          loss  = {r = l f_Rloss',  g = l f_Gloss',  b = l f_Bloss',  a = l f_Aloss'}}
+      end
       val free = F_SDL_FreeSurface.f'
-      fun updateRect surface =
-          F_SDL_UpdateRect.f' o
-          (fn NONE => (surface, 0, 0, 0w0, 0w0)
-            | SOME {x, y, w, h} => (surface, x, y, Word.fromInt w, Word.fromInt h))
       val flip = checkInt o F_SDL_Flip.f'
-      fun getPixelFormat surface =
-          C.Get.ptr' (S_SDL_Surface.f_format' (C.Ptr.|*! surface))
-   end
-
-   structure Color = struct
-      type t = Word32.t
-      fun fromRGB surface {r, g, b} =
-          F_SDL_MapRGB.f' (Surface.getPixelFormat surface, r, g, b)
-      fun fromRGBA surface {r, g, b, a} =
-          F_SDL_MapRGBA.f' (Surface.getPixelFormat surface, r, g, b, a)
+      fun update surface = F_SDL_UpdateRect.f' (surface, 0, 0, 0w0, 0w0)
+      fun updateRect surface {pos = {x, y}, dim = {w, h}} =
+          F_SDL_UpdateRect.f' (surface, x, y, Word.fromInt w, Word.fromInt h)
+      fun fill surface pixel =
+          checkInt (F_SDL_FillRect.f' (surface, C.Ptr.null', pixel))
+      fun fillRect surface pixel {pos = {x, y}, dim = {w, h}} =
+          checkInt (F_SML_SDL_FillRect.f'
+                       (surface, x, y, Word.fromInt w, Word.fromInt h, pixel))
+      fun blit src dst =
+          checkInt (F_SDL_UpperBlit.f' (src, C.Ptr.null', dst, C.Ptr.null'))
+      fun blitRect src {pos = {x = sx, y = sy}, dim = {w = sw, h = sh}}
+                   dst {pos = {x = dx, y = dy}, dim = {w = dw, h = dh}} =
+          checkInt (F_SML_SDL_BlitRect.f'
+                       (src, sx, sy, Word.fromInt sw, Word.fromInt sh,
+                        dst, dx, dy, Word.fromInt dw, Word.fromInt dh))
    end
 
    structure Video = struct
@@ -112,15 +149,17 @@ structure SDL :> SDL = struct
           checkInt (F_SDL_SetGamma.f' (toFloat r, toFloat g, toFloat b))
    end
 
-   fun fillRect surface color =
-    fn NONE => checkInt (F_SDL_FillRect.f' (surface, C.Ptr.null', color))
-     | SOME {x, y, w, h} =>
-       checkInt (F_SML_SDL_FillRect.f'
-                    (surface, x, y, Word.fromInt w, Word.fromInt h, color))
 
-   structure ScanCode = Word8
-
-   structure Key = SDLKey
+   structure Key = struct
+      structure Code = Word8
+      structure Sym = SDLKeySym
+      val setRepeat =
+       fn NONE => checkInt (F_SDL_EnableKeyRepeat.f' (0, 0))
+        | SOME {delay, interval} =>
+          checkInt (F_SDL_EnableKeyRepeat.f'
+                       (Int.fromLarge (Time.toMilliseconds delay),
+                        Int.fromLarge (Time.toMilliseconds interval)))
+   end
 
    structure Alt = struct
       open Word32Flags
@@ -147,8 +186,8 @@ structure SDL :> SDL = struct
       datatype t =
          KEY of {down : Bool.t,
                  pressed : Bool.t,
-                 code : ScanCode.t,
-                 key : Key.t,
+                 code : Key.Code.t,
+                 sym : Key.Sym.t,
                  alt : Alt.flags}
 
       fun toML event = let
@@ -165,7 +204,7 @@ structure SDL :> SDL = struct
                           pressed = Word8.fromLargeInt SDL_PRESSED =
                                     C.Get.uchar' (S_SDL_KeyboardEvent.f_state' ke),
                           code = C.Get.uchar' (S_SDL_keysym.f_scancode' ks),
-                          key = C.Get.enum' (S_SDL_keysym.f_sym' ks),
+                          sym = C.Get.enum' (S_SDL_keysym.f_sym' ks),
                           alt = Alt.toML (C.Get.enum' (S_SDL_keysym.f_mod' ks))})
             end
          else NONE (* We just ignore other events for now *)
@@ -187,5 +226,18 @@ structure SDL :> SDL = struct
                              of NONE => wait ()
                               | SOME e => e)
                     | _ => raiseError ())
+   end
+
+   structure Image = struct
+      fun loadBMP path =
+          one (withZs path >>& withZs "rb")
+              (fn path & rb =>
+                  checkPtr (F_SDL_LoadBMP_RW.f'
+                               (F_SDL_RWFromFile.f' (path, rb), 1)))
+      fun saveBMP surface path =
+          one (withZs path >>& withZs "wb")
+              (fn path & wb =>
+                  (checkInt (F_SDL_SaveBMP_RW.f'
+                                (surface, F_SDL_RWFromFile.f' (path, wb), 1))))
    end
 end

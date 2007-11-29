@@ -6,16 +6,16 @@
 
 #include "util.h"
 
-int SML_SDL_FillRect(SDL_Surface *dst,
-                     int x,
-                     int y,
-                     unsigned w,
-                     unsigned h,
-                     Uint32 color) {
-  SDL_Rect rect;
-  rect.x = x;
-  rect.y = y;
-  rect.w = w;
-  rect.h = h;
-  return SDL_FillRect(dst, &rect, color);
+int
+SML_SDL_FillRect(SDL_Surface *d, int x, int y, unsigned w, unsigned h,
+                 Uint32 c) {
+  SDL_Rect dr = {x, y, w, h};
+  return SDL_FillRect(d, &dr, c);
+}
+
+int
+SML_SDL_BlitRect(SDL_Surface *s, int sx, int sy, unsigned sw, unsigned sh,
+                 SDL_Surface *d, int dx, int dy, unsigned dw, unsigned dh) {
+  SDL_Rect sr = {sx, sy, sw, sh}, dr = {dx, dy, dw, dh};
+  return SDL_BlitSurface(s, &sr, d, &dr);
 }

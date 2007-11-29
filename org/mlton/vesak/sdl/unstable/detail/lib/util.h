@@ -9,7 +9,12 @@
 
 #include <SDL/SDL_video.h>
 
-int SML_SDL_FillRect(SDL_Surface *dst, int x, int y, unsigned w, unsigned h,
-                     Uint32 color);
+int
+SML_SDL_FillRect(SDL_Surface *d, int x, int y, unsigned w, unsigned h,
+                 Uint32 c);
+
+int
+SML_SDL_BlitRect(SDL_Surface *s, int sx, int sy, unsigned sw, unsigned sh,
+                 SDL_Surface *d, int dx, int dy, unsigned dw, unsigned dh);
 
 #endif
