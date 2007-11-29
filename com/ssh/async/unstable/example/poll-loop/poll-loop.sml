@@ -12,8 +12,8 @@ structure PollLoop :> sig
    val addDesc : (OS.IO.poll_desc * OS.IO.poll_info Effect.t) Effect.t
    val remDesc : OS.IO.poll_desc Effect.t
 
-   val absTimeout : (Time.time * Unit.t Effect.t) Effect.t
-   val relTimeout : (Time.time * Unit.t Effect.t) Effect.t
+   val absTimeout : (Time.t * Unit.t Effect.t) Effect.t
+   val relTimeout : (Time.t * Unit.t Effect.t) Effect.t
 end = struct
    val doStop = ref false
    fun stop () = doStop := true
@@ -28,7 +28,7 @@ end = struct
    fun remDesc d =
        findDesc d (fn (fs, _, es) => descs := List.revAppend (fs, es))
 
-   val timeouts : (Time.time * Unit.t Effect.t) List.t Ref.t = ref []
+   val timeouts : (Time.t * Unit.t Effect.t) List.t Ref.t = ref []
    fun absTimeout (absTime, action) = let
       fun here fs es = timeouts := List.revAppend (fs, es)
    in
