@@ -66,7 +66,11 @@ structure SDL :> SDL = struct
       type t = Word32.t
 
       structure Format = struct
-         type t = {mask : t RGBA.t,
+         type t = {alpha : Word8.t,
+                   key : t,
+                   bits : Word8.t,
+                   bytes : Word8.t,
+                   mask : t RGBA.t,
                    shift : Word8.t RGBA.t,
                    loss : Word8.t RGBA.t}
       end
@@ -89,15 +93,21 @@ structure SDL :> SDL = struct
       type 'a t = (T_SDL_Surface.t, C.rw) C.obj C.ptr'
       fun pixelFormat surface = let
          val pf = C.Ptr.|*! (C.Get.ptr' (S_SDL_Surface.f_format' (C.Ptr.|*! surface)))
-         fun m f = C.Get.uint' (f pf)
-         fun s f = C.Get.uchar' (f pf)
-         val l = s
+         fun w f = C.Get.uint' (f pf)
+         fun b f = C.Get.uchar' (f pf)
          open S_SDL_PixelFormat
       in
-         {mask  = {r = m f_Rmask',  g = m f_Gmask',  b = m f_Bmask',  a = m f_Amask'},
-          shift = {r = s f_Rshift', g = s f_Gshift', b = s f_Bshift', a = s f_Ashift'},
-          loss  = {r = l f_Rloss',  g = l f_Gloss',  b = l f_Bloss',  a = l f_Aloss'}}
+         {alpha = b f_alpha',
+          key   = w f_colorkey',
+          bits  = b f_BitsPerPixel',
+          bytes = b f_BytesPerPixel',
+          mask  = {r=w f_Rmask',  g=w f_Gmask',  b=w f_Bmask',  a=w f_Amask'},
+          shift = {r=b f_Rshift', g=b f_Gshift', b=b f_Bshift', a=b f_Ashift'},
+          loss  = {r=b f_Rloss',  g=b f_Gloss',  b=b f_Bloss',  a=b f_Aloss'}}
       end
+      fun props s = C.Get.uint' (S_SDL_Surface.f_flags' (C.Ptr.|*! s))
+      fun dim s = {w = C.Get.sint' (S_SDL_Surface.f_w' (C.Ptr.|*! s)),
+                   h = C.Get.sint' (S_SDL_Surface.f_h' (C.Ptr.|*! s))}
       val free = F_SDL_FreeSurface.f'
       val flip = checkInt o F_SDL_Flip.f'
       fun update surface = F_SDL_UpdateRect.f' (surface, 0, 0, 0w0, 0w0)
@@ -115,6 +125,28 @@ structure SDL :> SDL = struct
           checkInt (F_SML_SDL_BlitRect.f'
                        (src, sx, sy, Word.fromInt sw, Word.fromInt sh,
                         dst, dx, dy, Word.fromInt dw, Word.fromInt dh))
+      fun convert ({alpha, key, bits, bytes, mask, shift, loss} : Pixel.Format.t)
+                  flags surface =
+          one (withNew S_SDL_PixelFormat.size)
+              (fn pf => let
+                     fun w f v = C.Set.uint' (f pf, v)
+                     fun b f v = C.Set.uchar' (f pf, v)
+                     open S_SDL_PixelFormat
+                  in
+                     C.Set.ptr' (f_palette' pf, C.Ptr.null')
+                   ; b f_alpha' alpha
+                   ; w f_colorkey' key
+                   ; b f_BitsPerPixel' bits
+                   ; b f_BytesPerPixel' bytes
+                   ; b f_Rloss' (#r loss) ; b f_Gloss' (#g loss)
+                   ; b f_Bloss' (#b loss) ; b f_Aloss' (#a loss)
+                   ; w f_Rmask' (#r mask) ; w f_Gmask' (#g mask)
+                   ; w f_Bmask' (#b mask) ; w f_Amask' (#a mask)
+                   ; b f_Rshift' (#r shift) ; b f_Gshift' (#g shift)
+                   ; b f_Bshift' (#b shift) ; b f_Ashift' (#a shift)
+                   ; checkPtr (F_SDL_ConvertSurface.f'
+                                  (surface, C.Ptr.|&! pf, flags))
+                  end)
    end
 
    structure Video = struct

@@ -61,6 +61,8 @@ signature SDL = sig
    structure Surface : sig
       type 'a t
       val pixelFormat : 'any t -> Pixel.Format.t
+      val props : 'any t -> Prop.flags
+      val dim : 'any t -> Int.t Dim.t
       val free : {video : no} t Effect.t
       val flip : 'dst t Effect.t
       val update : 'dst t Effect.t
@@ -69,6 +71,7 @@ signature SDL = sig
       val fillRect : 'dst t -> Pixel.t -> Int.t Rect.t Effect.t
       val blit : 'src t -> 'dst t Effect.t
       val blitRect : 'src t -> Int.t Rect.t -> 'dst t -> Int.t Rect.t Effect.t
+      val convert : Pixel.Format.t -> Prop.flags -> 'any t -> {video : no} t
    end
 
    structure Video : sig

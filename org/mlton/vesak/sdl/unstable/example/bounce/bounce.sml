@@ -26,7 +26,7 @@ structure G = struct
 end
 
 fun demo () = let
-   val surface =
+   val display =
        SDL.Video.setMode
           let open SDL.Prop in
              flags ([DOUBLEBUF] @
@@ -34,15 +34,21 @@ fun demo () = let
           {bpp = !Opt.bpp}
           {w = !Opt.w, h = !Opt.h}
 
-   val format = SDL.Surface.pixelFormat surface
+   val format = SDL.Surface.pixelFormat display
+   val props = SDL.Surface.props display
 
-   val black = SDL.Pixel.fromRGB format {r=0w000, g=0w000, b=0w000}
-   val green = SDL.Pixel.fromRGB format {r=0w000, g=0w255, b=0w000}
-   val red   = SDL.Pixel.fromRGB format {r=0w255, g=0w000, b=0w000}
-   val blue  = SDL.Pixel.fromRGB format {r=0w000, g=0w000, b=0w255}
+   val chest = SDL.Surface.convert format props (SDL.Image.loadBMP "chest.bmp")
+   val chestDim as {w = chestW, h = chestH} = SDL.Surface.dim chest
 
-   val xMax = real (!Opt.w - !Opt.size)
-   val yMax = real (!Opt.h - !Opt.size)
+   val green = SDL.Pixel.fromRGB format {r=0w000, g=0w128, b=0w000}
+   val red   = SDL.Pixel.fromRGB format {r=0w128, g=0w000, b=0w000}
+   val blue  = SDL.Pixel.fromRGB format {r=0w000, g=0w000, b=0w128}
+
+   val w = !Opt.w
+   val h = !Opt.h
+
+   val xMax = real (w - !Opt.size)
+   val yMax = real (h - !Opt.size)
 
    val obs =
        Vector.tabulate
@@ -56,16 +62,27 @@ fun demo () = let
 
    fun render () = let
       val color = if SDL.Key.isPressed SDL.Key.Sym.SPACE then red else green
+      fun lpX x = let
+         fun lpY y =
+             if h <= y then ()
+             else (SDL.Surface.blitRect
+                      chest {pos = {x=0, y=0}, dim = chestDim}
+                      display {pos = {x=x, y=y}, dim = chestDim}
+                 ; lpY (y + chestH))
+      in
+         if w <= x then ()
+         else (lpY 0 ; lpX (x + chestW))
+      end
    in
-      SDL.Surface.fill surface black
+      lpX 0
     ; Vector.app (fn {x, y, ...} =>
                      SDL.Surface.fillRect
-                        surface
+                        display
                         color
                         {dim = obDim,
                          pos = {x = trunc (!x), y = trunc (!y)}}) obs
     ; SDL.Surface.fillRect
-         surface
+         display
          let
             open SDL.Mouse.Button
             val buttons = SDL.Mouse.getButtons ()
@@ -75,7 +92,7 @@ fun demo () = let
             else blue
          end
          {dim = obDim, pos = SDL.Mouse.getPos ()}
-    ; SDL.Surface.flip surface
+    ; SDL.Surface.flip display
    end
 
    fun animate () =
