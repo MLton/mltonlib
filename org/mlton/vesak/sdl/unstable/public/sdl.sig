@@ -72,6 +72,8 @@ signature SDL = sig
       val blit : 'src t -> 'dst t Effect.t
       val blitRect : 'src t -> Int.t Rect.t -> 'dst t -> Int.t Rect.t Effect.t
       val convert : Pixel.Format.t -> Prop.flags -> 'any t -> {video : no} t
+      val getClipRect : 'any t -> Int.t Rect.t
+      val setClipRect : 'any t -> Int.t Rect.t Effect.t
    end
 
    structure Video : sig

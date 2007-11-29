@@ -147,6 +147,17 @@ structure SDL :> SDL = struct
                    ; checkPtr (F_SDL_ConvertSurface.f'
                                   (surface, C.Ptr.|&! pf, flags))
                   end)
+      fun getClipRect surface =
+          one (withNew S_SDL_Rect.size)
+              (fn r =>
+                  (F_SDL_GetClipRect.f' (surface, C.Ptr.|&! r)
+                 ; {pos = {x = Int16.toInt (C.Get.sshort' (S_SDL_Rect.f_x' r)),
+                           y = Int16.toInt (C.Get.sshort' (S_SDL_Rect.f_y' r))},
+                    dim = {w = Word16.toInt (C.Get.ushort' (S_SDL_Rect.f_w' r)),
+                           h = Word16.toInt (C.Get.ushort' (S_SDL_Rect.f_h' r))}}))
+      fun setClipRect surface {pos = {x, y}, dim = {w, h}} =
+          F_SML_SDL_SetClipRect.f'
+             (surface, x, y, Word.fromInt w, Word.fromInt h)
    end
 
    structure Video = struct

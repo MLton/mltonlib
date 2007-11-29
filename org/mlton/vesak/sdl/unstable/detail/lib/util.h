@@ -17,4 +17,7 @@ int
 SML_SDL_BlitRect(SDL_Surface *s, int sx, int sy, unsigned sw, unsigned sh,
                  SDL_Surface *d, int dx, int dy, unsigned dw, unsigned dh);
 
+void
+SML_SDL_SetClipRect(SDL_Surface *d, int x, int y, unsigned w, unsigned h);
+
 #endif

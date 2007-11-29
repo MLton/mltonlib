@@ -19,3 +19,9 @@ SML_SDL_BlitRect(SDL_Surface *s, int sx, int sy, unsigned sw, unsigned sh,
   SDL_Rect sr = {sx, sy, sw, sh}, dr = {dx, dy, dw, dh};
   return SDL_BlitSurface(s, &sr, d, &dr);
 }
+
+void
+SML_SDL_SetClipRect(SDL_Surface *d, int x, int y, unsigned w, unsigned h) {
+  SDL_Rect dr = {x, y, w, h};
+  SDL_SetClipRect(d, &dr);
+}
