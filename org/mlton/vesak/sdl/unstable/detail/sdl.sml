@@ -5,6 +5,8 @@
  *)
 
 structure SDL :> SDL = struct
+   structure F = MLton.Finalizable
+
    structure Word32Flags = MkWordFlags (Word32)
    structure Word8Flags = MkWordFlags (Word8)
 
@@ -155,56 +157,78 @@ structure SDL :> SDL = struct
    end
 
    structure Surface = struct
-      type 'a t = (T_SDL_Surface.t, C.rw) C.obj C.ptr'
-      fun getPixelFormat surface =
-          Pixel.Format.fromSDL o C.Ptr.|*! o C.Get.ptr' o
-          S_SDL_Surface.f_format' |< C.Ptr.|*! surface
-      fun getProps s = C.Get.uint' (S_SDL_Surface.f_flags' (C.Ptr.|*! s))
-      fun getDim s = {w = C.Get.sint' (S_SDL_Surface.f_w' (C.Ptr.|*! s)),
-                      h = C.Get.sint' (S_SDL_Surface.f_h' (C.Ptr.|*! s))}
-      val free = F_SDL_FreeSurface.f'
-      val flip = checkInt o F_SDL_Flip.f'
-      fun update surface = F_SDL_UpdateRect.f' (surface, 0, 0, 0w0, 0w0)
-      fun updateRect surface {pos = {x, y}, dim = {w, h}} =
-          F_SDL_UpdateRect.f' (surface, x, y, Word.fromInt w, Word.fromInt h)
-      fun fill surface pixel =
-          checkInt (F_SDL_FillRect.f' (surface, C.Ptr.null', pixel))
-      fun fillRect surface pixel {pos = {x, y}, dim = {w, h}} =
-          checkInt (F_SML_SDL_FillRect.f'
-                       (surface, x, y, Word.fromInt w, Word.fromInt h, pixel))
+      type 'a t = (T_SDL_Surface.t, C.rw) C.obj C.ptr' Ref.t F.t
+      fun withPtr t f =
+          F.withValue
+             (t,
+              fn ref p =>
+                 if C.Ptr.isNull' p
+                 then fail "Dangling surface"
+                 else f p)
+      fun freeRef r = (F_SDL_FreeSurface.f' (!r) ; r := C.Ptr.null')
+      fun new p = case F.new (ref p) of f => (F.addFinalizer (f, freeRef) ; f)
+      fun getPixelFormat s =
+          withPtr s (Pixel.Format.fromSDL o C.Ptr.|*! o C.Get.ptr' o
+                     S_SDL_Surface.f_format' o C.Ptr.|*!)
+      fun getProps s =
+          withPtr s (C.Get.uint' o S_SDL_Surface.f_flags' o C.Ptr.|*!)
+      fun getDim s =
+          withPtr s (fn p =>
+                        {w = C.Get.sint' (S_SDL_Surface.f_w' (C.Ptr.|*! p)),
+                         h = C.Get.sint' (S_SDL_Surface.f_h' (C.Ptr.|*! p))})
+      fun free s = F.withValue (s, freeRef)
+      fun flip s = withPtr s (checkInt o F_SDL_Flip.f')
+      fun update s = withPtr s (fn p => F_SDL_UpdateRect.f' (p, 0, 0, 0w0, 0w0))
+      fun updateRect s {pos = {x, y}, dim = {w, h}} =
+          withPtr s (fn p => F_SDL_UpdateRect.f'
+                                (p, x, y, Word.fromInt w, Word.fromInt h))
+      fun fill s c =
+          withPtr s (fn p => checkInt (F_SDL_FillRect.f' (p, C.Ptr.null', c)))
+      fun fillRect s c {pos = {x, y}, dim = {w, h}} =
+          withPtr s (fn p => checkInt (F_SML_SDL_FillRect.f'
+                                          (p, x, y,
+                                           Word.fromInt w, Word.fromInt h, c)))
       fun blit src dst =
-          checkInt (F_SDL_UpperBlit.f' (src, C.Ptr.null', dst, C.Ptr.null'))
+          withPtr src (fn src =>
+          withPtr dst (fn dst =>
+          checkInt (F_SDL_UpperBlit.f' (src, C.Ptr.null', dst, C.Ptr.null'))))
       fun blitRect src {pos = {x = sx, y = sy}, dim = {w = sw, h = sh}}
                    dst {pos = {x = dx, y = dy}, dim = {w = dw, h = dh}} =
+          withPtr src (fn src =>
+          withPtr dst (fn dst =>
           checkInt (F_SML_SDL_BlitRect.f'
                        (src, sx, sy, Word.fromInt sw, Word.fromInt sh,
-                        dst, dx, dy, Word.fromInt dw, Word.fromInt dh))
-      fun convert format flags surface =
+                        dst, dx, dy, Word.fromInt dw, Word.fromInt dh))))
+      fun convert format flags s =
+          withPtr s (fn p =>
           one (Pixel.Format.withSDL format)
-              (fn pf => checkPtr (F_SDL_ConvertSurface.f'
-                                     (surface, C.Ptr.|&! pf, flags)))
-      fun convertToVideo {alpha} =
-          checkPtr o (if alpha
-                      then F_SDL_DisplayFormatAlpha.f'
-                      else F_SDL_DisplayFormat.f')
-      fun getClipRect surface =
+              (fn pf => new (checkPtr (F_SDL_ConvertSurface.f'
+                                          (p, C.Ptr.|&! pf, flags)))))
+      fun convertToVideo {alpha} s =
+          withPtr s (fn p =>
+                        new o checkPtr |< (if alpha
+                                           then F_SDL_DisplayFormatAlpha.f'
+                                           else F_SDL_DisplayFormat.f') p)
+      fun getClipRect s =
           one (withNew S_SDL_Rect.size)
               (fn r =>
-                  (F_SDL_GetClipRect.f' (surface, C.Ptr.|&! r)
+                  withPtr s (fn p =>
+                  (F_SDL_GetClipRect.f' (p, C.Ptr.|&! r)
                  ; {pos = {x = Int16.toInt (C.Get.sshort' (S_SDL_Rect.f_x' r)),
                            y = Int16.toInt (C.Get.sshort' (S_SDL_Rect.f_y' r))},
                     dim = {w = Word16.toInt (C.Get.ushort' (S_SDL_Rect.f_w' r)),
-                           h = Word16.toInt (C.Get.ushort' (S_SDL_Rect.f_h' r))}}))
-      fun setClipRect surface {pos = {x, y}, dim = {w, h}} =
-          F_SML_SDL_SetClipRect.f'
-             (surface, x, y, Word.fromInt w, Word.fromInt h)
+                           h = Word16.toInt (C.Get.ushort' (S_SDL_Rect.f_h' r))}})))
+      fun setClipRect s {pos = {x, y}, dim = {w, h}} =
+          withPtr s (fn p =>
+                        F_SML_SDL_SetClipRect.f'
+                           (p, x, y, Word.fromInt w, Word.fromInt h))
    end
 
    structure Video = struct
       fun setMode fmt props {w, h} =
-          checkPtr (F_SDL_SetVideoMode.f'
-                       (w, h, Word.toIntX (Pixel.Format.bits fmt), props))
-      val getSurface = checkPtr o F_SDL_GetVideoSurface.f'
+          F.new o ref o checkPtr |< F_SDL_SetVideoMode.f'
+              (w, h, Word.toIntX (Pixel.Format.bits fmt), props)
+      val getSurface = F.new o ref o checkPtr o F_SDL_GetVideoSurface.f'
       val maxDriverNameSz = 256 (* XXX is this large enough? *)
       fun getDriverName () =
          one (withBuf (Word.fromInt maxDriverNameSz))
@@ -366,12 +390,16 @@ structure SDL :> SDL = struct
       fun loadBMP path =
           one (withZs path >>& withZs "rb")
               (fn path & rb =>
-                  checkPtr (F_SDL_LoadBMP_RW.f'
-                               (F_SDL_RWFromFile.f' (path, rb), 1)))
+                  Surface.new o checkPtr |< F_SDL_LoadBMP_RW.f'
+                     (F_SDL_RWFromFile.f' (path, rb), 1))
       fun saveBMP surface path =
           one (withZs path >>& withZs "wb")
               (fn path & wb =>
-                  (checkInt (F_SDL_SaveBMP_RW.f'
-                                (surface, F_SDL_RWFromFile.f' (path, wb), 1))))
+                  (Surface.withPtr surface)
+                     (fn surface =>
+                         (checkInt (F_SDL_SaveBMP_RW.f'
+                                       (surface,
+                                        F_SDL_RWFromFile.f' (path, wb),
+                                        1)))))
    end
 end

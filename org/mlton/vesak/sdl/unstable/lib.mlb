@@ -20,7 +20,11 @@ in
          public/sdl.sig
 
          detail/sdl-key-sym.sml
-         detail/sdl.sml
+         local
+            $(SML_LIB)/basis/mlton.mlb
+         in
+            detail/sdl.sml
+         end
       in
          public/export.sml
       end
