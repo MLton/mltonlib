@@ -10,7 +10,7 @@ structure Opt = struct
    val w = ref 640
    val h = ref 480
    val fs = ref false
-   val bpp = ref 16
+   val bpp = ref NONE
    val size = ref 4
    val num = ref 100
    val fps = ref 50
@@ -28,17 +28,22 @@ end
 fun demo () = let
    val display =
        SDL.Video.setMode
+          (case !Opt.bpp
+            of NONE => SDL.Video.getPixelFormat ()
+             | SOME 16 => SDL.Pixel.Format.r5g6b5
+             | SOME 24 => SDL.Pixel.Format.r8g8b8
+             | SOME 32 => SDL.Pixel.Format.r8g8b8a8
+             | _ => fail "Unsupported pixel format")
           let open SDL.Prop in
              flags ([DOUBLEBUF] @
-                    (if !Opt.fs then [HWSURFACE, FULLSCREEN] else [])) end
-          {bpp = !Opt.bpp}
+                    (if !Opt.fs then [HW, FULLSCREEN] else [])) end
           {w = !Opt.w, h = !Opt.h}
 
-   val format = SDL.Surface.pixelFormat display
-   val props = SDL.Surface.props display
+   val format = SDL.Surface.getPixelFormat display
 
-   val chest = SDL.Surface.convert format props (SDL.Image.loadBMP "chest.bmp")
-   val chestDim as {w = chestW, h = chestH} = SDL.Surface.dim chest
+   val chest =
+       SDL.Surface.convertToVideo {alpha=false} (SDL.Image.loadBMP "chest.bmp")
+   val chestDim as {w = chestW, h = chestH} = SDL.Surface.getDim chest
 
    val green = SDL.Pixel.fromRGB format {r=0w000, g=0w128, b=0w000}
    val red   = SDL.Pixel.fromRGB format {r=0w128, g=0w000, b=0w000}
@@ -132,6 +137,7 @@ fun demo () = let
          | _ => (render () ; animate () ; sleep () ; lp ())
 in
    SDL.Mouse.showCursor false
+ ; SDL.Mouse.setPos {x = 0, y = 0}
  ; lp ()
 end
 
@@ -139,7 +145,8 @@ fun main () =
     (printlns ["Driver name: ", SDL.Video.getDriverName ()]
    ; print "Available full screen modes: "
    ; case SDL.Video.listModes
-             let open SDL.Prop in flags [DOUBLEBUF, HWSURFACE, FULLSCREEN] end
+             (SDL.Video.getPixelFormat ())
+             let open SDL.Prop in flags [DOUBLEBUF, HW, FULLSCREEN] end
       of NONE    => println "Any resolution is OK?"
        | SOME [] => println "None"
        | SOME rs =>
@@ -147,15 +154,17 @@ fun main () =
             (fn {w, h} => concat [Int.toString w, "x", Int.toString h]) rs
    ; demo ())
 
+val s2i = valOf o Int.fromString
+
 val () =
     recur (CommandLine.arguments ()) (fn lp =>
-       fn "-bpp"  :: v :: xs => (Opt.bpp  := valOf (Int.fromString v) ; lp xs)
-        | "-w"    :: v :: xs => (Opt.w    := valOf (Int.fromString v) ; lp xs)
-        | "-h"    :: v :: xs => (Opt.h    := valOf (Int.fromString v) ; lp xs)
-        | "-size" :: v :: xs => (Opt.size := valOf (Int.fromString v) ; lp xs)
-        | "-num"  :: v :: xs => (Opt.num  := valOf (Int.fromString v) ; lp xs)
-        | "-fps"  :: v :: xs => (Opt.fps  := valOf (Int.fromString v) ; lp xs)
-        | "-fs"        :: xs => (Opt.fs   := true                     ; lp xs)
+       fn "-bpp"  :: v :: xs => (Opt.bpp  := SOME (s2i v) ; lp xs)
+        | "-w"    :: v :: xs => (Opt.w    := s2i v ; lp xs)
+        | "-h"    :: v :: xs => (Opt.h    := s2i v ; lp xs)
+        | "-size" :: v :: xs => (Opt.size := s2i v ; lp xs)
+        | "-num"  :: v :: xs => (Opt.num  := s2i v ; lp xs)
+        | "-fps"  :: v :: xs => (Opt.fps  := s2i v ; lp xs)
+        | "-fs"        :: xs => (Opt.fs   := true ; lp xs)
         | x :: _             => (printlns ["Invalid option: ", x])
         | []                 => (SDL.init SDL.Init.VIDEO
                                ; after (main, SDL.quit)))

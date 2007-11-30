@@ -43,15 +43,13 @@ structure SDL :> SDL = struct
    structure Prop = struct
       open Word32Flags
       val ` = Word32.fromLargeInt
-      val SWSURFACE  = `SDL_SWSURFACE
-      val HWSURFACE  = `SDL_HWSURFACE
+      val SW         = `SDL_SWSURFACE
+      val HW         = `SDL_HWSURFACE
       val ASYNCBLIT  = `SDL_ASYNCBLIT
       val ANYFORMAT  = `SDL_ANYFORMAT
-      val HWPALETTE  = `SDL_HWPALETTE
       val DOUBLEBUF  = `SDL_DOUBLEBUF
       val FULLSCREEN = `SDL_FULLSCREEN
       val OPENGL     = `SDL_OPENGL
-      val OPENGLBLIT = `SDL_OPENGLBLIT
       val RESIZABLE  = `SDL_RESIZABLE
       val NOFRAME    = `SDL_NOFRAME
    end
@@ -60,7 +58,13 @@ structure SDL :> SDL = struct
    structure Dim = struct type 'a t = {w : 'a, h : 'a} end
    structure Rect = struct type 'a t = {pos : 'a Pos.t, dim : 'a Dim.t} end
    structure RGB = struct type 'a t = {r : 'a, g : 'a, b : 'a} end
-   structure RGBA = struct type 'a t = {r : 'a, g : 'a, b : 'a, a : 'a} end
+   structure RGBA = struct
+      type 'a t = {r : 'a, g : 'a, b : 'a, a : 'a}
+      fun unOp f {r, g, b, a} = {r = f r, g = f g, b = f b, a = f a}
+      fun binOp f (l : 'a t, r : 'b t) =
+          {r = f (#r l, #r r), g = f (#g l, #g r),
+           b = f (#b l, #b r), a = f (#a l, #a r)}
+   end
 
    structure Pixel = struct
       type t = Word32.t
@@ -73,41 +77,91 @@ structure SDL :> SDL = struct
                    mask : t RGBA.t,
                    shift : Word8.t RGBA.t,
                    loss : Word8.t RGBA.t}
+
+         fun bits (t : t) = Word8.toWord (#bits t)
+         fun bitsRGBA (t : t) =
+             RGBA.unOp (fn x => 0w8 - Word8.toWord x) (#loss t)
+         val bitsRGB = (fn {r, g, b, ...} => {r = r, g = g, b = b}) o bitsRGBA
+
+         fun fromRGBA (rgba as {r, g, b, a}) : t = let
+            val bits = r+g+b+a
+            val shift = {b = 0w0, g = b, r = g+b,
+                         a = if 0w0 = a then 0w0 else r+g+b}
+            val loss = RGBA.unOp (0w8 <\ op -) rgba
+         in
+            {alpha = 0w255, key = 0w0, bits = bits,
+             bytes = (bits + 0w7) div 0w8,
+             mask = RGBA.binOp (fn (s, l) => let
+                                      open Word32
+                                   in
+                                      (0w255 >> Word8.toWord l) << Word8.toWord s
+                                   end)
+                               (shift, loss),
+             shift = shift, loss = loss}
+         end
+
+         val r5g6b5   = fromRGBA {r=0w5, g=0w6, b=0w5, a=0w0}
+         val r8g8b8   = fromRGBA {r=0w8, g=0w8, b=0w8, a=0w0}
+         val r8g8b8_8 = {alpha = #alpha r8g8b8, key = #key r8g8b8, bits = 0w32,
+                         bytes = 0w4, mask = #mask r8g8b8, loss = #loss r8g8b8,
+                         shift = #shift r8g8b8} : t
+         val r8g8b8a8 = fromRGBA {r=0w8, g=0w8, b=0w8, a=0w8}
+
+         fun fromSDL pf = let
+            fun w f = C.Get.uint' (f pf)
+            fun b f = C.Get.uchar' (f pf)
+            open S_SDL_PixelFormat
+            val mask = {r=w f_Rmask', g=w f_Gmask', b=w f_Bmask', a=w f_Amask'}
+         in
+            {alpha = b f_alpha', key = w f_colorkey', bits = b f_BitsPerPixel',
+             bytes = b f_BytesPerPixel', mask = mask,
+             shift = {r=b f_Rshift', g=b f_Gshift', b=b f_Bshift', a=b f_Ashift'},
+             loss = {r=b f_Rloss', g=b f_Gloss', b=b f_Bloss',
+                     a=if 0w0 = #a mask then 0w8 else b f_Aloss'}}
+         end
+
+         fun withSDL ({alpha, key, bits, bytes, mask, shift, loss} : t) =
+             With.Monad.map
+                (fn pf => let
+                       fun w f v = C.Set.uint' (f pf, v)
+                       fun b f v = C.Set.uchar' (f pf, v)
+                       open S_SDL_PixelFormat
+                    in
+                       C.Set.ptr' (f_palette' pf, C.Ptr.null')
+                     ; b f_alpha' alpha
+                     ; w f_colorkey' key
+                     ; b f_BitsPerPixel' bits
+                     ; b f_BytesPerPixel' bytes
+                     ; b f_Rloss' (#r loss) ; b f_Gloss' (#g loss)
+                     ; b f_Bloss' (#b loss) ; b f_Aloss' (#a loss)
+                     ; w f_Rmask' (#r mask) ; w f_Gmask' (#g mask)
+                     ; w f_Bmask' (#b mask) ; w f_Amask' (#a mask)
+                     ; b f_Rshift' (#r shift) ; b f_Gshift' (#g shift)
+                     ; b f_Bshift' (#b shift) ; b f_Ashift' (#a shift)
+                     ; pf
+                    end)
+                (withNew S_SDL_PixelFormat.size)
       end
 
       fun fromRGBA ({shift, loss, ...} : Format.t) {r, g, b, a} = let
          open Word32
          fun pack (v, s, l) =
-             (Word32.fromWord8 v >> Word.fromWord8 l) << Word.fromWord8 s
+             (Word32.fromWord8 v >> Word8.toWord l) << Word8.toWord s
       in
-         pack (r, #r shift, #r loss) orb
-         pack (g, #g shift, #g loss) orb
-         pack (b, #b shift, #b loss) orb
-         pack (a, #a shift, #a loss)
+         pack (r, #r shift, #r loss) orb pack (g, #g shift, #g loss) orb
+         pack (b, #b shift, #b loss) orb pack (a, #a shift, #a loss)
       end
-      fun fromRGB format {r, g, b} =
-          fromRGBA format {r=r, g=g, b=b, a=0w255}
+      fun fromRGB format {r, g, b} = fromRGBA format {r=r, g=g, b=b, a=0w255}
    end
 
    structure Surface = struct
       type 'a t = (T_SDL_Surface.t, C.rw) C.obj C.ptr'
-      fun pixelFormat surface = let
-         val pf = C.Ptr.|*! (C.Get.ptr' (S_SDL_Surface.f_format' (C.Ptr.|*! surface)))
-         fun w f = C.Get.uint' (f pf)
-         fun b f = C.Get.uchar' (f pf)
-         open S_SDL_PixelFormat
-      in
-         {alpha = b f_alpha',
-          key   = w f_colorkey',
-          bits  = b f_BitsPerPixel',
-          bytes = b f_BytesPerPixel',
-          mask  = {r=w f_Rmask',  g=w f_Gmask',  b=w f_Bmask',  a=w f_Amask'},
-          shift = {r=b f_Rshift', g=b f_Gshift', b=b f_Bshift', a=b f_Ashift'},
-          loss  = {r=b f_Rloss',  g=b f_Gloss',  b=b f_Bloss',  a=b f_Aloss'}}
-      end
-      fun props s = C.Get.uint' (S_SDL_Surface.f_flags' (C.Ptr.|*! s))
-      fun dim s = {w = C.Get.sint' (S_SDL_Surface.f_w' (C.Ptr.|*! s)),
-                   h = C.Get.sint' (S_SDL_Surface.f_h' (C.Ptr.|*! s))}
+      fun getPixelFormat surface =
+          Pixel.Format.fromSDL o C.Ptr.|*! o C.Get.ptr' o
+          S_SDL_Surface.f_format' |< C.Ptr.|*! surface
+      fun getProps s = C.Get.uint' (S_SDL_Surface.f_flags' (C.Ptr.|*! s))
+      fun getDim s = {w = C.Get.sint' (S_SDL_Surface.f_w' (C.Ptr.|*! s)),
+                      h = C.Get.sint' (S_SDL_Surface.f_h' (C.Ptr.|*! s))}
       val free = F_SDL_FreeSurface.f'
       val flip = checkInt o F_SDL_Flip.f'
       fun update surface = F_SDL_UpdateRect.f' (surface, 0, 0, 0w0, 0w0)
@@ -125,28 +179,14 @@ structure SDL :> SDL = struct
           checkInt (F_SML_SDL_BlitRect.f'
                        (src, sx, sy, Word.fromInt sw, Word.fromInt sh,
                         dst, dx, dy, Word.fromInt dw, Word.fromInt dh))
-      fun convert ({alpha, key, bits, bytes, mask, shift, loss} : Pixel.Format.t)
-                  flags surface =
-          one (withNew S_SDL_PixelFormat.size)
-              (fn pf => let
-                     fun w f v = C.Set.uint' (f pf, v)
-                     fun b f v = C.Set.uchar' (f pf, v)
-                     open S_SDL_PixelFormat
-                  in
-                     C.Set.ptr' (f_palette' pf, C.Ptr.null')
-                   ; b f_alpha' alpha
-                   ; w f_colorkey' key
-                   ; b f_BitsPerPixel' bits
-                   ; b f_BytesPerPixel' bytes
-                   ; b f_Rloss' (#r loss) ; b f_Gloss' (#g loss)
-                   ; b f_Bloss' (#b loss) ; b f_Aloss' (#a loss)
-                   ; w f_Rmask' (#r mask) ; w f_Gmask' (#g mask)
-                   ; w f_Bmask' (#b mask) ; w f_Amask' (#a mask)
-                   ; b f_Rshift' (#r shift) ; b f_Gshift' (#g shift)
-                   ; b f_Bshift' (#b shift) ; b f_Ashift' (#a shift)
-                   ; checkPtr (F_SDL_ConvertSurface.f'
-                                  (surface, C.Ptr.|&! pf, flags))
-                  end)
+      fun convert format flags surface =
+          one (Pixel.Format.withSDL format)
+              (fn pf => checkPtr (F_SDL_ConvertSurface.f'
+                                     (surface, C.Ptr.|&! pf, flags)))
+      fun convertToVideo {alpha} =
+          checkPtr o (if alpha
+                      then F_SDL_DisplayFormatAlpha.f'
+                      else F_SDL_DisplayFormat.f')
       fun getClipRect surface =
           one (withNew S_SDL_Rect.size)
               (fn r =>
@@ -161,8 +201,9 @@ structure SDL :> SDL = struct
    end
 
    structure Video = struct
-      fun setMode props {bpp} {w, h} =
-          checkPtr (F_SDL_SetVideoMode.f' (w, h, bpp, props))
+      fun setMode fmt props {w, h} =
+          checkPtr (F_SDL_SetVideoMode.f'
+                       (w, h, Word.toIntX (Pixel.Format.bits fmt), props))
       val getSurface = checkPtr o F_SDL_GetVideoSurface.f'
       val maxDriverNameSz = 256 (* XXX is this large enough? *)
       fun getDriverName () =
@@ -172,23 +213,34 @@ structure SDL :> SDL = struct
                                       (buf, maxDriverNameSz))
                  then fail "Cannot get driver name.  Is SDL video initialized?"
                  else ZString.toML' buf)
-      fun listModes props =
-          case F_SDL_ListModes.f' (C.Ptr.null', props)
-           of modes =>
-              if C.Ptr.isNull' modes then SOME []
-              else if minus1ptr = C.Ptr.inject' modes then NONE
-              else recur (modes, []) (fn lp =>
-                      fn (modes, ms) =>
-                         if C.Ptr.isNull' (C.Get.ptr' (C.Ptr.|*! modes))
-                         then SOME ms
-                         else let
-                               val r = C.Ptr.|*! (C.Get.ptr' (C.Ptr.|*! modes))
-                               fun `f = Word16.toInt (C.Get.ushort' (f r))
-                            in
-                               lp (C.Ptr.|+! C.S.ptr (modes, 1),
-                                   {w = `S_SDL_Rect.f_w',
-                                    h = `S_SDL_Rect.f_h'}::ms)
-                            end)
+      fun getPixelFormat () = Pixel.Format.fromSDL o C.Ptr.|*! o C.Get.ptr' o
+                              S_SDL_VideoInfo.f_vfmt' o C.Ptr.|*! |<
+                              checkPtr (F_SDL_GetVideoInfo.f' ())
+      fun getDim () = let
+         val vi = C.Ptr.|*! (F_SDL_GetVideoInfo.f' ())
+      in
+          {w = C.Get.sint' (S_SDL_VideoInfo.f_current_w' vi),
+           h = C.Get.sint' (S_SDL_VideoInfo.f_current_h' vi)}
+      end
+      fun listModes format props =
+          one (Pixel.Format.withSDL format)
+              (fn pf =>
+                  case F_SDL_ListModes.f' (C.Ptr.|&! pf, props)
+                   of modes =>
+                      if C.Ptr.isNull' modes then SOME []
+                      else if minus1ptr = C.Ptr.inject' modes then NONE
+                      else recur (modes, []) (fn lp =>
+                       fn (modes, ms) =>
+                          if C.Ptr.isNull' (C.Get.ptr' (C.Ptr.|*! modes))
+                          then SOME ms
+                          else let
+                                val r = C.Ptr.|*! (C.Get.ptr' (C.Ptr.|*! modes))
+                                fun `f = Word16.toInt (C.Get.ushort' (f r))
+                             in
+                                lp (C.Ptr.|+! C.S.ptr (modes, 1),
+                                    {w = `S_SDL_Rect.f_w',
+                                     h = `S_SDL_Rect.f_h'}::ms)
+                             end))
       val toFloat = Real32.fromLarge IEEEReal.TO_NEAREST
       fun setGamma {r, g, b} =
           checkInt (F_SDL_SetGamma.f' (toFloat r, toFloat g, toFloat b))
@@ -251,6 +303,8 @@ structure SDL :> SDL = struct
          fun getPos () = getMouse F_SDL_GetMouseState.f'
          fun getDelta () = getMouse F_SDL_GetRelativeMouseState.f'
       end
+      fun setPos {x, y} =
+          F_SDL_WarpMouse.f' (Word16.fromInt x, Word16.fromInt y)
       fun getButtons () = F_SDL_GetMouseState.f' (C.Ptr.null', C.Ptr.null')
       fun showCursor b =
           ignore (F_SDL_ShowCursor.f' (if b

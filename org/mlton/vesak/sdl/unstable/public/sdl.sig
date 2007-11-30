@@ -7,14 +7,16 @@
 (**
  * This is a fairly thin wrapper on top of the SDL API.  It should be
  * relatively easy to see the correspondence between these specifications
- * and the SDL API.
- *
- * For documentation on the SDL, see, for example, the
+ * and the SDL API.  For documentation on the SDL, see, for example, the
  * [http://www.libsdl.org/cgi/docwiki.cgi/ SDL Documentation Wiki].
+ *
+ * A few features of SDL are intentionally not supported.  In particular,
+ * 8-bit modes are not supported, because, frankly, they are obsolete and
+ * supporting them is not worth the trouble.
  *)
 signature SDL = sig
    structure Init : sig
-      include FLAGS where type flags_word = Word32.t
+      include FLAGS
       val TIMER : flags
       val AUDIO : flags
       val VIDEO : flags
@@ -31,16 +33,14 @@ signature SDL = sig
    val quit : Unit.t Effect.t
 
    structure Prop : sig
-      include FLAGS where type flags_word = Word32.t
-      val SWSURFACE : flags
-      val HWSURFACE : flags
+      include FLAGS
+      val SW : flags
+      val HW : flags
       val ASYNCBLIT : flags
       val ANYFORMAT : flags
-      val HWPALETTE : flags
       val DOUBLEBUF : flags
       val FULLSCREEN : flags
       val OPENGL : flags
-      val OPENGLBLIT : flags
       val RESIZABLE : flags
       val NOFRAME : flags
    end
@@ -53,16 +53,32 @@ signature SDL = sig
 
    structure Pixel : sig
       eqtype t
-      structure Format : sig eqtype t end
+      structure Format : sig
+         eqtype t
+         val bits : t -> Word.t
+         val bitsRGB : t -> Word.t RGB.t
+         val bitsRGBA : t -> Word.t RGBA.t
+
+         (* == Predefined Pixel Formats for Setting Video Modes ==
+          *
+          * In addition to the following predefined formats, you can also
+          * use {Video.getPixelFormat ()} with {Video.setMode}.
+          *)
+
+         val r5g6b5 : t   (** 16-bpp Hi Color *)
+         val r8g8b8 : t   (** 24-bpp True Color *)
+         val r8g8b8_8 : t (** 24-bpp True Color padded to 32-bits *)
+         val r8g8b8a8 : t (** 32-bpp True Color including an alpha channel *)
+      end
       val fromRGB : Format.t -> Word8.t RGB.t -> t
       val fromRGBA : Format.t -> Word8.t RGBA.t -> t
    end
 
    structure Surface : sig
       type 'a t
-      val pixelFormat : 'any t -> Pixel.Format.t
-      val props : 'any t -> Prop.flags
-      val dim : 'any t -> Int.t Dim.t
+      val getPixelFormat : 'any t -> Pixel.Format.t
+      val getProps : 'any t -> Prop.flags
+      val getDim : 'any t -> Int.t Dim.t
       val free : {video : no} t Effect.t
       val flip : 'dst t Effect.t
       val update : 'dst t Effect.t
@@ -72,16 +88,20 @@ signature SDL = sig
       val blit : 'src t -> 'dst t Effect.t
       val blitRect : 'src t -> Int.t Rect.t -> 'dst t -> Int.t Rect.t Effect.t
       val convert : Pixel.Format.t -> Prop.flags -> 'any t -> {video : no} t
+      val convertToVideo : {alpha : Bool.t} -> 'any t -> {video : no} t
       val getClipRect : 'any t -> Int.t Rect.t
       val setClipRect : 'any t -> Int.t Rect.t Effect.t
    end
 
    structure Video : sig
-      val setMode : Prop.flags -> {bpp : Int.t} -> Int.t Dim.t
+      val setMode : Pixel.Format.t -> Prop.flags -> Int.t Dim.t
                     -> {video : yes} Surface.t
       val getSurface : {video : yes} Surface.t Thunk.t
       val getDriverName : String.t Thunk.t
-      val listModes : Prop.flags -> Int.t Dim.t List.t Option.t
+      val getPixelFormat : Pixel.Format.t Thunk.t
+      val getDim : Int.t Dim.t Thunk.t
+      val listModes : Pixel.Format.t -> Prop.flags
+                      -> Int.t Dim.t List.t Option.t
       val setGamma : Real.t RGB.t Effect.t
    end
 
@@ -89,7 +109,7 @@ signature SDL = sig
       structure Code : sig eqtype t end
       structure Sym : SDL_KEY_SYM
       structure Mod : sig
-         include FLAGS where type flags_word = Word32.t
+         include FLAGS
          val LSHIFT : flags
          val RSHIFT : flags
          val LCTRL : flags
@@ -108,7 +128,7 @@ signature SDL = sig
 
    structure Mouse : sig
       structure Button : sig
-         include FLAGS where type flags_word = Word8.t
+         include FLAGS
          val LEFT : flags
          val MIDDLE : flags
          val RIGHT : flags
@@ -116,6 +136,7 @@ signature SDL = sig
          val WHEELUP : flags
       end
       val getPos : Int.t Pos.t Thunk.t
+      val setPos : Int.t Pos.t Effect.t
       val getDelta : Int.t Pos.t Thunk.t
       val getButtons : Button.flags Thunk.t
       val showCursor : Bool.t Effect.t
@@ -135,6 +156,13 @@ signature SDL = sig
 
    structure Image : sig
       val loadBMP : String.t -> {video : no} Surface.t
+      (**
+       * Loads a surface from the named Windows BMP file.
+       *
+       * See also: {Surface.convert}.
+       *)
+
       val saveBMP : 'any Surface.t -> String.t Effect.t
+      (** Saves the surface as a Windows BMP file. *)
    end
 end
