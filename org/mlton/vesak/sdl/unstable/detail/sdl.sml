@@ -59,13 +59,19 @@ structure SDL :> SDL = struct
    structure Pos = struct type 'a t = {x : 'a, y : 'a} end
    structure Dim = struct type 'a t = {w : 'a, h : 'a} end
    structure Rect = struct type 'a t = {pos : 'a Pos.t, dim : 'a Dim.t} end
-   structure RGB = struct type 'a t = {r : 'a, g : 'a, b : 'a} end
+   structure RGB = struct
+      type 'a t = {r : 'a, g : 'a, b : 'a}
+      fun fromRGBA {r, g, b, a = _} = {r = r, g = g, b = b}
+   end
    structure RGBA = struct
       type 'a t = {r : 'a, g : 'a, b : 'a, a : 'a}
-      fun unOp f {r, g, b, a} = {r = f r, g = f g, b = f b, a = f a}
-      fun binOp f (l : 'a t, r : 'b t) =
+      fun map f {r, g, b, a} = {r = f r, g = f g, b = f b, a = f a}
+      fun zipWith f (l : 'a t, r : 'b t) =
           {r = f (#r l, #r r), g = f (#g l, #g r),
            b = f (#b l, #b r), a = f (#a l, #a r)}
+      fun sum op + {r, g, b, a} = r + g + b + a
+      fun binApp e = ignore o zipWith e
+      fun fromRGB a {r, g, b} = {r=r, g=g, b=b, a=a}
    end
 
    structure Pixel = struct
@@ -82,23 +88,24 @@ structure SDL :> SDL = struct
 
          fun bits (t : t) = Word8.toWord (#bits t)
          fun bitsRGBA (t : t) =
-             RGBA.unOp (fn x => 0w8 - Word8.toWord x) (#loss t)
-         val bitsRGB = (fn {r, g, b, ...} => {r = r, g = g, b = b}) o bitsRGBA
+             RGBA.map (fn x => 0w8 - Word8.toWord x) (#loss t)
+         val bitsRGB = RGB.fromRGBA o bitsRGBA
 
          fun fromRGBA (rgba as {r, g, b, a}) : t = let
-            val bits = r+g+b+a
+            val bits = RGBA.sum op + rgba
             val shift = {b = 0w0, g = b, r = g+b,
                          a = if 0w0 = a then 0w0 else r+g+b}
-            val loss = RGBA.unOp (0w8 <\ op -) rgba
+            val loss = RGBA.map (0w8 <\ op -) rgba
          in
             {alpha = 0w255, key = 0w0, bits = bits,
              bytes = (bits + 0w7) div 0w8,
-             mask = RGBA.binOp (fn (s, l) => let
-                                      open Word32
-                                   in
-                                      (0w255 >> Word8.toWord l) << Word8.toWord s
-                                   end)
-                               (shift, loss),
+             mask = RGBA.zipWith
+                       (fn (s, l) => let
+                              open Word32
+                           in
+                              (0w255 >> Word8.toWord l) << Word8.toWord s
+                           end)
+                       (shift, loss),
              shift = shift, loss = loss}
          end
 
@@ -109,51 +116,55 @@ structure SDL :> SDL = struct
                          shift = #shift r8g8b8} : t
          val r8g8b8a8 = fromRGBA {r=0w8, g=0w8, b=0w8, a=0w8}
 
+         local
+            open S_SDL_PixelFormat
+         in
+            val f_loss  = {r=f_Rloss',  g=f_Gloss',  b=f_Bloss',  a=f_Aloss'}
+            val f_mask  = {r=f_Rmask',  g=f_Gmask',  b=f_Bmask',  a=f_Amask'}
+            val f_shift = {r=f_Rshift', g=f_Gshift', b=f_Bshift', a=f_Ashift'}
+         end
+
          fun fromSDL pf = let
+            open S_SDL_PixelFormat
             fun w f = C.Get.uint' (f pf)
             fun b f = C.Get.uchar' (f pf)
-            open S_SDL_PixelFormat
-            val mask = {r=w f_Rmask', g=w f_Gmask', b=w f_Bmask', a=w f_Amask'}
+            val mask = RGBA.map w f_mask
          in
             {alpha = b f_alpha', key = w f_colorkey', bits = b f_BitsPerPixel',
              bytes = b f_BytesPerPixel', mask = mask,
-             shift = {r=b f_Rshift', g=b f_Gshift', b=b f_Bshift', a=b f_Ashift'},
-             loss = {r=b f_Rloss', g=b f_Gloss', b=b f_Bloss',
-                     a=if 0w0 = #a mask then 0w8 else b f_Aloss'}}
+             shift = RGBA.map b f_shift,
+             loss = RGBA.zipWith (fn (m, l) => if 0w0 = m then 0w8 else b l)
+                                 (mask, f_loss)}
          end
 
          fun withSDL ({alpha, key, bits, bytes, mask, shift, loss} : t) =
              With.Monad.map
                 (fn pf => let
-                       fun w f v = C.Set.uint' (f pf, v)
-                       fun b f v = C.Set.uchar' (f pf, v)
+                       fun w (f, v) = C.Set.uint' (f pf, v)
+                       fun b (f, v) = C.Set.uchar' (f pf, v)
                        open S_SDL_PixelFormat
                     in
                        C.Set.ptr' (f_palette' pf, C.Ptr.null')
-                     ; b f_alpha' alpha
-                     ; w f_colorkey' key
-                     ; b f_BitsPerPixel' bits
-                     ; b f_BytesPerPixel' bytes
-                     ; b f_Rloss' (#r loss) ; b f_Gloss' (#g loss)
-                     ; b f_Bloss' (#b loss) ; b f_Aloss' (#a loss)
-                     ; w f_Rmask' (#r mask) ; w f_Gmask' (#g mask)
-                     ; w f_Bmask' (#b mask) ; w f_Amask' (#a mask)
-                     ; b f_Rshift' (#r shift) ; b f_Gshift' (#g shift)
-                     ; b f_Bshift' (#b shift) ; b f_Ashift' (#a shift)
+                     ; b (f_alpha', alpha)
+                     ; w (f_colorkey', key)
+                     ; b (f_BitsPerPixel', bits)
+                     ; b (f_BytesPerPixel', bytes)
+                     ; RGBA.binApp b (f_loss, loss)
+                     ; RGBA.binApp w (f_mask, mask)
+                     ; RGBA.binApp b (f_shift, shift)
                      ; pf
                     end)
                 (withNew S_SDL_PixelFormat.size)
       end
 
-      fun fromRGBA ({shift, loss, ...} : Format.t) {r, g, b, a} = let
-         open Word32
-         fun pack (v, s, l) =
-             (Word32.fromWord8 v >> Word8.toWord l) << Word8.toWord s
+      fun fromRGBA ({shift, loss, ...} : Format.t) rgba = let
+         open Word32 RGBA
       in
-         pack (r, #r shift, #r loss) orb pack (g, #g shift, #g loss) orb
-         pack (b, #b shift, #b loss) orb pack (a, #a shift, #a loss)
+         sum op orb (zipWith op << (zipWith op >> (map fromWord8 rgba,
+                                                   map Word8.toWord loss),
+                                    map Word8.toWord shift))
       end
-      fun fromRGB format {r, g, b} = fromRGBA format {r=r, g=g, b=b, a=0w255}
+      fun fromRGB format = fromRGBA format o RGBA.fromRGB 0w255
    end
 
    structure Surface = struct
@@ -309,11 +320,12 @@ structure SDL :> SDL = struct
    structure Mouse = struct
       structure Button = struct
          open Word8Flags
-         val LEFT = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_LEFT)
-         val MIDDLE = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_MIDDLE)
-         val RIGHT = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_RIGHT)
-         val WHEELDOWN = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_WHEELDOWN)
-         val WHEELUP = Word8.fromLargeInt (SDL_BUTTON SDL_BUTTON_WHEELUP)
+         val ` = Word8.fromLargeInt o SDL_BUTTON
+         val LEFT      = `SDL_BUTTON_LEFT
+         val MIDDLE    = `SDL_BUTTON_MIDDLE
+         val RIGHT     = `SDL_BUTTON_RIGHT
+         val WHEELDOWN = `SDL_BUTTON_WHEELDOWN
+         val WHEELUP   = `SDL_BUTTON_WHEELUP
       end
 
       local
