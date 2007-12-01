@@ -71,6 +71,7 @@ structure SDL :> SDL = struct
            b = f (#b l, #b r), a = f (#a l, #a r)}
       fun sum op + {r, g, b, a} = r + g + b + a
       fun binApp e = ignore o zipWith e
+      fun dup x = {r=x, g=x, b=x, a=x}
       fun fromRGB a {r, g, b} = {r=r, g=g, b=b, a=a}
    end
 
@@ -91,6 +92,13 @@ structure SDL :> SDL = struct
              RGBA.map (fn x => 0w8 - Word8.toWord x) (#loss t)
          val bitsRGB = RGB.fromRGBA o bitsRGBA
 
+         fun masks shift loss rgba =
+             RGBA.zipWith Word32.<<
+                          (RGBA.zipWith Word32.>>
+                                        (RGBA.map Word32.fromWord8 rgba,
+                                         RGBA.map Word8.toWord loss),
+                           RGBA.map Word8.toWord shift)
+
          fun fromRGBA (rgba as {r, g, b, a}) : t = let
             val bits = RGBA.sum op + rgba
             val shift = {b = 0w0, g = b, r = g+b,
@@ -99,13 +107,7 @@ structure SDL :> SDL = struct
          in
             {alpha = 0w255, key = 0w0, bits = bits,
              bytes = (bits + 0w7) div 0w8,
-             mask = RGBA.zipWith
-                       (fn (s, l) => let
-                              open Word32
-                           in
-                              (0w255 >> Word8.toWord l) << Word8.toWord s
-                           end)
-                       (shift, loss),
+             mask = masks shift loss (RGBA.dup 0w255),
              shift = shift, loss = loss}
          end
 
@@ -157,13 +159,8 @@ structure SDL :> SDL = struct
                 (withNew S_SDL_PixelFormat.size)
       end
 
-      fun fromRGBA ({shift, loss, ...} : Format.t) rgba = let
-         open Word32 RGBA
-      in
-         sum op orb (zipWith op << (zipWith op >> (map fromWord8 rgba,
-                                                   map Word8.toWord loss),
-                                    map Word8.toWord shift))
-      end
+      fun fromRGBA ({shift, loss, ...} : Format.t) =
+         RGBA.sum Word32.orb o Format.masks shift loss
       fun fromRGB format = fromRGBA format o RGBA.fromRGB 0w255
    end
 
