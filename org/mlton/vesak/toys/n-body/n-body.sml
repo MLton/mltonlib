@@ -18,13 +18,11 @@
  * essentially the same as (actually slightly better than) in the SML
  * version used in TheGame at the time of writing.
  *
- * Note that version currently used in TheGame was originally translated
- * to SML by Matthias Blume who apparently tweaked the code for SML/NJ.
- * In particular, I believe that the reason behind using multiple arrays
- * is to be able to efficiently mutate the position and velocity vectors
- * used in the simulation.  This stems from the fact that SML/NJ is,
- * AFAIK, unable to flatten ref cells, which usually require whole-program
- * analysis.
+ * Note that the version currently used in TheGame was originally
+ * translated to SML by Matthias Blume who probably tweaked the code for
+ * SML/NJ.  In particular, I believe that the reason behind using multiple
+ * arrays is to be able to efficiently mutate the position and velocity
+ * vectors used in the simulation.
  *)
 
 open V3R
@@ -39,7 +37,8 @@ fun vel (b : body) = ! (#vel b)
 
 val system =
     map (fn {pos, vel, mass} =>
-            {pos = ref pos, vel = ref (vel :* daysPerYear),
+            {pos = ref pos,
+             vel = ref (vel :* daysPerYear),
              mass = mass * solarMass})
         [{pos = {x = 0.0, y = 0.0, z = 0.0},
           vel = {x = 0.0, y = 0.0, z = 0.0},
@@ -89,16 +88,16 @@ fun advance dt =
    ; advance dt bs)
 
 val offsetMomentum =
- fn [] => fail "Empty system"
-  | sun::planets => #vel sun := foldl (fn (b, v) => v :-: vel b :* #mass b)
-                                      {x = 0.0, y = 0.0, z = 0.0}
-                                      planets :/ solarMass
+ fn []           => fail "Empty system"
+  | sun::planets =>
+    #vel sun := foldl (fn (b, v) => v :-: vel b :* #mass b)
+                      {x = 0.0, y = 0.0, z = 0.0}
+                      planets :/ solarMass
 
 fun energy e =
  fn []    => e
   | a::bs =>
-    energy (foldl (fn (b, e) =>
-                      e - #mass a * #mass b / mag (pos a :-: pos b))
+    energy (foldl (fn (b, e) => e - #mass a * #mass b / mag (pos a :-: pos b))
                   (e + 0.5 * #mass a * norm (vel a))
                   bs)
            bs
