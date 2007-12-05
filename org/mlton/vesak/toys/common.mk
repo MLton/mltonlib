@@ -55,7 +55,6 @@ $(exe) : $(name).mlb $(mlb-path-map)
 	mlton -mlb-path-map $(mlb-path-map)                  \
 	      -prefer-abs-paths true                         \
 	      -show-def-use $@.du                            \
-	      -inline 10000                                  \
 	      -link-opt '$(link-opts)'                       \
 	      -output $@                                     \
 	      $(mlton-opts)                                  \
