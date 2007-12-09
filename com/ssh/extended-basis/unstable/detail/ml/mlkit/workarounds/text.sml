@@ -7,7 +7,7 @@
 structure Text = struct
    open Text
    structure String = struct
-      val scan = fn _ => raise Fail "SML/NJ does not implement String.scan"
+      val scan = fn _ => raise Fail "MLKit does not implement String.scan"
       open String
    end
 end
