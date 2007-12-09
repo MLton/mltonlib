@@ -19,6 +19,9 @@ signature TEXT_IO = sig
     *> (output (stdOut, s) ; output1 (stdOut, #"\n") ; flushOut stdOut)
     *)
 
+   val prints : String.t List.t Effect.t
+   (** {prints = print o concat} *)
+
    val readFile : String.t -> vector
    (** Reads all data from the specified file. *)
 
