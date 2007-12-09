@@ -15,6 +15,9 @@ signature BASIC = sig
    val fail : String.t -> 'a
    (** {fail m} is equivalent to {raise Fail m}. *)
 
+   val fails : String.t List.t -> 'a
+   (** {fails ms} is equivalent to {fail (concat ms)}. *)
+
    val failing : String.t -> 'a -> 'b
    (** A failing function; {failing m} is equivalent to {raising (Fail m)}. *)
 

@@ -17,6 +17,7 @@ structure TopLevel = struct
    val eq = Basic.eq
    val notEq = Basic.notEq
    val fail = Basic.fail
+   val fails = Basic.fails
    val failing = Basic.failing
    val raising = Basic.raising
    val recur = Basic.recur
@@ -83,6 +84,7 @@ structure TopLevel = struct
    (** == TextIO == *)
 
    val println = TextIO.println
+   val prints = TextIO.prints
 
    (** == UnPr == *)
 

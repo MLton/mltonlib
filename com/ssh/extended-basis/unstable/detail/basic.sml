@@ -8,6 +8,7 @@ structure Basic :> BASIC = struct
    fun eq x y = x = y
    fun notEq x y = x <> y
    fun fail m = raise Fail m
+   fun fails ms = fail (concat ms)
    fun failing m _ = fail m
    fun raising e _ = raise e
    fun recur x = Fn.flip Fn.fix x
