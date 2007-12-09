@@ -670,7 +670,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                 in
                    rd string >>= (fn s =>
                    case Buffer.findSome (pass s o #rd) exns
-                    of NONE   => fail ("Unregistered exception constructor: " ^ s)
+                    of NONE   => fails ["Unregistered exn constructor: ", s]
                      | SOME r => r)
                 end,
                 wr = fn e => case Buffer.findSome (pass e o #wr) exns

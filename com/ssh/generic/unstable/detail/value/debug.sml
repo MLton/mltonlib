@@ -15,7 +15,7 @@ functor WithDebug (Arg : CASES) : OPEN_CASES = struct
 
    fun add1 kind (x, xs) =
        if List.exists (eq x) xs
-       then fail (concat ["Duplicate ", kind, "s: ", x])
+       then fails ["Duplicate ", kind, "s: ", x]
        else x::xs
 
    fun addN kind (xs, ys) = foldl (add1 kind) xs ys

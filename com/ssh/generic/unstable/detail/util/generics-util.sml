@@ -10,7 +10,6 @@ structure GenericsUtil :> GENERICS_UTIL = struct
    (* SML/NJ workaround --> *)
 
    val ` = Exn.name
-   fun failCat ss = fail (concat ss)
-   fun failExn e = failCat ["unregistered exn ", `e]
-   fun failExnSq (l, r) = failCat ["unregistered exns ", `l, " and ", `r]
+   fun failExn e = fails ["unregistered exn ", `e]
+   fun failExnSq (l, r) = fails ["unregistered exns ", `l, " and ", `r]
 end
