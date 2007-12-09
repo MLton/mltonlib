@@ -10,4 +10,8 @@
 signature TIME = sig
    include BASIS_TIME
    type t = time
+   val fromHours : LargeInt.t -> t
+   val fromMinutes : LargeInt.t -> t
+   val toHours : t -> LargeInt.t
+   val toMinutes : t -> LargeInt.t
 end

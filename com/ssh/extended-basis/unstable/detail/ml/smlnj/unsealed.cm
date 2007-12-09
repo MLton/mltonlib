@@ -78,6 +78,7 @@ is
    ../../../detail/sequence/vector-slice.sml
    ../../../detail/sequence/vector.sml
    ../../../detail/text/mk-text-ext.fun
+   ../../../detail/time/time.sml
    ../../../detail/typing/phantom.sml
    ../../../public/lazy/lazy.sig
    ext.sml
