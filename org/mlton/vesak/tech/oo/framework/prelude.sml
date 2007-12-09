@@ -8,6 +8,8 @@
 
 fun id x = x
 
+val prints = print o concat
+
 structure Int = struct
    open Int
    type t = int

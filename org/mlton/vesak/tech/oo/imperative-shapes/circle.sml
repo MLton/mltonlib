@@ -16,9 +16,9 @@ end = struct
       val x = Var.new x and y = Var.new y
       val r = Var.new r
       fun draw () =
-          print (concat ["Drawing a Circle at:(", Int.toString (#get x ()), ",",
-                         Int.toString (#get y ()), "), Radius ",
-                         Int.toString (#get r ()), "\n"])
+          prints ["Drawing a Circle at:(", Int.toString (#get x ()), ",",
+                  Int.toString (#get y ()), "), Radius ",
+                  Int.toString (#get r ()), "\n"]
    in
       () & {r = r} & {x = x, y = y, draw = draw}
    end

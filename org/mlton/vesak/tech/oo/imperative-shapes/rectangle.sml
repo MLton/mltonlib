@@ -18,10 +18,10 @@ end = struct
       val x = Var.new x and y = Var.new y
       val w = Var.new w and h = Var.new h
       fun draw () =
-          print (concat ["Drawing a Rectangle at:(", Int.toString (#get x ()),
-                         ",", Int.toString (#get y ()), "), Width ",
-                         Int.toString (#get w ()), ", Height ",
-                         Int.toString (#get h ()), "\n"])
+          prints ["Drawing a Rectangle at:(", Int.toString (#get x ()), ",",
+                  Int.toString (#get y ()), "), Width ",
+                  Int.toString (#get w ()), ", Height ",
+                  Int.toString (#get h ()), "\n"]
    in
       () & {w = w, h = h} & {x = x, y = y, draw = draw}
    end
