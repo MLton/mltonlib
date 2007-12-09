@@ -9,7 +9,8 @@ structure UseLib :> USE_LIB = struct
        ((case th () of v => fn () => (ef () ; v))
         handle e => fn () => (ef () ; raise e)) ()
 
-   fun error strs = raise Fail (concat strs)
+   fun fail m = raise Fail m
+   fun fails ms = fail (concat ms)
 
    structure Var = struct
       val vars = ref [("SML_COMPILER", ${SML_COMPILER}),
@@ -21,7 +22,7 @@ structure UseLib :> USE_LIB = struct
             | NONE   =>
               case List.find (fn (i, _) => i = var) (!vars)
                of SOME (_, v) => v
-                | NONE        => error ["Undefined variable: ", var]
+                | NONE        => fails ["Undefined variable: ", var]
 
       fun expand path = let
          fun outside os =
@@ -31,7 +32,7 @@ structure UseLib :> USE_LIB = struct
          and inside os vs =
           fn #"}" :: is => outside os (explode (get (implode (rev vs))) @ is)
            | c    :: is => inside os (c::vs) is
-           |         [] => error ["Unclosed variable reference"]
+           |         [] => fail "Unclosed variable reference"
       in
          outside [] (explode path)
       end
@@ -45,14 +46,14 @@ structure UseLib :> USE_LIB = struct
       fun pushUse e = useQueue := e :: !useQueue
       fun popUse () =
           case !useQueue
-           of [] => error ["Each lib must be used as a unique .use file"]
+           of []    => fail "Each lib must be used as a unique .use file"
             | e::es => (useQueue := es ; e)
       fun pushLib () =
           (libStack := !useQueue :: !libStack
          ; useQueue := [])
       fun popLib () =
           case !libStack
-           of [] => error ["Internal error: Unmatched popLib"]
+           of []    => fail "Internal error: Unmatched popLib"
             | e::es => (libStack := es
                       ; useQueue := List.revAppend (!useQueue, e))
       fun clear () = (libStack := [] ; useQueue := [])
@@ -65,14 +66,14 @@ structure UseLib :> USE_LIB = struct
                  else path
       val () = if OS.FileSys.access (path, [OS.FileSys.A_READ])
                then ()
-               else error ["File ", path, " is unreadable from ",
+               else fails ["File ", path, " is unreadable from ",
                            OS.FileSys.getDir ()]
       val path = OS.FileSys.fullPath path
    in
       if not (String.isSuffix ".use" path)
       then ()
       else if List.exists (fn p => path = p) loading
-      then error ("Cyclic library dependency: "::
+      then fails ("Cyclic library dependency: "::
                   foldl (fn (p, ps) => p::" -> "::ps) [path] loading)
       else pushUse {path = path, loading = loading}
     ; use path
