@@ -8,4 +8,6 @@ args := 20000000
 
 root := ../../../../..
 
+mlton-opts := -align 8 -loop-passes 2
+
 include ../common.mk
