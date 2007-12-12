@@ -283,6 +283,29 @@ signature PRETTY = sig
 
    val show : ('a, 'x) PrettyRep.t -> 'a -> String.t
    (** {show t} is equivalent to {Prettier.render NONE o pretty t}. *)
+
+   val withShow : ('a -> String.t) -> ('a, 'x) PrettyRep.t UnOp.t
+   (**
+    * Functionally updates the prettifying function in the given type
+    * representation with the given function for converting values to
+    * strings.
+    *
+    * {withShow} is equivalent to
+    *
+    *> fun withShow toString =
+    *>     setPrinter (fn v => return (ATOMIC, txt (toString v)))
+    *)
+
+   val withFmt : Fmt.t -> ('a, 'x) PrettyRep.t UnOp.t
+   (**
+    * Functionally updates the prettifying function in the given type
+    * representation to use exactly the given formatting options.
+    *
+    * {withFmt} is equivalent to
+    *
+    *> fun withFmt fmt =
+    *>     mapPrinter (fn p => fn v => setFmt fmt >>= (fn () => p v))
+    *)
 end
 
 signature PRETTY_CASES = sig

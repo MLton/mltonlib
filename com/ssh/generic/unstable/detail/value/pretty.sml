@@ -327,6 +327,16 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
       fun pretty t = fmt t Fmt.default
       fun show t = Prettier.render NONE o pretty t
 
+      local
+         open Pretty
+      in
+         fun withShow toString =
+             setPrinter (fn v => return (ATOMIC, txt (toString v)))
+
+         fun withFmt fmt =
+             mapPrinter (fn p => fn v => setFmt fmt >>= (fn () => p v))
+      end
+
       structure Open = LayerDepCases
         (fun iso        aT = iso' (getT aT)
          fun isoProduct aP = iso' (getP aP)
