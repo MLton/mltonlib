@@ -9,18 +9,13 @@ signature TEXT_IO = sig
    include BASIS_TEXT_IO
 
    val println : String.t Effect.t
-   (**
-    * Prints the given string to the standard output stream with a newline
-    * and flushes the stream.
-    *
-    * This is available in the top-level environment as {println}.
-    * {println s} is equivalent to:
-    *
-    *> (output (stdOut, s) ; output1 (stdOut, #"\n") ; flushOut stdOut)
-    *)
+   (** {println s} is equivalent to {prints [s, "\n"]}. *)
+
+   val printlns : String.t List.t Effect.t
+   (** {printlns} is equivalent to {println o concat}. *)
 
    val prints : String.t List.t Effect.t
-   (** {prints = print o concat} *)
+   (** {prints} is equivalent to {print o concat}. *)
 
    val readFile : String.t -> vector
    (** Reads all data from the specified file. *)

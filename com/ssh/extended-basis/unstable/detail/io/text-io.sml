@@ -4,14 +4,19 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure TextIO = struct
+structure TextIO : TEXT_IO = struct
    open BasisTextIO
 
-   fun println s =
-       (output (stdOut, s) ; output1 (stdOut, #"\n") ; flushOut stdOut)
-
-   fun prints ss =
-       (app (fn s => output (stdOut, s)) ss ; flushOut stdOut)
+   local
+      fun mk ln ss =
+          (app (fn s => output (stdOut, s)) ss
+         ; if ln then output1 (stdOut, #"\n") else ()
+         ; flushOut stdOut)
+   in
+      val prints = mk false
+      fun println s = mk true [s]
+      val printlns = mk true
+   end
 
    fun readFile file =
        case openIn file
