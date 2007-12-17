@@ -80,6 +80,7 @@ is
    ../../../public/sequence/vector-slice.sig
    ../../../public/sequence/vector.sig
    ../../../public/text/char.sig
+   ../../../public/text/cvt.sig
    ../../../public/text/string.sig
    ../../../public/text/substring.sig
    ../../../public/text/text.sig

@@ -23,6 +23,7 @@ structure CharVector = struct open BasisCharVector type t = vector end
 structure Effect = struct type 'a t = 'a -> Unit.t end
 structure FixedInt = struct open BasisFixedInt type t = int end
 structure Int = struct open BasisInt type t = int end
+structure Real = struct open BasisReal type t = real end
 structure LargeInt = struct open BasisLargeInt type t = int end
 structure LargeReal = struct open BasisLargeReal type t = real end
 structure LargeWord = struct open BasisLargeWord type t = word end

@@ -310,6 +310,10 @@ in
          (* Time *)
          public/time/time.sig
          detail/time/time.sml
+
+         (* Cvt *)
+         public/text/cvt.sig
+         detail/text/cvt.sml
       in
          public/export/$(SML_COMPILER).sml
          public/export/common.sml
