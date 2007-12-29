@@ -18,15 +18,9 @@
  * abstract types.
  *)
 signature TIE = sig
-   type 'a dom and 'a cod
-   type 'a t = 'a dom -> 'a cod
-   (**
-    * The type of fixpoint witnesses.
-    *
-    * The type constructors {dom} and {cod} are used to expose the arrow
-    * {->} type constructor (to allow eta-expansion) while keeping the
-    * domain and codomain abstract.
-    *)
+   include ETAEXP'
+   type 'a t = 'a etaexp
+   (** The type of fixpoint witnesses. *)
 
    val fix : 'a t -> 'a Fix.t
    (**

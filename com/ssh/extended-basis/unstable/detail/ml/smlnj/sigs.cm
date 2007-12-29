@@ -14,6 +14,7 @@ is
    ../../../public/concept/cased.sig
    ../../../public/concept/cstringable.sig
    ../../../public/concept/equality.sig
+   ../../../public/concept/etaexp.sig
    ../../../public/concept/flags.sig
    ../../../public/concept/formattable.sig
    ../../../public/concept/func.sig

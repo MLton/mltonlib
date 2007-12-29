@@ -7,9 +7,10 @@
 structure Tie :> TIE = struct
    open Product
    infix &
-   type 'a dom = Unit.t
-   type 'a cod = ('a * 'a UnOp.t) Thunk.t
-   type 'a t = 'a dom -> 'a cod
+   type 'a etaexp_dom = Unit.t
+   type 'a etaexp_cod = ('a * 'a UnOp.t) Thunk.t
+   type 'a etaexp = 'a etaexp_dom -> 'a etaexp_cod
+   type 'a t = 'a etaexp
    fun fix aT f = let val (a, ta) = aT () () in ta (f a) end
    val pure = Thunk.mk
    fun iso bT (iso as (_, b2a)) () () = let
