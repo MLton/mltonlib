@@ -9,8 +9,9 @@ structure Writer :> WRITER = struct
 
    fun mapState (s2t, t2s) = Fn.map (Pair.map (Fn.id, s2t), t2s)
 
-   type 'a func_dom = 'a * Univ.t and 'a func_cod = Univ.t
-   type 'a func = 'a func_dom -> 'a func_cod
+   type 'a etaexp_dom = 'a * Univ.t and 'a etaexp_cod = Univ.t
+   type 'a etaexp = 'a etaexp_dom -> 'a etaexp_cod
+   type 'a func = 'a etaexp
    fun map b2a wA = wA o Pair.map (b2a, Fn.id)
 
    fun polymorphically uA2uB = let

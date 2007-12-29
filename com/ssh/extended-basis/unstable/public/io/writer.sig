@@ -12,8 +12,8 @@ signature WRITER = sig
 
    (** == Functor Interface == *)
 
-   type 'a func_dom and 'a func_cod
-   include CFUNC where type 'a func = 'a func_dom -> 'a func_cod
+   include ETAEXP'
+   include CFUNC where type 'a func = 'a etaexp
 
    val polymorphically : ('a func -> 'b func) -> ('a, 's) t -> ('b, 's) t
 end
