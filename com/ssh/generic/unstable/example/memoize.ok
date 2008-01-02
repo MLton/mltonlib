@@ -1,0 +1,5 @@
+concatV #["a", "bcd"] = "abcd"
+(memo) concatV #["a", "bcd"] = "abcd"
+concatV #["Ab", "C", "d"] = "AbCd"
+(memo) concatV #["Ab", "C", "d"] = "AbCd"
+(memo) concatV #["a", "bcd"] = "abcd"
