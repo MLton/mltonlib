@@ -21,6 +21,17 @@
  * The {test} function is similar.  It fails with a pretty printed
  * function call with the actual and expected results in case the actual
  * and expected results disagree.
+ *
+ * Note that the example code here is not powerful enough to memoize
+ * recursive functions.  See
+ *
+ *   That About Wraps it Up: Using FIX to Handle Errors Without
+ *     Exceptions, and Other Programming Tricks
+ *   Bruce J. McAdam
+ *   [http://citeseer.ist.psu.edu/51062.html]
+ *   [http://www.lfcs.inf.ed.ac.uk/reports/97/ECS-LFCS-97-375/]
+ *
+ * for a more general approach.
  *)
 
 open Generic
