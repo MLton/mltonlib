@@ -1,0 +1,21 @@
+(* Copyright (C) 2008 Vesa Karvonen
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+lib [(* Libraries *)
+     "${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
+     "${MLTON_LIB}/org/mlton/vesak/ds/unstable/lib.use",
+     "${MLTON_LIB}/com/ssh/generic/unstable/lib.use",
+
+     (* Composition of generics *)
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/generic.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/eq.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/type-hash.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/type-info.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/hash.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/pretty.sml",
+     "${MLTON_LIB}/com/ssh/generic/unstable/with/close-pretty-with-extra.sml",
+
+     "memoize.sml"] ;
