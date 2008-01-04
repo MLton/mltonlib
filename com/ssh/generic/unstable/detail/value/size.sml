@@ -145,10 +145,10 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
                  (sequ ArrayOps.ops (getT xT))
 
       fun refc xT =
-          cyclic (Arg.Open.refc ignore xT)
-                 (case getT xT
-                   of STATIC s  => const (s + wordSize)
-                    | DYNAMIC f => fn (e, x) => wordSize + f (e, !x))
+          case getT xT
+           of STATIC s  => STATIC (s + wordSize)
+            | DYNAMIC f => cyclic (Arg.Open.refc ignore xT)
+                                  (fn (e, x) => wordSize + f (e, !x))
 
       val fixedInt = mkInt FixedIntOps.ops
       val largeInt = mkInt LargeIntOps.ops
