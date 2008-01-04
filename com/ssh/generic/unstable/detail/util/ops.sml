@@ -5,30 +5,37 @@
  *)
 
 structure Ops = struct
-   datatype 'a wops =
-      W of {<< : 'a ShiftOp.t,
-            >> : 'a ShiftOp.t,
-            isoWord8 : ('a, Word8.t) Iso.t,
-            isoWord8X : ('a, Word8.t) Iso.t,
-            orb : 'a BinOp.t,
+   datatype 'word w =
+      W of {<< : 'word ShiftOp.t,
+            >> : 'word ShiftOp.t,
+            compare : 'word Cmp.t,
+            isoLargeInt : ('word, LargeInt.t) Iso.t,
+            isoWord : ('word, Word.t) Iso.t,
+            isoWord8 : ('word, Word8.t) Iso.t,
+            isoWord8X : ('word, Word8.t) Iso.t,
+            mod : 'word BinOp.t,
+            orb : 'word BinOp.t,
             wordSize : Int.t,
-            ~>> : 'a ShiftOp.t}
+            ~>> : 'word ShiftOp.t}
 
-   datatype 'a iops =
-      I of {*` : 'a BinOp.t,
-            +` : 'a BinOp.t,
-            div : 'a BinOp.t,
-            fromInt : Int.t -> 'a,
-            maxInt : 'a Option.t,
-            mod : 'a BinOp.t,
+   datatype 'int i =
+      I of {*` : 'int BinOp.t,
+            +` : 'int BinOp.t,
+            div : 'int BinOp.t,
+            isoInt : ('int, Int.t) Iso.t,
+            isoLarge : ('int, LargeInt.t) Iso.t,
+            maxInt : 'int Option.t,
+            mod : 'int BinOp.t,
             precision : Int.t Option.t}
 
-   datatype 'a rops =
-      R of {bytesPerElem : Int.t,
-            subArr : Word8Array.t * Int.t -> 'a,
-            toBytes : 'a -> Word8Vector.t}
+   datatype ('real, 'word) r =
+      R of {bitsOps : 'word w,
+            bytesPerElem : Int.t,
+            isoBits : ('real, 'word) Iso.t Option.t,
+            subArr : Word8Array.t * Int.t -> 'real,
+            toBytes : 'real -> Word8Vector.t}
 
-   datatype ('elem, 'list, 'result, 'seq, 'slice) sops =
+   datatype ('elem, 'list, 'result, 'seq, 'slice) s =
       S of {foldl : ('elem * 'result -> 'result) -> 'result -> 'seq -> 'result,
             fromList : 'list -> 'seq,
             getItem : 'slice -> ('elem * 'slice) Option.t,
@@ -39,7 +46,9 @@ end
 
 functor MkWordOps (include WORD) = struct
    val ops = Ops.W {wordSize = wordSize, orb = op orb, << = op <<, ~>> = op ~>>,
-                    >> = op >>, isoWord8 = isoWord8, isoWord8X = isoWord8X}
+                    >> = op >>, isoLargeInt = isoLargeInt, isoWord = isoWord,
+                    isoWord8 = isoWord8, isoWord8X = isoWord8X, mod = op mod,
+                    compare = compare}
 end
 
 structure LargeRealWordOps = MkWordOps (CastLargeReal.Bits)
@@ -53,21 +62,25 @@ structure Word64Ops = MkWordOps (Word64)
 structure Word8Ops = MkWordOps (Word8)
 
 functor MkIntOps (include INTEGER) = struct
-   val ops = Ops.I {precision = precision, maxInt = maxInt, fromInt = fromInt,
-                    *` = op *, +` = op +, div = op div, mod = op mod}
+   val ops = Ops.I {precision = precision, maxInt = maxInt, isoInt = isoInt,
+                    isoLarge = isoLarge, *` = op *, +` = op +, div = op div,
+                    mod = op mod}
 end
 
 structure FixedIntOps = MkIntOps (FixedInt)
 structure IntOps = MkIntOps (Int)
 structure LargeIntOps = MkIntOps (LargeInt)
 
-functor MkRealOps (include PACK_REAL) = struct
-   val ops = Ops.R {bytesPerElem = bytesPerElem, subArr = subArr,
-                    toBytes = toBytes}
+functor MkRealOps (include CAST_REAL PACK_REAL
+                   val ops : Bits.t Ops.w
+                   sharing type t = real) = struct
+   val ops = Ops.R {bitsOps = ops, bytesPerElem = bytesPerElem,
+                    isoBits = isoBits, subArr = subArr, toBytes = toBytes}
 end
 
-structure PackRealLittleOps = MkRealOps (PackRealLittle)
-structure PackLargeRealLittleOps = MkRealOps (PackLargeRealLittle)
+structure RealOps = MkRealOps (open CastReal PackRealLittle RealWordOps)
+structure LargeRealOps =
+   MkRealOps (open CastLargeReal PackLargeRealLittle LargeRealWordOps)
 
 functor MkSeqOps (structure Seq : sig
                      type 'a t

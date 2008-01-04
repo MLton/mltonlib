@@ -37,7 +37,8 @@ functor WithShrink (Arg : WITH_SHRINK_DOM) : SHRINK_CASES = struct
        IN {kids = fn (_, e, _) => e,
            shrink = fn _ => []}
 
-   fun mkInt (Ops.I {precision, fromInt, maxInt, +`, *`, div, mod, ...}) =
+   fun mkInt (Ops.I {precision, isoInt = (_, fromInt), maxInt, +`, *`, div, mod,
+                     ...}) =
        if isSome precision
        then IN {kids = fn (_, e, _) => e,
                 shrink = fn i => let

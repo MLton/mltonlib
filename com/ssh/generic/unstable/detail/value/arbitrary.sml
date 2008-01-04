@@ -29,7 +29,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
    datatype 'a t = IN of {gen : 'a G.t, cog : 'a -> Univ.t G.t UnOp.t}
    fun out (IN r) = r
 
-   fun mkInt precision fromLarge aT = let
+   fun mkInt (Ops.I {precision, isoLarge = (_, fromLarge), ...}) aT = let
       fun gen n =
           map (fn i => fromLarge (i - IntInf.<< (1, Word.fromInt n - 0w1)))
               (G.bits n)
@@ -44,7 +44,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
        IN {gen = G.sized ((fn r => map fromReal (G.realInRange (~r,r))) o real),
            cog = G.variant o Arg.hash (aT ())}
 
-   fun mkWord wordSize fromLargeInt aT =
+   fun mkWord (Ops.W {wordSize, isoLargeInt = (_, fromLargeInt), ...}) aT =
        IN {gen = map fromLargeInt (G.bits wordSize),
            cog = G.variant o Arg.hash (aT ())}
 
@@ -135,27 +135,24 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
 
       fun refc a = iso' (getT a) (!, ref)
 
-      val fixedInt =
-          mkInt FixedInt.precision FixedInt.fromLarge Arg.Open.fixedInt
-      val largeInt =
-          mkInt LargeInt.precision LargeInt.fromLarge Arg.Open.largeInt
+      val fixedInt = mkInt FixedIntOps.ops Arg.Open.fixedInt
+      val largeInt = mkInt LargeIntOps.ops Arg.Open.largeInt
 
-      val largeWord =
-          mkWord LargeWord.wordSize LargeWord.fromLargeInt Arg.Open.largeWord
+      val largeWord = mkWord LargeWordOps.ops Arg.Open.largeWord
       val largeReal = mkReal R.toLarge Arg.Open.largeReal
 
       val bool = IN {gen = G.bool, cog = G.variant o W.fromInt o Bool.toInt}
       val char = IN {gen = map Byte.byteToChar G.word8,
                      cog = G.variant o Word8.toWord o Byte.charToByte}
-      val int = mkInt Int.precision Int.fromLarge Arg.Open.int
+      val int = mkInt IntOps.ops Arg.Open.int
       val real = mkReal id Arg.Open.real
       val string = iso' (list' char) String.isoList
       val word = IN {gen = G.lift G.RNG.value, cog = G.variant}
 
       val word8 = IN {gen = G.word8, cog = G.variant o Word8.toWord}
-      val word32 = mkWord Word32.wordSize Word32.fromLargeInt Arg.Open.word32
+      val word32 = mkWord Word32Ops.ops Arg.Open.word32
 (*
-      val word64 = mkWord Word64.wordSize Word64.fromLargeInt Arg.Open.word64
+      val word64 = mkWord Word64Ops.ops Arg.Open.word64
 *)
 
       fun hole () = IN {gen = G.lift undefined, cog = undefined}

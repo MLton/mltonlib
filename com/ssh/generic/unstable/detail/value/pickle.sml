@@ -259,12 +259,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                      end,
              sz = SOME bytesPerElem}
 
-      fun mkReal isoBits
-                 (bitOps as Ops.W {wordSize, ...})
-                 (packOps as Ops.R {bytesPerElem, ...}) =
-          case isoBits
-           of SOME isoBits => sized wordSize (bits bitOps isoBits)
-            | NONE => sized (bytesPerElem * 8) (bytesAsBits packOps)
+      val mkReal =
+       fn Ops.R {isoBits = SOME isoBits,
+                 bitsOps = bitsOps as Ops.W {wordSize, ...}, ...} =>
+          sized wordSize (bits bitsOps isoBits)
+        | packOps as Ops.R {bytesPerElem, ...} =>
+          sized (bytesPerElem * 8) (bytesAsBits packOps)
 
       (* Encodes fixed size int as a size followed by little endian bytes. *)
       fun mkFixedInt (Ops.W {orb, <<, ~>>, isoWord8 = (toW8, fromW8),
@@ -693,13 +693,11 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
              else if isSome Int.precision
              then iso' fixedInt Int.isoFixedInt
              else iso' largeInt Int.isoLargeInt
-         val real = mkReal CastReal.isoBits RealWordOps.ops PackRealLittleOps.ops
+         val real = mkReal RealOps.ops
          val string = string
          val word = mkFixedInt WordOps.ops Iso.id
 
-         val largeReal = mkReal CastLargeReal.isoBits
-                                LargeRealWordOps.ops
-                                PackLargeRealLittleOps.ops
+         val largeReal = mkReal LargeRealOps.ops
          val largeWord = mkFixedInt LargeWordOps.ops Iso.id
 
          val word8  = word8

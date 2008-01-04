@@ -38,13 +38,14 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
           end
    end
 
-   fun mkReal isoBits op mod isoWord toBytes =
-       case isoBits
-        of SOME (toBits, _) => viaWord toBits op mod isoWord
-         | NONE =>
-           prim (Word8Vector.foldl
-                    (fn (w, h) => h * 0wxFB + Word8.toWord w)
-                    0w0 o toBytes)
+   val mkReal =
+    fn Ops.R {isoBits = SOME (toBits, _),
+              bitsOps = Ops.W {isoWord, mod, ...}, ...} =>
+       viaWord toBits op mod isoWord
+     | Ops.R {toBytes, ...} =>
+       prim (Word8Vector.foldl
+                (fn (w, h) => h * 0wxFB + Word8.toWord w)
+                0w0 o toBytes)
 
    val exns : (Exn.t * p -> Word.t Option.t) Buffer.t = Buffer.new ()
 
@@ -170,15 +171,13 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
                                 | SOME v => SOME (Word.xorb (c, t (v, p))))
 
       val bool = prim (fn true => 0wx096DB16D | false => 0wx01B56B6D)
-      val real = mkReal CastReal.isoBits CastReal.Bits.mod CastReal.Bits.isoWord
-                        PackRealLittle.toBytes
+      val real = mkReal RealOps.ops
       val word = prim id
 
       val fixedInt = viaWord id op mod (Iso.swap Word.isoFixedInt)
       val largeInt = viaWord id op mod (Iso.swap Word.isoLargeInt)
 
-      val largeReal = mkReal CastLargeReal.isoBits CastLargeReal.Bits.mod
-                             CastLargeReal.Bits.isoWord PackRealLittle.toBytes
+      val largeReal = mkReal LargeRealOps.ops
       val largeWord = viaWord id op mod LargeWord.isoWord
 
       val word8  = prim Word8.toWord

@@ -17,7 +17,7 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
     | DYNAMIC of e * 'a -> Int.t
 
    val sz =
-    fn STATIC  s => const s
+    fn STATIC s  => const s
      | DYNAMIC f => f
 
    fun bytes i = Word.toInt (Word.>> (Word.fromInt i + 0w7, 0w3))
@@ -44,11 +44,12 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
    fun intSize toLarge i =
        bytes (IntInf.log2 (abs (toLarge i) + 1))
 
-   fun mkInt toLarge =
-    fn SOME prec => STATIC (bytes prec)
-     | NONE      => DYNAMIC (intSize toLarge o #2)
+   val mkInt =
+    fn Ops.I {precision = SOME prec, ...}   => STATIC (bytes prec)
+     | Ops.I {isoLarge = (toLarge, _), ...} => DYNAMIC (intSize toLarge o #2)
 
-   fun mkWord wordSize = STATIC (bytes wordSize)
+   fun mkWord (Ops.W w : 'w Ops.w) : 'w t = STATIC (bytes (#wordSize w))
+   fun mkReal (Ops.R r : ('r, 'w) Ops.r) : 'r t = STATIC (#bytesPerElem r)
 
    val iso' =
     fn STATIC s   => const (STATIC s)
@@ -146,26 +147,26 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
       fun refc xT =
           cyclic (Arg.Open.refc ignore xT)
                  (case getT xT
-                   of STATIC s => const (s + wordSize)
+                   of STATIC s  => const (s + wordSize)
                     | DYNAMIC f => fn (e, x) => wordSize + f (e, !x))
 
-      val fixedInt = mkInt FixedInt.toLarge FixedInt.precision
-      val largeInt = mkInt LargeInt.toLarge LargeInt.precision
+      val fixedInt = mkInt FixedIntOps.ops
+      val largeInt = mkInt LargeIntOps.ops
 
-      val largeReal = mkWord CastLargeReal.Bits.wordSize : LargeReal.t t
-      val largeWord = mkWord LargeWord.wordSize : LargeWord.t t
+      val largeReal = mkReal LargeRealOps.ops
+      val largeWord = mkWord LargeWordOps.ops
 
       val bool   = STATIC 1
       val char   = STATIC 1
-      val int    = mkInt Int.toLarge Int.precision
-      val real   = mkWord CastReal.Bits.wordSize : Real.t t
+      val int    = mkInt IntOps.ops
+      val real   = mkReal RealOps.ops
       val string = DYNAMIC (fn (_, s) => size s + 2 * wordSize)
-      val word   = mkWord Word.wordSize : Word.t t
+      val word   = mkWord WordOps.ops
 
-      val word8  = mkWord  Word8.wordSize :  Word8.t t
-      val word32 = mkWord Word32.wordSize : Word32.t t
+      val word8  = mkWord Word8Ops.ops
+      val word32 = mkWord Word32Ops.ops
 (*
-      val word64 = mkWord Word64.wordSize : Word64.t t
+      val word64 = mkWord Word64Ops.ops
 *)
 
       fun hole () = DYNAMIC undefined

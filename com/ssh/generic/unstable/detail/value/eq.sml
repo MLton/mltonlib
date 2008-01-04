@@ -25,10 +25,9 @@ functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = struct
 
    fun iso b (a2b, _) = BinPr.map a2b b
 
-   fun mkReal isoBits toBytes =
-       case isoBits
-        of SOME isoBits => iso op = isoBits
-         | NONE => iso op = (toBytes, undefined)
+   val mkReal =
+    fn Ops.R {isoBits = SOME isoBits, ...} => iso op = isoBits
+     | Ops.R {toBytes, ...} => iso op = (toBytes, undefined)
 
    val exnHandler : Exn.t BinPr.t Ref.t = ref GenericsUtil.failExnSq
    fun regExn t (_, e2to) =
@@ -82,13 +81,13 @@ functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = struct
       val fixedInt = op = : FixedInt.t t
       val largeInt = op = : LargeInt.t t
 
-      val largeReal = mkReal CastLargeReal.isoBits PackLargeRealLittle.toBytes
+      val largeReal = mkReal LargeRealOps.ops
       val largeWord = op = : LargeWord.t t
 
       val bool   = op = : Bool.t t
       val char   = op = : Char.t t
       val int    = op = : Int.t t
-      val real   = mkReal CastReal.isoBits PackRealLittle.toBytes
+      val real   = mkReal RealOps.ops
       val string = op = : String.t t
       val word   = op = : Word.t t
 
