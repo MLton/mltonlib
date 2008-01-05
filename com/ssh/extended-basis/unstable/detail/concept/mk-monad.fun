@@ -18,10 +18,11 @@ functor MkMonad (Core : MONAD_CORE) : MONAD = struct
    fun map f aM = aM >>= pure f
    fun thunk th = map th (return ())
 
+   fun aM >> bM = aM >>= Fn.const bM
+
    local
       fun mk f (aM, bM) = aM >>= (fn a => bM >>= (fn b => return (f (a, b))))
    in
-      fun op >>  ? = mk #2 ?
       fun op >>& ? = mk Product.& ?
       fun op >>* ? = mk Fn.id ?
       fun op >>@ ? = mk Fn.\> ?
