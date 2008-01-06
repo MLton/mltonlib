@@ -48,8 +48,8 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
     fn Ops.I {precision = SOME prec, ...}   => STATIC (bytes prec)
      | Ops.I {isoLarge = (toLarge, _), ...} => DYNAMIC (intSize toLarge o #2)
 
-   fun mkWord (Ops.W w : 'w Ops.w) : 'w t = STATIC (bytes (#wordSize w))
-   fun mkReal (Ops.R r : ('r, 'w) Ops.r) : 'r t = STATIC (#bytesPerElem r)
+   fun mkWord (Ops.W w : ('w, 's) Ops.w) : 'w t = STATIC (bytes (#wordSize w))
+   fun mkReal (Ops.R r : ('r, 'w, 's) Ops.r) : 'r t = STATIC (#bytesPerElem r)
 
    val iso' =
     fn STATIC s   => const (STATIC s)

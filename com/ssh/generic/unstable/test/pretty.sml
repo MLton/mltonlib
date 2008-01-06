@@ -144,5 +144,8 @@ in
                  (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
           end
 
+          (tst NONE let open Fmt in default & intRadix := StringCvt.HEX end
+               int "~0x10" ~16)
+
           $
 end

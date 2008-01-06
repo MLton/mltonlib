@@ -211,8 +211,13 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
         | StringCvt.DEC => empty
         | StringCvt.HEX => txt0x
 
-      fun mkInt fmt (E ({fmt = Fmt.T {intRadix, ...}, ...}, _), i) =
-          (ATOMIC, intPrefix intRadix <^> txt (fmt intRadix i))
+      fun mkInt (Ops.I {fmt, compare, isoInt = (_, fromInt), ...})
+                (E ({fmt = Fmt.T {intRadix, ...}, ...}, _), i) =
+          (ATOMIC,
+           if LESS = compare (i, fromInt 0)
+           then txt "~" <^> intPrefix intRadix <^>
+                txt (String.extract (fmt intRadix i, 1, NONE))
+           else intPrefix intRadix <^> txt (fmt intRadix i))
 
       val wordPrefix =
        fn StringCvt.BIN => txt0wb (* XXX HaMLet-S *)
@@ -418,12 +423,12 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
          fun bool (_, b) = (ATOMIC, if b then txtTrue else txtFalse)
          fun char (_, x) =
              (ATOMIC, txtHashDQuote <^> txt (Char.toString x) <^> dquote)
-         val int  = mkInt Int.fmt
+         val int  = mkInt IntOps.ops
          val real = mkReal Real.fmt
          val word = mkWord Word.fmt
 
-         val fixedInt = mkInt FixedInt.fmt
-         val largeInt = mkInt LargeInt.fmt
+         val fixedInt = mkInt FixedIntOps.ops
+         val largeInt = mkInt LargeIntOps.ops
 
          val largeReal = mkReal LargeReal.fmt
          val largeWord = mkWord LargeWord.fmt

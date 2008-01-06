@@ -5,11 +5,14 @@
  *)
 
 structure Ops = struct
-   datatype 'word w =
+   datatype ('word, 'stream) w =
       W of {<< : 'word ShiftOp.t,
             >> : 'word ShiftOp.t,
             compare : 'word Cmp.t,
             isoLargeInt : ('word, LargeInt.t) Iso.t,
+            scan : StringCvt.radix
+                   -> (Char.t, 'stream) Reader.t
+                   -> ('word, 'stream) Reader.t,
             isoWord : ('word, Word.t) Iso.t,
             isoWord8 : ('word, Word8.t) Iso.t,
             isoWord8X : ('word, Word8.t) Iso.t,
@@ -18,18 +21,23 @@ structure Ops = struct
             wordSize : Int.t,
             ~>> : 'word ShiftOp.t}
 
-   datatype 'int i =
+   datatype ('int, 'stream) i =
       I of {*` : 'int BinOp.t,
             +` : 'int BinOp.t,
+            compare : 'int Cmp.t,
             div : 'int BinOp.t,
+            fmt : StringCvt.radix -> 'int -> String.t,
             isoInt : ('int, Int.t) Iso.t,
             isoLarge : ('int, LargeInt.t) Iso.t,
             maxInt : 'int Option.t,
             mod : 'int BinOp.t,
-            precision : Int.t Option.t}
+            precision : Int.t Option.t,
+            scan : StringCvt.radix
+                   -> (Char.t, 'stream) Reader.t
+                   -> ('int, 'stream) Reader.t}
 
-   datatype ('real, 'word) r =
-      R of {bitsOps : 'word w,
+   datatype ('real, 'word, 'stream) r =
+      R of {bitsOps : ('word, 'stream) w,
             bytesPerElem : Int.t,
             isoBits : ('real, 'word) Iso.t Option.t,
             subArr : Word8Array.t * Int.t -> 'real,
@@ -48,7 +56,7 @@ functor MkWordOps (include WORD) = struct
    val ops = Ops.W {wordSize = wordSize, orb = op orb, << = op <<, ~>> = op ~>>,
                     >> = op >>, isoLargeInt = isoLargeInt, isoWord = isoWord,
                     isoWord8 = isoWord8, isoWord8X = isoWord8X, mod = op mod,
-                    compare = compare}
+                    compare = compare, scan = scan}
 end
 
 structure LargeRealWordOps = MkWordOps (CastLargeReal.Bits)
@@ -64,7 +72,7 @@ structure Word8Ops = MkWordOps (Word8)
 functor MkIntOps (include INTEGER) = struct
    val ops = Ops.I {precision = precision, maxInt = maxInt, isoInt = isoInt,
                     isoLarge = isoLarge, *` = op *, +` = op +, div = op div,
-                    mod = op mod}
+                    mod = op mod, scan = scan, fmt = fmt, compare = compare}
 end
 
 structure FixedIntOps = MkIntOps (FixedInt)
@@ -72,7 +80,7 @@ structure IntOps = MkIntOps (Int)
 structure LargeIntOps = MkIntOps (LargeInt)
 
 functor MkRealOps (include CAST_REAL PACK_REAL
-                   val ops : Bits.t Ops.w
+                   val ops : (Bits.t, 'stream) Ops.w
                    sharing type t = real) = struct
    val ops = Ops.R {bitsOps = ops, bytesPerElem = bytesPerElem,
                     isoBits = isoBits, subArr = subArr, toBytes = toBytes}
