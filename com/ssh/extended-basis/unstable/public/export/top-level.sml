@@ -34,6 +34,7 @@ structure TopLevel = struct
 
    val const = Fn.const
    val curry = Fn.curry
+   val eta = Fn.eta
    val flip = Fn.flip
    val id = Fn.id
    val pass = Fn.pass
@@ -84,6 +85,7 @@ structure TopLevel = struct
    (** == TextIO == *)
 
    val println = TextIO.println
+   val printlns = TextIO.printlns
    val prints = TextIO.prints
 
    (** == UnPr == *)
