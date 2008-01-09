@@ -42,6 +42,39 @@ functor MkIntegerExt (I : BASIS_INTEGER) : INTEGER = struct
              (NONE,         NONE) => NONE
            | (SOME min, SOME max) => SOME (min, max)
            | _                    => raise Fail "illegal"
+      local
+         open BasisStringCvt
+         fun skip radix x get s = let
+            datatype t = INITIAL | FINAL
+            val s = (INITIAL, dropl BasisChar.isSpace get s)
+            val get =
+             fn (FINAL, s) =>
+                BasisOption.map (fn (c, s) => (c, (FINAL, s))) (get s)
+              | (INITIAL, s) =>
+                case get s
+                 of NONE        => NONE
+                  | SOME (c, s) =>
+                    SOME (c,
+                          (if BasisChar.<= (#"0", c)
+                              andalso BasisChar.<= (c, #"9")
+                           then FINAL
+                           else INITIAL,
+                           if #"0" <> c
+                           then s
+                           else case get s
+                                 of SOME (c, s') =>
+                                    if BasisChar.toLower c = x then s' else s
+                                  | _            => s))
+         in
+            BasisOption.map (fn (c, (_, s)) => (c, s)) (scan radix get s)
+         end
+      in
+         val scan =
+          fn DEC => scan DEC
+           | HEX => scan HEX
+           | OCT => skip OCT #"o"
+           | BIN => skip BIN #"b"
+      end
    end
 
    structure MaybeBounded = MkMaybeBounded (Core)
