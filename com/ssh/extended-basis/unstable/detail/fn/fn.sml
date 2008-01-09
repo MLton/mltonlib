@@ -8,6 +8,7 @@ structure Fn :> FN = struct
    open Fn
    fun const x _ = x
    fun curry f x y = f (x, y)
+   fun eta f x y = f x y
    fun fix f x = f (fix f) x
    fun flip f x y = f y x
    fun id x = x

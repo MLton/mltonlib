@@ -9,17 +9,20 @@ signature FN = sig
    type ('a, 'b) t = 'a -> 'b
    (** The type of functions. *)
 
-   val fix : ('a -> 'b) Fix.t
-   (** Fixpoint of given functional. *)
-
-   val map : ('c -> 'a) * ('b -> 'd) -> ('a -> 'b) -> 'c -> 'd
-   (** {map (f, g) h = g o h o f}. *)
-
    val const : 'a -> 'b -> 'a
    (** K-combinator ({const x y = x}). *)
 
    val curry : ('a * 'b -> 'c) -> 'a -> 'b -> 'c
    (** Currying ({curry f x y = f (x, y)}). *)
+
+   val eta : ('a -> 'b -> 'c) UnOp.t
+   (**
+    * {eta f x} is equivalent to {case (f, x) of (f, x) => fn y => f x y}.
+    * In other words, {eta} delays function application.
+    *)
+
+   val fix : ('a -> 'b) Fix.t
+   (** Fixpoint of given functional. *)
 
    val flip : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
    (** Flip the order of arguments ({flip f x y = f y x}). *)
@@ -30,8 +33,8 @@ signature FN = sig
    val iso : ('a, 'c) Iso.t * ('b, 'd) Iso.t -> (('a, 'b) t, ('c, 'd) t) Iso.t
    (** Lifts isos between elements to an iso between arrows. *)
 
-   val uncurry : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
-   (** Uncurrying ({uncurry f (x, y) = f x y}). *)
+   val map : ('c -> 'a) * ('b -> 'd) -> ('a -> 'b) -> 'c -> 'd
+   (** {map (f, g) h = g o h o f}. *)
 
    val o : ('a -> 'b) * ('c -> 'a) -> 'c -> 'b
    (** Function composition ({(g o f) x = f (g x)}). *)
@@ -44,6 +47,9 @@ signature FN = sig
     * {seal f x} is equivalent to {fn () => f x} assuming {f} and {x} are
     * variables.
     *)
+
+   val uncurry : ('a -> 'b -> 'c) -> 'a * 'b -> 'c
+   (** Uncurrying ({uncurry f (x, y) = f x y}). *)
 
    val <\ : 'a * ('a * 'b -> 'c) -> 'b -> 'c
    (** Left section ({(x <\ f) y = f (x, y)}). *)
