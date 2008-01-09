@@ -381,7 +381,9 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                     | SOME (i, (_, p)) =>
                       if isSome (Array.sub (a, i))
                       then zero
-                      else spaces >> L"=" >>> p >>= (fn x =>
+                      else spaces >> symbolicId >>= (fn "=" => return ()
+                                                      | _   => zero) >>>
+                           p >>= (fn x =>
                            (Array.update (a, i, SOME x)
                           ; if n <= 1
                             then lp a 0
