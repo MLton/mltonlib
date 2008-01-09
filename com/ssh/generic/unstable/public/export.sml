@@ -170,6 +170,10 @@ signature PRETTY = PRETTY and PRETTY_CASES = PRETTY_CASES
       and WITH_PRETTY_DOM = WITH_PRETTY_DOM
 functor WithPretty (Arg : WITH_PRETTY_DOM) : PRETTY_CASES = WithPretty (Arg)
 
+signature READ = READ and READ_CASES = READ_CASES
+      and WITH_READ_DOM = WITH_READ_DOM
+functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = WithRead (Arg)
+
 signature REDUCE = REDUCE and REDUCE_CASES = REDUCE_CASES
       and WITH_REDUCE_DOM = WITH_REDUCE_DOM
 functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = WithReduce (Arg)

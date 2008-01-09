@@ -19,7 +19,7 @@ echo "(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
  *> $(basename $0) $source $target
  *)" > "$target"
 
-grep -e '[ /]with/.*\.sml' "$source" \
+grep -e 'with/.*\.sml' "$source"     \
  | xargs cat                         \
  | grep -v -e '^[( ]\*'              \
  >> "$target"

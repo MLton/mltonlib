@@ -12,4 +12,5 @@ lib ["lib.use",
      "with/hash.sml",
      "with/ord.sml",
      "with/pretty.sml",
+     "with/read.sml",
      "with/close-pretty-with-extra.sml"] ;

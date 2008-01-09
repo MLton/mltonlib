@@ -99,6 +99,9 @@ in
          public/value/pretty.sig
          detail/value/pretty.sml
 
+         public/value/read.sig
+         detail/value/read.sml
+
          public/value/reduce.sig
          detail/value/reduce.sml
 

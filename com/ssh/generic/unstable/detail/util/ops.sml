@@ -40,6 +40,8 @@ structure Ops = struct
       R of {bitsOps : ('word, 'stream) w,
             bytesPerElem : Int.t,
             isoBits : ('real, 'word) Iso.t Option.t,
+            scan : (Char.t, 'stream) Reader.t
+                   -> ('real, 'stream) Reader.t,
             subArr : Word8Array.t * Int.t -> 'real,
             toBytes : 'real -> Word8Vector.t}
 
@@ -79,16 +81,20 @@ structure FixedIntOps = MkIntOps (FixedInt)
 structure IntOps = MkIntOps (Int)
 structure LargeIntOps = MkIntOps (LargeInt)
 
-functor MkRealOps (include CAST_REAL PACK_REAL
-                   val ops : (Bits.t, 'stream) Ops.w
-                   sharing type t = real) = struct
+functor MkRealOps (structure Real : REAL
+                   include CAST_REAL where type t = Real.t
+                   include PACK_REAL where type real = Real.t
+                   val ops : (Bits.t, 'stream) Ops.w) = struct
    val ops = Ops.R {bitsOps = ops, bytesPerElem = bytesPerElem,
-                    isoBits = isoBits, subArr = subArr, toBytes = toBytes}
+                    isoBits = isoBits, scan = Real.scan, subArr = subArr,
+                    toBytes = toBytes}
 end
 
-structure RealOps = MkRealOps (open CastReal PackRealLittle RealWordOps)
+structure RealOps = MkRealOps (open CastReal PackRealLittle RealWordOps
+                               structure Real = Real)
 structure LargeRealOps =
-   MkRealOps (open CastLargeReal PackLargeRealLittle LargeRealWordOps)
+   MkRealOps (open CastLargeReal PackLargeRealLittle LargeRealWordOps
+              structure Real = LargeReal)
 
 functor MkSeqOps (structure Seq : sig
                      type 'a t

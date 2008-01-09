@@ -13,11 +13,9 @@ local
    fun thatSeq t args =
        if seq t (#actual args, #expect args) then () else thatEq t args
 
-   fun thatPU t x = let
-      val p = pickle t x
-   in
-      thatSeq t {expect = x, actual = unpickle t p}
-   end
+   fun thatPU t x =
+       case pickle t x
+        of p => thatSeq t {expect = x, actual = unpickle t p}
 
    fun testAllSeq t =
        testAll t (thatPU t)

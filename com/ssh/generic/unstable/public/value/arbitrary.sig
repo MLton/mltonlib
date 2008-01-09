@@ -31,5 +31,5 @@ end
 signature WITH_ARBITRARY_DOM = sig
    include CASES HASH TYPE_INFO
    sharing Open.Rep = HashRep = TypeInfoRep
-   structure RandomGen : RANDOM_GEN
+   structure RandomGen : RANDOM_GEN (* = RanQD1Gen *)
 end

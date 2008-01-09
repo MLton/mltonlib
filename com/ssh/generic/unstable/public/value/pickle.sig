@@ -11,14 +11,12 @@
  *
  *> - val t = tuple2 (largeInt, list order) ;
  *> val t = - : (IntInf.t * Order.t List.t) Rep.t
- *> - val p = pickle t (3141592653589793238, [LESS, EQUAL, GREATER]) ;
- *> val p = "\183\^N\1873\^@\b\214I2\162\223-\153+\^@\^C\^@\^A\^B"
- *>   : String.t
+ *> - val p = pickle t (31415926535897, [LESS, EQUAL, GREATER]) ;
+ *> val p = "\^@\^F\2176$\151\146\^\\^@\^C\^@\^A\^B" : String.t
  *> - size p ;
- *> val it = 19 : Int.t
+ *> val it = 13 : Int.t
  *> - val x = unpickle t p ;
- *> val x = (3141592653589793238, [LESS, EQUAL, GREATER])
- *>   : IntInf.t * Order.t List.t
+ *> val x = (31415926535897, [LESS, EQUAL, GREATER]) : IntInf.t * Order.t List.t
  *
  * == About the Design and Implementation ==
  *
