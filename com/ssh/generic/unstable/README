@@ -8,6 +8,7 @@ Generic Programming Library
    - linear ordering (Ord),
    - hashing (Hash),
    - pretty printing (Pretty),
+   - parsing (Read),
    - pickling (Pickle),
    - random value generation (Arbitrary),
    - reductions (Reduce), and
