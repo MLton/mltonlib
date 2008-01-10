@@ -265,8 +265,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    fun mkSequ pre suf (Ops.S {fromList, ...}) p = let
       val pre = L pre val suf = L suf val sep = L","
-      fun aft xs = suf >>= (fn () => return (fromList (rev xs))) <|>
-                   sep >>> eta bef xs
+      fun aft xs = sep >>> bef xs <|>
+                   suf >>= (fn () => return (fromList (rev xs)))
       and bef xs = p >>= (fn x => aft (x::xs))
    in
       wrap (pre >>> (suf >>= (fn () => return (fromList [])) <|> bef []))
@@ -292,6 +292,16 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    datatype 'a p =
       INP of (String.t * Univ.t t) List.t *
              (Univ.t Option.t ArraySlice.t -> 'a * Univ.t Option.t ArraySlice.t)
+
+   fun F l t =
+       case Univ.Iso.new ()
+        of (to, from) =>
+           INP ([(l, map to t)],
+             fn ars => case ArraySlice.getItem ars
+                        of SOME (SOME u, ars) => (from u, ars)
+                         | _                  => fail "impossible")
+
+   fun C c p s = if s = Generics.Con.toString c then SOME p else NONE
 
    structure ReadRep = LayerRep
      (open Arg
@@ -335,7 +345,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
      (fun iso bP (_, b2a) = map b2a bP
       fun isoProduct (INP (lps, fromSlice)) (_, b2a) =
           INP (lps, Pair.map (b2a, id) o fromSlice)
-      fun isoSum bS (_, b2a) s = Option.map (map b2a) (bS s)
+      fun isoSum bS (_, b2a) = Option.map (map b2a) o bS
 
       fun op *` (INP (ls, la), INP (rs, ra)) =
           INP (ls @ rs,
@@ -344,20 +354,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                    of (l, ars) =>
                       case ra ars
                        of (r, ars) => (l & r, ars))
-      fun T t =
-          case Univ.Iso.new ()
-           of (to, from) =>
-              INP ([("", map to t)],
-                   fn ars => case ArraySlice.getItem ars
-                              of SOME (SOME u, ars) => (from u, ars)
-                               | _                  => fail "impossible")
-      fun R l t =
-          case Univ.Iso.new ()
-           of (to, from) =>
-              INP ([(Generics.Label.toString l, map to t)],
-                   fn ars => case ArraySlice.getItem ars
-                              of SOME (SOME u, ars) => (from u, ars)
-                               | _                  => fail "impossible")
+      fun T t = F "" t
+      fun R l = F (Generics.Label.toString l)
       fun tuple (INP (lps, fromSlice)) = let
          val ps = List.map #2 lps
          val n = length ps
@@ -397,9 +395,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
            of SOME l => SOME (map INL l)
             | NONE   => Option.map (map INR) (r s)
       val unit = L"(" >>> wrap (L")")
-      fun C0 c s = if s = Generics.Con.toString c then SOME spaces else NONE
-      fun C1 c t s =
-          if s = Generics.Con.toString c then SOME (spaces >> t) else NONE
+      fun C0 c = C c (return ())
+      fun C1 c t = C c (spaces >> t)
       fun data t =
           wrap (longId >>= (fn s => case t (String.concatWith "." s)
                                      of NONE   => zero
