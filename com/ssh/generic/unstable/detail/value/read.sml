@@ -14,6 +14,7 @@ end
 
 signature MK_PARSEC_DOM = sig
    structure Sequence : SEQUENCE
+   structure State : T
 end
 
 signature PARSEC = sig
@@ -24,15 +25,23 @@ signature PARSEC = sig
 
    type 'a t = 'a etaexp
 
-   val parse : 'a t -> Sequence.t -> (Sequence.Pos.t, 'a * Sequence.t) Sum.t
-   val fromScan :
-       ((Sequence.Elem.t, Sequence.t) Reader.t -> ('a, Sequence.t) Reader.t) -> 'a t
+   val parse : 'a t -> Sequence.t * State.t
+               -> (Sequence.Pos.t, 'a * (Sequence.t * State.t)) Sum.t
+
+   val getState : State.t t
+   val setState : State.t -> Unit.t t
+
+   val fromScan : ((Sequence.Elem.t, Sequence.t) Reader.t
+                   -> ('a, Sequence.t) Reader.t) -> 'a t
    val fromReader : ('a, Sequence.t) Reader.t -> 'a t
+
    val guess : 'a t UnOp.t
+
    val elem : Sequence.Elem.t t
    val drop : Sequence.Elem.t UnPr.t -> Unit.t t
    val sat : Sequence.Elem.t UnPr.t -> Sequence.Elem.t t
    val take : Sequence.Elem.t UnPr.t -> Sequence.Elem.t List.t t
+
    val peek : 'a t UnOp.t
    val ^* : 'a t -> 'a List.t t
 end
@@ -40,7 +49,8 @@ end
 functor MkParsec (Arg : MK_PARSEC_DOM) :> PARSEC
    where type Sequence.t      = Arg.Sequence.t
    where type Sequence.Elem.t = Arg.Sequence.Elem.t
-   where type Sequence.Pos.t  = Arg.Sequence.Pos.t =
+   where type Sequence.Pos.t  = Arg.Sequence.Pos.t
+   where type State.t         = Arg.State.t =
 struct
    (* <-- SML/NJ workaround *)
    open TopLevel
@@ -58,7 +68,7 @@ struct
    (* SML/NJ workaround --> *)
 
    open Arg
-   type 'a etaexp_dom = Sequence.t
+   type 'a etaexp_dom = Sequence.t * State.t
    type msg = Sequence.Pos.t
    datatype 'a reply =
       OK   of 'a * 'a etaexp_dom * msg
@@ -70,8 +80,11 @@ struct
    type 'a etaexp = 'a etaexp_dom -> 'a etaexp_cod
    type 'a t = 'a etaexp
 
-   val get = Sequence.get
-   val pos = Sequence.pos
+   fun get (s, t) = Option.map (fn (e, s) => (e, (s, t))) (Sequence.get s)
+   fun pos (s, _) = Sequence.pos s
+
+   fun getState (s, t) = EMPTY (OK (t, (s, t), Sequence.pos s))
+   fun setState t (s, _) = EMPTY (OK ((), (s, t), Sequence.pos s))
 
    fun parse p s =
        case case p s
@@ -81,10 +94,10 @@ struct
         of FAIL p       => INL p
          | OK (x, s, _) => INR (x, s)
 
-   fun fromReader reader s =
+   fun fromReader reader (s, t) =
        case reader s
-        of SOME (x, s) => EATEN (OK (x, s, pos s))
-         | NONE        => EMPTY (FAIL (pos s))
+        of SOME (x, s) => EATEN (OK (x, (s, t), Sequence.pos s))
+         | NONE        => EMPTY (FAIL (Sequence.pos s))
 
    fun fromScan scan = fromReader (scan Sequence.get)
 
@@ -218,7 +231,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
              case r s
               of NONE        => NONE
                | SOME (c, s) => SOME (c, (r, s))
-      end)
+      end
+      structure State = Unit)
    open Parsec
 
    fun L l = fromReader let
@@ -257,6 +271,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    val shortId = alphaId <|> symbolicId
    val longId = map op :: (shortId >>* ^* (L"." >> shortId))
+   fun I s = shortId >>= (fn i => if i = s then return () else zero)
 
    val numLabel =
        map (implode o op ::)
@@ -320,7 +335,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
             of (to, from) =>
                Sum.map (from, id)
                        (parse (spaces >> pA)
-                              (Reader.mapState (from, to) rC, to s))
+                              ((Reader.mapState (from, to) rC, to s),
+                               ()))
 
    fun read t =
        (fn INR (x, _) => x
@@ -379,9 +395,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                     | SOME (i, (_, p)) =>
                       if isSome (Array.sub (a, i))
                       then zero
-                      else spaces >> symbolicId >>= (fn "=" => return ()
-                                                      | _   => zero) >>>
-                           p >>= (fn x =>
+                      else spaces >> I"=" >>> p >>= (fn x =>
                            (Array.update (a, i, SOME x)
                           ; if n <= 1
                             then lp a 0
@@ -413,8 +427,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       fun list t = mkSequ "[" "]" ListOps.ops t
       fun vector t = mkSequ "#[" "]" VectorOps.ops t
 
-      fun array _ = failing "Read.array not yet implemented"
-      fun refc _ = failing "Read.refc not yet implemented"
+      fun array t = mkSequ "#(" ")" ArrayOps.ops t
+      fun refc t = wrap (I"ref" >>> map ref t)
 
       val fixedInt  = mkInt FixedIntOps.ops
       val largeInt  = mkInt LargeIntOps.ops
