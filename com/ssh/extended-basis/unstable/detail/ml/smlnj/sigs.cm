@@ -89,4 +89,5 @@ is
    ../../../public/text/text.sig
    ../../../public/time/time.sig
    ../../../public/typing/phantom.sig
+   ../../fold/fold.sml
    bootstrap.cm

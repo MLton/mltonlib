@@ -5,7 +5,15 @@
  *)
 
 structure Fold :> FOLD = struct
-   open Fn CPS
+   (* <-- SML/NJ workaround *)
+   fun pass x k = k x
+   fun id x = x
+   structure Pair = struct
+      fun map (f, g) (x, y) = (f x, g y)
+      fun fst (x, _) = x
+      fun snd (_, y) = y
+   end
+   (* SML/NJ workaround --> *)
    datatype ('a, 'b, 'c) t = T of 'a * ('b -> 'c)
    type ('s1, 's2, 'r) s = 's1 -> ('s2, 'r) CPS.t
    fun $ (T (t, f)) = f t
