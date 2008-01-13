@@ -4,35 +4,6 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkOpts (type 'a t) = struct
-   type t =
-        {conNest : Int.t Option.t t,
-         contString : Bool.t t,
-         fieldNest : Int.t Option.t t,
-         intRadix : StringCvt.radix t,
-         maxDepth : Int.t Option.t t,
-         maxLength : Int.t Option.t t,
-         maxString : Int.t Option.t t,
-         realFmt : StringCvt.realfmt t,
-         wordRadix : StringCvt.radix t}
-end
-
-functor MapOpts (type 'a dom and 'a cod
-                 val f : 'a dom -> 'a cod) = struct
-   structure Dom = MkOpts (type 'a t = 'a dom)
-   structure Cod = MkOpts (type 'a t = 'a cod)
-   fun map (r : Dom.t) : Cod.t =
-       {conNest = f (#conNest r),
-        contString = f (#contString r),
-        fieldNest = f (#fieldNest r),
-        intRadix = f (#intRadix r),
-        maxDepth = f (#maxDepth r),
-        maxLength = f (#maxLength r),
-        maxString = f (#maxString r),
-        realFmt = f (#realFmt r),
-        wordRadix = f (#wordRadix r)}
-end
-
 functor WithPretty (Arg : WITH_PRETTY_DOM) = let
    structure Result = struct
       (* <-- SML/NJ workaround *)
@@ -70,9 +41,30 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
       fun atomize (a, d) = if ATOMIC = a then d else surround parens d
 
       structure Fmt = struct
-         structure Opts = MkOpts (type 'a t = 'a)
+         type r = {conNest : Int.t Option.t,
+                   contString : Bool.t,
+                   fieldNest : Int.t Option.t,
+                   intRadix : StringCvt.radix,
+                   maxDepth : Int.t Option.t,
+                   maxLength : Int.t Option.t,
+                   maxString : Int.t Option.t,
+                   realFmt : StringCvt.realfmt,
+                   wordRadix : StringCvt.radix}
+         datatype t = T of r
 
-         datatype t = T of Opts.t
+         local
+            open FRU
+            val ~ = (fn {conNest=a, contString=b, fieldNest=c, intRadix=d,
+                         maxDepth=e, maxLength=f, maxString=g, realFmt=h,
+                         wordRadix=i} =>
+                        a&b&c&d&e&f&g&h&i,
+                     fn a&b&c&d&e&f&g&h&i =>
+                        {conNest=a, contString=b, fieldNest=c, intRadix=d,
+                         maxDepth=e, maxLength=f, maxString=g, realFmt=h,
+                         wordRadix=i})
+         in
+            fun u f v = fru A A A A A A A A A $ ~ ~ (U f v) $
+         end
 
          val default =
              T {conNest = SOME 1,
@@ -85,11 +77,9 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
                 realFmt = StringCvt.GEN NONE,
                 wordRadix = StringCvt.HEX}
 
-         structure RefOpts = MkOpts (Ref)
-
          datatype 'a opt =
-            O of {get : Opts.t -> 'a,
-                  set : RefOpts.t -> 'a Ref.t,
+            O of {get : r -> 'a,
+                  set : 'a -> r UnOp.t,
                   chk : 'a Effect.t}
 
          val notNeg = fn i => if i < 0 then raise Size else ()
@@ -103,28 +93,18 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
              then raise Size
              else ()
 
-         val conNest = O {get = #conNest, set = #conNest, chk = notNegOpt}
-         val contString = O {get = #contString, set = #contString, chk = ignore}
-         val fieldNest = O {get = #fieldNest, set = #fieldNest, chk = notNegOpt}
-         val intRadix = O {get = #intRadix, set = #intRadix, chk = ignore}
-         val maxDepth = O {get = #maxDepth, set = #maxDepth, chk = notNegOpt}
-         val maxLength = O {get = #maxLength, set = #maxLength, chk = notNegOpt}
-         val maxString = O {get = #maxString, set = #maxString, chk = notNegOpt}
-         val realFmt = O {get = #realFmt, set = #realFmt, chk = chkRealFmt}
-         val wordRadix = O {get = #wordRadix, set = #wordRadix, chk = ignore}
+         val conNest = O {get = #conNest, set = u#conNest, chk = notNegOpt}
+         val contString = O {get = #contString, set = u#contString, chk = ignore}
+         val fieldNest = O {get = #fieldNest, set = u#fieldNest, chk = notNegOpt}
+         val intRadix = O {get = #intRadix, set = u#intRadix, chk = ignore}
+         val maxDepth = O {get = #maxDepth, set = u#maxDepth, chk = notNegOpt}
+         val maxLength = O {get = #maxLength, set = u#maxLength, chk = notNegOpt}
+         val maxString = O {get = #maxString, set = u#maxString, chk = notNegOpt}
+         val realFmt = O {get = #realFmt, set = u#realFmt, chk = chkRealFmt}
+         val wordRadix = O {get = #wordRadix, set = u#wordRadix, chk = ignore}
 
-         structure I = MapOpts (type 'a dom = 'a and 'a cod = 'a Ref.t
-                                val f = ref)
-               and P = MapOpts (type 'a dom = 'a Ref.t and 'a cod = 'a
-                                val f = !)
-
-         fun op & (T opts, (O {set, chk, ...}, v)) =
-             (chk v
-            ; case I.map opts
-               of refOpts => (set refOpts := v ; T (P.map refOpts)))
-
+         fun op & (T opts, (O {set, chk, ...}, v)) = (chk v ; T (set v opts))
          fun op := x = x
-
          fun ! (O {get, ...}) (T opts) = get opts
       end
 
