@@ -34,7 +34,7 @@ in
                 | "-pass" => pass
                 | "-nick" => nick
                 | "-channel" => channel
-                | _ => fail ("Invalid option "^opt)) arg
+                | _ => fails ["Invalid option ", opt]) arg
         ; lp rest)
-       | opt::_ => fail ("Invalid option "^opt))
+       | opt::_ => fails ["Invalid option ", opt])
 end

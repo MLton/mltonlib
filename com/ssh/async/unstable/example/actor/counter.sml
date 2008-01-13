@@ -13,12 +13,12 @@ structure Counter = struct
    exception Unlock of Int.t
 
    fun new () = let
-      open Actor
+      open Cvt Actor
    in
       new (fn _ =>
          recur 0 (fn loop =>
             fn value =>
-               (println ("Value: " ^ Int.toString value)
+               (printlns ["Value: ", D value]
               ; receive (fn
                    Incr    => loop (value + 1)
                  | Value a => (a += Int value ; loop value)

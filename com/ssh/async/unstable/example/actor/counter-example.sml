@@ -5,7 +5,7 @@
  *)
 
 val () = let
-   open Actor
+   open Cvt Actor
 
    val actor =
        new (fn this => let
@@ -15,7 +15,7 @@ val () = let
                 ; counter += Counter.Incr
                 ; counter += Counter.Value this
                 ; receive (fn Counter.Int v =>
-                              println (Int.toString v))
+                              println (D v))
                end)
 in
    start actor
