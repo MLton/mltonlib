@@ -4,14 +4,6 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-signature SEQUENCE = sig
-   type t
-   structure Elem : T
-   structure Pos : T
-   val pos : t -> Pos.t
-   val get : (Elem.t, t) Reader.t
-end
-
 signature MK_PARSEC_DOM = sig
    structure Sequence : SEQUENCE
    structure State : T
@@ -253,9 +245,9 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    fun l >>> r = l >> spaces >> r
 
-   fun wrap p =
-       L"(" >>> eta wrap p >>= (fn x => L")" >>> return x) <|>
-       p >>= (fn x => spaces >> return x)
+   fun parens p =
+       guess (L"(" >>> eta parens p) >>= (fn x => L")" >>> return x) <|> p
+   fun wrap p = parens (p >>= (fn x => spaces >> return x))
 
    datatype radix = datatype StringCvt.radix
 
@@ -281,7 +273,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    fun mkSequ pre suf (Ops.S {fromList, ...}) p = let
       val pre = L pre val suf = L suf val sep = L","
       fun aft xs = sep >>> bef xs <|>
-                   suf >>= (fn () => return (fromList (rev xs)))
+                   suf >> return (fromList (rev xs))
       and bef xs = p >>= (fn x => aft (x::xs))
    in
       wrap (pre >>> (suf >>= (fn () => return (fromList [])) <|> bef []))
@@ -341,8 +333,9 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    fun read t =
        (fn INR (x, _) => x
          | INL s => let
-              val (str, pos, len) = Substring.base s
-              val size = len + pos
+              val pos = StringSequence.pos s
+              val str = StringSequence.string s
+              val size = String.size str
               val begin = Int.max (0, pos - 5)
               val beyond = Int.min (pos + 5, size)
               fun substr b e = String.toString (String.substring (str, b, e-b))
@@ -354,8 +347,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                      dotsUnless (size = beyond),
                      "\")"]
            end) o
-       reader t Substring.getc o
-       Substring.full
+       reader t StringSequence.get o
+       StringSequence.full
 
    structure Open = LayerCases
      (fun iso bP (_, b2a) = map b2a bP
@@ -376,19 +369,19 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
          val ps = List.map #2 lps
          val n = length ps
          fun lp a i =
-          fn []    => L")" >> return (#1 (fromSlice (ArraySlice.full a)))
+          fn []    => L")" >>> return (#1 (fromSlice (ArraySlice.full a)))
            | p::ps => p >>= (fn x =>
                       (Array.update (a, i, SOME x)
                      ; (if null ps
                         then return ()
                         else L",") >>> lp a (i+1) ps))
       in
-         L"(" >>> wrap (lp (Array.array (n, NONE)) 0 ps)
+         L"(" >>> parens (lp (Array.array (n, NONE)) 0 ps)
       end
       fun record (INP (lps, fromSlice)) = let
          val n = length lps
          fun lp a =
-          fn 0 => L"}" >> return (#1 (fromSlice (ArraySlice.full a)))
+          fn 0 => L"}" >>> return (#1 (fromSlice (ArraySlice.full a)))
            | n => label >>= (fn l =>
                   case List.findi (l <\ op = o #1 o #2) lps
                    of NONE             => zero
@@ -401,7 +394,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                             then lp a 0
                             else L"," >>> lp a (n-1))))
       in
-         wrap (L"{" >>> (fn ? => lp (Array.array (n, NONE)) n ?))
+         parens (L"{" >>> (fn ? => lp (Array.array (n, NONE)) n ?))
       end
 
       fun op +` (l, r) s =
@@ -409,12 +402,12 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
            of SOME l => SOME (map INL l)
             | NONE   => Option.map (map INR) (r s)
       val unit = L"(" >>> wrap (L")")
-      fun C0 c = C c (return ())
+      fun C0 c = C c spaces
       fun C1 c t = C c (spaces >> t)
       fun data t =
-          wrap (longId >>= (fn s => case t (String.concatWith "." s)
-                                     of NONE   => zero
-                                      | SOME p => p))
+          parens (longId >>= (fn s => case t (String.concatWith "." s)
+                                       of NONE   => zero
+                                        | SOME p => p))
 
       val Y = Tie.function
 
@@ -428,7 +421,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       fun vector t = mkSequ "#[" "]" VectorOps.ops t
 
       fun array t = mkSequ "#(" ")" ArrayOps.ops t
-      fun refc t = wrap (I"ref" >>> map ref t)
+      fun refc t = parens (I"ref" >>> map ref t)
 
       val fixedInt  = mkInt FixedIntOps.ops
       val largeInt  = mkInt LargeIntOps.ops
@@ -439,7 +432,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                               | "false" => return false
                               | _       => zero))
       val char =
-          wrap (L"#\"" >> fromScan Char.scan >>= (fn c => L"\"" >> return c))
+          parens (L"#\"" >> fromScan Char.scan >>= (fn c => L"\"" >>> return c))
       val int = mkInt IntOps.ops
       val string = let
          fun finish cs stm =
@@ -479,7 +472,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
               of NONE        => NONE
                | SOME (c, s) => ord (c::cs) s
       in
-         wrap (L"\"" >> fromReader (ord []) >>= (fn s => L"\"" >> return s))
+         parens (L"\"" >> fromReader (ord []) >>= (fn s => L"\"" >>> return s))
       end
       val word = mkWord WordOps.ops
 

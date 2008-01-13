@@ -523,8 +523,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
           case pickler t (IOSMonad.fromPutter (uncurry Buffer.push))
            of aP => fn a => Buffer.toString o Pair.snd o aP a |< Buffer.new ()
       fun unpickle t =
-          Pair.fst o unpickler t (IOSMonad.fromReader Substring.getc) o
-          Substring.full
+          Pair.fst o unpickler t (IOSMonad.fromReader StringSequence.get) o
+          StringSequence.full
 
       structure Open = LayerDepCases
         (fun iso bT aIb = let

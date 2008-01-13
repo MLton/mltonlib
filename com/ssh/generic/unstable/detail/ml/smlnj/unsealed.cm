@@ -23,6 +23,7 @@ is
    ../../util/hash-univ.sml
    ../../util/ops.sml
    ../../util/opt-int.sml
+   ../../util/sequence.sml
    ../../value/arbitrary.sml
    ../../value/data-rec-info.sml
    ../../value/debug.sml

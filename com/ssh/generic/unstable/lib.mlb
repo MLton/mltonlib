@@ -47,6 +47,7 @@ in
          detail/util/ops.sml
          detail/util/opt-int.sml (* XXX Should really go to Extended Basis? *)
          detail/util/hash-univ.sml
+         detail/util/sequence.sml
 
          (* Framework *)
 
