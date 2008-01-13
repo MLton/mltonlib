@@ -5,27 +5,26 @@
  *)
 
 local
+   (* <-- SML/NJ workaround *)
+   infix <^>
+   (* SML/NJ workaround --> *)
+
    open Generic UnitTest
+
+   fun thatSeq t args =
+       if seq t (#actual args, #expect args) then () else thatEq t args
 
    fun testSR t formats =
        testAll t (fn x =>
-          app (fn format => let
-                     val fmt = Prettier.render (SOME 5) o fmt t format
-                     val expect = fmt x
-                  in
-                     thatEq string {expect = expect,
-                                    actual = fmt (read t expect)}
-                   ; thatEq string {expect = expect,
-                                    actual = fmt (read t ("( ("^expect^" )) "))}
-                  end)
+          app (fn format =>
+                  thatSeq t {expect = x,
+                             actual = read t (Prettier.render
+                                                 (SOME 5) (fmt t format x))})
               formats)
 
    fun testRs t ss =
        test (fn () =>
-          app (fn (s, v) =>
-                  (thatEq t {expect = v, actual = read t s}
-                 ; thatEq t {expect = v, actual = read t (" (( "^s^" ) )")}))
-              ss)
+                app (fn (s, v) => thatEq t {expect = v, actual = read t s}) ss)
 
    fun fmts f = map (fn v => let open Fmt in default & f := v end)
 
@@ -33,30 +32,55 @@ local
       open StringCvt
    in
       val radices = [HEX, OCT, BIN, DEC]
-      val realFmts = [EXACT, SCI NONE, FIX NONE, GEN NONE]
    end
 
+   local
+      open Prettier Pretty
+   in
+      fun ps t =
+          mapPrinter
+             (fn p => fn x =>
+                 p x >>= (fn (a, d) =>
+                 return (if Word.isOdd (hash t x)
+                         then (a, d)
+                         else (Fixity.ATOMIC, txt " ( " <^> d <^> txt " ) "))))
+             t
+   end
+
+   val array = fn ? => ps (array ?)
+   val bool = ps bool
+   val char = ps char
+   val int = ps int
+   val list = fn ? => ps (list ?)
+   val option = fn ? => ps (option ?)
+   val order = ps order
+   val string = ps string
+   val tuple2 = fn ? => ps (tuple2 ?)
+   val unit = ps unit
+   val vector = fn ? => ps (vector ?)
+   val word = ps word
    val foobar =
-       iso (record (R' "foo" int *` R' "+" real *` R' "bar" char))
-           (fn {foo = a, + = b, bar = c} => a & b & c,
-            fn a & b & c => {foo = a, + = b, bar = c})
+       ps (iso (record (R' "foo" bool *` R' "+" unit *` R' "bar" char))
+               (fn {foo = a, + = b, bar = c} => a & b & c,
+                fn a & b & c => {foo = a, + = b, bar = c}))
 in
    val () =
        unitTests
           (title "Generic.Read")
 
-          (testSR (vector (tuple2 (option char, list string))) [Fmt.default])
           (testSR word (fmts Fmt.wordRadix radices))
           (testSR int (fmts Fmt.intRadix radices))
-          (testSR real (fmts Fmt.realFmt realFmts))
+
+          (testSR (array (refc order)) [Fmt.default])
 
           (testSR foobar [Fmt.default])
 
-          (testRs foobar [("{+ = 2, bar = #\"3\", foo = 1}",
-                           {foo = 1, + = 2.0, bar = #"3"})])
+          (testRs foobar [("{+ = ( ( ) ) , bar = #\"3\", foo = true}",
+                           {foo = true, + = (), bar = #"3"})])
 
-          (testRs unit [("()", ()), ("( )", ())])
-          (testRs bool [("true", true), ("false", false)])
+          (testRs real [("-2.0e~10", ~2.0e~10), (" ( 1.2 ) ", 1.2)])
+
+          (testSR (vector (tuple2 (option char, list string))) [Fmt.default])
 
           $
 end
