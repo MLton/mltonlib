@@ -41,9 +41,9 @@ structure Cvt :> CVT = struct
          | SOME (x, xs) =>
            concat (prefix::c x::foldr (fn (x, ss) => ", "::c x::ss) [suffix] xs)
 
-   fun A ? = let open  ArraySlice in seq "[|" "|]" foldr full  getItem end ?
-   fun L ? = let open   List      in seq "["   "]" foldr Fn.id getItem end ?
-   fun V ? = let open VectorSlice in seq "#["  "]" foldr full  getItem end ?
+   fun A ? = let open  ArraySlice in seq "#(" ")" foldr full  getItem end ?
+   fun L ? = let open   List      in seq "["  "]" foldr Fn.id getItem end ?
+   fun V ? = let open VectorSlice in seq "#[" "]" foldr full  getItem end ?
 
    fun O c = fn NONE => "NONE" | SOME x => "SOME " ^ c x
 
