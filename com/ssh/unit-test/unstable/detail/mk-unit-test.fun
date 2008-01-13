@@ -16,9 +16,12 @@ struct
    infixr @` |<
    (* SML/NJ workaround --> *)
 
-   open Arg Prettier
+   open Cvt Arg Prettier
 
    structure Rep = Open.Rep
+
+   val format = let open Fmt in default & realFmt := StringCvt.GEN (SOME 16) end
+   fun pretty t = fmt t format
 
    fun named t n v = group (nest 2 (str n <$> pretty t v))
    val strs = str o concat
@@ -30,12 +33,11 @@ struct
       val println = println (get cols)
    end
 
-   val i2s = Int.toString
-
-   datatype t =
+   datatype t' =
       IN of {title : String.t Option.t,
              idx : Int.t}
-   type 'a s = (t, t, Unit.t, t, t, Unit.t, 'a) Fold.s
+   type t = (t', t', Unit.t) Fold.t
+   type 'a s = (t, t, 'a) Fold.s
 
    exception Failure of Prettier.t
    fun failure d = raise Failure d
@@ -58,11 +60,11 @@ struct
        OS.Process.atExit
           (fn () =>
               if 0 = !failed then
-                 printlnStrs ["All ", i2s (!succeeded), " tests succeeded."]
+                 printlnStrs ["All ", D (!succeeded), " tests succeeded."]
               else
-                 (printlnStrs [i2s (!succeeded + !failed), " tests of which\n",
-                               i2s (!succeeded), " succeeded and\n",
-                               i2s (!failed), " failed."]
+                 (printlnStrs [D (!succeeded + !failed), " tests of which\n",
+                               D (!succeeded), " succeeded and\n",
+                               D (!failed), " failed."]
                 ; OS.Process.terminate OS.Process.failure))
 
    fun namedExn label e =
@@ -100,7 +102,7 @@ struct
           (fn IN {title, idx} =>
               (printlnStrs (case title
                              of NONE   => ["An untitled test"]
-                              | SOME t => [i2s idx, ". ", t, " test"])
+                              | SOME t => [D idx, ". ", t, " test"])
              ; try (body,
                     fn () =>
                        inc succeeded,
@@ -167,7 +169,7 @@ struct
           if maxPass <= passN then
              ()
           else if maxSkip <= skipN then
-             println (indent 2 (strs ["Arguments exhausted after ", i2s passN,
+             println (indent 2 (strs ["Arguments exhausted after ", D passN,
                                       " tests."]))
           else
              case genTest (size passN)
@@ -194,7 +196,7 @@ struct
       val n = length t
    in
       punctuate comma o
-      map (fn (n, m) => str (concat [i2s n, "% ", m])) o
+      map (fn (n, m) => str (concat [D n, "% ", m])) o
       List.sort (Int.compare o Pair.swap o Pair.map (Sq.mk Pair.fst)) o
       map (Pair.map (fn l => Int.quot (100 * length l, n), hd) o Sq.mk) o
       List.divideByEq op = |< List.map (render NONE) t

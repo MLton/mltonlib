@@ -37,7 +37,6 @@ structure TopLevel = struct
    val eta = Fn.eta
    val flip = Fn.flip
    val id = Fn.id
-   val pass = Fn.pass
    val seal = Fn.seal
    val uncurry = Fn.uncurry
 
@@ -48,9 +47,17 @@ structure TopLevel = struct
    val op \> = Fn.\>
    val op |< = Fn.|<
 
+   (** == CPS == *)
+
+   val pass = CPS.pass
+
    (** == Fold == *)
 
    val $ = Fold.$
+
+   (** == FRU == *)
+
+   val U = FRU.U
 
    (** == Lazy == *)
 

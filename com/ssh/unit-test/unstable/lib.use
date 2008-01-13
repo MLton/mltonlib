@@ -11,7 +11,6 @@ lib ["${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
      "detail/sorted-list.sml",
      "public/unit-test.sig",
      "public/mk-unit-test-fun.sig",
-     "detail/fru.sml",
      "detail/maybe.sml",
      "detail/mk-unit-test.fun",
      "public/export.sml"] ;

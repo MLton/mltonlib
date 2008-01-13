@@ -27,7 +27,6 @@ in
                "sequenceNonUnit warn"
                "warnUnused true"
             in
-               detail/fru.sml
                detail/maybe.sml
             end
          in

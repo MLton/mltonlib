@@ -12,12 +12,13 @@ structure UnitTest :> sig
    type t
    (** Type of unit test fold state. *)
 
-   type 'a s = (t, t, Unit.t, t, t, Unit.t, 'a) Fold.s
+   type 'a s = ((t, t, Unit.t) Fold.t,
+                (t, t, Unit.t) Fold.t, 'a) Fold.s
    (** Type of a unit test fold step. *)
 
    (** == TEST SPECIFICATION INTERFACE == *)
 
-   val unitTests : (t, t, Unit.t, 'a) Fold.f
+   val unitTests : ((t, t, Unit.t) Fold.t, 'a) CPS.t
    (** Begins test specification. *)
 
    val title : String.t -> 'a s
@@ -203,7 +204,7 @@ end = struct
              size : Int.t UnOp.t,
              passM : Int.t,
              skipM : Int.t}
-   type 'a s = (t, t, Unit.t, t, t, Unit.t, 'a) Fold.s
+   type 'a s = ((t, t, Unit.t) Fold.t, (t, t, Unit.t) Fold.t, 'a) Fold.s
 
    exception Failure of Prettier.t
    val failure = Exn.throw o Failure
@@ -220,7 +221,7 @@ end = struct
                fn a&b&c&d&e => {title=a, idx=b, size=c, passM=d, skipM=e})
       open FRU
    in
-      fun updCfg ? = fruData (fn IN ? => ?, IN) A5 $ ~ ~ ?
+      fun updCfg ? = fruData (fn IN ? => ?, IN) A A A A A $ ~ ~ ?
    end
 
    val succeeded = ref 0

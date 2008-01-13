@@ -33,12 +33,14 @@ is
    ../../../detail/fn/bin-op.sml
    ../../../detail/fn/bin-pr.sml
    ../../../detail/fn/cmp.sml
+   ../../../detail/fn/cps.sml
    ../../../detail/fn/effect.sml
    ../../../detail/fn/fn.sml
    ../../../detail/fn/thunk.sml
    ../../../detail/fn/un-op.sml
    ../../../detail/fn/un-pr.sml
    ../../../detail/fold/fold.sml
+   ../../../detail/fold/fru.sml
    ../../../detail/generic/emb.sml
    ../../../detail/generic/fix.sml
    ../../../detail/generic/iso.sml

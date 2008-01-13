@@ -11,15 +11,16 @@ signature UNIT_TEST = sig
    structure Rep : OPEN_REP
    (** Substructure specifying the representation of generics. *)
 
-   type t
+   type t'
+   type t = (t', t', Unit.t) Fold.t
    (** Type of unit test fold state. *)
 
-   type 'a s = (t, t, Unit.t, t, t, Unit.t, 'a) Fold.s
+   type 'a s = (t, t, 'a) Fold.s
    (** Type of a unit test fold step. *)
 
    (** == Test Specification Interface == *)
 
-   val unitTests : (t, t, Unit.t, 'a) Fold.f
+   val unitTests : (t, 'a) CPS.t
    (** Begins test specification. *)
 
    val title : String.t -> 'a s

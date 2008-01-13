@@ -39,9 +39,6 @@ signature FN = sig
    val o : ('a -> 'b) * ('c -> 'a) -> 'c -> 'b
    (** Function composition ({(g o f) x = f (g x)}). *)
 
-   val pass : 'a -> ('a -> 'b) -> 'b
-   (** Pass to continuation ({pass x f = f x}). *)
-
    val seal : ('a -> 'b) -> 'a -> 'b Thunk.t
    (**
     * {seal f x} is equivalent to {fn () => f x} assuming {f} and {x} are

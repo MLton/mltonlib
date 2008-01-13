@@ -51,7 +51,7 @@ end
 structure Ref = struct type 'a t = 'a ref end
 structure Sum = struct
    datatype ('a, 'b) sum = INL of 'a | INR of 'b
-   type('a, 'b) t = ('a, 'b) sum
+   type ('a, 'b) t = ('a, 'b) sum
 end
 structure Sq = struct type 'a t = 'a * 'a end
 structure Thunk = struct type 'a t = Unit.t -> 'a end
@@ -69,3 +69,4 @@ structure ShiftOp = struct type 'a t = 'a * Word.t -> 'a end
 structure BinFn = struct type ('a, 'b) t = 'a Sq.t -> 'b end
 structure IEEEReal = BasisIEEEReal
 structure Time = struct open BasisTime type t = time end
+structure CPS = struct type ('a, 'b) t = ('a -> 'b) -> 'b end

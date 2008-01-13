@@ -47,6 +47,7 @@ is
    ../../../public/fn/bin-op.sig
    ../../../public/fn/bin-pr.sig
    ../../../public/fn/cmp.sig
+   ../../../public/fn/cps.sig
    ../../../public/fn/effect.sig
    ../../../public/fn/fn.sig
    ../../../public/fn/shift-op.sig
@@ -54,6 +55,7 @@ is
    ../../../public/fn/un-op.sig
    ../../../public/fn/un-pr.sig
    ../../../public/fold/fold.sig
+   ../../../public/fold/fru.sig
    ../../../public/generic/emb.sig
    ../../../public/generic/fix.sig
    ../../../public/generic/iso.sig

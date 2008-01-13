@@ -94,6 +94,10 @@ in
          public/fn/fn.sig
          detail/fn/fn.sml
 
+         (* CPS *)
+         public/fn/cps.sig
+         detail/fn/cps.sml
+
          (* Basic *)
          public/basic.sig
          detail/basic.sml
@@ -174,10 +178,6 @@ in
          public/data/product.sig
          detail/data/product.sml
 
-         (* Fold *)
-         public/fold/fold.sig
-         detail/fold/fold.sml
-
          (* MkMonad *)
          detail/concept/mk-monad.fun
 
@@ -200,6 +200,13 @@ in
          (* Iso *)
          public/generic/iso.sig
          detail/generic/iso.sml
+
+         (* Fold *)
+         public/fold/fold.sig
+         detail/fold/fold.sml
+
+         public/fold/fru.sig
+         detail/fold/fru.sml
 
          (* Tie *)
          public/generic/tie.sig

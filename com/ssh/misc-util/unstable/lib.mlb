@@ -27,8 +27,6 @@ in
 
    bit-flags.sml
 
-   fru.sml
-
    glob.sml
 
    sorted-list.sml

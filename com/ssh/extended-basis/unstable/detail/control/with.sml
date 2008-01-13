@@ -5,13 +5,13 @@
  *)
 
 structure With :> WITH = struct
-   type 'a t = 'a Effect.t Effect.t
+   type 'a t = ('a, Unit.t) CPS.t
 
    infix >>=
 
    structure Monad =
       MkMonad (type 'a monad = 'a t
-               val return = Fn.pass
+               val return = CPS.pass
                fun (aM >>= a2bM) f = aM (fn a => a2bM a f))
 
    open Monad
