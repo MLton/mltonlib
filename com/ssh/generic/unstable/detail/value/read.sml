@@ -66,8 +66,7 @@ struct
       OK   of 'a * 'a etaexp_dom * msg
     | FAIL of msg
    datatype 'a etaexp_cod =
-      EATEN of 'a reply
-    | TASTE of 'a reply Thunk.t
+      TASTE of 'a reply Thunk.t
     | EMPTY of 'a reply
    type 'a etaexp = 'a etaexp_dom -> 'a etaexp_cod
    type 'a t = 'a etaexp
@@ -78,17 +77,18 @@ struct
    fun getState (s, t) = EMPTY (OK (t, (s, t), Sequence.pos s))
    fun setState t (s, _) = EMPTY (OK ((), (s, t), Sequence.pos s))
 
+   fun taste r = TASTE (const r)
+
    fun parse p s =
        case case p s
              of EMPTY r  => r
-              | EATEN r  => r
               | TASTE th => th ()
         of FAIL p       => INL p
          | OK (x, s, _) => INR (x, s)
 
    fun fromReader reader (s, t) =
        case reader s
-        of SOME (x, s) => EATEN (OK (x, (s, t), Sequence.pos s))
+        of SOME (x, s) => taste (OK (x, (s, t), Sequence.pos s))
          | NONE        => EMPTY (FAIL (Sequence.pos s))
 
    fun fromScan scan = fromReader (scan Sequence.get)
@@ -99,7 +99,6 @@ struct
 
    fun bindSome m =
     fn EMPTY r  => merge m r
-     | EATEN r  => r
      | TASTE th => th ()
 
    fun replyNone m =
@@ -110,14 +109,12 @@ struct
 
    fun (xM >>= x2yM) s =
        case xM s
-        of EATEN (FAIL m)       => EATEN (FAIL m)
-         | EATEN (OK (x, s, m)) => TASTE (fn () => bindSome m (x2yM x s))
-         | TASTE th             => TASTE (fn () =>
-                                      case th ()
-                                       of FAIL e       => FAIL e
-                                        | OK (x, s, m) => bindSome m (x2yM x s))
-         | EMPTY (FAIL m)       => EMPTY (FAIL m)
+        of EMPTY (FAIL m)       => EMPTY (FAIL m)
          | EMPTY (OK (x, s, m)) => replyNone m (x2yM x s)
+         | TASTE th             =>
+           TASTE (fn () => case th ()
+                            of FAIL e       => FAIL e
+                             | OK (x, s, m) => bindSome m (x2yM x s))
 
    fun zero s = EMPTY (FAIL (pos s))
 
@@ -128,26 +125,24 @@ struct
 
    fun guess p s =
        case p s
-        of EMPTY r        => EMPTY r
-         | EATEN (FAIL _) => EMPTY (FAIL (pos s))
-         | EATEN (OK r)   => EATEN (OK r)
-         | TASTE th       => case th ()
-                              of FAIL _ => EMPTY (FAIL (pos s))
-                               | result => EATEN result
+        of EMPTY r  => EMPTY r
+         | TASTE th => case th ()
+                        of FAIL _ => EMPTY (FAIL (pos s))
+                         | result => taste result
 
    fun elem s =
        case get s
         of NONE        => EMPTY (FAIL (pos s))
-         | SOME (c, s) => EATEN (OK (c, s, pos s))
+         | SOME (c, s) => taste (OK (c, s, pos s))
 
    fun drop p s = let
       fun done f s = f (OK ((), s, pos s))
-      fun some (c, s') s = if p c then lp s' else done EATEN s
+      fun some (c, s') s = if p c then lp s' else done taste s
       and body f s =
           case get s
            of NONE    => done f s
             | SOME cs => some cs s
-      and lp s = body EATEN s
+      and lp s = body taste s
    in
       body EMPTY s
    end
@@ -156,12 +151,12 @@ struct
        case get s
         of NONE         => EMPTY (FAIL (pos s))
          | SOME (c, s') =>
-           EATEN (if p c then OK (c, s', pos s') else FAIL (pos s))
+           taste (if p c then OK (c, s', pos s') else FAIL (pos s))
 
    fun take p = let
       fun done s =
        fn [] => EMPTY (OK ([], s, pos s))
-        | cs => EATEN (OK (rev cs, s, pos s))
+        | cs => taste (OK (rev cs, s, pos s))
       fun lp cs s =
           case get s
            of NONE => done s cs
@@ -175,13 +170,11 @@ struct
 
    fun peek p s =
        case p s
-        of EATEN (OK (x, _, m)) => EATEN (OK (x, s, m))
-         | EATEN (FAIL m)       => EATEN (FAIL m)
-         | EMPTY (OK (x, _, m)) => EMPTY (OK (x, s, m))
+        of EMPTY (OK (x, _, m)) => EMPTY (OK (x, s, m))
          | EMPTY (FAIL m)       => EMPTY (FAIL m)
          | TASTE th             => case th ()
-                                    of OK (x, _, m) => EATEN (OK (x, s, m))
-                                     | FAIL m       => EATEN (FAIL m)
+                                    of OK (x, _, m) => taste (OK (x, s, m))
+                                     | FAIL m       => taste (FAIL m)
 
    fun ^* p = p >>= (fn x => ^* p >>= (fn xs => return (x::xs))) <|> return []
 
