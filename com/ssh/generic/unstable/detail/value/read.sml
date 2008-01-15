@@ -305,9 +305,9 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
        case Univ.Iso.new ()
         of (to, from) =>
            INP ([(l, map to t)],
-             fn ars => case ArraySlice.getItem ars
-                        of SOME (SOME u, ars) => (from u, ars)
-                         | _                  => fail "impossible")
+                fn ars => case ArraySlice.getItem ars
+                           of SOME (SOME u, ars) => (from u, ars)
+                            | _                  => fail "impossible")
 
    fun C c p s = if s = Generics.Con.toString c then SOME p else NONE
 
@@ -326,7 +326,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
         of pA => fn rC => fn s =>
            case Univ.Iso.new ()
             of (to, from) =>
-               Sum.map (from, id)
+               Sum.map (from, fn (v, ((_, s), _)) => (v, from s))
                        (parse (ignored >> pA)
                               ((Reader.mapState (from, to) rC, to s),
                                ()))
