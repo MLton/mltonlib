@@ -82,7 +82,8 @@ in
 
           (testRs real [("-2.0e~10", ~2.0e~10), (" ( 1.2 ) ", 1.2)])
 
-          (testSR (vector (tuple2 (option char, list string))) [Fmt.default])
+          (testSR (tuple2 (tuple2 (string, vector (option unit)), list char))
+                  [Fmt.default])
 
           $
 end
