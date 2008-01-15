@@ -43,7 +43,9 @@ local
                  p x >>= (fn (a, d) =>
                  return (if Word.isOdd (hash t x)
                          then (a, d)
-                         else (Fixity.ATOMIC, txt " ( " <^> d <^> txt " ) "))))
+                         else (Fixity.ATOMIC,
+                               txt " (* (*:-)*) *) ( (* :-( *) " <^> d <^>
+                               txt " (*) *) ) (* foo *) "))))
              t
    end
 

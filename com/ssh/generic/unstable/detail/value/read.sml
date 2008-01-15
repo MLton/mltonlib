@@ -241,13 +241,18 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       lp 0
    end
 
-   val spaces = drop Char.isSpace
+   fun ignored 0 = drop Char.isSpace >> (L"(*" >> eta ignored 1 <|> return ())
+     | ignored n = L"*)" >> eta ignored (n-1) <|>
+                   L"(*" >> eta ignored (n+1) <|>
+                   elem  >> eta ignored n
 
-   fun l >>> r = l >> spaces >> r
+   val ignored = ignored 0
+
+   fun l >>> r = l >> ignored >> r
 
    fun parens p =
        guess (L"(" >>> eta parens p) >>= (fn x => L")" >>> return x) <|> p
-   fun wrap p = parens (p >>= (fn x => spaces >> return x))
+   fun wrap p = parens (p >>= (fn x => ignored >> return x))
 
    datatype radix = datatype StringCvt.radix
 
@@ -326,7 +331,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
            case Univ.Iso.new ()
             of (to, from) =>
                Sum.map (from, id)
-                       (parse (spaces >> pA)
+                       (parse (ignored >> pA)
                               ((Reader.mapState (from, to) rC, to s),
                                ()))
 
@@ -388,7 +393,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                     | SOME (i, (_, p)) =>
                       if isSome (Array.sub (a, i))
                       then zero
-                      else spaces >> I"=" >>> p >>= (fn x =>
+                      else ignored >> I"=" >>> p >>= (fn x =>
                            (Array.update (a, i, SOME x)
                           ; if n <= 1
                             then lp a 0
@@ -402,8 +407,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
            of SOME l => SOME (map INL l)
             | NONE   => Option.map (map INR) (r s)
       val unit = L"(" >>> wrap (L")")
-      fun C0 c = C c spaces
-      fun C1 c t = C c (spaces >> t)
+      fun C0 c = C c ignored
+      fun C1 c t = C c (ignored >> t)
       fun data t =
           parens (longId >>= (fn s => case t (String.concatWith "." s)
                                        of NONE   => zero
