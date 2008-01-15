@@ -227,6 +227,10 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       structure State = Unit)
    open Parsec
 
+   fun E c = fromReader (fn s => case Sequence.get s
+                                  of NONE         => NONE
+                                   | SOME (c', s) =>
+                                     if c' = c then SOME ((), s) else NONE)
    fun L l = fromReader let
       fun lp i s =
           if i = size l
@@ -251,7 +255,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    fun l >>> r = l >> ignored >> r
 
    fun parens p =
-       guess (L"(" >>> eta parens p) >>= (fn x => L")" >>> return x) <|> p
+       guess (E#"(" >>> eta parens p) >>= (fn x => E#")" >>> return x) <|> p
    fun wrap p = parens (p >>= (fn x => ignored >> return x))
 
    datatype radix = datatype StringCvt.radix
@@ -267,7 +271,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
             (fn [] => zero | cs => return (implode cs))
 
    val shortId = alphaId <|> symbolicId
-   val longId = map op :: (shortId >>* ^* (L"." >> shortId))
+   val longId = map op :: (shortId >>* ^* (E#"." >> shortId))
    fun I s = shortId >>= (fn i => if i = s then return () else zero)
 
    val numLabel =
@@ -276,8 +280,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    val label = numLabel <|> shortId
 
    fun mkSequ pre suf (Ops.S {fromList, ...}) p = let
-      val pre = L pre val suf = L suf val sep = L","
-      fun aft xs = sep >>> bef xs <|>
+      fun aft xs = E#"," >>> bef xs <|>
                    suf >> return (fromList (rev xs))
       and bef xs = p >>= (fn x => aft (x::xs))
    in
@@ -290,10 +293,10 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    fun mkScalar scan mk = wrap (mk (fromScan o scan))
 
    fun mkWord (Ops.W {scan, ...} : ('w, Sequence.t) Ops.w) : 'w t =
-       mkScalar scan (fn p => L"0w" >> (L"x" >> p HEX <|>
-                                        L"o" >> p OCT <|>
-                                        L"b" >> p BIN <|>
-                                                p DEC))
+       mkScalar scan (fn p => L"0w" >> (E#"x" >> p HEX <|>
+                                        E#"o" >> p OCT <|>
+                                        E#"b" >> p BIN <|>
+                                                 p DEC))
 
    fun mkInt (Ops.I {scan, ...} : ('i, Sequence.t) Ops.i) : 'i t =
        mkScalar scan (fn p => peek (L"~0x" <|> L"0x") >> p HEX <|>
@@ -374,19 +377,19 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
          val ps = List.map #2 lps
          val n = length ps
          fun lp a i =
-          fn []    => L")" >>> return (#1 (fromSlice (ArraySlice.full a)))
+          fn []    => E#")" >>> return (#1 (fromSlice (ArraySlice.full a)))
            | p::ps => p >>= (fn x =>
                       (Array.update (a, i, SOME x)
                      ; (if null ps
                         then return ()
-                        else L",") >>> lp a (i+1) ps))
+                        else E#",") >>> lp a (i+1) ps))
       in
-         L"(" >>> parens (lp (Array.array (n, NONE)) 0 ps)
+         E#"(" >>> parens (lp (Array.array (n, NONE)) 0 ps)
       end
       fun record (INP (lps, fromSlice)) = let
          val n = length lps
          fun lp a =
-          fn 0 => L"}" >>> return (#1 (fromSlice (ArraySlice.full a)))
+          fn 0 => E#"}" >>> return (#1 (fromSlice (ArraySlice.full a)))
            | n => label >>= (fn l =>
                   case List.findi (l <\ op = o #1 o #2) lps
                    of NONE             => zero
@@ -397,16 +400,16 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                            (Array.update (a, i, SOME x)
                           ; if n <= 1
                             then lp a 0
-                            else L"," >>> lp a (n-1))))
+                            else E#"," >>> lp a (n-1))))
       in
-         parens (L"{" >>> (fn ? => lp (Array.array (n, NONE)) n ?))
+         parens (E#"{" >>> (fn ? => lp (Array.array (n, NONE)) n ?))
       end
 
       fun op +` (l, r) s =
           case l s
            of SOME l => SOME (map INL l)
             | NONE   => Option.map (map INR) (r s)
-      val unit = L"(" >>> wrap (L")")
+      val unit = E#"(" >>> wrap (E#")")
       fun C0 c = C c ignored
       fun C1 c t = C c (ignored >> t)
       fun data t =
@@ -422,10 +425,10 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       fun regExn0 _ _ = ()
       fun regExn1 _ _ _ = ()
 
-      fun list t = mkSequ "[" "]" ListOps.ops t
-      fun vector t = mkSequ "#[" "]" VectorOps.ops t
+      fun list t = mkSequ (E#"[") (E#"]") ListOps.ops t
+      fun vector t = mkSequ (L"#[") (E#"]") VectorOps.ops t
 
-      fun array t = mkSequ "#(" ")" ArrayOps.ops t
+      fun array t = mkSequ (L"#(") (E#")") ArrayOps.ops t
       fun refc t = parens (I"ref" >>> map ref t)
 
       val fixedInt  = mkInt FixedIntOps.ops
@@ -437,48 +440,33 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                               | "false" => return false
                               | _       => zero))
       val char =
-          parens (L"#\"" >> fromScan Char.scan >>= (fn c => L"\"" >>> return c))
+          parens (L"#\"" >> fromScan Char.scan >>= (fn c => E#"\"" >>> return c))
       val int = mkInt IntOps.ops
+
       val string = let
-         fun finish cs stm =
-             case String.scan List.getItem cs
-              of NONE           => NONE
-               | SOME (str, []) => SOME (str, stm)
-               | SOME _         => NONE
-         fun ord cs s =
-             case Sequence.get s
-              of NONE            => NONE
-               | SOME (#"\"", _) => finish (rev cs) s
-               | SOME (#"\\", s) => esc (#"\\"::cs) s
-               | SOME (c,     s) => ord (c::cs) s
-         and esc cs s =
-             case Sequence.get s
-              of NONE           => NONE
-               | SOME (#"^", s) => hat (#"^"::cs) s
-               | SOME (c,    s) =>
-                 if Char.isSpace c then fmt (c::cs) s
-                 else if Char.isDigit c then dec 2 (c::cs) s
-                 else ord (c::cs) s
-         and fmt cs s =
-             case Sequence.get s
-              of NONE            => NONE
-               | SOME (#"\\", s) => ord (#"\\"::cs) s
-               | SOME (c,     s) =>
-                 if Char.isSpace c then fmt (c::cs) s else NONE
-         and dec n cs s =
-             if 0 = n
-             then ord cs s
-             else case Sequence.get s
-                   of NONE        => NONE
-                    | SOME (c, s) =>
-                      if Char.isDigit c then dec (n-1) (c::cs) s else NONE
-         and hat cs s =
-             case Sequence.get s
-              of NONE        => NONE
-               | SOME (c, s) => ord (c::cs) s
+         (* Note that this is only an approximate parser for string literals. *)
+         fun chars cs =
+             elem >>= (fn #"\\" => escape cs
+                        | #"\"" => (case String.scan List.getItem (rev cs)
+                                     of SOME (s, []) => return s
+                                      | _            => zero)
+                        | c     => if Char.isPrint c
+                                   then chars (c :: cs)
+                                   else zero)
+         and escape cs =
+             elem >>= (fn c => if #"^" = c then
+                                  sat Char.isPrint >>= (fn c =>
+                                  chars (c:: #"^":: #"\\"::cs))
+                               else if Char.isSpace c then
+                                  drop Char.isSpace >> E#"\\" >> chars cs
+                               else if Char.isPrint c then
+                                  chars (c :: #"\\" :: cs)
+                               else
+                                  zero)
       in
-         parens (L"\"" >> fromReader (ord []) >>= (fn s => L"\"" >>> return s))
+         wrap (E#"\"" >> chars [])
       end
+
       val word = mkWord WordOps.ops
 
       val largeReal = mkReal LargeRealOps.ops
