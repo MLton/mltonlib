@@ -204,7 +204,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   infix 1 >> >>>
+   infix 1 << >> <<< >>>
 
    structure Parsec = MkParsec
      (structure Sequence = struct
@@ -245,11 +245,11 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    val ignored = ignored 0
 
+   fun l << r = l >>= (fn l => r >> return l)
    fun l >>> r = l >> ignored >> r
+   fun l <<< r = l >>= (fn l => ignored >> r >> return l)
 
-   fun parens p =
-       guess (E#"(" >>> eta parens p) >>= (fn x => E#")" >>> return x) <|> p
-   fun wrap p = parens (p >>= (fn x => ignored >> return x))
+   fun parens p = guess (E#"(" >>> eta parens p) <<< E#")" <|> p
 
    datatype radix = datatype StringCvt.radix
 
@@ -273,17 +273,17 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    val label = numLabel <|> shortId
 
    fun mkSequ pre suf (Ops.S {fromList, ...}) p = let
-      fun aft xs = E#"," >>> bef xs <|>
-                   suf >> return (fromList (rev xs))
+      fun fin xs () = return (fromList (rev xs))
+      fun aft xs = ignored >> (E#"," >>> bef xs <|> suf >>= fin xs)
       and bef xs = p >>= (fn x => aft (x::xs))
    in
-      wrap (pre >>> (suf >>= (fn () => return (fromList [])) <|> bef []))
+      parens (pre >>> (suf >>= fin [] <|> bef []))
    end
 
    fun mkReal (Ops.R {scan, ...} : ('r, 'w, Sequence.t) Ops.r) : 'r t =
-       wrap (fromScan scan)
+       parens (fromScan scan)
 
-   fun mkScalar scan mk = wrap (mk (fromScan o scan))
+   fun mkScalar scan mk = parens (mk (fromScan o scan))
 
    fun mkWord (Ops.W {scan, ...} : ('w, Sequence.t) Ops.w) : 'w t =
        mkScalar scan (fn p => L"0w" >> (E#"x" >> p HEX <|>
@@ -321,35 +321,43 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    open ReadRep.This
 
-   fun reader t =
-       case getT t
-        of pA => fn rC => fn s =>
-           case Univ.Iso.new ()
-            of (to, from) =>
-               Sum.map (from, fn (v, ((_, s), _)) => (v, from s))
-                       (parse (ignored >> pA)
-                              ((Reader.mapState (from, to) rC, to s),
-                               ()))
+   fun reader' pA rC s =
+       case Univ.Iso.new ()
+        of (to, from) =>
+           Sum.map (from, fn (v, ((_, s), _)) => (v, from s))
+                   (parse (ignored >> pA)
+                          ((Reader.mapState (from, to) rC, to s),
+                           ()))
 
-   fun read t =
-       (fn INR (x, _) => x
-         | INL s => let
-              val pos = StringSequence.pos s
-              val str = StringSequence.string s
-              val size = String.size str
-              val begin = Int.max (0, pos - 5)
-              val beyond = Int.min (pos + 5, size)
-              fun substr b e = String.toString (String.substring (str, b, e-b))
-              fun dotsUnless b = if b then "" else "..."
-           in
-              fails ["parse error at ", Int.toString pos, " (\"",
-                     dotsUnless (0 = begin),
-                     substr begin pos, ".", substr pos beyond,
-                     dotsUnless (size = beyond),
-                     "\")"]
-           end) o
-       reader t StringSequence.get o
-       StringSequence.full
+   fun reader t = reader' (getT t)
+
+   local
+      fun error s = let
+         val pos = StringSequence.pos s
+         val str = StringSequence.string s
+         val size = String.size str
+         val begin = Int.max (0, pos - 5)
+         val beyond = Int.min (pos + 5, size)
+         fun substr b e = String.toString (String.substring (str, b, e-b))
+         fun dotsUnless b = if b then "" else "..."
+      in
+         fails ["parse error at ", Int.toString pos, " (\"",
+                dotsUnless (0 = begin),
+                substr begin pos, ".", substr pos beyond,
+                dotsUnless (size = beyond),
+                "\")"]
+      end
+   in
+      fun read t =
+          (fn INR (x, s) =>
+              if StringSequence.pos s = size (StringSequence.string s)
+              then x
+              else error s
+            | INL s => error s) o
+          reader' (getT t << ignored)
+                  StringSequence.get o
+          StringSequence.full
+   end
 
    structure Open = LayerCases
      (fun iso bP (_, b2a) = map b2a bP
@@ -370,19 +378,19 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
          val ps = List.map #2 lps
          val n = length ps
          fun lp a i =
-          fn []    => E#")" >>> return (#1 (fromSlice (ArraySlice.full a)))
+          fn []    => E#")" >> return (#1 (fromSlice (ArraySlice.full a)))
            | p::ps => p >>= (fn x =>
                       (Array.update (a, i, SOME x)
                      ; (if null ps
-                        then return ()
-                        else E#",") >>> lp a (i+1) ps))
+                        then ignored
+                        else ignored >> E#"," >> ignored) >> lp a (i+1) ps))
       in
          E#"(" >>> parens (lp (Array.array (n, NONE)) 0 ps)
       end
       fun record (INP (lps, fromSlice)) = let
          val n = length lps
          fun lp a =
-          fn 0 => E#"}" >>> return (#1 (fromSlice (ArraySlice.full a)))
+          fn 0 => E#"}" >> return (#1 (fromSlice (ArraySlice.full a)))
            | n => label >>= (fn l =>
                   case List.findi (l <\ op = o #1 o #2) lps
                    of NONE             => zero
@@ -392,8 +400,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                       else ignored >> I"=" >>> p >>= (fn x =>
                            (Array.update (a, i, SOME x)
                           ; if n <= 1
-                            then lp a 0
-                            else E#"," >>> lp a (n-1))))
+                            then ignored >> lp a 0
+                            else ignored >> E#"," >>> lp a (n-1))))
       in
          parens (E#"{" >>> (fn ? => lp (Array.array (n, NONE)) n ?))
       end
@@ -402,13 +410,12 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
           case l s
            of SOME l => SOME (map INL l)
             | NONE   => Option.map (map INR) (r s)
-      val unit = E#"(" >>> wrap (E#")")
-      fun C0 c = C c ignored
+      val unit = E#"(" >>> parens (E#")")
+      fun C0 c = C c (return ())
       fun C1 c t = C c (ignored >> t)
-      fun data t =
-          parens (longId >>= (fn s => case t (String.concatWith "." s)
-                                       of NONE   => zero
-                                        | SOME p => p))
+      fun data t = parens (longId >>= (fn s => case t (String.concatWith "." s)
+                                                of NONE   => zero
+                                                 | SOME p => p))
 
       val Y = Tie.function
 
@@ -428,12 +435,10 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       val largeInt  = mkInt LargeIntOps.ops
       val largeWord = mkWord LargeWordOps.ops
 
-      val bool =
-          wrap (alphaId >>= (fn "true"  => return true
-                              | "false" => return false
-                              | _       => zero))
-      val char =
-          parens (L"#\"" >> fromScan Char.scan >>= (fn c => E#"\"" >>> return c))
+      val bool = parens (alphaId >>= (fn "true"  => return true
+                                       | "false" => return false
+                                       | _       => zero))
+      val char = parens (L"#\"" >> fromScan Char.scan << E#"\"")
       val int = mkInt IntOps.ops
 
       val string = let
@@ -449,7 +454,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
          and escape cs =
              elem >>= (fn c => if #"^" = c then
                                   sat Char.isPrint >>= (fn c =>
-                                  chars (c:: #"^":: #"\\"::cs))
+                                  chars (c :: #"^" :: #"\\" :: cs))
                                else if Char.isSpace c then
                                   drop Char.isSpace >> E#"\\" >> chars cs
                                else if Char.isPrint c then
@@ -457,7 +462,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                                else
                                   zero)
       in
-         wrap (E#"\"" >> chars [])
+         parens (E#"\"" >> chars [])
       end
 
       val word = mkWord WordOps.ops

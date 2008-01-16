@@ -85,5 +85,7 @@ in
           (testSR (tuple2 (tuple2 (string, vector (option unit)), list char))
                   [Fmt.default])
 
+          (testFails (fn () => read int "0 garbage accepted"))
+
           $
 end
