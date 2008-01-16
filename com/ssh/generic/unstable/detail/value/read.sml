@@ -385,7 +385,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                         then ignored
                         else ignored >> E#"," >> ignored) >> lp a (i+1) ps))
       in
-         E#"(" >>> parens (lp (Array.array (n, NONE)) 0 ps)
+         E#"(" >>> parens (fn ? => lp (Array.array (n, NONE)) 0 ps ?)
       end
       fun record (INP (lps, fromSlice)) = let
          val n = length lps
@@ -413,9 +413,10 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       val unit = E#"(" >>> parens (E#")")
       fun C0 c = C c (return ())
       fun C1 c t = C c (ignored >> t)
-      fun data t = parens (longId >>= (fn s => case t (String.concatWith "." s)
-                                                of NONE   => zero
-                                                 | SOME p => p))
+      fun data t =
+          parens (parens longId >>= (fn s => case t (String.concatWith "." s)
+                                              of NONE   => zero
+                                               | SOME p => p))
 
       val Y = Tie.function
 
