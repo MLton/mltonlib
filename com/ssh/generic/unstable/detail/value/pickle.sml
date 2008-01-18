@@ -314,7 +314,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                  if 0 = key
                  then Key.alloc >>= (fn key => readProxy >>= (fn proxy =>
                       (ResizableArray.update (arr, key-1, toDyn proxy)
-                     ; readBody proxy >> return proxy)))
+                     ; readBody proxy)))
                  else return (fromDyn (ResizableArray.sub (arr, key-1))))),
             wr = fn v => let
                        val d = toDyn v
@@ -360,8 +360,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
       fun mutable (methods as {readProxy, readBody, writeWhole, self}) =
           if Arg.mayBeCyclic self
           then cyclic methods
-          else share self (P {rd = let open I in readProxy >>= (fn p =>
-                                                 readBody p >> return p) end,
+          else share self (P {rd = let open I in readProxy >>= readBody end,
                               wr = writeWhole,
                               sz = NONE})
 
@@ -616,7 +615,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          in
             if Arg.mayBeCyclic self
             then cyclic {readProxy = I.thunk (fn () => ref (Arg.some aT)),
-                         readBody = fn proxy => I.map (fn v => proxy := v) rd,
+                         readBody = fn r => I.map (fn v => (r := v ; r)) rd,
                          writeWhole = wr o !,
                          self = self}
             else share self (P {rd = I.map ref rd, wr = wr o !, sz = NONE})
@@ -630,7 +629,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                      readBody = fn a => let
                         open I
                         fun lp i = if i = Array.length a
-                                   then return ()
+                                   then return a
                                    else aR >>= (fn e =>
                                         (Array.update (a, i, e)
                                        ; lp (i+1)))
