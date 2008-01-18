@@ -151,7 +151,7 @@ struct
        case get s
         of NONE         => EMPTY (FAIL (pos s))
          | SOME (c, s') =>
-           taste (if p c then OK (c, s', pos s') else FAIL (pos s))
+           if p c then taste (OK (c, s', pos s')) else EMPTY (FAIL (pos s))
 
    fun take p = let
       fun done s =
@@ -255,7 +255,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    val alphaId =
        map (implode o op ::)
-           (guess (sat Char.isAlpha) >>*
+           (sat Char.isAlpha >>*
             take (fn c => Char.isAlpha c
                           orelse Char.isDigit c
                           orelse #"'" = c orelse #"_" = c))
@@ -269,7 +269,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    val numLabel =
        map (implode o op ::)
-           (guess (sat (Char.inRange (#"1", #"9"))) >>* take Char.isDigit)
+           (sat (Char.inRange (#"1", #"9")) >>* take Char.isDigit)
    val label = numLabel <|> shortId
 
    fun mkSequ pre suf (Ops.S {fromList, ...}) p = let
@@ -451,32 +451,19 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
             lp [] n
          end
          fun chars cs =
-             elem >>= (fn #"\\" => escape cs
-                        | #"\"" => return (implode (rev cs))
-                        | c     => if Char.isPrint c
-                                   then chars (c :: cs)
-                                   else zero)
+             E#"\\" >>= (fn () => escape cs)
+         <|> E#"\"" >>= (fn () => return (implode (rev cs)))
+         <|> sat Char.isPrint >>= (fn c => chars (c::cs))
          and escape cs =
-             elem >>= (fn c =>
-             if #"^" = c then
-                elem >>= (fn c => scan [#"\\", #"^", c] cs)
-             else if Char.isDigit c then
-                satN Char.isDigit 2 >>= (fn ds =>
-                scan (#"\\" :: c :: ds) cs)
-             else if #"u" = c then
-                satN Char.isHexDigit 4 >>= (fn ds =>
-                scan (#"\\" :: #"u" :: ds) cs)
-             else if #"U" = c then
-                satN Char.isHexDigit 8 >>= (fn ds =>
-                scan (#"\\" :: #"U" :: ds) cs)
-             else if Char.isSpace c then
-                drop Char.isSpace >> E#"\\" >> chars cs
-             else if Char.isPrint c then
-                scan [#"\\", c] cs
-             else
-                zero)
+             E#"^" >> sat Char.isPrint >>= (fn c => scan [#"^", c] cs)
+         <|> satN Char.isDigit 3 >>= (fn ds => scan ds cs)
+         <|> E#"u" >> satN Char.isHexDigit 4 >>= (fn ds => scan (#"u" :: ds) cs)
+         <|> E#"U" >> satN Char.isHexDigit 8 >>= (fn ds => scan (#"U" :: ds) cs)
+         <|> sat Char.isGraph >>= (fn c => scan [c] cs)
+         <|> sat Char.isSpace >> drop Char.isSpace >> E#"\\" >>= (fn () =>
+             chars cs)
          and scan c cs =
-             case Char.scan List.getItem c
+             case Char.scan List.getItem (#"\\" :: c)
               of SOME (c, []) => chars (c::cs)
                | _            => zero
       in
