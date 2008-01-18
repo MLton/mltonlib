@@ -160,7 +160,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
       fun iso' (P {rd, wr, sz}) (a2b, b2a) =
           P {rd = I.map b2a rd, wr = wr o a2b, sz = sz}
 
-      val unit = P {rd = I.return (), wr = fn () => O.return (), sz = SOME 0}
+      val unit = P {rd = I.return (), wr = O.return, sz = SOME 0}
       val char = P {rd = I.read, wr = O.write, sz = SOME 1}
       val word8 = iso' char word8Ichar
       val intAs8 = iso' char (swap Char.isoInt)
@@ -243,8 +243,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                         ; lp (a, i+1)))
                     else return (subArr (a, 0))
              in
-                thunk (fn () => Word8Array.array (bytesPerElem, 0w0))
-                      >>= (fn a => lp (a, 0))
+                return () >>= (fn () =>
+                lp (Word8Array.array (bytesPerElem, 0w0), 0))
              end,
              wr = fn v => let
                         open O
@@ -310,12 +310,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq self, hash = Arg.hash self}
          open I
       in
-         P {rd = rd size >>& Map.get >>= (fn key & arr =>
+         P {rd = rd size >>= (fn key => Map.get >>= (fn arr =>
                  if 0 = key
-                 then Key.alloc >>& readProxy >>= (fn key & proxy =>
+                 then Key.alloc >>= (fn key => readProxy >>= (fn proxy =>
                       (ResizableArray.update (arr, key-1, toDyn proxy)
-                     ; readBody proxy >> return proxy))
-                 else return (fromDyn (ResizableArray.sub (arr, key-1)))),
+                     ; readBody proxy >> return proxy)))
+                 else return (fromDyn (ResizableArray.sub (arr, key-1))))),
             wr = fn v => let
                        val d = toDyn v
                        open O
@@ -334,12 +334,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq aT, hash = Arg.hash aT}
          open I
       in
-         P {rd = rd size >>& Map.get >>= (fn key & arr =>
+         P {rd = rd size >>= (fn key => Map.get >>= (fn arr =>
                  if 0 = key
-                 then Key.alloc >>& aR >>= (fn key & v =>
+                 then Key.alloc >>= (fn key => aR >>= (fn v =>
                       (ResizableArray.update (arr, key-1, toDyn v)
-                     ; return v))
-                 else return (fromDyn (ResizableArray.sub (arr, key-1)))),
+                     ; return v)))
+                 else return (fromDyn (ResizableArray.sub (arr, key-1))))),
             wr = fn v => let
                        val d = toDyn v
                        open O
@@ -365,7 +365,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                               wr = writeWhole,
                               sz = NONE})
 
-      fun sequ (Ops.S {length, toSlice, getItem, fromList, ...})
+      fun mkSeq (Ops.S {length, toSlice, getItem, fromList, ...})
                (P {rd = aR, wr = aW, ...}) =
           P {rd = let
                 open I
@@ -386,7 +386,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
              end,
              sz = NONE : OptInt.t}
 
-      val string = share (Arg.Open.string ()) (sequ StringOps.ops char)
+      val string = share (Arg.Open.string ()) (mkSeq StringOps.ops char)
 
       val c2b = Byte.charToByte
       val b2c = Byte.byteToChar
@@ -615,11 +615,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
             val self = Arg.Open.refc ignore aT
          in
             if Arg.mayBeCyclic self
-            then cyclic {readProxy = let
-                            val dummy = delay (fn () => Arg.some aT)
-                         in
-                            I.thunk (fn () => ref (force dummy))
-                         end,
+            then cyclic {readProxy = I.thunk (fn () => ref (Arg.some aT)),
                          readBody = fn proxy => I.map (fn v => proxy := v) rd,
                          writeWhole = wr o !,
                          self = self}
@@ -629,40 +625,35 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          fun array aT = let
             val P {rd = aR, wr = aW, ...} = getT aT
          in
-            mutable {readProxy = let
-                        val dummy = delay (fn () => Arg.some aT)
-                     in
-                        I.map (fn n => (Array.array (n, force dummy)))
-                              (rd size)
-                     end,
+            mutable {readProxy = I.map (fn n => Array.array (n, Arg.some aT))
+                                       (rd size),
                      readBody = fn a => let
-                                      open I
-                                      fun lp i = if i = Array.length a
-                                                 then return ()
-                                                 else aR >>= (fn e =>
-                                                      (Array.update (a, i, e)
-                                                     ; lp (i+1)))
-                                   in
-                                      lp 0
-                                   end,
+                        open I
+                        fun lp i = if i = Array.length a
+                                   then return ()
+                                   else aR >>= (fn e =>
+                                        (Array.update (a, i, e)
+                                       ; lp (i+1)))
+                     in
+                        lp 0
+                     end,
                      writeWhole = fn a => let
-                                        open O
-                                        fun lp i =
-                                            if i = Array.length a
-                                            then return ()
-                                            else aW (Array.sub (a, i)) >>=
-                                                    (fn () => lp (i+1))
-                                     in
-                                        wr size (Array.length a) >>= (fn () => lp 0)
-                                     end,
+                        open O
+                        fun lp i =
+                            if i = Array.length a
+                            then return ()
+                            else aW (Array.sub (a, i)) >>= (fn () => lp (i+1))
+                     in
+                        wr size (Array.length a) >>= (fn () => lp 0)
+                     end,
                      self = Arg.Open.array ignore aT}
          end
 
          fun list aT =
-             share (Arg.Open.list ignore aT) (sequ ListOps.ops (getT aT))
+             share (Arg.Open.list ignore aT) (mkSeq ListOps.ops (getT aT))
 
          fun vector aT =
-             share (Arg.Open.vector ignore aT) (sequ VectorOps.ops (getT aT))
+             share (Arg.Open.vector ignore aT) (mkSeq VectorOps.ops (getT aT))
 
          val exn : Exn.t t =
              P {rd = let
@@ -706,8 +697,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          val word64 = bits false Word64Ops.ops Iso.id
 *)
 
-         fun hole () = P {rd = let open I in return () >>= undefined end,
-                          wr = undefined, sz = NONE}
+         fun hole () = P {rd = I.thunk undefined, wr = undefined, sz = NONE}
 
          open Arg PickleRep)
    end
