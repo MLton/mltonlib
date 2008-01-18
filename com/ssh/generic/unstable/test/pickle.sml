@@ -61,7 +61,7 @@ in
               (* This test shows how pickles can be versioned and multiple
                * versions supported at the same time. *)
 
-              open Pickle
+              open Cvt Pickle
 
               val puInt = getPU int
 
@@ -75,17 +75,17 @@ in
               val pu1 = getPU t1
               val t =
                   setPU {pickler = let
-                            open Pickle.P
+                            open P
                          in
                             fn v =>
                                #pickler puInt 1 >>= (fn () => #pickler pu1 v)
                          end,
                          unpickler = let
-                            open Pickle.U
+                            open U
                          in
                             #unpickler puInt
                              >>= (fn 1 => #unpickler pu1
-                                   | n => raise Fail ("Bad "^Int.toString n))
+                                   | n => fails ["Bad ", D n])
                          end}
                         t1
 
@@ -103,20 +103,20 @@ in
               val pu2 = getPU t2
               val t =
                   setPU {pickler = let
-                            open Pickle.P
+                            open P
                          in
                             fn v =>
                                #pickler puInt 2 >>= (fn () => #pickler pu2 v)
                          end,
                          unpickler = let
-                            open Pickle.U
+                            open U
                             fun fromR1 {id, name} =
                                 {id = id, extra = false, name = name}
                          in
                             #unpickler puInt
-                             >>= (fn 1 => #unpickler pu1 >>= return o fromR1
+                             >>= (fn 1 => map fromR1 (#unpickler pu1)
                                    | 2 => #unpickler pu2
-                                   | n => raise Fail ("Bad "^Int.toString n))
+                                   | n => fails ["Bad ", D n])
                          end}
                         t2
               (* Note that the original customized {t} is no longer
