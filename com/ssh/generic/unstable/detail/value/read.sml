@@ -443,25 +443,42 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       val int = mkInt IntOps.ops
 
       val string = let
-         (* Note that this is only an approximate parser for string literals. *)
+         fun satN p n = let
+            fun lp cs =
+             fn 0 => return (rev cs)
+              | n => sat p >>= (fn c => lp (c::cs) (n-1))
+         in
+            lp [] n
+         end
          fun chars cs =
              elem >>= (fn #"\\" => escape cs
-                        | #"\"" => (case String.scan List.getItem (rev cs)
-                                     of SOME (s, []) => return s
-                                      | _            => zero)
+                        | #"\"" => return (implode (rev cs))
                         | c     => if Char.isPrint c
                                    then chars (c :: cs)
                                    else zero)
          and escape cs =
-             elem >>= (fn c => if #"^" = c then
-                                  sat Char.isPrint >>= (fn c =>
-                                  chars (c :: #"^" :: #"\\" :: cs))
-                               else if Char.isSpace c then
-                                  drop Char.isSpace >> E#"\\" >> chars cs
-                               else if Char.isPrint c then
-                                  chars (c :: #"\\" :: cs)
-                               else
-                                  zero)
+             elem >>= (fn c =>
+             if #"^" = c then
+                elem >>= (fn c => scan [#"\\", #"^", c] cs)
+             else if Char.isDigit c then
+                satN Char.isDigit 2 >>= (fn ds =>
+                scan (#"\\" :: c :: ds) cs)
+             else if #"u" = c then
+                satN Char.isHexDigit 4 >>= (fn ds =>
+                scan (#"\\" :: #"u" :: ds) cs)
+             else if #"U" = c then
+                satN Char.isHexDigit 8 >>= (fn ds =>
+                scan (#"\\" :: #"U" :: ds) cs)
+             else if Char.isSpace c then
+                drop Char.isSpace >> E#"\\" >> chars cs
+             else if Char.isPrint c then
+                scan [#"\\", c] cs
+             else
+                zero)
+         and scan c cs =
+             case Char.scan List.getItem c
+              of SOME (c, []) => chars (c::cs)
+               | _            => zero
       in
          parens (E#"\"" >> chars [])
       end
