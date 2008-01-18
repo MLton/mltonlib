@@ -12,22 +12,10 @@ signature SEQUENCE = sig
    val get : (Elem.t, t) Reader.t
 end
 
-structure StringSequence :> sig
+signature STRING_SEQUENCE = sig
    include SEQUENCE
       where type Pos.t = Int.t
       where type Elem.t = Char.t
    val full : String.t -> t
    val string : t -> String.t
-end = struct
-   structure Pos = Int
-   structure Elem = Char
-   type t = {pos : Pos.t, data : String.t}
-   fun full s : t = {pos = 0, data = s}
-   val pos : t -> Pos.t = #pos
-   val string : t -> String.t = #data
-   val get : (Elem.t, t) Reader.t =
-    fn {pos, data} =>
-       if pos < size data
-       then SOME (String.sub (data, pos), {pos = pos+1, data = data})
-       else NONE
 end

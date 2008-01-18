@@ -5,6 +5,7 @@
  *)
 
 lib ["${MLTON_LIB}/org/mlton/vesak/ds/unstable/lib.use",
+     "${MLTON_LIB}/org/mlton/vesak/parsec/unstable/lib.use",
      "${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
      "${MLTON_LIB}/com/ssh/prettier/unstable/lib.use",
      "${MLTON_LIB}/com/ssh/random/unstable/lib.use",
@@ -26,7 +27,6 @@ lib ["${MLTON_LIB}/org/mlton/vesak/ds/unstable/lib.use",
      "detail/util/ops.sml",
      "detail/util/opt-int.sml",
      "detail/util/hash-univ.sml",
-     "detail/util/sequence.sml",
      "detail/framework/mk-closed-rep.fun",
      "detail/framework/root-generic.sml",
      "detail/framework/close-generic.fun",

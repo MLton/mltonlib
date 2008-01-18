@@ -9,6 +9,7 @@ group
    source(-)
 is
    ../../../../../../../org/mlton/vesak/ds/unstable/lib.cm
+   ../../../../../../../org/mlton/vesak/parsec/unstable/lib.cm
    ../../../../../extended-basis/unstable/basis.cm
    ../../../../../prettier/unstable/lib.cm
    ../../../../../random/unstable/lib.cm

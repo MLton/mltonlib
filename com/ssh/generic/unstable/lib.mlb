@@ -9,6 +9,7 @@ local
    $(MLTON_LIB)/com/ssh/prettier/unstable/lib.mlb
    $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
    $(MLTON_LIB)/org/mlton/vesak/ds/unstable/lib.mlb
+   $(MLTON_LIB)/org/mlton/vesak/parsec/unstable/lib.mlb
 in
    ann
       "forceUsed"
@@ -47,7 +48,6 @@ in
          detail/util/ops.sml
          detail/util/opt-int.sml (* XXX Should really go to Extended Basis? *)
          detail/util/hash-univ.sml
-         detail/util/sequence.sml
 
          (* Framework *)
 

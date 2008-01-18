@@ -1,0 +1,25 @@
+(* Copyright (C) 2008 Vesa Karvonen
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+local
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+in
+   ann
+      "forceUsed"
+      "sequenceNonUnit warn"
+      "warnUnused true"
+   in
+      local
+         public/sequence.sig
+         detail/string-sequence.sml
+
+         public/parsec.sig
+         detail/mk-parsec.fun
+      in
+         public/export.sml
+      end
+   end
+end
