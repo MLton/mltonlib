@@ -42,13 +42,8 @@
  * unpickling reconstructs the cycles and sharing present in the object
  * that was pickled.
  *
- * As an interesting statistic, the pickling generic uses no less than 6
+ * As an interesting statistic, the pickling generic uses no less than 5
  * other generics:
- *
- * {DataRecInfo}
- *   is used to perform a simple data recursion analysis, which allows the
- *   pickling generic to automatically perform a (minor) optimization
- *   similar to the {ref0} combinator described in [5].
  *
  * {Eq} and {Hash}
  *   are used in the implementation of sharing (and cycle reconstruction).
@@ -170,7 +165,6 @@ signature PICKLE_CASES = sig
 end
 
 signature WITH_PICKLE_DOM = sig
-   include CASES DATA_REC_INFO EQ HASH SOME TYPE_HASH TYPE_INFO
-   sharing Open.Rep = DataRecInfoRep = EqRep = HashRep = SomeRep = TypeHashRep
-         = TypeInfoRep
+   include CASES EQ HASH SOME TYPE_HASH TYPE_INFO
+   sharing Open.Rep = EqRep = HashRep = SomeRep = TypeHashRep = TypeInfoRep
 end

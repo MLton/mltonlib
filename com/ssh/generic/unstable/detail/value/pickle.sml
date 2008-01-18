@@ -357,13 +357,6 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
             sz = SOME 5}
       end
 
-      fun mutable (methods as {readProxy, readBody, writeWhole, self}) =
-          if Arg.mayBeCyclic self
-          then cyclic methods
-          else share self (P {rd = let open I in readProxy >>= readBody end,
-                              wr = writeWhole,
-                              sz = NONE})
-
       fun mkSeq (Ops.S {length, toSlice, getItem, fromList, ...})
                (P {rd = aR, wr = aW, ...}) =
           P {rd = let
@@ -609,44 +602,41 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
 
          fun op --> _ = fake "Pickle.--> unsupported"
 
-         fun refc aT = let
-            val P {rd, wr, ...} = getT aT
-            val self = Arg.Open.refc ignore aT
-         in
-            if Arg.mayBeCyclic self
-            then cyclic {readProxy = I.thunk (fn () => ref (Arg.some aT)),
+         fun refc aT =
+             case getT aT
+              of P {rd, wr, ...} =>
+                 cyclic {readProxy = I.thunk (fn () => ref (Arg.some aT)),
                          readBody = fn r => I.map (fn v => (r := v ; r)) rd,
                          writeWhole = wr o !,
-                         self = self}
-            else share self (P {rd = I.map ref rd, wr = wr o !, sz = NONE})
-         end
+                         self = Arg.Open.refc ignore aT}
 
-         fun array aT = let
-            val P {rd = aR, wr = aW, ...} = getT aT
-         in
-            mutable {readProxy = I.map (fn n => Array.array (n, Arg.some aT))
-                                       (rd size),
-                     readBody = fn a => let
-                        open I
-                        fun lp i = if i = Array.length a
-                                   then return a
-                                   else aR >>= (fn e =>
-                                        (Array.update (a, i, e)
-                                       ; lp (i+1)))
-                     in
-                        lp 0
-                     end,
-                     writeWhole = fn a => let
-                        open O
-                        fun lp i =
-                            if i = Array.length a
-                            then return ()
-                            else aW (Array.sub (a, i)) >>= (fn () => lp (i+1))
-                     in
-                        wr size (Array.length a) >>= (fn () => lp 0)
-                     end,
-                     self = Arg.Open.array ignore aT}
-         end
+         fun array aT =
+             case getT aT
+              of P {rd = aR, wr = aW, ...} =>
+                 cyclic {readProxy =
+                            I.map (fn n => Array.array (n, Arg.some aT))
+                                  (rd size),
+                         readBody = fn a => let
+                            open I
+                            fun lp i = if i = Array.length a
+                                       then return a
+                                       else aR >>= (fn e =>
+                                            (Array.update (a, i, e)
+                                           ; lp (i+1)))
+                         in
+                            lp 0
+                         end,
+                         writeWhole = fn a => let
+                            open O
+                            fun lp i =
+                                if i = Array.length a
+                                then return ()
+                                else aW (Array.sub (a, i)) >>= (fn () =>
+                                     lp (i+1))
+                         in
+                            wr size (Array.length a) >>= (fn () => lp 0)
+                         end,
+                         self = Arg.Open.array ignore aT}
 
          fun list aT =
              share (Arg.Open.list ignore aT) (mkSeq ListOps.ops (getT aT))

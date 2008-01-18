@@ -22,7 +22,6 @@ in
       with/hash.sml
       with/pretty.sml
       with/eq.sml
-      with/data-rec-info.sml
       with/some.sml
       with/pickle.sml
       with/seq.sml

@@ -92,21 +92,6 @@ structure Generic =
 
 
 signature Generic = sig
-   include Generic DATA_REC_INFO
-end
-
-functor MkGeneric (Arg : Generic) = struct
-   structure Open = MkGeneric (Arg)
-   open Arg Open
-   structure DataRecInfoRep = Open.Rep
-end
-
-structure Generic =
-   MkGeneric (structure Open = WithDataRecInfo (Generic)
-              open Generic Open)
-
-
-signature Generic = sig
    include Generic SOME
 end
 
