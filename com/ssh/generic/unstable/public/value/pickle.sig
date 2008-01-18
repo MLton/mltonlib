@@ -125,7 +125,7 @@ signature PICKLE = sig
 
       (** == Monadic Combinator Interface == *)
 
-      structure P : MONAD_CORE and U : MONAD_CORE
+      structure P : MONAD and U : MONAD
       (** The Pickler and Unpickler monads. *)
 
       type 'a t = {pickler : 'a -> Unit.t P.monad,
