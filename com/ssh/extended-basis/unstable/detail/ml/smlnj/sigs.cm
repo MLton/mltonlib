@@ -89,5 +89,6 @@ is
    ../../../public/text/text.sig
    ../../../public/time/time.sig
    ../../../public/typing/phantom.sig
+   ../../../public/typing/static-sum.sig
    ../../fold/fold.sml
    bootstrap.cm

@@ -82,6 +82,7 @@ is
    ../../../detail/text/mk-text-ext.fun
    ../../../detail/time/time.sml
    ../../../detail/typing/phantom.sml
+   ../../../detail/typing/static-sum.sml
    ../../../public/lazy/lazy.sig
    ext.sml
    sigs.cm

@@ -49,6 +49,8 @@ in
          (* Typing *)
          public/typing/phantom.sig
          detail/typing/phantom.sml
+         public/typing/static-sum.sig
+         detail/typing/static-sum.sml
 
          (* Concept signatures *)
          public/concept/bitwise.sig
