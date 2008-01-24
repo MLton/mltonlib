@@ -24,7 +24,10 @@
  * The design is mostly copied from Stephen Weeks.
  *)
 signature STATIC_SUM = sig
-   type ('l_dom, 'l_cod, 'r_dom, 'r_cod, 'result) t
+   type ('dL, 'cL, 'dR, 'cR, 'c) dom
+   type ('dL, 'cL, 'dR, 'cR, 'c) cod
+   type ('dL, 'cL, 'dR, 'cR, 'c) t =
+        ('dL, 'cL, 'dR, 'cR, 'c) dom -> ('dL, 'cL, 'dR, 'cR, 'c) cod
    (** The type of static sums. *)
 
    val inL : 'a -> ('a, 'b, 'c, 'd, 'b) t
