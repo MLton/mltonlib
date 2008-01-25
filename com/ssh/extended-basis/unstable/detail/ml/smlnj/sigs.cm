@@ -91,4 +91,5 @@ is
    ../../../public/typing/phantom.sig
    ../../../public/typing/static-sum.sig
    ../../fold/fold.sml
+   ../../typing/static-sum.sml
    bootstrap.cm
