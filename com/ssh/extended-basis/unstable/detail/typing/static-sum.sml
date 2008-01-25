@@ -12,6 +12,7 @@ structure StaticSum :> STATIC_SUM = struct
    fun inL a (a2b, _) = a2b a
    fun inR c (_, c2d) = c2d c
    fun match x = x
+   fun sum x f = f x
    fun split x = x (fn x => (inL x, inL x), fn x => (inR x, inR x))
    fun out x = x (match, match)
 end

@@ -45,6 +45,9 @@ signature STATIC_SUM = sig
     *> match (inR x) (f, g) = g x
     *)
 
+   val sum : ('a -> 'b) * ('c -> 'd) -> ('a, 'b, 'c, 'd, 'e) t -> 'e
+   (** {sum} is equivalent to {flip match}. *)
+
    val split : ('a,
                 ('a, 'b, 'c, 'd, 'b) t * ('a, 'e, 'f, 'g, 'e) t, 'h,
                 ('i, 'j, 'h, 'k, 'k) t * ('l, 'm, 'h, 'n, 'n) t, 'o) t -> 'o
