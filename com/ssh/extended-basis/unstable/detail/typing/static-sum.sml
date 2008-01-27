@@ -15,4 +15,5 @@ structure StaticSum :> STATIC_SUM = struct
    fun sum x f = f x
    fun split x = x (fn x => (inL x, inL x), fn x => (inR x, inR x))
    fun out x = x (match, match)
+   fun map (f, g) = sum (inL o f, inR o g)
 end
