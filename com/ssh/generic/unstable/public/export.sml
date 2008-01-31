@@ -13,6 +13,7 @@ signature OPEN_CASES = OPEN_CASES
 signature OPEN_REP = OPEN_REP
 
 signature CASES = CASES
+signature REP = REP
 
 signature LAYERED_REP = LAYERED_REP
 

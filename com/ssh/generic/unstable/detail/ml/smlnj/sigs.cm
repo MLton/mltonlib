@@ -20,6 +20,7 @@ group is
    ../../../public/framework/layered-rep.sig
    ../../../public/framework/open-cases.sig
    ../../../public/framework/open-rep.sig
+   ../../../public/framework/rep.sig
    ../../../public/framework/ty.sig
    ../../../public/util/generics-util.sig
    ../../../public/value/arbitrary.sig

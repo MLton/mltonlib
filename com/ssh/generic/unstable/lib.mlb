@@ -39,6 +39,7 @@ in
          public/framework/open-rep.sig
          public/framework/open-cases.sig
          public/framework/cases.sig
+         public/framework/rep.sig
          public/framework/generic.sig
 
          (* Utilities *)
