@@ -9,7 +9,7 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
    open TopLevel
    infix  0 &
    (* SML/NJ workaround --> *)
-   
+
    datatype 'a t = IN of Univ.t * Univ.t BinOp.t * 'a -> Univ.t
 
    fun sequ (Ops.S {toSlice, getItem, ...}) (IN xR) =
