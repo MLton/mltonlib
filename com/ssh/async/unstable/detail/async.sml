@@ -195,7 +195,7 @@ structure Async :> ASYNC = struct
       fun send (T st) v = let
          val ost = !st
          val nst = IVar.new ()
-      in 
+      in
          st := nst ; IVar.fill ost (N (v, nst))
       end
    end
