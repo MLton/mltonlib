@@ -24,4 +24,4 @@ val rect = Rectangle.new {x=0, y=0, w=15, h=15}
 val () = Rectangle.setW rect 30
 
 (* Uses a Rectangle as a subtype of Shape: *)
-val () = Shape.draw rect 
+val () = Shape.draw rect
