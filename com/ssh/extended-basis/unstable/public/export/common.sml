@@ -166,7 +166,6 @@ structure Fold : FOLD = Fold
 structure IOSMonad : IOS_MONAD = IOSMonad
 structure Int : INTEGER = Int
 structure Iso : ISO = Iso
-structure Iso : ISO = Iso
 structure LargeInt : INTEGER = LargeInt
 structure LargeReal : REAL = LargeReal
 structure LargeWord : WORD = LargeWord
