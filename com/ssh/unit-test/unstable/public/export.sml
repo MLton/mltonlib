@@ -12,9 +12,9 @@ signature UNIT_TEST = UNIT_TEST
 
 functor MkUnitTest (Arg : MK_UNIT_TEST_DOM) :
    UNIT_TEST
-      where type ('a,     'x) Rep.t = ('a,     'x) Arg.Open.Rep.t
-      where type ('a,     'x) Rep.s = ('a,     'x) Arg.Open.Rep.s
-      where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Open.Rep.p =
+      where type ('a,     'x) Open.Rep.t = ('a,     'x) Arg.Open.Rep.t
+      where type ('a,     'x) Open.Rep.s = ('a,     'x) Arg.Open.Rep.s
+      where type ('a, 'k, 'x) Open.Rep.p = ('a, 'k, 'x) Arg.Open.Rep.p =
    MkUnitTest (Arg)
 (**
  * Creates a unit test module.

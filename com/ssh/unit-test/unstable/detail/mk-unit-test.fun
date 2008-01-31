@@ -6,9 +6,9 @@
 
 functor MkUnitTest (Arg : MK_UNIT_TEST_DOM) :>
    UNIT_TEST
-      where type ('a,     'x) Rep.t = ('a,     'x) Arg.Open.Rep.t
-      where type ('a,     'x) Rep.s = ('a,     'x) Arg.Open.Rep.s
-      where type ('a, 'k, 'x) Rep.p = ('a, 'k, 'x) Arg.Open.Rep.p =
+      where type ('a,     'x) Open.Rep.t = ('a,     'x) Arg.Open.Rep.t
+      where type ('a,     'x) Open.Rep.s = ('a,     'x) Arg.Open.Rep.s
+      where type ('a, 'k, 'x) Open.Rep.p = ('a, 'k, 'x) Arg.Open.Rep.p =
 struct
    (* <-- SML/NJ workaround *)
    open TopLevel
@@ -17,8 +17,6 @@ struct
    (* SML/NJ workaround --> *)
 
    open Cvt Arg Prettier
-
-   structure Rep = Open.Rep
 
    val format = let open Fmt in default & realFmt := StringCvt.GEN (SOME 16) end
    fun pretty t = fmt t format
@@ -129,16 +127,13 @@ struct
     | SKIP
 
    local
-      open RandomGen.RNG
+      open RandomGen.RNG Maybe
+      val W = Word.fromString
       val rng =
-          ref (make (Seed.fromWord let
-                        open Maybe
-                        val W = Word.fromString
-                     in
-                        getOpt (get (Monad.sum [S"-s"@`W, L"--seed"@`W,
-                                                mk RandomDev.seed ()]),
-                                0w0)
-                     end))
+          ref o make o Seed.fromWord |<
+          getOpt (get (Monad.sum [S"-s"@`W, L"--seed"@`W,
+                                  mk RandomDev.seed ()]),
+                  0w0)
    in
       fun nextRNG () = !rng before Ref.modify next rng
    end
@@ -192,24 +187,21 @@ struct
 
    fun skip () = raise Skip
 
-   fun table t = let
-      val n = length t
-   in
-      punctuate comma o
-      map (fn (n, m) => str (concat [D n, "% ", m])) o
-      List.sort (Int.compare o Pair.swap o Pair.map (Sq.mk Pair.fst)) o
-      map (Pair.map (fn l => Int.quot (100 * length l, n), hd) o Sq.mk) o
-      List.divideByEq op = |< List.map (render NONE) t
-   end
+   fun table t =
+       case length t
+        of n =>
+           (punctuate comma o
+            map (fn (n, m) => str (concat [D n, "% ", m])) o
+            List.sort (Int.compare o Pair.swap o Pair.map (Sq.mk Pair.fst)) o
+            map (Pair.map (fn l => Int.quot (100 * length l, n), hd) o Sq.mk) o
+            List.divideByEq op = |< List.map (render NONE) t)
 
    type table = Prettier.t List.t Ref.t
-   fun withFreq tblEf = let
-      val tbl = ref []
-   in
-      tblEf tbl : Unit.t
-    ; println (indent 2 (nest 2 (sep (str "Statistics:" :: table (!tbl)))) <^>
-               dot)
-   end
+   fun withFreq tblEf =
+       case ref []
+        of tbl => (tblEf tbl : Unit.t
+                 ; println (indent 2 (nest 2 (sep (str "Statistics:" ::
+                                                   table (!tbl)))) <^> dot))
    fun collect t tbl x =
        List.push tbl (pretty t x)
 end
