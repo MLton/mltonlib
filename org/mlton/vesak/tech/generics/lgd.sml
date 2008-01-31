@@ -176,7 +176,7 @@ end
 (*
  * Functor to build a generic given the structural cases.
  *
- * What this does is to morph the structural cases to work 
+ * What this does is to morph the structural cases to work
  *)
 
 functor Generic (C : CASES) : GENERIC = struct
