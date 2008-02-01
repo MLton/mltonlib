@@ -23,11 +23,7 @@ in
          (* Support *)
 
          public/framework/generics.sig
-         local
-            detail/util/sml-syntax.sml
-         in
-            detail/framework/generics.sml
-         end
+         detail/framework/generics.sml
 
          public/framework/ty.sig
          detail/framework/ty.sml
@@ -81,7 +77,11 @@ in
          public/value/arbitrary.sig
          detail/value/arbitrary.sml
 
-         detail/value/debug.sml
+         local
+            detail/util/sml-syntax.sml
+         in
+            detail/value/debug.sml
+         end
 
          public/value/dynamic.sig
          detail/value/dynamic.sml

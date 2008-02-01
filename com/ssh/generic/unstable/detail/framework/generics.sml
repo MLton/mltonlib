@@ -10,7 +10,7 @@ structure Generics :> GENERICS = struct
    (* SML/NJ workaround --> *)
 
    structure Label = struct
-      type t = String.t
+      open String
       val toString = id
    end
 
@@ -19,10 +19,6 @@ structure Generics :> GENERICS = struct
    structure Record = Unit
    structure Tuple = Unit
 
-   local
-      fun mk p v = if p v then v else fail "syntax error"
-   in
-      val L = mk SmlSyntax.isLabel
-      val C = mk SmlSyntax.isLongId
-   end
+   val L = id
+   val C = id
 end

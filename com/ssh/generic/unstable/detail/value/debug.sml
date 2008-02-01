@@ -9,8 +9,6 @@ functor WithDebug (Arg : CASES) : OPEN_CASES = struct
    open TopLevel
    (* SML/NJ workaround --> *)
 
-   open Generics
-
    (* XXX Consider an asymptotically more efficient set representation. *)
 
    fun add1 kind (x, xs) =
@@ -20,8 +18,17 @@ functor WithDebug (Arg : CASES) : OPEN_CASES = struct
 
    fun addN kind (xs, ys) = foldl (add1 kind) xs ys
 
+   local
+      fun mk p k toString x =
+          case toString x
+           of s => if p s then s else fails ["Not a ", k, ": ", s]
+   in
+      val con   = mk SmlSyntax.isLongId "constructor" Generics.Con.toString
+      val label = mk SmlSyntax.isLabel  "label"     Generics.Label.toString
+   end
+
    val exns : String.t List.t Ref.t = ref []
-   fun regExn c = exns := add1 "exception constructor" (Con.toString c, !exns)
+   fun regExn c = exns := add1 "exception constructor" (con c, !exns)
 
    structure DebugRep = LayerRep
      (open Arg
@@ -38,14 +45,14 @@ functor WithDebug (Arg : CASES) : OPEN_CASES = struct
 
       fun op *` ? = addN "label" ?
       fun T () = []
-      fun R l () = [Label.toString l]
+      fun R l () = [label l]
       val tuple  = ignore
       val record = ignore
 
       fun op +` ? = addN "constructor" ?
       val unit = ()
-      fun C0 c = [Con.toString c]
-      fun C1 c () = [Con.toString c]
+      fun C0 c = [con c]
+      fun C1 c () = [con c]
       val data = ignore
 
       val Y = Tie.id ()
