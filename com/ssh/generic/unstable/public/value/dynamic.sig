@@ -28,7 +28,7 @@
  * may (or may not) fail.
  *
  * It is also possible to have multiple different types that have the same
- * structural encoding.  Such types can not be told apart and coercions
+ * structural encoding.  Such types cannot be told apart and coercions
  * between values of such types do not fail (by default).
  *
  * This design is experimental.  An interesting design alternative would
@@ -45,7 +45,7 @@
  * Feedback on the design is welcome!
  *
  * A dynamic type could also be implemented through pickling.  However,
- * functions can not be pickled in SML and pickling of exceptions requires
+ * functions cannot be pickled in SML and pickling of exceptions requires
  * registering exception constructors.
  *)
 signature DYNAMIC = sig
