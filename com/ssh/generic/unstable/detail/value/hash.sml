@@ -118,7 +118,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
 
       fun op --> _ = failing "Hash.--> unsupported"
 
-      fun refc aT = getT aT o Pair.map (!, id)
+      fun refc _ = prim (fn _ => 0wx35996C53)
 
       val int = prim Word.fromInt
 
@@ -146,7 +146,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
             end
       end
 
-      fun array  aT = sequ  ArrayOps.ops (getT aT)
+      fun array _ = prim (fn _ => 0wx6D52A54D)
       fun vector aT = sequ VectorOps.ops (getT aT)
 
       val char = prim (Word.fromInt o ord)
