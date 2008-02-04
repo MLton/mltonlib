@@ -20,7 +20,7 @@ structure Prettier :> PRETTIER = struct
    datatype t =
       EMPTY
     | LAZY of t Lazy.t
-    | LINE of bool
+    | LINE of Bool.t
     | JOIN of t Sq.t
     | NEST of Int.t * t
     | TEXT of String.t
@@ -36,14 +36,8 @@ structure Prettier :> PRETTIER = struct
    val column = COLUMN
    val nesting = NESTING
 
-   local
-      fun assertAllPrint str =
-          if S.all C.isPrint str then ()
-          else fail "Unprintable characters given to Prettier.txt"
-   in
-      val txt = TEXT o Effect.obs assertAllPrint
-      val chr = txt o str
-   end
+   val txt = TEXT
+   val chr = TEXT o str
 
    val parens   as (lparen,   rparen)   = (TEXT "(", TEXT ")")
    val angles   as (langle,   rangle)   = (TEXT "<", TEXT ">")
@@ -65,7 +59,7 @@ structure Prettier :> PRETTIER = struct
     fn []    => []
      | d::ds => let
           fun lp rs d1 =
-           fn [] => List.revAppend (rs, [d1])
+           fn []     => List.revAppend (rs, [d1])
             | d2::ds => lp (d1 <^> sep::rs) d2 ds
        in
           lp [] d ds
@@ -210,7 +204,7 @@ structure Prettier :> PRETTIER = struct
 
    local
       val join =
-          fn [] => empty
+          fn []         => empty
            | (_, d)::xs =>
              group d <^> hcat (map (group o uncurry nest o
                                     Pair.map (id, line <\ op <^>)) xs)
