@@ -80,6 +80,14 @@ in
           (testRs foobar [("{+ = ( ( ) ) , bar = #\"3\", foo = true}",
                            {foo = true, + = (), bar = #"3"})])
 
+          (testRs (tuple2 (int, string))
+                  [("{1 = 3, 2 = \"4\"}",
+                    {1 = 3, 2 = "4"}),
+                   ("((*;)*)({2 = \"2\", 1 = 1}(*;)*))) (*;)*)",
+                    {1 = 1, 2 = "2"}),
+                   ("(2, \"1\")",
+                    (2, "1"))])
+
           (testRs real [("-2.0e~10", ~2.0e~10), (" ( 1.2 ) ", 1.2)])
 
           (testSR (tuple2 (tuple2 (string, vector (option unit)), list char))
