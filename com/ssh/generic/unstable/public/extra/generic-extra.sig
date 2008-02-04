@@ -11,8 +11,6 @@ signature GENERIC_EXTRA = sig
    include GENERICS
       where type Label.t = Generics.Label.t
       where type Con.t = Generics.Con.t
-      where type Record.t = Generics.Record.t
-      where type Tuple.t = Generics.Tuple.t
    include GENERIC
 
    (** == Shorthands for Types with Labels or Constructors ==

@@ -42,4 +42,4 @@ signature READ_CASES = sig
    sharing Open.Rep = ReadRep
 end
 
-signature WITH_READ_DOM = CASES
+signature WITH_READ_DOM = TYPE_INFO_CASES

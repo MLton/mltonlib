@@ -20,8 +20,8 @@ signature GENERICS = sig
       val hash : t -> Word32.t
    end
 
-   structure Record : T
-   structure Tuple : T
+   structure Record : T where type t = String.t
+   structure Tuple : T where type t = Int.t
 
    val L : String.t -> Label.t
    val C : String.t -> Con.t

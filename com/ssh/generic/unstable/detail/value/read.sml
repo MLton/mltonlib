@@ -36,10 +36,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       structure State = Unit)
    open Parsec
 
-   fun E c = fromReader (fn s => case Sequence.get s
-                                  of NONE         => NONE
-                                   | SOME (c', s) =>
-                                     if c' = c then SOME ((), s) else NONE)
+   val E = sat o eq
+
    fun L l = fromReader let
       fun lp i s =
           if i = size l
@@ -69,27 +67,25 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    datatype radix = datatype StringCvt.radix
 
-   val alphaId =
-       map (implode o op ::)
-           (sat Char.isAlpha >>*
-            take (fn c => Char.isAlpha c
-                          orelse Char.isDigit c
-                          orelse #"'" = c orelse #"_" = c))
-   val symbolicId =
-       take (Char.contains "!#$%&*+-/:<=>?@\\^`|~") >>=
-            (fn [] => zero | cs => return (implode cs))
+   fun id first rest =
+       sat first >>= (fn c => take rest >>= (fn cs => return (implode (c::cs))))
+
+   val alphaId = id Char.isAlpha
+                    (fn c => Char.isAlpha c
+                             orelse Char.isDigit c
+                             orelse #"'" = c orelse #"_" = c)
+   val isSymbolic = Char.contains "!#$%&*+-/:<=>?@\\^`|~"
+   val symbolicId = id isSymbolic isSymbolic
 
    val shortId = alphaId <|> symbolicId
    val longId = map op :: (shortId >>* ^* (E#"." >> shortId))
    fun I s = shortId >>= (fn i => if i = s then return () else zero)
 
-   val numLabel =
-       map (implode o op ::)
-           (sat (Char.inRange (#"1", #"9")) >>* take Char.isDigit)
+   val numLabel = id (Char.inRange (#"1", #"9")) Char.isDigit
    val label = numLabel <|> shortId
 
    fun mkSequ pre suf (Ops.S {fromList, ...}) p = let
-      fun fin xs () = return (fromList (rev xs))
+      fun fin xs _ = return (fromList (rev xs))
       fun aft xs = ignored >> (E#"," >>> bef xs <|> suf >>= fin xs)
       and bef xs = p >>= (fn x => aft (x::xs))
    in
@@ -113,18 +109,6 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                               peek (L"~0b" <|> L"0b") >> p BIN <|>
                                                          p DEC)
 
-   datatype 'a p =
-      INP of (String.t * Univ.t t) List.t *
-             (Univ.t Option.t ArraySlice.t -> 'a * Univ.t Option.t ArraySlice.t)
-
-   fun F l t =
-       case Univ.Iso.new ()
-        of (to, from) =>
-           INP ([(l, map to t)],
-                fn ars => case ArraySlice.getItem ars
-                           of SOME (SOME u, ars) => (from u, ars)
-                            | _                  => fail "impossible")
-
    fun C c p s = if s = Generics.Con.toString c then SOME p else NONE
 
    structure ReadRep = LayerRep
@@ -132,7 +116,9 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       structure Rep = struct
          type  'a      t = 'a t
          type  'a      s = String.t -> 'a t Option.t
-         type ('a, 'k) p = 'a p
+         type ('a, 'k) p =
+              Int.t -> {fromLabel : 'k -> (Int.t * Univ.t t) Option.t,
+                        fromArray : Univ.t Option.t Array.t -> 'a}
       end)
 
    open ReadRep.This
@@ -175,64 +161,115 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
           StringSequence.full
    end
 
-   structure Open = LayerCases
-     (fun iso bP (_, b2a) = map b2a bP
-      fun isoProduct (INP (lps, fromSlice)) (_, b2a) =
-          INP (lps, Pair.map (b2a, id) o fromSlice)
-      fun isoSum bS (_, b2a) = Option.map (map b2a) o bS
+   structure Open = LayerDepCases
+     (fun iso bT (_, b2a) = map b2a (getT bT)
+      fun isoProduct bP (_, b2a) =
+          (fn {fromLabel, fromArray} =>
+              {fromLabel = fromLabel,
+               fromArray = b2a o fromArray}) o getP bP
+      fun isoSum bS (_, b2a) = Option.map (map b2a) o getS bS
 
-      fun op *` (INP (ls, la), INP (rs, ra)) =
-          INP (ls @ rs,
-               fn ars =>
-                  case la ars
-                   of (l, ars) =>
-                      case ra ars
-                       of (r, ars) => (l & r, ars))
-      fun T t = F "" t
-      fun R l = F (Generics.Label.toString l)
-      fun tuple (INP (lps, fromSlice)) = let
-         val ps = List.map #2 lps
-         val n = length ps
-         fun lp a i =
-          fn []    => E#")" >> return (#1 (fromSlice (ArraySlice.full a)))
-           | p::ps => p >>= (fn x =>
-                      (Array.update (a, i, SOME x)
-                     ; (if null ps
-                        then ignored
-                        else ignored >> E#"," >> ignored) >> lp a (i+1) ps))
+      fun op *` (aP, bP) = let
+         val aN = Arg.numElems aP
+         val aP = getP aP
+         val bP = getP bP
       in
-         E#"(" >>> parens (fn ? => lp (Array.array (n, NONE)) 0 ps ?)
+         fn i => let
+               val {fromLabel = aL, fromArray = aA} = aP i
+               val {fromLabel = bL, fromArray = bA} = bP (i+aN)
+            in
+               {fromLabel = fn l => case aL l of NONE => bL l | other => other,
+                fromArray = fn a => aA a & bA a}
+            end
       end
-      fun record (INP (lps, fromSlice)) = let
-         val n = length lps
-         fun lp a =
-          fn 0 => E#"}" >> return (#1 (fromSlice (ArraySlice.full a)))
-           | n => label >>= (fn l =>
-                  case List.findi (l <\ op = o #1 o #2) lps
-                   of NONE             => zero
-                    | SOME (i, (_, p)) =>
-                      if isSome (Array.sub (a, i))
+      fun T t = let
+         val (to, from) = Univ.Iso.new ()
+         val p = map to (getT t)
+      in
+         fn i =>
+            {fromLabel = fn l => if l = i then SOME (i, p) else NONE,
+             fromArray = fn a => from (valOf (Array.sub (a, i)))}
+      end
+      fun R l t = let
+         val (to, from) = Univ.Iso.new ()
+         val p = map to (getT t)
+         val l = Generics.Label.toString l
+      in
+         fn i =>
+            {fromLabel = fn l' => if l' = l then SOME (i, p) else NONE,
+             fromArray = fn a => from (valOf (Array.sub (a, i)))}
+      end
+      fun tuple aP = let
+         val {fromLabel, fromArray} = getP aP 0
+         val n = Arg.numElems aP
+         fun pl a i =
+             if i = n
+             then E#")" >> return (fromArray a)
+             else case fromLabel i
+                   of NONE        => fail "impossible"
+                    | SOME (j, p) =>
+                      p >>= (fn x =>
+                      (Array.update (a, j, SOME x)
+                     ; (if i+1 = n
+                        then ignored
+                        else ignored >> E#"," >> ignored) >> pl a (i+1)))
+         fun rl a i =
+             if i = n
+             then E#"}" >> return (fromArray a)
+             else numLabel >>= (fn l =>
+                  case fromLabel (valOf (Int.fromString l) - 1)
+                   of NONE        => zero
+                    | SOME (j, p) =>
+                      if isSome (Array.sub (a, j))
                       then zero
                       else ignored >> I"=" >>> p >>= (fn x =>
-                           (Array.update (a, i, SOME x)
-                          ; if n <= 1
-                            then ignored >> lp a 0
-                            else ignored >> E#"," >>> lp a (n-1))))
+                           (Array.update (a, j, SOME x)
+                          ; (if i+1 = n
+                             then ignored
+                             else ignored >> E#"," >> ignored) >> rl a (i+1))))
       in
-         parens (E#"{" >>> (fn ? => lp (Array.array (n, NONE)) n ?))
+         parens (E#"(" >>> (fn ? => pl (Array.array (n, NONE)) 0 ?) <|>
+                 E#"{" >>> (fn ? => rl (Array.array (n, NONE)) 0 ?))
+      end
+      fun record aP = let
+         val {fromLabel, fromArray} = getP aP 0
+         val n = Arg.numElems aP
+         fun lp a i =
+             if i = n
+             then E#"}" >> return (fromArray a)
+             else label >>= (fn l =>
+                  case fromLabel l
+                   of NONE        => zero
+                    | SOME (j, p) =>
+                      if isSome (Array.sub (a, j))
+                      then zero
+                      else ignored >> I"=" >>> p >>= (fn x =>
+                           (Array.update (a, j, SOME x)
+                          ; (if i+1 = n
+                             then ignored
+                             else ignored >> E#"," >> ignored) >> lp a (i+1))))
+      in
+         parens (E#"{" >>> (fn ? => lp (Array.array (n, NONE)) 0 ?))
       end
 
-      fun op +` (l, r) s =
-          case l s
-           of SOME l => SOME (map INL l)
-            | NONE   => Option.map (map INR) (r s)
-      val unit = E#"(" >>> parens (E#")")
+      fun op +` (lS, rS) = let
+         val l = getS lS
+         val r = getS rS
+      in
+         fn s =>
+            case l s
+             of SOME l => SOME (map INL l)
+              | NONE   => Option.map (map INR) (r s)
+      end
+      val unit = E#"(" >>> parens (E#")" >> return ())
       fun C0 c = C c (return ())
-      fun C1 c t = C c (ignored >> t)
-      fun data t =
-          parens (parens longId >>= (fn s => case t (String.concatWith "." s)
-                                              of NONE   => zero
-                                               | SOME p => p))
+      fun C1 c t = C c (ignored >> getT t)
+      fun data tS =
+          case getS tS
+           of t => parens (parens longId >>= (fn s =>
+                           case t (String.concatWith "." s)
+                            of NONE   => zero
+                             | SOME p => p))
 
       val Y = Tie.function
 
@@ -242,11 +279,11 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       fun regExn0 _ _ = ()
       fun regExn1 _ _ _ = ()
 
-      fun list t = mkSequ (E#"[") (E#"]") ListOps.ops t
-      fun vector t = mkSequ (L"#[") (E#"]") VectorOps.ops t
+      fun list t = mkSequ (E#"[") (E#"]") ListOps.ops (getT t)
+      fun vector t = mkSequ (L"#[") (E#"]") VectorOps.ops (getT t)
 
-      fun array t = mkSequ (L"#(") (E#")") ArrayOps.ops t
-      fun refc t = parens (I"ref" >>> map ref t)
+      fun array t = mkSequ (L"#(") (E#")") ArrayOps.ops (getT t)
+      fun refc t = parens (I"ref" >>> map ref (getT t))
 
       val fixedInt  = mkInt FixedIntOps.ops
       val largeInt  = mkInt LargeIntOps.ops
@@ -267,8 +304,8 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
             lp [] n
          end
          fun chars cs =
-             E#"\\" >>= (fn () => escape cs)
-         <|> E#"\"" >>= (fn () => return (implode (rev cs)))
+             E#"\\" >>= (fn _ => escape cs)
+         <|> E#"\"" >>= (fn _ => return (implode (rev cs)))
          <|> sat Char.isPrint >>= (fn c => chars (c::cs))
          and escape cs =
              E#"^" >> sat Char.isPrint >>= (fn c => scan [#"^", c] cs)
@@ -276,7 +313,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
          <|> E#"u" >> satN Char.isHexDigit 4 >>= (fn ds => scan (#"u" :: ds) cs)
          <|> E#"U" >> satN Char.isHexDigit 8 >>= (fn ds => scan (#"U" :: ds) cs)
          <|> sat Char.isGraph >>= (fn c => scan [c] cs)
-         <|> sat Char.isSpace >> drop Char.isSpace >> E#"\\" >>= (fn () =>
+         <|> sat Char.isSpace >> drop Char.isSpace >> E#"\\" >>= (fn _ =>
              chars cs)
          and scan c cs =
              case Char.scan List.getItem (#"\\" :: c)

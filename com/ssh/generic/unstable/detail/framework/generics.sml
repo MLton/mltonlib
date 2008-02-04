@@ -19,8 +19,8 @@ structure Generics :> GENERICS = struct
 
    structure Con = Label
 
-   structure Record = Unit
-   structure Tuple = Unit
+   structure Record = String
+   structure Tuple = Int
 
    local
       (* The idea here is to compute the hash of at most some fixed number
