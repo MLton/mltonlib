@@ -73,6 +73,10 @@ end
 
 open Lambda
 
+(* Shorthands for reducing and transforming terms: *)
+fun reduce z p l = makeReduce z p l t f
+fun transform g = makeTransform g t f
+
 (* The {Set} structure implements a naive set for our example: *)
 structure Set = struct
    val t = list
@@ -92,15 +96,14 @@ in
    fun free (IN term) =
        difference
           (union (refs term,
-                  makeReduce empty union free Lambda.t Lambda.f term),
+                  reduce empty union free term),
            decs term)
 end
 
 (* {renameFree it to term} renames free variables named {it} to {to} in
  * the given {term}. *)
 fun renameFree it to (IN term) = let
-   fun recurse term =
-       makeTransform (renameFree it to) t f term
+   val recurse = transform (renameFree it to)
 in
    IN (case term
         of FUN (v, _) => if v = it then term else recurse term
@@ -114,13 +117,13 @@ local
    val countHere = fn FUN _ => 1 | _ => 0
 in
    fun countFuns (IN term) =
-       countHere term + makeReduce 0 op + countFuns t f term
+       countHere term + reduce 0 op + countFuns term
 end
 
 (* {canonize term} gives canonic names to all bound variables in the
- * given term.  Here the canonic name of a variable is the number of {FUN}
- * subterms contained within the body of the {FUN} term that introduces
- * the variable. *)
+ * given term.  Here the canonic name of a bound variable is the number of
+ * {FUN} subterms in the body of the {FUN} term that introduces the
+ * variable. *)
 local
    val canonizeHere =
     fn FUN (v, t) => let
@@ -132,7 +135,7 @@ local
      | other => other
 in
    fun canonize (IN term) =
-       IN (canonizeHere (makeTransform canonize t f term))
+       IN (canonizeHere (transform canonize term))
 end
 
 val exampleTerm =
