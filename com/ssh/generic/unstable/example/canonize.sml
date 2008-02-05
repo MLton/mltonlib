@@ -66,14 +66,9 @@ structure Lambda = struct
 
    (* A fixed point of the term functor: *)
    datatype t = IN of t f
-   fun out (IN ?) = ?
-
-   (* Type representation constructor for use with the {Reduce} and
-    * {Transform} generics. *)
-   fun t' t = iso (data (C1'"IN" (f t))) (out, IN)
 
    (* Type representation for the fixed point: *)
-   val t = Tie.fix Y t'
+   val t = Tie.fix Y (fn t => iso (data (C1'"IN" (f t))) (fn IN ? => ?, IN))
 end
 
 open Lambda
@@ -94,32 +89,32 @@ local
    val refs = fn REF id      => singleton id | _ => empty
    val decs = fn FUN (id, _) => singleton id | _ => empty
 in
-   fun free term =
+   fun free (IN term) =
        difference
-          (union (refs (out term),
-                  makeReduce empty union free Lambda.t Lambda.t' term),
-           decs (out term))
+          (union (refs term,
+                  makeReduce empty union free Lambda.t Lambda.f term),
+           decs term)
 end
 
 (* {renameFree it to term} renames free variables named {it} to {to} in
  * the given {term}. *)
-fun renameFree it to term = let
+fun renameFree it to (IN term) = let
    fun recurse term =
-       makeTransform (renameFree it to) t t' term
+       makeTransform (renameFree it to) t f term
 in
-   case out term
-    of FUN (v, _) => if v = it then term else recurse term
-     | REF v      => if v = it then IN (REF to) else term
-     | _          => recurse term
+   IN (case term
+        of FUN (v, _) => if v = it then term else recurse term
+         | REF v      => if v = it then REF to else term
+         | _          => recurse term)
 end
 
 (* {countFuns term} returns the number of {FUN} variants in the given
  * {term}. *)
 local
-   val countHere = fn IN (FUN _) => 1 | _ => 0
+   val countHere = fn FUN _ => 1 | _ => 0
 in
-   fun countFuns term =
-       countHere term + makeReduce 0 op + countFuns t t' term
+   fun countFuns (IN term) =
+       countHere term + makeReduce 0 op + countFuns t f term
 end
 
 (* {canonize term} gives canonic names to all bound variables in the
@@ -127,18 +122,17 @@ end
  * subterms contained within the body of the {FUN} term that introduces
  * the variable. *)
 local
-   fun canonizeHere term =
-       case out term
-        of FUN (v, t) => let
-              val n = countFuns t
-              val v' = Int.toString n
-           in
-              IN (FUN (v', renameFree v v' t))
-           end
-         | _ => term
+   val canonizeHere =
+    fn FUN (v, t) => let
+          val n = countFuns t
+          val v' = Int.toString n
+       in
+          FUN (v', renameFree v v' t)
+       end
+     | other => other
 in
-   fun canonize term =
-       canonizeHere (makeTransform canonize t t' term)
+   fun canonize (IN term) =
+       IN (canonizeHere (makeTransform canonize t f term))
 end
 
 val exampleTerm =
@@ -156,7 +150,7 @@ fun say header term = let
    open Prettier
    fun labelled label data = nest 3 (group (txt label <$> data))
    val noConNest = let open Fmt in default & conNest := NONE end
-   val msg = labelled header (squotes (nest 1 (fmt Lambda.t noConNest term)))
+   val msg = labelled header (squotes (nest 1 (fmt t noConNest term)))
    val freeVars = free term
    val msg = if Set.isEmpty freeVars
              then msg
