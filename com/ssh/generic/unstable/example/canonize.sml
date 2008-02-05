@@ -36,16 +36,16 @@ structure Lambda = struct
                +` C1'"REF" Id.t
                +` C1'"INT" int
                +` C1'"PLUS" (sq t)))
-           (fn FUN ? => INL (INL (INL (INL ?)))
-             | APP ? => INL (INL (INL (INR ?)))
-             | REF ? => INL (INL (INR ?))
-             | INT ? => INL (INR ?)
-             | PLUS ? => INR ?,
-            fn INL (INL (INL (INL ?))) => FUN ?
-             | INL (INL (INL (INR ?))) => APP ?
-             | INL (INL (INR ?)) => REF ?
-             | INL (INR ?) => INT ?
-             | INR ? => PLUS ?)
+           (fn PLUS ? => INR ? | ? => INL (case ? of
+               INT ?  => INR ? | ? => INL (case ? of
+               REF ?  => INR ? | ? => INL (case ? of
+               APP ?  => INR ? |
+               FUN ?  => INL ? | _ => fail "bug"))),
+            fn INR ? => PLUS ? | INL ? => case ? of
+               INR ? => INT ?  | INL ? => case ? of
+               INR ? => REF ?  | INL ? => case ? of
+               INR ? => APP ?  |
+               INL ? => FUN ?)
 
    fun t' t = iso (data (C1'"IN" (f t))) (out, IN)
 
