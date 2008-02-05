@@ -6,19 +6,17 @@
 
 open Generic
 
-(**
- * This is a simple example of using the {Reduce} and {Transform}
+(* This is a simple example of using the {Reduce} and {Transform}
  * generics.  The program reads a term given as an argument and shows the
  * canonized version of the term.  Canonization renames bindings so that
- * alpha equivalent terms have the same representation.
- *)
+ * alpha equivalent terms have the same representation. *)
 
 (* The {Lambda} module defines the representation of the terms of our toy
  * language.  Identifiers are just strings.  Crucial to the use of the
  * {Reduce} and {Transform} generics is that the terms of the language are
  * defined as a fixed point of a functor, {f}.  This allows the {Reduce}
- * and {Transform} generics to operate on all the subterms of a given
- * term.
+ * and {Transform} generics to operate on all the immediate subterms of a
+ * given term.
  *
  * The commented ellipsis in the definition of the term functor suggests
  * that one could add further variants to the term.  Doing so means that
@@ -87,7 +85,7 @@ structure Set = struct
    fun difference (xs, ys) = List.filter (not o List.contains ys) xs
 end
 
-(* {free term} returns a set of the free variables in the given term. *)
+(* {free term} returns a set of the free variables in the given {term}: *)
 local
    open Set
    val refs = fn REF id      => singleton id | _ => empty
@@ -99,20 +97,36 @@ in
                   reduce empty union free term),
            decs term)
 end
+(* To understand how the {free} function works, note that the {refs} and
+ * {decs} functions return just the immediate variable references and
+ * declarations in the given term.  They don't process the term
+ * recursively.  To process the entire term recursively, the {free}
+ * function uses {reduce} to process the immediate subterms of the term
+ * using itself, {free}, as the reducer.
+ *
+ * The {reduce} function, obtained here via the type representation, saves
+ * us from pattern matching over all the variants.  Only the variable
+ * reference and declaration variants need to be treated explicitly. *)
 
 (* {renameFree it to term} renames free variables named {it} to {to} in
- * the given {term}. *)
+ * the given {term}: *)
 fun renameFree it to (IN term) = let
-   val recurse = transform (renameFree it to)
+   fun recurse () = transform (renameFree it to) term
 in
    IN (case term
-        of FUN (v, _) => if v = it then term else recurse term
+        of FUN (v, _) => if v = it then term else recurse ()
          | REF v      => if v = it then REF to else term
-         | _          => recurse term)
+         | _          => recurse ())
 end
+(* Except for using {transform} rather than {reduce}, the {renameFree}
+ * function uses essentially the same pattern as the {free} function.  The
+ * variable reference and declaration variants are first examined
+ * explicitly.  Then, if necessary, {renameFree} uses {transform} to
+ * process the immediate subterms of the term using itself as the
+ * transformer. *)
 
 (* {countFuns term} returns the number of {FUN} variants in the given
- * {term}. *)
+ * {term}: *)
 local
    val countHere = fn FUN _ => 1 | _ => 0
 in
@@ -121,9 +135,7 @@ in
 end
 
 (* {canonize term} gives canonic names to all bound variables in the
- * given term.  Here the canonic name of a bound variable is the number of
- * {FUN} subterms in the body of the {FUN} term that introduces the
- * variable. *)
+ * given {term}: *)
 local
    val canonizeHere =
     fn FUN (v, t) => let
@@ -137,7 +149,10 @@ in
    fun canonize (IN term) =
        IN (canonizeHere (transform canonize term))
 end
+(* Here the canonic name of a bound variable is the number of {FUN}
+ * subterms in the body of the {FUN} term that introduces the variable. *)
 
+(* Here is an example term: *)
 val exampleTerm =
     IN (APP (IN (FUN ("x",
                       IN (APP (IN (REF "x"), IN (REF "x"))))),
@@ -165,8 +180,7 @@ in
 end
 
 (* The main program just reads a given term and shows the canonized
- * version or shows an example term.
- *)
+ * version or shows an example term: *)
 val () =
     case CommandLine.arguments ()
      of [e] => say "And here is the canonized term:" (canonize (read t e))
@@ -179,4 +193,5 @@ val () =
  *
  * Another unrelated exercise would be to design a concrete syntax for
  * the language and write a parser and pretty-printer for the concrete
- * syntax. *)
+ * syntax.  This example just lazily uses the generic {read} and {show}
+ * functions obtained via the type representation. *)
