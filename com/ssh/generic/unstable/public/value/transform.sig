@@ -12,10 +12,10 @@
  *
  * Examples:
  *
- *> - makeTransform (fn x => x + 1) int list [1, 2, 3] ;
+ *> - makeTransform list int (fn x => x + 1) [1, 2, 3] ;
  *> val it = [2, 3, 4] : Int.t List.t
  *
- *> - makeTransform op ~ int (fn t => tuple (T int *` T t)) (1 & 3) ;
+ *> - makeTransform (fn t => tuple (T int *` T t)) int op ~ (1 & 3) ;
  *> val it = (1 & ~3) : (Int.t, Int.t) Product.t
  *
  * This design is experimental.
@@ -24,9 +24,9 @@ signature TRANSFORM = sig
    structure TransformRep : OPEN_REP
 
    val makeTransform :
-       'a UnOp.t
+       (('a, 'x) TransformRep.t -> ('b, 'y) TransformRep.t)
        -> ('a, 'x) TransformRep.t
-       -> (('a, 'x) TransformRep.t -> ('b, 'y) TransformRep.t)
+       -> 'a UnOp.t
        -> 'b UnOp.t
    (** Creates a transform operation. *)
 end

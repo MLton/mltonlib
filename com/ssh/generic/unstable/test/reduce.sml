@@ -9,8 +9,8 @@ local
 
    structure BinTree = MkBinTree (Generic)
 
-   fun testReduce zero binOp to fromT t2t toT value expect = let
-      val reduce = makeReduce zero binOp to fromT t2t
+   fun testReduce t2t fromT toT zero binOp to value expect = let
+      val reduce = makeReduce t2t fromT zero binOp to
    in
       testEq toT (fn () => {expect = expect, actual = reduce value})
    end
@@ -34,24 +34,24 @@ local
       val refs = fn REF id => singleton id | _ => empty
       val decs = fn FUN (id, _) => singleton id | _ => empty
    in
-      fun free term =
+      fun free (IN term) =
           difference
-             (union (refs (out term),
-                     makeReduce empty union free t t' term),
-              decs (out term))
+             (union (refs term,
+                     makeReduce f t empty union free term),
+              decs term)
    end
 in
    val () =
        unitTests
           (title "Generic.Reduce")
 
-          (testReduce 0 op + id int list int [1, 2, 3] 6)
-          (testReduce 0 op + (const 1) real list int [1.0, 4.0, 6.0] 3)
-          (testReduce 0 op + id int (fn t => tuple (T t *` T int *` T t)) int
+          (testReduce list int int 0 op + id [1, 2, 3] 6)
+          (testReduce list real int 0 op + (const 1) [1.0, 4.0, 6.0] 3)
+          (testReduce (fn t => tuple (T t *` T int *` T t)) int int 0 op + id
                       (1 & 3 & 7) 8)
 
           let open BinTree in
-             testReduce [] op @ (fn x => [x]) int t (list int)
+             testReduce t int (list int) [] op @ (fn x => [x])
                         (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
                         [0, 1, 2, 3]
           end

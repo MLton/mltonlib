@@ -74,8 +74,8 @@ end
 open Lambda
 
 (* Shorthands for reducing and transforming terms: *)
-fun reduce z p l = makeReduce z p l t f
-fun transform g = makeTransform g t f
+fun reduce ? = makeReduce f t ?
+fun transform ? = makeTransform f t ?
 
 (* The {Set} structure implements a naive set for our example: *)
 structure Set = struct

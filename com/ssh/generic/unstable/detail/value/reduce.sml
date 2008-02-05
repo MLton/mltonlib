@@ -32,7 +32,7 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
 
    open ReduceRep.This
 
-   fun makeReduce z p a2r aT aT2bT = let
+   fun makeReduce aT2bT aT z p a2r = let
       val (to, from) = Univ.Iso.new ()
       val z = to z
       val p = BinOp.map (from, to) p

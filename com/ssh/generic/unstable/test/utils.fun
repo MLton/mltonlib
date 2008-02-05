@@ -100,7 +100,6 @@ functor MkLambda (include GENERIC_EXTRA
    val out : t -> t f
 
    val f : 't Rep.t -> 't f Rep.t
-   val t' : t Rep.t UnOp.t
    val t : t Rep.t
 end = struct
    (* <--- SML/NJ workaround *)
@@ -134,8 +133,6 @@ end = struct
    local
       val cIN = C "IN"
    in
-      fun t' t = iso (data (C1 cIN (f t))) (out, IN)
+      val t = Tie.fix Y (fn t => iso (data (C1 cIN (f t))) (out, IN))
    end
-
-   val t = Tie.fix Y t'
 end

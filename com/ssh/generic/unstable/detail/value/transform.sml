@@ -41,7 +41,7 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
 
    open TransformRep.This
 
-   fun makeTransform a2a t t2u =
+   fun makeTransform t2u t a2a =
        case getT (t2u (mapT (const (IN (CUSTOM, lift a2a))) t))
         of IN (_, f) =>
            fn x => f (x, HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash})
