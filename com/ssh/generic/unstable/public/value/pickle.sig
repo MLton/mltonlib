@@ -118,6 +118,37 @@ signature PICKLE = sig
        * match during unpickling, the {TypeMismatch} exception is raised.
        *)
 
+      (** == Pickler Versioning ==
+       *
+       * For example:
+       *
+       *> val t = versioned (version 4 t4 fromV4)
+       *>                   (version 7 t7 fromV7)
+       *>                   $ 8 t8
+       *
+       * Above, type reps {t4} and {t7} are old versions that can still be
+       * unpickled.  Type rep {t8} is the current version, whose values
+       * can be pickled and unpickled.
+       *
+       * Version numbers must be non-negative integers.
+       *)
+
+      exception Version of Int.t
+      (** Raised in case unpickling encounters an unsupported version. *)
+
+      type 'a v
+      (** Version fold state type. *)
+
+      val versioned :
+          (('a v, 'a v, Int.t -> ('a, 'x) PickleRep.t UnOp.t) Fold.t, 'k) CPS.t
+      (** Starts a fold to update a type rep to contain a versioned pickler. *)
+
+      val version : Int.t ->
+                    ('a, 'x) PickleRep.t ->
+                    ('a -> 'b) ->
+                    (('b v, 'c, 'd) Fold.t, ('b v, 'c, 'd) Fold.t, 'k) Fold.s
+      (** Adds a version. *)
+
       (** == Monadic Combinator Interface == *)
 
       structure P : MONAD and U : MONAD

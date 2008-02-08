@@ -501,6 +501,40 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                           else unpickler)
                        end}) t
          end
+
+         datatype 'a v = IN of Int.t -> 'a U.monad
+
+         exception Version of Int.t
+
+         fun check i = if i < 0 then raise Size else ()
+
+         fun version iOfT t fromT =
+             (check iOfT
+            ; case U.map fromT (#unpickler (getPU t))
+               of u => Fold.mapSt (fn IN other =>
+                                      IN (fn i => if i = iOfT
+                                                  then u
+                                                  else other i)))
+
+         fun versioned ? =
+             Fold.wrap
+                (IN (Exn.throw o Version),
+                 fn IN other => fn iOfT => fn t =>
+                    (check iOfT
+                   ; case getPU t
+                      of {pickler, unpickler} =>
+                         setPU {pickler = let
+                                   open P
+                                in
+                                   fn v => wr size iOfT >>= (fn () => pickler v)
+                                end,
+                                unpickler = let
+                                   open U
+                                in
+                                   rd size >>= (fn i =>
+                                   if i = iOfT then unpickler else other i)
+                                end}
+                               t)) ?
       end
 
       fun pickler aT =

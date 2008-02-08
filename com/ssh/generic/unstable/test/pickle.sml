@@ -61,9 +61,7 @@ in
               (* This test shows how pickles can be versioned and multiple
                * versions supported at the same time. *)
 
-              open Cvt Pickle
-
-              val puInt = getPU int
+              open Pickle
 
               (* First a plain old type rep for our data: *)
               val t1 = iso (record (R' "id" int
@@ -71,25 +69,10 @@ in
                            (fn {id = a, name = b} => a & b,
                             fn a & b => {id = a, name = b})
 
-              (* Then we customize it to store and check a version number: *)
-              val pu1 = getPU t1
-              val t =
-                  setPU {pickler = let
-                            open P
-                         in
-                            fn v =>
-                               #pickler puInt 1 >>= (fn () => #pickler pu1 v)
-                         end,
-                         unpickler = let
-                            open U
-                         in
-                            #unpickler puInt
-                             >>= (fn 1 => #unpickler pu1
-                                   | n => fails ["Bad ", D n])
-                         end}
-                        t1
+              (* Then we assign version {1} to the type: *)
+              val t = versioned $ 1 t1
 
-              val pickled = pickle t {id = 1, name = "whatever"}
+              val v1pickle = pickle t {id = 1, name = "whatever"}
 
               (* Then a plain old type rep for our new data: *)
               val t2 = iso (record (R' "id" int
@@ -98,35 +81,21 @@ in
                            (fn {id = a, extra = b, name = c} => a & b & c,
                             fn a & b & c => {id = a, extra = b, name = c})
 
-              (* Then we customize it to store a version number and dispatch
-               * based on it: *)
-              val pu2 = getPU t2
-              val t =
-                  setPU {pickler = let
-                            open P
-                         in
-                            fn v =>
-                               #pickler puInt 2 >>= (fn () => #pickler pu2 v)
-                         end,
-                         unpickler = let
-                            open U
-                            fun fromR1 {id, name} =
-                                {id = id, extra = false, name = name}
-                         in
-                            #unpickler puInt
-                             >>= (fn 1 => map fromR1 (#unpickler pu1)
-                                   | 2 => #unpickler pu2
-                                   | n => fails ["Bad ", D n])
-                         end}
-                        t2
-              (* Note that the original customized {t} is no longer
-               * needed.  In an actual program, you would have just edited
-               * the original definition instead of introducing a new one.
+              (* Then we assigning version {2} to the new type, keeping
+               * the version {1} for the old type: *)
+              val t = versioned (version 1 t1
+                                    (fn {id, name} =>
+                                        {id = id, extra = false, name = name}))
+                                $ 2 t2
+
+              (* Note that the original versioned {t} is no longer needed.
+               * In an actual program, you would have just edited the
+               * original definition instead of introducing a new one.
                * However, the old type rep is required if you wish to be
                * able to unpickle old versions. *)
            in
               thatEq t {expect = {id = 1, extra = false, name = "whatever"},
-                        actual = unpickle t pickled}
+                        actual = unpickle t v1pickle}
             ; thatEq t {expect = {id = 3, extra = true, name = "whenever"},
                         actual = unpickle t (pickle t {id = 3, extra = true,
                                                        name = "whenever"})}
