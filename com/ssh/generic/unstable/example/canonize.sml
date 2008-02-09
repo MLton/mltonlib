@@ -21,7 +21,7 @@ open Generic
  * The commented ellipsis in the definition of the term functor suggests
  * that one could add further variants to the term.  Doing so means that
  * the functor type representation would also need to be changed.
- * However, unless new binding or variable reference forms are added,
+ * However, unless new binding or variable reference variants are added,
  * other definitions would not need to be changed. *)
 structure Lambda = struct
    (* Identifier representation: *)
@@ -60,7 +60,7 @@ structure Lambda = struct
                INR ? => APP ?  |
                INL ? => FUN ?)
    (* Note that the term isomorphism is written in a pattern whose
-    * complexity is a linear in the number of variants in the term. *)
+    * complexity is linear in the number of variants. *)
 
    (* A fixed point of the term functor: *)
    datatype t = IN of t f

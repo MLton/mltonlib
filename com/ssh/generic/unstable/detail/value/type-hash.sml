@@ -5,10 +5,6 @@
  *)
 
 functor WithTypeHash (Arg : WITH_TYPE_HASH_DOM) : TYPE_HASH_CASES = struct
-   (* <-- SML/NJ workaround *)
-   open TopLevel
-   (* SML/NJ workaround --> *)
-
    structure W = Word32
 
    fun unary c h : W.t = h * 0w19 + c

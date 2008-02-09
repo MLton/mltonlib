@@ -23,7 +23,8 @@ functor WithDataRecInfo (Arg : WITH_DATA_REC_INFO_DOM) : DATA_REC_INFO_CASES = s
       fun empty _ = true
       fun isEmpty isEmpty = isEmpty (fn _ => false)
       fun singleton x rem = rem x
-      fun union (isEmptyL, isEmptyR) rem = isEmptyL rem andalso isEmptyR rem
+      fun union (isEmptyL, isEmptyR) =
+       fn rem => isEmptyL rem andalso isEmptyR rem
       fun remIf p isEmpty rem = isEmpty (fn x => p x orelse rem x)
    end
 

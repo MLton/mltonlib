@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -81,8 +81,8 @@ in
                            (fn {id = a, extra = b, name = c} => a & b & c,
                             fn a & b & c => {id = a, extra = b, name = c})
 
-              (* Then we assigning version {2} to the new type, keeping
-               * the version {1} for the old type: *)
+              (* Then we assign version {2} to the new type, keeping the
+               * version {1} for the old type: *)
               val t = versioned (version 1 t1
                                     (fn {id, name} =>
                                         {id = id, extra = false, name = name}))
