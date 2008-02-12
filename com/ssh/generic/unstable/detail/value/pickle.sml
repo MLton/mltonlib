@@ -148,7 +148,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
 
       datatype 'a s =
          S of {rd : Int.t -> Int.t -> 'a I.monad,
-               wr : Int.t -> (Int.t -> Unit.t O.monad) -> 'a -> Unit.t O.monad,
+               wr : Int.t -> 'a -> Int.t * Unit.t O.monad UnOp.t,
                sz : OptInt.t}
 
       fun fake msg = P {rd = I.thunk (failing msg), wr = failing msg, sz = NONE}
@@ -568,7 +568,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
             val S {rd, wr, sz} = getS bS
          in
             S {rd = fn i0 => fn i => I.map b2a (rd i0 i),
-               wr = fn i0 => fn tagW => wr i0 tagW o a2b,
+               wr = fn i0 => wr i0 o a2b,
                sz = sz}
          end
 
@@ -600,18 +600,18 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                                   then I.map INL (lR i)
                                   else I.map INR (rR i)
                        end,
-               wr = fn l0 => Sum.sum o Pair.map (lW l0, rW (l0+lN)) o Sq.mk,
+               wr = fn l0 => Sum.sum (lW l0, rW (l0+lN)),
                sz = OptInt.+ (lS, rS)}
          end
          val unit = unit
          fun C0 _ = S {rd = const (const (I.return ())),
-                       wr = fn i0 => fn tagW => const (tagW i0),
+                       wr = fn i0 => const (i0, id),
                        sz = SOME 0}
          fun C1 _ aT = let
             val P {rd, wr, sz} = getT aT
          in
             S {rd = const (const rd),
-               wr = fn i0 => fn tagW => tagW i0 <\ O.>> o wr,
+               wr = fn i0 => fn v => (i0, fn t => O.>> (t, wr v)),
                sz = sz}
          end
          fun data aS = let
@@ -626,7 +626,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          in
             P {rd = rd tag >>= (fn i =>
                     if i < n then aR i else fail "Corrupted pickle"),
-               wr = aW 0 (wr tag),
+               wr = (fn (i, m) => m (wr tag i)) o aW 0,
                sz = let open OptInt in aS div SOME n + sz tag end}
          end
 
