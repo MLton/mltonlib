@@ -29,6 +29,7 @@ is
    ../../../detail/data/sq.sml
    ../../../detail/data/sum.sml
    ../../../detail/data/univ-exn.sml
+   ../../../detail/debug/contract.sml
    ../../../detail/fn/bin-fn.sml
    ../../../detail/fn/bin-op.sml
    ../../../detail/fn/bin-pr.sml

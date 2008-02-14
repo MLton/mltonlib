@@ -43,6 +43,7 @@ is
    ../../../public/data/unit.sig
    ../../../public/data/univ.sig
    ../../../public/data/void.sig
+   ../../../public/debug/contract.sig
    ../../../public/fn/bin-fn.sig
    ../../../public/fn/bin-op.sig
    ../../../public/fn/bin-pr.sig

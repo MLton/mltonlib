@@ -195,6 +195,10 @@ in
          public/control/exn.sig
          detail/control/exn.sml
 
+         (* Contract *)
+         public/debug/contract.sig
+         detail/debug/contract.sml
+
          (* Emb *)
          public/generic/emb.sig
          detail/generic/emb.sml
