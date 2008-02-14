@@ -23,6 +23,17 @@
  * holds either an int or a real.  {succ} then returns the value plus 1.
  * The type of the result of {succ} depends on the type of the argument.
  *
+ * Here is another example:
+ *
+ *> fun plus (a, b) =
+ *>     (match b o match a)
+ *>        (fn a => (fn b => inL (Int.+  (     a,      b)),
+ *>                  fn b => inR (Real.+ (real a,      b))),
+ *>         fn a => (fn b => inR (Real.+ (     a, real b)),
+ *>                  fn b => inR (Real.+ (     a,      b))))
+ *
+ * Try to figure out how it should be called and what does it do.
+ *
  * The design is mostly copied from Stephen Weeks.
  *
  * See also: [http://mlton.org/StaticSum]
@@ -33,8 +44,8 @@ signature STATIC_SUM = sig
    type ('dL, 'cL, 'dR, 'cR, 'c) t =
         ('dL, 'cL, 'dR, 'cR, 'c) dom -> ('dL, 'cL, 'dR, 'cR, 'c) cod
    (**
-    * The type of static sums.  In the type variables, 'd stands for
-    * domain and 'c for codomain.
+    * The type of static sums.  In the type variables, {'d} stands for
+    * domain and {'c} for codomain.
     *
     * The key difference between an ordinary sum type, like {(int, real)
     * Sum.t}, and a static sum type, like {(int, real, real, int, real)
@@ -87,14 +98,13 @@ signature STATIC_SUM = sig
     *> fun out s = match s (id, id)
     *)
 
-   val split : ('dL, ('dL,   'cLL1, 'dRL1, 'cRL1, 'cLL1) t *
-                     ('dL,   'cLL2, 'dRL2, 'cRL2, 'cLL2) t,
-                'dR, ('dLR1, 'cLR1,   'dR, 'cRR1, 'cRR1) t *
-                     ('dLR2, 'cLR2,   'dR, 'cRR2, 'cRR2) t,
-                ('dL1, 'cL1, 'dR1, 'cR1, 'c1) t *
-                ('dL2, 'cL2, 'dR2, 'cR2, 'c2) t) t ->
-               ('dL1, 'cL1, 'dR1, 'cR1, 'c1) t *
-               ('dL2, 'cL2, 'dR2, 'cR2, 'c2) t
+   val split :
+       ('dL, ('dL,   'cLL1, 'dRL1, 'cRL1, 'cLL1) t *
+             ('dL,   'cLL2, 'dRL2, 'cRL2, 'cLL2) t,
+        'dR, ('dLR1, 'cLR1,   'dR, 'cRR1, 'cRR1) t *
+             ('dLR2, 'cLR2,   'dR, 'cRR2, 'cRR2) t,
+        ('dL1, 'cL1, 'dR1, 'cR1, 'c1) t * ('dL2, 'cL2, 'dR2, 'cR2, 'c2) t) t ->
+       ('dL1, 'cL1, 'dR1, 'cR1, 'c1) t * ('dL2, 'cL2, 'dR2, 'cR2, 'c2) t
    (**
     * Splits a given static sum into two "branches" that can be assigned
     * types independently.  {split} satisfies the following laws:
@@ -104,8 +114,9 @@ signature STATIC_SUM = sig
     *
     * {split} is not primitive, it can be implemented as:
     *
-    *> fun split x = match x (fn x => (inL x, inL x),
-    *>                        fn x => (inR x, inR x))
+    *> fun split x =
+    *>     match x (fn x => (inL x, inL x),
+    *>              fn x => (inR x, inR x))
     *)
 
    val sum : ('dL -> 'cL) * ('dR -> 'cR) -> ('dL, 'cL, 'dR, 'cR, 'c) t -> 'c
