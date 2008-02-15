@@ -139,6 +139,6 @@ signature CONTRACT = sig
     *
     * The output from the example is:
     *
-    *> D1C1D2C2R2R1
+    *> D2C2D1C1R1R2
     *)
 end

@@ -22,5 +22,5 @@ structure Contract :> CONTRACT = struct
                 fn e as Caller _ => raise e
                  | e as Callee _ => raise e
                  | e             => raise Caller e)
-   val op andAlso = op o
+   fun op andAlso (a, b) = b o a
 end
