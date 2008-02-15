@@ -7,11 +7,10 @@
 structure Contract :> CONTRACT = struct
    type 'a t = 'a UnOp.t
    exception Contract
-   exception Caller of Exn.t
-   exception Callee of Exn.t
+   exception Caller of Exn.t and Callee of Exn.t
    val assert = Fn.id
-   val T = Fn.id
-   fun F _ = raise Contract
+   val any = Fn.id
+   fun none _ = raise Contract
    val ef = Effect.obs
    fun pr pr x = if pr x then x else raise Contract
    fun op --> (d, c) f x =
