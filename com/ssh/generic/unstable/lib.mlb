@@ -92,6 +92,9 @@ in
          public/value/fmap.sig
          detail/value/fmap.sml
 
+         public/value/uniplate.sig
+         detail/value/uniplate.sml
+
          public/value/ord.sig
          detail/value/ord.sml
 

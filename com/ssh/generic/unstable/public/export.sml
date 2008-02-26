@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -203,3 +203,8 @@ signature TYPE_HASH = TYPE_HASH and TYPE_HASH_CASES = TYPE_HASH_CASES
       and WITH_TYPE_HASH_DOM = WITH_TYPE_HASH_DOM
 functor WithTypeHash (Arg : WITH_TYPE_HASH_DOM) : TYPE_HASH_CASES =
    WithTypeHash (Arg)
+
+signature UNIPLATE = UNIPLATE and UNIPLATE_CASES = UNIPLATE_CASES
+      and WITH_UNIPLATE_DOM = WITH_UNIPLATE_DOM
+functor WithUniplate (Arg : WITH_UNIPLATE_DOM) : UNIPLATE_CASES =
+   WithUniplate (Arg)

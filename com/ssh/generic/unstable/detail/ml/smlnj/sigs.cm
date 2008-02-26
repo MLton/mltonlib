@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -42,6 +42,7 @@ group is
    ../../../public/value/type-exp.sig
    ../../../public/value/type-hash.sig
    ../../../public/value/type-info.sig
+   ../../../public/value/uniplate.sig
    ../../framework/generics.sml
    ../../framework/ty.sml
    ../../util/sml-syntax.sml
