@@ -50,7 +50,7 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
       fun C1 _ = getT
       val data = getS
 
-      val Y = Tie.function
+      fun Y ? = Tie.id (failing "degenerate type") ?
 
       fun op --> _ = fn () => failing "Some.-->"
       (* An alternative implementation would be
