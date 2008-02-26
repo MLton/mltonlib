@@ -20,6 +20,14 @@
 signature TYPE_INFO = sig
    structure TypeInfoRep : OPEN_REP
 
+   (** == Complete Types == *)
+
+   val isDegenerate : ('a, 'x) TypeInfoRep.t UnPr.t
+   (**
+    * Returns true iff the type {'a} is recursive and has no non-recursive
+    * variants.  This means that values of the type cannot be created.
+    *)
+
    (** == Sums == *)
 
    val hasBaseCase : ('a, 'x) TypeInfoRep.s UnPr.t

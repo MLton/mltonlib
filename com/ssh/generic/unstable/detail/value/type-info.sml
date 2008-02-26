@@ -26,8 +26,11 @@ functor WithTypeInfo (Arg : WITH_TYPE_INFO_DOM) : TYPE_INFO_CASES = struct
 
    open TypeInfoRep.This
 
+   fun outT (INT r) = r
    fun outS (INS r) = r
    fun outP (INP r) = r
+
+   fun isDegenerate ? = (not o #base o outT o getT) ?
 
    fun hasBaseCase  ? = (#base o outS o getS) ?
    fun numAlts      ? = (#alts o outS o getS) ?
