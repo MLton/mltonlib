@@ -26,7 +26,7 @@ signature TY = sig
    structure Con0 : sig
       datatype t = BOOL | CHAR | EXN | FIXED_INT | INT | LARGE_INT
                  | LARGE_REAL | LARGE_WORD | REAL | STRING | UNIT | WORD
-                 | WORD32 | WORD64 | WORD8
+                 | WORD32 (*| WORD64*) | WORD8
    end
 
    structure Con1 : sig
