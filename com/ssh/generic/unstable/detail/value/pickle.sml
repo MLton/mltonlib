@@ -361,8 +361,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                (P {rd = aR, wr = aW, ...}) =
           P {rd = let
                 open I
-             fun lp (0, es) = return (fromList (rev es))
-               | lp (n, es) = aR >>= (fn e => lp (n-1, e::es))
+                fun lp (0, es) = return (fromList (rev es))
+                  | lp (n, es) = aR >>= (fn e => lp (n-1, e::es))
              in
                 rd size >>= lp /> []
              end,
@@ -408,13 +408,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
                    (if 0w8 <= h2n (String.sub (s, 0)) then t else f) ^ s
                 end
       end
-      fun h2i h = let
-         val i = valOf (StringCvt.scanString (IntInf.scan StringCvt.HEX) h)
-      in
-         if 0w8 <= h2n (String.sub (h, 0))
-         then i - IntInf.<< (1, Word.fromInt (IntInf.log2 i + 1))
-         else i
-      end
+      fun h2i h =
+          case valOf (StringCvt.scanString (IntInf.scan StringCvt.HEX) h)
+           of i =>
+              if 0w8 <= h2n (String.sub (h, 0))
+              then i - IntInf.<< (1, Word.fromInt (IntInf.log2 i + 1))
+              else i
 
       val intInf =
           P {wr = let
@@ -564,13 +563,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
 
          fun isoProduct bP = iso' (getP bP)
 
-         fun isoSum bS (a2b, b2a) = let
-            val S {rd, wr, sz} = getS bS
-         in
-            S {rd = fn i0 => fn i => I.map b2a (rd i0 i),
-               wr = fn i0 => wr i0 o a2b,
-               sz = sz}
-         end
+         fun isoSum bS (a2b, b2a) =
+             case getS bS
+              of S {rd, wr, sz} =>
+                 S {rd = fn i0 => fn i => I.map b2a (rd i0 i),
+                    wr = fn i0 => wr i0 o a2b,
+                    sz = sz}
 
          fun lT *` rT = let
             val P {rd = lR, wr = lW, sz = lS} = getP lT
@@ -607,13 +605,12 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          fun C0 _ = S {rd = const (const (I.return ())),
                        wr = fn i0 => const (i0, id),
                        sz = SOME 0}
-         fun C1 _ aT = let
-            val P {rd, wr, sz} = getT aT
-         in
-            S {rd = const (const rd),
-               wr = fn i0 => fn v => (i0, fn t => O.>> (t, wr v)),
-               sz = sz}
-         end
+         fun C1 _ aT =
+             case getT aT
+              of P {rd, wr, sz} =>
+                 S {rd = const (const rd),
+                    wr = fn i0 => fn v => (i0, fn t => O.>> (t, wr v)),
+                    sz = sz}
          fun data aS = let
             val n = Arg.numAlts aS
             val tag =
