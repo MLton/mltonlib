@@ -18,13 +18,14 @@ structure Tie :> TIE = struct
    in
       (b2a b, Fn.map iso fB)
    end
-   fun op *` (aT, bT) () () = let
+   fun product (aT, a2bT) () () = let
       val (a, fA) = aT () ()
-      val (b, fB) = bT () ()
+      val (b, fB) = a2bT a () ()
    in
       (a & b, Product.map (fA, fB))
    end
    (* The rest are not primitive operations. *)
+   fun op *` (aT, bT) = product (aT, Fn.const bT)
    fun tuple2 ab = iso (op *` ab) Product.isoTuple2
    fun tier th = pure ((fn (a, ua) => (a, Fn.const a o ua)) o th)
    fun id x = pure (Fn.const (x, Fn.id))

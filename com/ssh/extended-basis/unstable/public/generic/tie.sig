@@ -66,11 +66,16 @@ signature TIE = sig
     * a witness.
     *)
 
-   val *` : 'a t * 'b t -> ('a, 'b) Product.t t
+   val product : 'a t * ('a -> 'b t) -> ('a, 'b) Product.t t
    (**
-    * Given witnesses for {'a} and {'b} produces a witness for the product
-    * {('a, 'b) Product.t}.  This is used when mutual recursion is needed.
+    * Dependent product combinator.  Given a witness for {'a} and a
+    * constructor from a {'a} to witness for {'b}, produces a witness for
+    * the product {('a, 'b) Product.t}.  The constructor for {'b} should
+    * not access the (proxy) value {'a} before it has been fixed.
     *)
+
+   val *` : 'a t * 'b t -> ('a, 'b) Product.t t
+   (** {a *` b} is equivalent to {product (a, const b)}. *)
 
    val tuple2 : 'a t * 'b t -> ('a * 'b) t
    (**
