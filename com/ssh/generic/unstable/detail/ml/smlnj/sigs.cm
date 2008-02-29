@@ -26,6 +26,7 @@ group is
    ../../../public/value/arbitrary.sig
    ../../../public/value/data-rec-info.sig
    ../../../public/value/dynamic.sig
+   ../../../public/value/enum.sig
    ../../../public/value/eq.sig
    ../../../public/value/fmap.sig
    ../../../public/value/hash.sig

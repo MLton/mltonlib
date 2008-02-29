@@ -28,6 +28,7 @@ is
    ../../value/data-rec-info.sml
    ../../value/debug.sml
    ../../value/dynamic.sml
+   ../../value/enum.sml
    ../../value/eq.sml
    ../../value/fmap.sml
    ../../value/hash.sml

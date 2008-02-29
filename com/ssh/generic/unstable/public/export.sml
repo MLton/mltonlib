@@ -144,6 +144,10 @@ signature DYNAMIC = DYNAMIC and DYNAMIC_CASES = DYNAMIC_CASES
       and WITH_DYNAMIC_DOM = WITH_DYNAMIC_DOM
 functor WithDynamic (Arg : WITH_DYNAMIC_DOM) : DYNAMIC_CASES = WithDynamic (Arg)
 
+signature ENUM = ENUM and ENUM_CASES = ENUM_CASES
+      and WITH_ENUM_DOM = WITH_ENUM_DOM
+functor WithEnum (Arg : WITH_ENUM_DOM) : ENUM_CASES = WithEnum (Arg)
+
 signature EQ = EQ and EQ_CASES = EQ_CASES and WITH_EQ_DOM = WITH_EQ_DOM
 functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = WithEq (Arg)
 
