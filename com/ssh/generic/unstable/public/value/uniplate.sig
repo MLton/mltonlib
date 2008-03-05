@@ -15,7 +15,8 @@
  *
  *   Uniform Boilerplate and List Processing
  *   Neil Mitchell and Colin Runciman
- *   ICFP 2007
+ *   Haskell'07, September 30, 2007, Freiburg, Germany
+ *   [http://www-users.cs.york.ac.uk/~ndm/uniplate/]
  *)
 signature UNIPLATE = sig
    structure UniplateRep : OPEN_REP
