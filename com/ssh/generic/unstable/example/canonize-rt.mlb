@@ -25,7 +25,7 @@ local
       "sequenceNonUnit warn"
       "warnUnused true"
    in
-      canonize.sml
+      canonize-rt.sml
    end
 in
 end
