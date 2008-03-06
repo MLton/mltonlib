@@ -21,6 +21,20 @@
 signature UNIPLATE = sig
    structure UniplateRep : OPEN_REP
 
+   val uniplate : ('a, 'x) UniplateRep.t -> 'a -> 'a List.t * ('a List.t -> 'a)
+   (**
+    * Returns a list of all maximal proper substructures (children) of the
+    * same type contained in the given value and a function, dubbed
+    * context, to replace the substructures.  At immutable contexts, a new
+    * value is built.  At mutable contexts, the objects are mutated.  The
+    * number of elements in the list given to context must be equal to the
+    * number of maximal proper substructure returned.  All functions
+    * specified in the {UNIPLATE} signature can be defined in terms of
+    * {uniplate}.
+    *)
+
+   (** == Queries == *)
+
    val children : ('a, 'x) UniplateRep.t -> 'a -> 'a List.t
    (**
     * Returns all maximal proper substructures of the same type contained
@@ -33,34 +47,37 @@ signature UNIPLATE = sig
     * the given value (including it).  This is recursive.
     *)
 
-   val holes : ('a, 'x) UniplateRep.t -> 'a -> ('a * 'a UnOp.t) List.t
+   val holesC : ('a, 'x) UniplateRep.t -> 'a -> ('a * 'a UnOp.t) List.t
    (**
     * Returns a list of all maximal proper substructures of the given
     * value and functions to replace the corresponding substructure in the
     * given value.
     *
-    *> map op </ (holes t x) = children t x
+    *> map op </ (holesC t x) = children t x
     *)
 
-   val contexts : ('a, 'x) UniplateRep.t -> 'a -> ('a * 'a UnOp.t) List.t
+   val holesU : ('a, 'x) UniplateRep.t -> 'a -> ('a * 'a UnOp.t) List.t
    (**
     * Returns a list of all substructures of the given value and functions
     * to replace the corresponding substructure in the given value.
     *
-    *> map op </ (contexts t x) = universe t x
+    *> map op </ (holesU t x) = universe t x
     *)
 
-   val descend : ('a, 'x) UniplateRep.t -> 'a UnOp.t UnOp.t
+   (** == Transforms == *)
+
+   val transformC : ('a, 'x) UniplateRep.t -> 'a UnOp.t UnOp.t
    (**
-    * Replaces each maximal proper substructure {x} by {f x} in the given
-    * value.  This is non-recursive.
+    * Replaces each child {x} of the given value by {f x} in the given
+    * value.
     *)
 
-   val para : ('a, 'x) UniplateRep.t -> ('a -> 'b List.t -> 'b) -> 'a -> 'b
+   val transformU : ('a, 'x) UniplateRep.t -> 'a UnOp.t UnOp.t
    (**
-    * A kind of fold.  {para} can be defined as follows:
+    * Recursive bottom-up transformation.  {transform} can be defined as
+    * follows:
     *
-    *> fun para t f x = f x (map (para t f) (children t x))
+    *> fun transformU t f x = f (transformC t (transformU t f) x)
     *)
 
    val rewrite : ('a, 'x) UniplateRep.t -> ('a -> 'a Option.t) -> 'a UnOp.t
@@ -75,24 +92,45 @@ signature UNIPLATE = sig
     *>                            | SOME x => rewrite t f x)
     *)
 
-   val transform : ('a, 'x) UniplateRep.t -> 'a UnOp.t UnOp.t
+   (** == Folds == *)
+
+   val foldC : ('a, 'x) UniplateRep.t -> ('a * 'b -> 'b) -> 'b -> 'a -> 'b
    (**
-    * Recursive bottom-up transformation.  {transform} can be defined as
-    * follows:
+    * Fold over the children.  {foldC} can be defined as follows:
     *
-    *> fun transform t f x = f (descend t (transform t f) x)
+    *> fun foldC f s = foldl f s o children t
     *)
 
-   val uniplate : ('a, 'x) UniplateRep.t -> 'a -> 'a List.t * ('a List.t -> 'a)
+   val foldU : ('a, 'x) UniplateRep.t -> ('a * 'b -> 'b) -> 'b -> 'a -> 'b
    (**
-    * Returns a list of all maximal proper substructures (children) of the
-    * same type contained in the given value and a function, dubbed
-    * context, to replace the substructures.  At immutable contexts, a new
-    * value is built.  At mutable contexts, the objects are mutated.  The
-    * number of elements in the list given to context must be equal to the
-    * number of maximal proper substructure returned.  All functions
-    * specified in the {UNIPLATE} signature can be defined in terms of
-    * {uniplate}.
+    * Fold over the universe.  {foldU} can be defined as follows:
+    *
+    *> fun foldU f s = foldl f s o universe t
+    *)
+
+   val reduceC : ('a, 'x) UniplateRep.t -> 'b -> 'b BinOp.t -> ('a -> 'b) UnOp.t
+   (**
+    * Reduce children with a binary operation.  {reduceC} can be defined
+    * as follows:
+    *
+    *> fun reduceC t zero op + one =
+    *>     foldC t (fn (x, sum) => one x + sum) zero
+    *)
+
+   val reduceU : ('a, 'x) UniplateRep.t -> 'b -> 'b BinOp.t -> ('a -> 'b) UnOp.t
+   (**
+    * Reduce universe with a binary operation.  {reduceU} can be defined
+    * as follows:
+    *
+    *> fun reduceU t zero op + one =
+    *>     foldU t (fn (x, sum) => one x + sum) zero
+    *)
+
+   val para : ('a, 'x) UniplateRep.t -> ('a -> 'b List.t -> 'b) -> 'a -> 'b
+   (**
+    * A kind of fold.  {para} can be defined as follows:
+    *
+    *> fun para t f x = f x (map (para t f) (children t x))
     *)
 end
 

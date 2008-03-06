@@ -81,34 +81,44 @@ functor WithUniplate (Arg : WITH_UNIPLATE_DOM) : UNIPLATE_CASES = struct
                      fn xs => #1 (ko ((r, newMap ()), map to xs, x))))
 
    fun children t = #1 o uniplate' t
-   fun holes t =
+
+   fun holesC t =
        (fn (k, c) => let
               fun lp hs ys =
-               fn []    => hs
+               fn []    => rev hs
                 | x::xs =>
                   lp ((x, fn x => c (List.revAppend (ys, x::xs)))::hs) (x::ys) xs
            in
               lp [] [] k
            end) o
        uniplate' t
-   fun contexts t x = let
+   fun holesU t x = let
       fun lp (x, f, ys) =
           foldl (fn ((x, c), ys) => lp (x, f o c, ys))
                 ((x, f)::ys)
-                (holes t x)
+                (holesC t x)
    in
       rev (lp (x, id, []))
    end
-   fun para t f x = f x (map (para t f) (children t x))
-   fun descend t f = (fn (k, c) => c (map f k)) o uniplate' t
-   fun transform t f x = f (descend t (transform t f) x)
-   fun rewrite t f =
-       transform t (fn x => case f x of NONE => x | SOME x => rewrite t f x)
-   fun universe t x = let
-      fun lp (x, ys) = foldl lp (x::ys) (children t x)
+
+   fun foldC t f s = foldl f s o children t
+   fun foldU t f s x = foldC t (fn (x, s) => foldU t f s x) (f (x, s)) x
+
+   local
+      fun mk fold t zero op + one = fold t (fn (x, sum) => one x + sum) zero
    in
-      rev (lp (x, []))
+      fun reduceC ? = mk foldC ?
+      fun reduceU ? = mk foldU ?
    end
+
+   fun transformC t f = (fn (k, c) => c (map f k)) o uniplate' t
+   fun transformU t f x = f (transformC t (transformU t f) x)
+
+   fun para t f x = f x (map (para t f) (children t x))
+
+   fun rewrite t f =
+       transformU t (fn x => case f x of NONE => x | SOME x => rewrite t f x)
+   fun universe t = rev o foldU t op :: []
 
    fun uniplate t =
        (fn (children, context) =>
