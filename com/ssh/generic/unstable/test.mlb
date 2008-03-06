@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -20,6 +20,7 @@ in
       with/type-info.sml
       with/type-hash.sml
       with/hash.sml
+      with/uniplate.sml
       with/pretty.sml
       with/eq.sml
       with/some.sml
@@ -47,5 +48,6 @@ in
       test/reduce.sml
       test/some.sml
       test/transform.sml
+      test/uniplate.sml
    end
 end

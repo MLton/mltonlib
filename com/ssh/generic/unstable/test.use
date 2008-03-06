@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 Vesa Karvonen
+(* Copyright (C) 2007-2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -13,6 +13,7 @@ lib ["${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
      "with/type-info.sml",
      "with/type-hash.sml",
      "with/hash.sml",
+     "with/uniplate.sml",
      "with/pretty.sml",
      "with/eq.sml",
      "with/some.sml",
@@ -36,4 +37,5 @@ lib ["${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
      "test/read.sml",
      "test/reduce.sml",
      "test/some.sml",
-     "test/transform.sml"] ;
+     "test/transform.sml",
+     "test/uniplate.sml"] ;

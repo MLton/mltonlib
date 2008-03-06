@@ -15,7 +15,6 @@ functor MkGeneric (Arg : Generic) : Generic = Arg
 
 structure Generic = RootGeneric
 
-
 signature Generic = sig
    include Generic TYPE_INFO
 end
@@ -29,7 +28,6 @@ end
 structure Generic =
    MkGeneric (structure Open = WithTypeInfo (Generic)
               open Generic Open)
-
 
 signature Generic = sig
    include Generic TYPE_HASH
@@ -45,7 +43,6 @@ structure Generic =
    MkGeneric (structure Open = WithTypeHash (Generic)
               open Generic Open)
 
-
 signature Generic = sig
    include Generic HASH
 end
@@ -60,6 +57,19 @@ structure Generic =
    MkGeneric (structure Open = WithHash (Generic)
               open Generic Open)
 
+signature Generic = sig
+   include Generic UNIPLATE
+end
+
+functor MkGeneric (Arg : Generic) = struct
+   structure Open = MkGeneric (Arg)
+   open Arg Open
+   structure UniplateRep = Open.Rep
+end
+
+structure Generic =
+   MkGeneric (structure Open = WithUniplate (Generic)
+              open Generic Open)
 
 signature Generic = sig
    include Generic PRETTY
@@ -75,7 +85,6 @@ structure Generic =
    MkGeneric (structure Open = WithPretty (Generic)
               open Generic Open)
 
-
 signature Generic = sig
    include Generic EQ
 end
@@ -89,7 +98,6 @@ end
 structure Generic =
    MkGeneric (structure Open = WithEq (Generic)
               open Generic Open)
-
 
 signature Generic = sig
    include Generic SOME
@@ -105,7 +113,6 @@ structure Generic =
    MkGeneric (structure Open = WithSome (Generic)
               open Generic Open)
 
-
 signature Generic = sig
    include Generic PICKLE
 end
@@ -119,7 +126,6 @@ end
 structure Generic =
    MkGeneric (structure Open = WithPickle (Generic)
               open Generic Open)
-
 
 signature Generic = sig
    include Generic SEQ
@@ -150,7 +156,6 @@ structure Generic =
    MkGeneric (structure Open = WithRead (Generic)
               open Generic Open)
 
-
 signature Generic = sig
    include Generic REDUCE
 end
@@ -165,7 +170,6 @@ structure Generic =
    MkGeneric (structure Open = WithReduce (Generic)
               open Generic Open)
 
-
 signature Generic = sig
    include Generic TRANSFORM
 end
@@ -179,7 +183,6 @@ end
 structure Generic =
    MkGeneric (structure Open = WithTransform (Generic)
               open Generic Open)
-
 
 signature Generic = sig
    include Generic FMAP
@@ -211,7 +214,6 @@ structure Generic =
                                 structure RandomGen = RanQD1Gen)
               open Generic Open)
 
-
 signature Generic = sig
    include Generic SIZE
 end
@@ -226,7 +228,6 @@ structure Generic =
    MkGeneric (structure Open = WithSize (Generic)
               open Generic Open)
 
-
 signature Generic = sig
    include Generic ORD
 end
@@ -240,7 +241,6 @@ end
 structure Generic =
    MkGeneric (structure Open = WithOrd (Generic)
               open Generic Open)
-
 
 signature Generic = sig
    include Generic SHRINK
