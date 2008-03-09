@@ -101,7 +101,7 @@ in
                                                        name = "whenever"})}
            end))
 
-          (title "Pickle.Format")
+          (title "Generic.Pickle.Format")
 
           (test (fn () => let
               (* The main purpose of this highly ad hoc test is to help
