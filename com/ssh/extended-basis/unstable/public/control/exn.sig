@@ -17,6 +17,9 @@ signature EXN = sig
    val eval : 'a Thunk.t -> (t, 'a) Sum.t
    (** Evaluate a thunk ({eval th = INR (th ()) handle e => INL e}). *)
 
+   val reflect : (t, 'a) Sum.t -> 'a
+   (** {reflect} is equivalent to {sum (throw, id)}. *)
+
    val after : 'a Thunk.t * Unit.t Effect.t -> 'a
    (** {after (th, ef) = try (th, past ef, throw o past ef)}. *)
 

@@ -11,10 +11,9 @@ structure Lazy :> LAZY = struct
    fun lazy th = ref (ref (LAZY th))
    fun eager x = ref (ref (EAGER (Sum.INR x)))
    fun delay th = lazy (ref o ref o EAGER o (fn () => Exn.eval th))
-   fun replay s = Sum.sum (Exn.throw, Fn.id) s
    fun force promise =
        case !(!promise) of
-          EAGER x => replay x
+          EAGER x => Exn.reflect x
         | LAZY th =>
           Exn.try (th,
                    fn promise' =>
@@ -22,7 +21,7 @@ structure Lazy :> LAZY = struct
                          LAZY _ => (!promise := !(!promise')
                                   ; promise := !promise'
                                   ; force promise)
-                       | EAGER x => replay x,
+                       | EAGER x => Exn.reflect x,
                    fn e =>
                       (!promise := EAGER (Sum.INL e) (* XXX *)
                      ; raise e))
