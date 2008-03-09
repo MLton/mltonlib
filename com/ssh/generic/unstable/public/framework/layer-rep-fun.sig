@@ -11,7 +11,17 @@ signature LAYER_REP_DOM = sig
    structure Open : sig
       structure Rep : OPEN_REP
    end
-   structure Rep : CLOSED_REP
+   include CLOSED_REP
+end
+
+(**
+ * Signature for the domain of the {LayerRep'} functor.
+ *)
+signature LAYER_REP_DOM' = sig
+   structure Open : sig
+      structure Rep : OPEN_REP
+   end
+   type 'a t (** Type of representations. *)
 end
 
 (**

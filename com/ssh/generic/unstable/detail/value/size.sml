@@ -55,9 +55,7 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
     fn STATIC s   => const (STATIC s)
      | DYNAMIC bS => fn (a2b, _) => DYNAMIC (bS o Pair.map (id, a2b))
 
-   structure SizeRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = 'a t))
+   structure SizeRep = LayerRep' (open Arg type 'a t = 'a t)
 
    open SizeRep.This
 

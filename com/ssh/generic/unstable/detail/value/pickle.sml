@@ -462,9 +462,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
 
       structure PickleRep = LayerRep
         (open Arg
-         structure Rep = struct
-            type 'a t = 'a t and 'a s = 'a s and ('a, 'k) p = 'a t
-         end)
+         type 'a t = 'a t and 'a s = 'a s and ('a, 'k) p = 'a t)
 
       open PickleRep.This
 

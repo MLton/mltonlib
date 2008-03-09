@@ -12,9 +12,7 @@ functor WithSome (Arg : WITH_SOME_DOM) : SOME_CASES = struct
 
    fun iso' b (_, b2a) = b2a o b
 
-   structure SomeRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (Thunk))
+   structure SomeRep = LayerRep' (open Arg Thunk)
 
    open SomeRep.This
 

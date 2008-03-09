@@ -50,9 +50,7 @@ functor WithFmap (Arg : WITH_FMAP_DOM) = let
 
       val op <--> = Iso.<-->
 
-      structure FmapRep = LayerRep
-        (open Arg
-         structure Rep = MkClosedRep (type 'a t = 'a FmapAux.i))
+      structure FmapRep = LayerRep' (open Arg type 'a t = 'a FmapAux.i)
 
       structure Fmap = struct
          open FmapAux

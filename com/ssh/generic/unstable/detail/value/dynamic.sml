@@ -44,9 +44,7 @@ functor WithDynamic (Arg : WITH_DYNAMIC_DOM) = let
 
       fun isoUnsupported text = (failing text, failing text)
 
-      structure DynamicRep = LayerRep
-        (open Arg
-         structure Rep = MkClosedRep (type 'a t = ('a, t) Iso.t))
+      structure DynamicRep = LayerRep' (open Arg type 'a t = ('a, t) Iso.t)
 
       open DynamicRep.This
 

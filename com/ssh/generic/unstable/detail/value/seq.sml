@@ -59,9 +59,7 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
     fn Ops.R {isoBits = SOME isoBits, ...} => iso' (lift op =) isoBits
      | Ops.R {toBytes, ...} => iso' (lift op =) (toBytes, undefined)
 
-   structure SeqRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = 'a t))
+   structure SeqRep = LayerRep' (open Arg type 'a t = 'a t)
 
    open SeqRep.This
 

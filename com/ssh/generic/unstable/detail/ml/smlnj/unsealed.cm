@@ -18,7 +18,6 @@ is
    ../../extra/with-extra.fun
    ../../framework/close-generic.fun
    ../../framework/layer-generic.fun
-   ../../framework/mk-closed-rep.fun
    ../../framework/root-generic.sml
    ../../util/generics-util.sml
    ../../util/hash-univ.sml

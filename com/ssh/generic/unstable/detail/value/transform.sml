@@ -35,9 +35,7 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
 
    fun iso' bX (a2b, b2a) = un (Fn.map (Pair.map (a2b, id), b2a)) bX
 
-   structure TransformRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = 'a t))
+   structure TransformRep = LayerRep' (open Arg type 'a t = 'a t)
 
    open TransformRep.This
 

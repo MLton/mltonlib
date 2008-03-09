@@ -48,7 +48,6 @@ in
 
          (* Framework *)
 
-         detail/framework/mk-closed-rep.fun
          detail/framework/root-generic.sml
          detail/framework/close-generic.fun
          public/framework/layered-rep.sig

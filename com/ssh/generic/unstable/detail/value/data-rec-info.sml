@@ -41,11 +41,7 @@ functor WithDataRecInfo (Arg : WITH_DATA_REC_INFO_DOM) : DATA_REC_INFO_CASES = s
 
    structure DataRecInfoRep = LayerRep
      (open Arg
-      structure Rep = struct
-         type  'a      t = t
-         type  'a      s = s
-         type ('a, 'k) p = p
-      end)
+      type 'a t = t and 'a s = s and ('a, 'k) p = p)
 
    open DataRecInfoRep.This
 

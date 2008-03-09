@@ -26,9 +26,7 @@ functor WithReduce (Arg : WITH_REDUCE_DOM) : REDUCE_CASES = struct
 
    val default = IN (fn (z, _, _) => z)
 
-   structure ReduceRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = 'a t))
+   structure ReduceRep = LayerRep' (open Arg type 'a t = 'a t)
 
    open ReduceRep.This
 

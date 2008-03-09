@@ -49,9 +49,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
 
    val exns : (Exn.t * p -> Word.t Option.t) Buffer.t = Buffer.new ()
 
-   structure HashRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = 'a t))
+   structure HashRep = LayerRep' (open Arg type 'a t = 'a t)
 
    open HashRep.This
 

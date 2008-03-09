@@ -240,9 +240,7 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
 
       structure PrettyRep = LayerRep
         (open Arg
-         structure Rep = struct
-            type 'a t = 'a t and 'a s = 'a t and ('a, 'k) p = 'a p
-         end)
+         type 'a t = 'a t and 'a s = 'a t and ('a, 'k) p = 'a p)
 
       open PrettyRep.This
 

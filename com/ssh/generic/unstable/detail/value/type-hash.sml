@@ -10,9 +10,7 @@ functor WithTypeHash (Arg : WITH_TYPE_HASH_DOM) : TYPE_HASH_CASES = struct
    fun unary c h : W.t = h * 0w19 + c
    fun binary c (l, r) : W.t = l * 0w13 + r * 0w17 + c
 
-   structure TypeHashRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = W.t))
+   structure TypeHashRep = LayerRep' (open Arg type 'a t = W.t)
 
    val typeHash = TypeHashRep.This.getT
 

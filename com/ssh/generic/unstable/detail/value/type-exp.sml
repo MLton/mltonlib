@@ -24,11 +24,9 @@ functor WithTypeExp (Arg : WITH_TYPE_EXP_DOM) = let
 
       structure TypeExpRep = LayerRep
         (open Arg
-         structure Rep = struct
-            type 'a t = TypeVar.t Ty.t
-             and 'a s = TypeVar.t Ty.t Sum.t
-             and ('a, 'k) p = (Label.t Option.t * TypeVar.t Ty.t) Product.t
-         end)
+         type  'a      t = TypeVar.t Ty.t
+         type  'a      s = TypeVar.t Ty.t Sum.t
+         type ('a, 'k) p = (Label.t Option.t * TypeVar.t Ty.t) Product.t)
 
       val ty = TypeExpRep.This.getT
 

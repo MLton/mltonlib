@@ -73,9 +73,7 @@ functor WithShrink (Arg : WITH_SHRINK_DOM) : SHRINK_CASES = struct
                           lp (0w0, [])
                        end}
 
-   structure ShrinkRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = 'a t))
+   structure ShrinkRep = LayerRep' (open Arg type 'a t = 'a t)
 
    open ShrinkRep.This
 

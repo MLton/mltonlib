@@ -18,11 +18,7 @@ functor WithTypeInfo (Arg : WITH_TYPE_INFO_DOM) : TYPE_INFO_CASES = struct
 
    structure TypeInfoRep = LayerRep
      (open Arg
-      structure Rep = struct
-         type  'a      t = t
-         type  'a      s = s
-         type ('a, 'k) p = p
-      end)
+      type 'a t = t and 'a s = s and ('a, 'k) p = p)
 
    open TypeInfoRep.This
 

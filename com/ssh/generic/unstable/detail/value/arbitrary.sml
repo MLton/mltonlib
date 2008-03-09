@@ -62,9 +62,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
       IN {gen = xsGen, cog = xsCog}
    end
 
-   structure ArbitraryRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = 'a t))
+   structure ArbitraryRep = LayerRep' (open Arg type 'a t = 'a t)
 
    open ArbitraryRep.This
 

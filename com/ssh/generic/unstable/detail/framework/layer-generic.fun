@@ -6,16 +6,16 @@
 
 functor LayerRep (Arg : LAYER_REP_DOM) :>
    LAYER_REP_COD
-      where type  'a      This.t =  'a      Arg.Rep.t
-      where type  'a      This.s =  'a      Arg.Rep.s
-      where type ('a, 'k) This.p = ('a, 'k) Arg.Rep.p
+      where type  'a      This.t =  'a      Arg.t
+      where type  'a      This.s =  'a      Arg.s
+      where type ('a, 'k) This.p = ('a, 'k) Arg.p
 
       where type ('a,     'x) Outer.t = ('a,     'x) Arg.Open.Rep.t
       where type ('a,     'x) Outer.s = ('a,     'x) Arg.Open.Rep.s
       where type ('a, 'k, 'x) Outer.p = ('a, 'k, 'x) Arg.Open.Rep.p =
 struct
    structure Outer = Arg.Open.Rep
-   structure Rep = Arg.Rep
+   structure Rep = Arg
    structure Inner = struct
       type ('a,     'x) t =  'a      Rep.t * 'x
       type ('a,     'x) s =  'a      Rep.s * 'x
@@ -50,6 +50,9 @@ struct
       val mkY = Tie.tuple2
    end
 end
+
+functor LayerRep' (Arg : LAYER_REP_DOM') =
+   LayerRep (open Arg type 'a s = 'a t type ('a, 'k) p = 'a t)
 
 functor LayerDepCases (Arg : LAYER_DEP_CASES_DOM) :>
    OPEN_CASES

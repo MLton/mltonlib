@@ -113,13 +113,11 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    structure ReadRep = LayerRep
      (open Arg
-      structure Rep = struct
-         type  'a      t = 'a t
-         type  'a      s = String.t -> 'a t Option.t
-         type ('a, 'k) p =
-              Int.t -> {fromLabel : 'k -> (Int.t * Univ.t t) Option.t,
-                        fromArray : Univ.t Option.t Array.t -> 'a}
-      end)
+      type  'a      t = 'a t
+      type  'a      s = String.t -> 'a t Option.t
+      type ('a, 'k) p =
+           Int.t -> {fromLabel : 'k -> (Int.t * Univ.t t) Option.t,
+                     fromArray : Univ.t Option.t Array.t -> 'a})
 
    open ReadRep.This
 

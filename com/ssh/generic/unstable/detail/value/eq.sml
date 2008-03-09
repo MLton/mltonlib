@@ -38,7 +38,7 @@ functor WithEq (Arg : WITH_EQ_DOM) : EQ_CASES = struct
                         | SOME l & SOME r => t (l, r)
                         | _               => false) exnHandler
 
-   structure EqRep = LayerRep (open Arg structure Rep = MkClosedRep (BinPr))
+   structure EqRep = LayerRep' (open Arg BinPr)
 
    open EqRep.This
 

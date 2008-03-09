@@ -64,9 +64,7 @@ functor WithUniplate (Arg : WITH_UNIPLATE_DOM) : UNIPLATE_CASES = struct
            fn (r, c, a) => ki (r, c, a2b a),
            fn (r, c, a) => Pair.map (b2a, id) (ko (r, c, a2b a)))
 
-   structure UniplateRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = 'a t))
+   structure UniplateRep = LayerRep' (open Arg type 'a t = 'a t)
 
    open UniplateRep.This
 

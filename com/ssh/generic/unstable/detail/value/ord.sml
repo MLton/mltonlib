@@ -64,9 +64,7 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
                 | NONE   & SOME _ => SOME LESS
                 | NONE   & NONE   => NONE)
 
-   structure OrdRep = LayerRep
-     (open Arg
-      structure Rep = MkClosedRep (type 'a t = 'a t))
+   structure OrdRep = LayerRep' (open Arg type 'a t = 'a t)
 
    open OrdRep.This
 

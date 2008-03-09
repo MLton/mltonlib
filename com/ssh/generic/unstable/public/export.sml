@@ -34,20 +34,34 @@ structure RootGeneric : CASES = RootGeneric
 
 (** == Framework Functors == *)
 
-functor MkClosedRep (type 'a t) : CLOSED_REP = MkClosedRep (type 'a t = 'a t)
-(** Makes a closed representation by replicating the given type. *)
+signature LAYER_REP_COD = LAYER_REP_COD
 
-signature LAYER_REP_DOM = LAYER_REP_DOM and LAYER_REP_COD = LAYER_REP_COD
+signature LAYER_REP_DOM = LAYER_REP_DOM
 functor LayerRep (Arg : LAYER_REP_DOM) :>
    LAYER_REP_COD
-      where type  'a      This.t =  'a      Arg.Rep.t
-      where type  'a      This.s =  'a      Arg.Rep.s
-      where type ('a, 'k) This.p = ('a, 'k) Arg.Rep.p
+      where type  'a      This.t =  'a      Arg.t
+      where type  'a      This.s =  'a      Arg.s
+      where type ('a, 'k) This.p = ('a, 'k) Arg.p
 
       where type ('a,     'x) Outer.t = ('a,     'x) Arg.Open.Rep.t
       where type ('a,     'x) Outer.s = ('a,     'x) Arg.Open.Rep.s
       where type ('a, 'k, 'x) Outer.p = ('a, 'k, 'x) Arg.Open.Rep.p =
    LayerRep (Arg)
+(**
+ * Creates a layered representation for {LayerCases} and {LayerDepCases}.
+ *)
+
+signature LAYER_REP_DOM' = LAYER_REP_DOM'
+functor LayerRep' (Arg : LAYER_REP_DOM') :>
+   LAYER_REP_COD
+      where type  'a      This.t = 'a Arg.t
+      where type  'a      This.s = 'a Arg.t
+      where type ('a, 'k) This.p = 'a Arg.t
+
+      where type ('a,     'x) Outer.t = ('a,     'x) Arg.Open.Rep.t
+      where type ('a,     'x) Outer.s = ('a,     'x) Arg.Open.Rep.s
+      where type ('a, 'k, 'x) Outer.p = ('a, 'k, 'x) Arg.Open.Rep.p =
+   LayerRep' (Arg)
 (**
  * Creates a layered representation for {LayerCases} and {LayerDepCases}.
  *)

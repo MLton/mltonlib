@@ -91,7 +91,7 @@ functor WithEnum (Arg : WITH_ENUM_DOM) = let
           interleave (iterateUnless (fn r => nextAfter (r,  posInf)) zero,
                       iterateUnless (fn r => nextAfter (r, ~posInf)) (~zero))
 
-      structure EnumRep = LayerRep (open Arg structure Rep = MkClosedRep (Enum))
+      structure EnumRep = LayerRep' (open Arg Enum)
 
       open EnumRep.This
 

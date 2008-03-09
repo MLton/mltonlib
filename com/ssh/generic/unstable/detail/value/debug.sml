@@ -32,11 +32,9 @@ functor WithDebug (Arg : CASES) : OPEN_CASES = struct
 
    structure DebugRep = LayerRep
      (open Arg
-      structure Rep = struct
-         type 'a t = Unit.t
-         type 'a s = String.t List.t
-         type ('a, 'k) p = String.t List.t
-      end)
+      type  'a      t = Unit.t
+      type  'a      s = String.t List.t
+      type ('a, 'k) p = String.t List.t)
 
    structure Layered = LayerCases
      (val iso        = const
