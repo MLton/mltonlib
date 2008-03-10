@@ -1,4 +1,4 @@
-(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -19,6 +19,14 @@ signature OPTION = sig
     * Returns {EQUAL} if given {(NONE,NONE)}; {GREATER} if given {(SOME _,
     * NONE)}; {LESS} if given {(NONE, SOME _)}; for {(SOME _, SOME _)} it
     * uses the provided comparison function.
+    *)
+
+   val option : (Unit.t -> 'b) * ('a -> 'b) -> 'a t -> 'b
+   (**
+    * Eliminate an option.
+    *
+    *> option (none, some) NONE     = none ()
+    *> option (none, some) (SOME x) = some x
     *)
 
    (** == Generic Programming == *)
