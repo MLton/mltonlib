@@ -82,6 +82,7 @@ structure BasisBinIO = BinIO
 structure BasisBool = Bool
 structure BasisByte = Byte
 structure BasisChar = Char
+structure BasisCharArray = CharArray
 structure BasisCharVector = CharVector
 structure BasisCommandLine = CommandLine
 structure BasisDate = Date

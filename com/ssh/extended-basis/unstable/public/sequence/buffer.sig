@@ -98,6 +98,15 @@ signature BUFFER = sig
     * equivalent to {String.implode (toList b)}.
     *)
 
+   val toCharArray : Char.t t -> CharArray.t
+   (** Returns the contents of a char buffer as a {CharArray}. *)
+
+   val toWord8Array : Word8.t t -> Word8Array.t
+   (** Returns the contents of a {Word8} buffer as a {Word8Array}. *)
+
+   val toWord8Vector : Word8.t t -> Word8Vector.t
+   (** Returns the contents of a {Word8} buffer as a {Word8Vector}. *)
+
    val toVector : 'a t -> 'a Vector.t
    (**
     * Returns the contents of the buffer as a vector.  {toVector b} is
