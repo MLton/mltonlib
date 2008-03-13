@@ -90,7 +90,7 @@ in
          detail/concept/mk-cstringable.fun
 
          (* Void *)
-         public/data/void.sig
+         public/typing/void.sig
 
          (* Fn *)
          public/fn/fn.sig

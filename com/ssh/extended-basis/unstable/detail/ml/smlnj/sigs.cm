@@ -42,7 +42,6 @@ is
    ../../../public/data/sum.sig
    ../../../public/data/unit.sig
    ../../../public/data/univ.sig
-   ../../../public/data/void.sig
    ../../../public/debug/contract.sig
    ../../../public/fn/bin-fn.sig
    ../../../public/fn/bin-op.sig
@@ -91,6 +90,7 @@ is
    ../../../public/time/time.sig
    ../../../public/typing/phantom.sig
    ../../../public/typing/static-sum.sig
+   ../../../public/typing/void.sig
    ../../fold/fold.sml
    ../../typing/static-sum.sml
    bootstrap.cm
