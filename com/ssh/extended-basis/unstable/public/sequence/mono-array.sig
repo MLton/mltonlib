@@ -8,7 +8,7 @@
 signature MONO_ARRAY = sig
    include BASIS_MONO_ARRAY
 
-   type t = array
+   type t sharing type t = array
    (** Convenience alias. *)
 
    (** == Constructors == *)

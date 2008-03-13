@@ -8,7 +8,7 @@
 signature MONO_VECTOR = sig
    include BASIS_MONO_VECTOR
 
-   type t = vector
+   type t sharing type t = vector
    (** Convenience alias. *)
 
    val empty : t Thunk.t

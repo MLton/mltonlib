@@ -8,6 +8,6 @@
 signature MONO_VECTOR_SLICE = sig
    include BASIS_MONO_VECTOR_SLICE
 
-   type t = slice
+   type t sharing type t = slice
    (** Convenience alias. *)
 end

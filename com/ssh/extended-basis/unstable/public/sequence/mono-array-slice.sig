@@ -8,6 +8,6 @@
 signature MONO_ARRAY_SLICE = sig
    include BASIS_MONO_ARRAY_SLICE
 
-   type t = slice
+   type t sharing type t = slice
    (** Convenience alias. *)
 end
