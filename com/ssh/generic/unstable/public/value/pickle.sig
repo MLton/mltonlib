@@ -12,8 +12,8 @@
  *> - val t = tuple2 (largeInt, list order) ;
  *> val t = - : (IntInf.t * Order.t List.t) Rep.t
  *> - val p = pickle t (31415926535897, [LESS, EQUAL, GREATER]) ;
- *> val p = "\^@\^F\2176$\151\146\^\\^@\^C\^@\^A\^B" : String.t
- *> - size p ;
+ *> val p = - : Word8Vector.t
+ *> - Word8Vector.length p ;
  *> val it = 13 : Int.t
  *> - val x = unpickle t p ;
  *> val x = (31415926535897, [LESS, EQUAL, GREATER]) : IntInf.t * Order.t List.t
@@ -175,19 +175,19 @@ signature PICKLE = sig
     * pickle in memory as a whole.
     *)
 
-   val pickler   : ('a, 'x) PickleRep.t -> (Char.t -> (Unit.t, 's) IOSMonad.t)
-                                        -> ('a     -> (Unit.t, 's) IOSMonad.t)
-   val unpickler : ('a, 'x) PickleRep.t -> (Char.t, 's) IOSMonad.t
-                                        -> ('a,     's) IOSMonad.t
+   val pickler   : ('a, 'x) PickleRep.t -> (Word8.t -> (Unit.t, 's) IOSMonad.t)
+                                        -> ('a      -> (Unit.t, 's) IOSMonad.t)
+   val unpickler : ('a, 'x) PickleRep.t -> (Word8.t, 's) IOSMonad.t
+                                        -> ('a,      's) IOSMonad.t
 
    (** == Simplified Interface ==
     *
     * The {pickle} and {unpickle} functions provide a simplified interface
-    * for pickling to strings and unpickling from strings.
+    * for pickling to and unpickling from {Word8Vector}s.
     *)
 
-   val pickle   : ('a, 'x) PickleRep.t -> 'a -> String.t
-   val unpickle : ('a, 'x) PickleRep.t -> String.t -> 'a
+   val pickle   : ('a, 'x) PickleRep.t -> 'a -> Word8Vector.t
+   val unpickle : ('a, 'x) PickleRep.t -> Word8Vector.t -> 'a
 end
 
 signature PICKLE_CASES = sig

@@ -32,13 +32,13 @@ end
 
 structure Istream :> sig
    include MONAD_CORE
-   val run : 'a monad -> (Char.t, 's) IOSMonad.t -> ('a, 's) IOSMonad.t
-   val read : Char.t monad
+   val run : 'a monad -> (Word8.t, 's) IOSMonad.t -> ('a, 's) IOSMonad.t
+   val read : Word8.t monad
 end = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
-   datatype t = T of {st : Univ.t, rd : (Char.t, Univ.t) IOSMonad.t}
+   datatype t = T of {st : Univ.t, rd : (Word8.t, Univ.t) IOSMonad.t}
    type 'a monad = ('a, t) IOSMonad.t
    open IOSMonad
    fun run f cM =
@@ -53,14 +53,14 @@ end
 
 structure Ostream :> sig
    include MONAD_CORE
-   val run : ('a -> Unit.t monad) -> (Char.t -> (Unit.t, 's) IOSMonad.t)
-                                  -> ('a     -> (Unit.t, 's) IOSMonad.t)
-   val write : Char.t -> Unit.t monad
+   val run : ('a -> Unit.t monad) -> (Word8.t -> (Unit.t, 's) IOSMonad.t)
+                                  -> ('a      -> (Unit.t, 's) IOSMonad.t)
+   val write : Word8.t -> Unit.t monad
 end = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    (* SML/NJ workaround --> *)
-   datatype t = T of {st : Univ.t, wr : Char.t -> (Unit.t, Univ.t) IOSMonad.t}
+   datatype t = T of {st : Univ.t, wr : Word8.t -> (Unit.t, Univ.t) IOSMonad.t}
    type 'a monad = ('a, t) IOSMonad.t
    open IOSMonad
    fun run f c2uM =
@@ -155,15 +155,14 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
 
       val op <--> = Iso.<-->
       val swap = Iso.swap
-      val word8Ichar = (Byte.byteToChar, Byte.charToByte)
 
       fun iso' (P {rd, wr, sz}) (a2b, b2a) =
           P {rd = I.map b2a rd, wr = wr o a2b, sz = sz}
 
       val unit = P {rd = I.return (), wr = O.return, sz = SOME 0}
-      val char = P {rd = I.read, wr = O.write, sz = SOME 1}
-      val word8 = iso' char word8Ichar
-      val intAs8 = iso' char (swap Char.isoInt)
+      val word8 = P {rd = I.read, wr = O.write, sz = SOME 1}
+      val char = iso' word8 (Byte.charToByte, Byte.byteToChar)
+      val intAs8 = iso' word8 (swap Word8.isoInt)
       val intAs0 = iso' unit (ignore, const 0)
 
       (* Pickles a positive int using a variable length encoding. *)
@@ -544,10 +543,10 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
 
       fun pickle t =
           case pickler t (IOSMonad.fromPutter (uncurry Buffer.push))
-           of aP => fn a => Buffer.toString o Pair.snd o aP a |< Buffer.new ()
+           of aP => fn a => Buffer.toWord8Vector o #2 o aP a |< Buffer.new ()
       fun unpickle t =
-          Pair.fst o unpickler t (IOSMonad.fromReader StringSequence.get) o
-          StringSequence.full
+          Pair.fst o unpickler t (IOSMonad.fromReader Word8VectorSequence.get) o
+          Word8VectorSequence.full
 
       structure Open = LayerDepCases
         (fun iso bT aIb = let

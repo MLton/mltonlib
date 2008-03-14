@@ -154,13 +154,14 @@ in
                         exn = Fail "message",
                         rest = NIL}]
            in
-              thatEq string {expect = "\^A<\249=\^A\^@\^A\^@\^B\^A\^@\^@z\^@\^C\
-                                      \U\240\^P\^C\166p\254\^DG\174\^T\^R\^@@\
-                                      \\158^)\203\^P\199\241?@\158^)\203\^P\199\
-                                      \\^A\192\^@\^Fstring\^@\^C\194\251\^A.\
-                                      \\239\190\173\222\^DL]%Q\^@\^B\^@\^A\^@\
-                                      \\^DFail\^@\amessage\^@",
-                             actual = pickle t x}
+              thatEq string
+                     {expect = "\^A<\249=\^A\^@\^A\^@\^B\^A\^@\^@z\^@\^C\
+                               \U\240\^P\^C\166p\254\^DG\174\^T\^R\^@@\
+                               \\158^)\203\^P\199\241?@\158^)\203\^P\199\
+                               \\^A\192\^@\^Fstring\^@\^C\194\251\^A.\
+                               \\239\190\173\222\^DL]%Q\^@\^B\^@\^A\^@\
+                               \\^DFail\^@\amessage\^@",
+                      actual = Byte.bytesToString (pickle t x)}
            end))
 
           $

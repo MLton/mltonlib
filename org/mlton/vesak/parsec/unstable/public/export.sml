@@ -8,11 +8,12 @@
 
 signature PARSEC = PARSEC
 signature SEQUENCE = SEQUENCE
-signature STRING_SEQUENCE = STRING_SEQUENCE
+signature VECTOR_SEQUENCE = VECTOR_SEQUENCE
 
 (** == Exported Structures == *)
 
-structure StringSequence : STRING_SEQUENCE = StringSequence
+structure StringSequence : VECTOR_SEQUENCE = StringSequence
+structure Word8VectorSequence : VECTOR_SEQUENCE = Word8VectorSequence
 
 (** == Exported Functors == *)
 

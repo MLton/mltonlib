@@ -134,7 +134,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    local
       fun error s = let
          val pos = StringSequence.pos s
-         val str = StringSequence.string s
+         val str = StringSequence.vector s
          val size = String.size str
          val begin = Int.max (0, pos - 5)
          val beyond = Int.min (pos + 5, size)
@@ -150,7 +150,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    in
       fun read t =
           (fn INR (x, s) =>
-              if StringSequence.pos s = size (StringSequence.string s)
+              if StringSequence.pos s = size (StringSequence.vector s)
               then x
               else error s
             | INL s => error s) o

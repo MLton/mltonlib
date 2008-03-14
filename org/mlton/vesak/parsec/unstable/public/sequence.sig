@@ -12,10 +12,10 @@ signature SEQUENCE = sig
    val get : (Elem.t, t) Reader.t
 end
 
-signature STRING_SEQUENCE = sig
+signature VECTOR_SEQUENCE = sig
    include SEQUENCE
-      where type Pos.t = Int.t
-      where type Elem.t = Char.t
-   val full : String.t -> t
-   val string : t -> String.t
+   structure ElemVector : MONO_VECTOR
+   sharing type Elem.t = ElemVector.elem
+   val full : ElemVector.t -> t
+   val vector : t -> ElemVector.t
 end

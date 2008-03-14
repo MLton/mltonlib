@@ -4,16 +4,25 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-structure StringSequence :> STRING_SEQUENCE = struct
+functor MkVectorSequence (ElemVector : MONO_VECTOR) :>
+   VECTOR_SEQUENCE
+      where type Pos.t = Int.t
+      where type ElemVector.elem = ElemVector.elem
+      where type ElemVector.t = ElemVector.t =
+struct
    structure Pos = Int
-   structure Elem = Char
-   type t = {pos : Pos.t, data : String.t}
+   structure Elem = struct type t = ElemVector.elem end
+   structure ElemVector = ElemVector
+   type t = {pos : Pos.t, data : ElemVector.t}
    fun full s : t = {pos = 0, data = s}
    val pos : t -> Pos.t = #pos
-   val string : t -> String.t = #data
+   val vector : t -> ElemVector.t = #data
    val get : (Elem.t, t) Reader.t =
     fn {pos, data} =>
-       if pos < size data
-       then SOME (String.sub (data, pos), {pos = pos+1, data = data})
+       if pos < ElemVector.length data
+       then SOME (ElemVector.sub (data, pos), {pos = pos+1, data = data})
        else NONE
 end
+
+structure StringSequence = MkVectorSequence (CharVector)
+structure Word8VectorSequence = MkVectorSequence (Word8Vector)
