@@ -144,7 +144,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
             end
       end
 
-      fun array _ = prim (fn _ => 0wx6D52A54D)
+      fun array _ = prim (fn a => 0wx6D52A54D * Word.fromInt (Array.length a))
       fun vector aT = sequ VectorOps.ops (getT aT)
 
       val char = prim (Word.fromInt o ord)
