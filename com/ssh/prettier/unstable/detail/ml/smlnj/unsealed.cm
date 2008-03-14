@@ -5,6 +5,6 @@
  *)
 
 group is
-  ../../prettier.sml
+  $MLTON_LIB/com/ssh/extended-basis/unstable/basis.cm
   ../../../public/prettier.sig
-  ../../../../../extended-basis/unstable/basis.cm
+  ../../prettier.sml

@@ -5,17 +5,17 @@
  *)
 
 group
-   library(../../extended-basis/unstable/basis.cm)
-   library(../../prettier/unstable/lib.cm)
-   library(../../random/unstable/lib.cm)
-   library(../../unit-test/unstable/lib.cm)
+   library($MLTON_LIB/com/ssh/extended-basis/unstable/basis.cm)
+   library($MLTON_LIB/com/ssh/prettier/unstable/lib.cm)
+   library($MLTON_LIB/com/ssh/random/unstable/lib.cm)
+   library($MLTON_LIB/com/ssh/unit-test/unstable/lib.cm)
    library(lib.cm)
    source(-)
 is
-   ../../extended-basis/unstable/basis.cm
-   ../../prettier/unstable/lib.cm
-   ../../random/unstable/lib.cm
-   ../../unit-test/unstable/lib.cm
+   $MLTON_LIB/com/ssh/extended-basis/unstable/basis.cm
+   $MLTON_LIB/com/ssh/prettier/unstable/lib.cm
+   $MLTON_LIB/com/ssh/random/unstable/lib.cm
+   $MLTON_LIB/com/ssh/unit-test/unstable/lib.cm
    lib.cm
    test/generic.sml
    test/utils.fun

@@ -5,7 +5,7 @@
  *)
 
 group is
-   ../../../../../../../org/mlton/vesak/ds/unstable/lib.cm
-   ../../../../../extended-basis/unstable/basis.cm
+   $MLTON_LIB/org/mlton/vesak/ds/unstable/lib.cm
+   $MLTON_LIB/com/ssh/extended-basis/unstable/basis.cm
    ../../../public/async.sig
    ../../async.sml

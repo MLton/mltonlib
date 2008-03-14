@@ -5,10 +5,10 @@
  *)
 
 group is
-   ../../../../../extended-basis/unstable/basis.cm
-   ../../../../../generic/unstable/lib.cm
-   ../../../../../prettier/unstable/lib.cm
-   ../../../../../random/unstable/lib.cm
+   $MLTON_LIB/com/ssh/extended-basis/unstable/basis.cm
+   $MLTON_LIB/com/ssh/generic/unstable/lib.cm
+   $MLTON_LIB/com/ssh/prettier/unstable/lib.cm
+   $MLTON_LIB/com/ssh/random/unstable/lib.cm
    ../../../public/mk-unit-test-fun.sig
    ../../../public/unit-test.sig
    ../../maybe.sml

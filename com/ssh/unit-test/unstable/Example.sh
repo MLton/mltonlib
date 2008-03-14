@@ -20,6 +20,9 @@ fi
 if which sml > /dev/null ; then 
     echo "Run example tests with SML/NJ..."
 
+    export CM_LOCAL_PATHCONFIG=generated/smlnj-pathconfig
+    echo "MLTON_LIB $(cd ../../../.. && pwd)" > $CM_LOCAL_PATHCONFIG
+
     eb=../../extended-basis/unstable
 
     if echo ''                                                   \

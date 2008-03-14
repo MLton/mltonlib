@@ -6,7 +6,7 @@
 
 group is
    $c/c.cm
-   ../../../../../extended-basis/unstable/basis.cm
+   $MLTON_LIB/com/ssh/extended-basis/unstable/basis.cm
    ../common/cast-real.sig
    cast-real.sml
    pack-real.sml

@@ -13,6 +13,9 @@ if ! which sml ; then
     exit 0
 fi
 
+export CM_LOCAL_PATHCONFIG=generated/smlnj-pathconfig
+echo "MLTON_LIB $(cd ../../../.. && pwd)" > $CM_LOCAL_PATHCONFIG
+
 eb=../../extended-basis/unstable
 
 time \

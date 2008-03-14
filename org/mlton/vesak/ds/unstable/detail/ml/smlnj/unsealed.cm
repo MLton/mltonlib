@@ -5,7 +5,7 @@
  *)
 
 group is
-   ../../../../../../../../com/ssh/extended-basis/unstable/basis.cm
+   $MLTON_LIB/com/ssh/extended-basis/unstable/basis.cm
    ../../../public/hash-map.sig
    ../../../public/linked-queue.sig
    ../../../public/node.sig

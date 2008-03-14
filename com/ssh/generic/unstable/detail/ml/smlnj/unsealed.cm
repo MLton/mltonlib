@@ -8,11 +8,11 @@ group
    group(sigs.cm) - signature MK_FMAP_DOM - signature FMAP_CASES
    source(-)
 is
-   ../../../../../../../org/mlton/vesak/ds/unstable/lib.cm
-   ../../../../../../../org/mlton/vesak/parsec/unstable/lib.cm
-   ../../../../../extended-basis/unstable/basis.cm
-   ../../../../../prettier/unstable/lib.cm
-   ../../../../../random/unstable/lib.cm
+   $MLTON_LIB/com/ssh/extended-basis/unstable/basis.cm
+   $MLTON_LIB/com/ssh/prettier/unstable/lib.cm
+   $MLTON_LIB/com/ssh/random/unstable/lib.cm
+   $MLTON_LIB/org/mlton/vesak/ds/unstable/lib.cm
+   $MLTON_LIB/org/mlton/vesak/parsec/unstable/lib.cm
    ../../extra/close-pretty-with-extra.fun
    ../../extra/reg-basis-exns.fun
    ../../extra/with-extra.fun

@@ -5,7 +5,7 @@
  *)
 
 group is
-  ../../../../../../../../com/ssh/extended-basis/unstable/basis.cm
+  $MLTON_LIB/com/ssh/extended-basis/unstable/basis.cm
   ../../../public/parsec.sig
   ../../../public/sequence.sig
   ../../mk-parsec.fun
