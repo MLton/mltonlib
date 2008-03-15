@@ -39,6 +39,7 @@ signature MONAD_EX = sig
    val =<< : ('a -> 'b monad_ex) * 'a monad_ex -> 'b monad_ex
    val >> : 'a monad_ex * 'b monad_ex -> 'b monad_ex
    val >>& : 'a monad_ex * 'b monad_ex -> ('a, 'b) Product.t monad_ex
+   val >< : 'a monad_ex * 'b monad_ex -> ('a, 'b) Product.t monad_ex
    val >>* : 'a monad_ex * 'b monad_ex -> ('a * 'b) monad_ex
    val >>@ : ('a -> 'b) monad_ex * 'a monad_ex -> 'b monad_ex
 

@@ -5,7 +5,7 @@
  *)
 
 functor MkMonad (Core : MONAD_CORE) : MONAD = struct
-   infix >> >>& >>* >>= >>@ oo =<<
+   infix >> >>& >< >>* >>= >>@ oo =<<
 
    open Core
 
@@ -24,6 +24,7 @@ functor MkMonad (Core : MONAD_CORE) : MONAD = struct
       fun mk f (aM, bM) = aM >>= (fn a => bM >>= (fn b => return (f (a, b))))
    in
       fun op >>& ? = mk Product.& ?
+      val op >< = op >>&
       fun op >>* ? = mk Fn.id ?
       fun op >>@ ? = mk Fn.\> ?
    end
