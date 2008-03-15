@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+# Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
 #
 # This code is released under the MLton license, a BSD-style license.
 # See the LICENSE file or http://mlton.org/License for details.
@@ -14,7 +14,8 @@ if ! which sml ; then
 fi
 
 export CM_LOCAL_PATHCONFIG=generated/smlnj-pathconfig
-echo "MLTON_LIB $(cd ../../../.. && pwd)" > $CM_LOCAL_PATHCONFIG
+echo "MLTON_LIB $(cd ../../../.. && pwd)
+APPLICATION $(pwd)/test/app" > $CM_LOCAL_PATHCONFIG
 
 eb=../../extended-basis/unstable
 
@@ -22,4 +23,4 @@ time \
 echo '' | \
 sml -m test.cm \
     $eb/public/export/{open-top-level.sml,infixes.sml}  \
-    $(find test/ -name '*.sml' -a -not -name 'generic.sml' | sort)
+    test/*.sml

@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -7,20 +7,11 @@
 local
    open Generic UnitTest
 
-   structure BinTree = MkBinTree (Generic)
-
    fun testReduce t2t fromT toT zero binOp to value expect = let
       val reduce = makeReduce t2t fromT zero binOp to
    in
       testEq toT (fn () => {expect = expect, actual = reduce value})
    end
-
-   structure Lambda =
-      MkLambda (structure Id = struct
-                   type t = String.t
-                   val t = string
-                end
-                open Generic)
 
    structure Set = struct
       val empty = []

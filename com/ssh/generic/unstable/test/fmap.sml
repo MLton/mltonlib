@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -6,8 +6,6 @@
 
 local
    open Generic UnitTest
-
-   structure BinTree = MkBinTree (Generic)
 
    structure ListF = MkFmap (open Generic List val t = list)
    structure BinTreeF = MkFmap (open Generic BinTree)

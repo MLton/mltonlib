@@ -1,22 +1,17 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-functor MkUnitTest (Arg : MK_UNIT_TEST_DOM) :>
-   UNIT_TEST
-      where type ('a,     'x) Open.Rep.t = ('a,     'x) Arg.Open.Rep.t
-      where type ('a,     'x) Open.Rep.s = ('a,     'x) Arg.Open.Rep.s
-      where type ('a, 'k, 'x) Open.Rep.p = ('a, 'k, 'x) Arg.Open.Rep.p =
-struct
+structure UnitTest :> UNIT_TEST = struct
    (* <-- SML/NJ workaround *)
    open TopLevel
    infix <$> <^> <\ >| &
    infixr @` |<
    (* SML/NJ workaround --> *)
 
-   open Cvt Arg Prettier
+   open Cvt Generic Prettier
 
    val format = let open Fmt in default & realFmt := StringCvt.GEN (SOME 16) end
    fun pretty t = fmt t format

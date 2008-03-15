@@ -7,8 +7,9 @@
 $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
 $(MLTON_LIB)/com/ssh/unit-test/unstable/lib.mlb
 $(MLTON_LIB)/com/ssh/prettier/unstable/lib.mlb
-$(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
 lib.mlb
+
+$(APPLICATION)/generic.mlb
 
 ann
    "nonexhaustiveExnMatch ignore"
@@ -16,29 +17,6 @@ ann
    "warnUnused true"
 in
    local
-      with/generic.sml
-      with/type-info.sml
-      with/type-hash.sml
-      with/hash.sml
-      with/uniplate.sml
-      with/pretty.sml
-      with/eq.sml
-      with/some.sml
-      with/pickle.sml
-      with/seq.sml
-      with/read.sml
-      with/reduce.sml
-      with/transform.sml
-      with/fmap.sml
-      with/arbitrary.sml
-      with/size.sml
-      with/ord.sml
-      with/shrink.sml
-      with/close-pretty-with-extra.sml
-      with/reg-basis-exns.sml
-
-      ../../unit-test/unstable/with/unit-test.sml
-
       test/utils.fun
    in
       test/fmap.sml

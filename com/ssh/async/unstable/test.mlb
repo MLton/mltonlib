@@ -1,17 +1,25 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
+$(MLTON_LIB)/com/ssh/unit-test/unstable/lib.mlb
+
+$(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+$(MLTON_LIB)/com/ssh/generic/unstable/lib.mlb
+
+$(APPLICATION)/generic.mlb
+
+lib.mlb
+
 local
-   $(MLTON_LIB)/com/ssh/generic/unstable/lib-with-default.mlb
-   $(MLTON_LIB)/com/ssh/unit-test/unstable/lib-with-default.mlb
-
-   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
-
-   lib.mlb
-
-   test/async.sml
+   ann
+      "nonexhaustiveExnMatch ignore"
+      "sequenceNonUnit warn"
+      "warnUnused true"
+   in
+      test/async.sml
+   end
 in
 end

@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -8,9 +8,6 @@
  * Signature for a simple unit testing framework.
  *)
 signature UNIT_TEST = sig
-   include REP
-   (** Includes the representation of generics. *)
-
    type t'
    type t = (t', t', Unit.t) Fold.t
    (** Type of unit test fold state. *)
@@ -35,7 +32,7 @@ signature UNIT_TEST = sig
     *)
 
    val testEq :
-       ('a, 'x) Open.Rep.t -> {actual : 'a, expect : 'a} Thunk.t -> 'b s
+       ('a, 'x) Generic.Open.Rep.t -> {actual : 'a, expect : 'a} Thunk.t -> 'b s
    (** Tests that the expected and actual values are equal. *)
 
    val testRaises' : Exn.t Effect.t -> 'a Thunk.t -> 'b s
@@ -47,10 +44,10 @@ signature UNIT_TEST = sig
 
    (** == Random Testing == *)
 
-   val testAll : ('a, 'x) Open.Rep.t -> 'a Effect.t -> 'b s
+   val testAll : ('a, 'x) Generic.Open.Rep.t -> 'a Effect.t -> 'b s
    (** {testAll ty body} is equivalent to {test (fn () => all ty body)}. *)
 
-   val all : ('a, 'x) Open.Rep.t -> 'a Effect.t Effect.t
+   val all : ('a, 'x) Generic.Open.Rep.t -> 'a Effect.t Effect.t
    (**
     * Procedurally, tries to fault the given test effect by calling it
     * with randomly generated data.
@@ -90,7 +87,7 @@ signature UNIT_TEST = sig
    val withFreq : table Effect.t Effect.t
    (** Prints a table of frequencies after the test has finished succesfully. *)
 
-   val collect : ('a, 'x) Open.Rep.t -> table -> 'a Effect.t
+   val collect : ('a, 'x) Generic.Open.Rep.t -> table -> 'a Effect.t
    (** Adds a data point to the table. *)
 
    (** == Assertions == *)
@@ -108,7 +105,8 @@ signature UNIT_TEST = sig
    val thatNot : Bool.t Effect.t
    (** Verifies that the given value is {false}. *)
 
-   val thatEq : ('a, 'x) Open.Rep.t -> {actual : 'a, expect : 'a} Effect.t
+   val thatEq :
+       ('a, 'x) Generic.Open.Rep.t -> {actual : 'a, expect : 'a} Effect.t
    (** Verifies that the expected and actual values are equal. *)
 
    val thatRaises' : Exn.t Effect.t -> 'a Thunk.t Effect.t
