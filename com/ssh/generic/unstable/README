@@ -41,14 +41,9 @@ About Library Organization
       (export.sml).  The contents of this directory should ideally provide
       sufficient documentation to use the library.
 
-   lib.{cm,mlb}
+   lib.{cm,mlb,use}
 
       These build files define the framework.
-
-   lib-with-default.{cm,mlb}
-
-      These build files include the framework and a default combination of
-      probably the most useful generics for convenience.
 
    detail/
 
