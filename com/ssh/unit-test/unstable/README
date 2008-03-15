@@ -30,15 +30,9 @@ About Library Organization
 
       This directory contains examples related to this library.
 
-   lib.{cm,mlb}
+   lib.{cm,mlb,use}
 
       These build files defines the library.
-
-   lib-with-default.{cm,mlb}
-
-      These build files provide a default UnitTest-module instantantiation
-      for convenience using the default combination of generics provided
-      by the generics library.
 
    detail/
 
