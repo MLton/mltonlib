@@ -17,7 +17,7 @@ signature EXIT = sig
    type 'a t
    (** The type of exits. *)
 
-   val within : ('a t -> 'a) -> 'a
+   val within : ('a t, 'a) CPS.t
    (**
     * Sets up an exit and passes it to the given function.  The function
     * may then return normally or by calling {to} with the exit and a
@@ -48,7 +48,7 @@ signature EXIT = sig
     * be called from a context of any type.
     *)
 
-   val call : (('a -> 'b) -> 'a) -> 'a
+   val call : ('a -> 'b, 'a) CPS.t
    (**
     * Simpler, but less flexibly typed, interface to {within} and {to}.
     * Specifically, {call f} is equivalent to {within (f o to)}.
