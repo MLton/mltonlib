@@ -24,6 +24,10 @@ structure TopLevel = struct
    val repeat = Basic.repeat
    val undefined = Basic.undefined
 
+   (** == Effect == *)
+
+   val obs = Effect.obs
+
    (** == Exn == *)
 
    val after = Exn.after
@@ -59,6 +63,10 @@ structure TopLevel = struct
 
    val U = FRU.U
 
+   (** == Iso == *)
+
+   val op <--> = Iso.<-->
+
    (** == Lazy == *)
 
    type 'a lazy = 'a Lazy.t
@@ -68,9 +76,18 @@ structure TopLevel = struct
    val lazy = Lazy.lazy
    val memo = Lazy.memo
 
+   (** == List == *)
+
+   val pop = List.pop
+   val push = List.push
+
    (** == Option == *)
 
    val isNone = Option.isNone
+
+   (** == Pair == *)
+
+   val swap = Pair.swap
 
    (** == Phantom == *)
 
