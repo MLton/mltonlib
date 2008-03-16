@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -10,6 +10,10 @@ signature REAL = sig
 
    type t = real
    (** Convenience alias. *)
+
+   (** == Numeric == *)
+
+   val sq : t UnOp.t (** {sq x = x * x} *)
 
    (** == Embeddings == *)
 

@@ -1,4 +1,4 @@
-(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -37,6 +37,7 @@ functor MkIntegerExt (I : BASIS_INTEGER) : INTEGER = struct
       fun isZero i = zero = i
       fun isEven i = isZero (rem (i, fromInt 2))
       val isOdd = not o isEven
+      fun sq x = x * x
       val bounds =
           case (minInt, maxInt) of
              (NONE,         NONE) => NONE

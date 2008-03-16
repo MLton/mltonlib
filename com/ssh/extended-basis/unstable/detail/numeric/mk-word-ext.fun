@@ -1,4 +1,4 @@
-(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -140,6 +140,7 @@ functor MkWordExt (W : BASIS_WORD) : WORD = struct
       fun isZero w = fromInt 0 = w
       fun isEven w = isZero (andb (fromInt 1, w))
       val isOdd = not o isEven
+      fun sq x = x * x
    end
 
    structure Bounded = MkBounded (Core)

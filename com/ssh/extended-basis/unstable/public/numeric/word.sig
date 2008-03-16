@@ -1,4 +1,4 @@
-(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -21,6 +21,8 @@ signature WORD = sig
    val mod : t BinOp.t
 
    val ~ : t UnOp.t
+
+   val sq : t UnOp.t (** {sq x = x * x} *)
 
    (** == Bounds == *)
 
