@@ -105,6 +105,7 @@ structure TopLevel = struct
    (** == Sum == *)
 
    datatype sum = datatype Sum.sum
+   val mirror = Sum.swap
 
    (** == TextIO == *)
 
