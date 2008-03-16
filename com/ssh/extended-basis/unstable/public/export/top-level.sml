@@ -53,7 +53,7 @@ structure TopLevel = struct
 
    (** == CPS == *)
 
-   val pass = CPS.pass
+   val pass = CPS.return
 
    (** == Fold == *)
 

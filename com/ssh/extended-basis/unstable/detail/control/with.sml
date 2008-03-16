@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -9,21 +9,14 @@ structure With :> WITH = struct
 
    infix >>=
 
-   structure Monad =
-      MkMonad (type 'a monad = 'a t
-               val return = CPS.pass
-               fun (aM >>= a2bM) f = aM (fn a => a2bM a f))
-
+   structure Monad = MkMonad (type 'a monad = 'a t open CPS)
    open Monad
 
    val lift = Fn.id
    val for = Fn.id
-   fun one aM f = let
-      val result = ref NONE
-   in
-      aM (fn a => result := SOME (f a)) : Unit.t
-    ; valOf (!result)
-   end
+   fun one aM f =
+       case ref NONE
+        of res => (aM (fn a => res := SOME (f a)) : Unit.t ; valOf (!res))
 
    fun alloc g a f = f (g a)
    fun free ef x f = (f x handle e => (ef x ; raise e)) before ef x

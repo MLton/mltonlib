@@ -4,10 +4,16 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-(** Utilities for programming in continuation passing -style. *)
+(**
+ * Signature for utilities for programming in continuation passing -style.
+ *)
 signature CPS = sig
-   type ('a, 'b) t = ('a -> 'b) -> 'b
+   type ('a, 'c) t = ('a -> 'c) -> 'c
+   (** Type of CPS functions. *)
 
-   val pass : 'a -> ('a, 'b) t
-   (** Pass to continuation ({pass x f = f x}). *)
+   val return : 'a -> ('a, 'c) t
+   (** Pass to continuation: {return x f = f x}. *)
+
+   val >>= : ('a, 'c) t * ('a -> ('b, 'c) t) -> ('b, 'c) t
+   (** Bind. *)
 end

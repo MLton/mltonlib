@@ -6,5 +6,6 @@
 
 structure CPS :> CPS = struct
    open CPS
-   fun pass x f = f x
+   fun return x f = f x
+   fun op >>= (aM, a2bM) = aM o Fn.flip a2bM
 end

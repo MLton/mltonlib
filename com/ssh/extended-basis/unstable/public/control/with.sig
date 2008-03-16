@@ -27,7 +27,7 @@ signature WITH = sig
     * be more efficient than {one}.
     *)
 
-   val one : 'a t -> ('a -> 'b) -> 'b
+   val one : 'a t -> ('a, 'b) CPS.t
    (**
     * Runs the monad and passes the value to the given block.  The result
     * of the block is then returned.  If the result is {()} then it is
