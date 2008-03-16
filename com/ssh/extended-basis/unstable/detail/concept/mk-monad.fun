@@ -79,6 +79,8 @@ functor MkMonadP (Core : MONADP_CORE) : MONADP = struct
    open Monad Core
    type 'a monadp_ex = 'a monad
 
+   fun guard b = if b then return () else zero
+
    fun sumWith x2yM =
     fn []    => zero
      | [x]   => x2yM x
