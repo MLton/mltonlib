@@ -22,8 +22,11 @@ structure UnitTest :> UNIT_TEST = struct
       open Maybe
       val I = Int.fromString
       val cols = Monad.sum [S"-w"@`I, L"--width"@`I, E"COLUMNS"@`I, `70]
+      fun opt s l d = ref (valOf (get (Monad.sum [S s @` I, L l @`I, `d])))
    in
       val println = println (get cols)
+      val defMaxPass = opt "-p" "--max-pass" 100
+      val defMaxSkip = opt "-s" "--max-skip" 100
    end
 
    datatype t' =
@@ -169,14 +172,22 @@ structure UnitTest :> UNIT_TEST = struct
                  find (passN + 1, skipN)
                | BUG (v, ms) =>
                  minimize (v, ms)
+
+      fun flet (r, v) th =
+          case !r of v' => (r := v ; after (th, fn () => r := v'))
    in
-      find (0, 0)
+      flet (defMaxPass, 1 + IntInf.log2 (IntInf.fromInt (!defMaxPass)))
+           (fn () =>
+               flet (defMaxSkip, 1 + !defMaxSkip div 2)
+                    (fn () =>
+                        find (0, 0)))
    end
 
-   fun all t =
-       allParam {size = fn n => n div 2 + 3,
-                 maxPass = 100,
-                 maxSkip = 100} t
+   fun all t ef =
+      allParam {size = fn n => n div 2 + 3,
+                maxPass = !defMaxPass,
+                maxSkip = !defMaxSkip}
+               t ef
 
    fun testAll t ef = test (fn () => all t ef)
 
