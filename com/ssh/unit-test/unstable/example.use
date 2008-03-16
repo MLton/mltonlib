@@ -11,4 +11,5 @@ lib ["lib.use",
      "detail/sorted-list.use",
      "example/assoc-test.sml",
      "example/qc-test.sml",
-     "example/rev-test.sml"] ;
+     "example/rev-test.sml",
+     "example/sms-test.sml"] ;
