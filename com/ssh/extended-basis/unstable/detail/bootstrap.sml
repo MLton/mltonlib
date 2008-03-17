@@ -1,4 +1,4 @@
-(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -20,7 +20,9 @@ structure Array = struct open BasisArray type 'a t = 'a array end
 structure ArraySlice = struct open BasisArraySlice type 'a t = 'a slice end
 structure Char = struct open BasisChar type t = char end
 structure CharArray = struct open BasisCharArray type t = array end
+structure CharArraySlice = struct open BasisCharArraySlice type t = slice end
 structure CharVector = struct open BasisCharVector type t = vector end
+structure CharVectorSlice = struct open BasisCharVectorSlice type t = slice end
 structure Effect = struct type 'a t = 'a -> Unit.t end
 structure FixedInt = struct open BasisFixedInt type t = int end
 structure Int = struct open BasisInt type t = int end
@@ -41,7 +43,9 @@ structure VectorSlice = struct open BasisVectorSlice type 'a t = 'a slice end
 structure Word = struct open BasisWord type t = word end
 structure Word8 = struct open BasisWord8 type t = word end
 structure Word8Array = struct open BasisWord8Array type t = array end
+structure Word8ArraySlice = struct open BasisWord8ArraySlice type t = slice end
 structure Word8Vector = struct open BasisWord8Vector type t = vector end
+structure Word8VectorSlice = struct open BasisWord8VectorSlice type t = slice end
 structure Pair = struct
    type ('a, 'b) pair = 'a * 'b
    type ('a, 'b) t = ('a, 'b) pair

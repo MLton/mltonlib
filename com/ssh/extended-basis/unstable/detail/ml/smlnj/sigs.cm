@@ -30,6 +30,7 @@ is
    ../../../public/concept/wordable.sig
    ../../../public/control/exit.sig
    ../../../public/control/exn.sig
+   ../../../public/control/iter.sig
    ../../../public/control/with.sig
    ../../../public/data/bool.sig
    ../../../public/data/option.sig

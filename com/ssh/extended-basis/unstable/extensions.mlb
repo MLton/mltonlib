@@ -302,6 +302,10 @@ in
          public/sequence/stream.sig
          detail/sequence/stream.sml
 
+         (* Iter *)
+         public/control/iter.sig
+         detail/control/iter.sml
+
          (* Lazy *)
          public/lazy/lazy.sig
          detail/lazy/lazy.sml

@@ -19,6 +19,7 @@ is
    ../../../detail/concept/mk-word-flags.fun
    ../../../detail/control/exit.sml
    ../../../detail/control/exn.sml
+   ../../../detail/control/iter.sml
    ../../../detail/control/with.sml
    ../../../detail/data/bool.sml
    ../../../detail/data/option.sml
