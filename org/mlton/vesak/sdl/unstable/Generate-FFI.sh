@@ -19,7 +19,6 @@ headers="$SDL/SDL.h
 $SDL/SDL_active.h
 $SDL/SDL_audio.h
 $SDL/SDL_cdrom.h
-$SDL/SDL_copying.h
 $SDL/SDL_cpuinfo.h
 $SDL/SDL_endian.h
 $SDL/SDL_error.h
