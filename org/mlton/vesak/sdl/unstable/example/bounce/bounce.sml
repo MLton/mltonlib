@@ -1,10 +1,10 @@
-(* Copyright (C) 2007 Vesa Karvonen
+(* Copyright (C) 2007-2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-val printlns = println o concat
+open Iter Cvt
 
 structure Opt = struct
    val w = ref 640
@@ -67,25 +67,18 @@ fun demo () = let
 
    fun render () = let
       val color = if SDL.Key.isPressed SDL.Key.Sym.SPACE then red else green
-      fun lpX x = let
-         fun lpY y =
-             if h <= y then ()
-             else (SDL.Surface.blitRect
-                      chest {pos = {x=0, y=0}, dim = chestDim}
-                      display {pos = {x=x, y=y}, dim = chestDim}
-                 ; lpY (y + chestH))
-      in
-         if w <= x then ()
-         else (lpY 0 ; lpX (x + chestW))
-      end
    in
-      lpX 0
-    ; Vector.app (fn {x, y, ...} =>
-                     SDL.Surface.fillRect
-                        display
-                        color
-                        {dim = obDim,
-                         pos = {x = trunc (!x), y = trunc (!y)}}) obs
+      (upToBy 0 w chestW >< upToBy 0 h chestH)
+       (fn x & y =>
+           SDL.Surface.blitRect
+            chest {pos = {x=0, y=0}, dim = chestDim}
+            display {pos = {x=x, y=y}, dim = chestDim})
+    ; (inVector obs)
+       (fn {x, y, ...} =>
+           SDL.Surface.fillRect
+            display
+            color
+            {dim = obDim, pos = {x = trunc (!x), y = trunc (!y)}})
     ; SDL.Surface.fillRect
          display
          let
@@ -101,17 +94,17 @@ fun demo () = let
    end
 
    fun animate () =
-       Vector.app (fn {x, y, dx, dy} => let
-                         fun upd (v, dv, vMax) =
-                             (if !v < 0.0 andalso !dv < 0.0 orelse
-                                 vMax < !v andalso 0.0 < !dv
-                              then dv := ~ (!dv) else ()
-                            ; v := !v + !dv)
-                      in
-                         upd (x, dx, xMax)
-                       ; upd (y, dy, yMax)
-                      end)
-                  obs
+       (inVector obs)
+        (fn {x, y, dx, dy} => let
+               fun upd (v, dv, vMax) =
+                   (if !v < 0.0 andalso !dv < 0.0 orelse
+                       vMax < !v andalso 0.0 < !dv
+                    then dv := ~ (!dv) else ()
+                  ; v := !v + !dv)
+            in
+               upd (x, dx, xMax)
+             ; upd (y, dy, yMax)
+            end)
 
    local
       open Time
@@ -138,6 +131,7 @@ fun demo () = let
 in
    SDL.Mouse.showCursor false
  ; SDL.Mouse.setPos {x = 0, y = 0}
+ ; SDL.Key.setRepeat NONE
  ; lp ()
 end
 
@@ -149,9 +143,8 @@ fun main () =
              let open SDL.Prop in flags [DOUBLEBUF, HW, FULLSCREEN] end
       of NONE    => println "Any resolution is OK?"
        | SOME [] => println "None"
-       | SOME rs =>
-         println o String.concatWith ", " |< map
-            (fn {w, h} => concat [Int.toString w, "x", Int.toString h]) rs
+       | SOME rs => println o String.concatWith ", " |<
+                    map (fn {w, h} => concat [D w, "x", D h]) rs
    ; demo ())
 
 val s2i = valOf o Int.fromString
