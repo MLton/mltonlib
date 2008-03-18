@@ -28,16 +28,16 @@ end
 fun demo () = let
    val display =
        SDL.Video.setMode
-          (case !Opt.bpp
-            of NONE => SDL.Video.getPixelFormat ()
-             | SOME 16 => SDL.Pixel.Format.r5g6b5
-             | SOME 24 => SDL.Pixel.Format.r8g8b8
-             | SOME 32 => SDL.Pixel.Format.r8g8b8a8
-             | _ => fail "Unsupported pixel format")
-          let open SDL.Prop in
-             flags ([DOUBLEBUF] @
-                    (if !Opt.fs then [HW, FULLSCREEN] else [])) end
-          {w = !Opt.w, h = !Opt.h}
+        (case !Opt.bpp
+          of NONE => SDL.Video.getPixelFormat ()
+           | SOME 16 => SDL.Pixel.Format.r5g6b5
+           | SOME 24 => SDL.Pixel.Format.r8g8b8
+           | SOME 32 => SDL.Pixel.Format.r8g8b8a8
+           | _ => fail "Unsupported pixel format")
+        let open SDL.Prop in
+           flags ([DOUBLEBUF] @
+                  (if !Opt.fs then [HW, FULLSCREEN] else [])) end
+        {w = !Opt.w, h = !Opt.h}
 
    val format = SDL.Surface.getPixelFormat display
 
@@ -55,13 +55,12 @@ fun demo () = let
    val xMax = real (w - !Opt.size)
    val yMax = real (h - !Opt.size)
 
-   val obs =
-       Vector.tabulate
-          (!Opt.num,
-           fn _ => {x = ref (G.gen (G.realInRange (0.0, xMax))),
-                    y = ref (G.gen (G.realInRange (0.0, yMax))),
-                    dx = ref (G.gen (G.realInRange (~5.0, 5.0))),
-                    dy = ref (G.gen (G.realInRange (~5.0, 5.0)))})
+   val obs = Vector.tabulate
+              (!Opt.num,
+               fn _ => {x  = ref (G.gen (G.realInRange (0.0, xMax))),
+                        y  = ref (G.gen (G.realInRange (0.0, yMax))),
+                        dx = ref (G.gen (G.realInRange (~5.0, 5.0))),
+                        dy = ref (G.gen (G.realInRange (~5.0, 5.0)))})
 
    val obDim = {w = !Opt.size, h = !Opt.size}
 
@@ -80,16 +79,16 @@ fun demo () = let
             color
             {dim = obDim, pos = {x = trunc (!x), y = trunc (!y)}})
     ; SDL.Surface.fillRect
-         display
-         let
-            open SDL.Mouse.Button
-            val buttons = SDL.Mouse.getButtons ()
-         in
-            if anySet (LEFT, buttons) then red
-            else if anySet (RIGHT, buttons) then green
-            else blue
-         end
-         {dim = obDim, pos = SDL.Mouse.getPos ()}
+       display
+       let
+          open SDL.Mouse.Button
+          val buttons = SDL.Mouse.getButtons ()
+       in
+          if anySet (LEFT, buttons) then red
+          else if anySet (RIGHT, buttons) then green
+          else blue
+       end
+       {dim = obDim, pos = SDL.Mouse.getPos ()}
     ; SDL.Surface.flip display
    end
 
@@ -139,8 +138,8 @@ fun main () =
     (printlns ["Driver name: ", SDL.Video.getDriverName ()]
    ; print "Available full screen modes: "
    ; case SDL.Video.listModes
-             (SDL.Video.getPixelFormat ())
-             let open SDL.Prop in flags [DOUBLEBUF, HW, FULLSCREEN] end
+           (SDL.Video.getPixelFormat ())
+           let open SDL.Prop in flags [DOUBLEBUF, HW, FULLSCREEN] end
       of NONE    => println "Any resolution is OK?"
        | SOME [] => println "None"
        | SOME rs => println o String.concatWith ", " |<
