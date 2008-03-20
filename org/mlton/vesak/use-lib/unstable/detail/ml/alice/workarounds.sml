@@ -17,13 +17,13 @@ structure OS = struct
          fun after (th, ef) =
              try (th, fn x => (ef () ; x), fn e => (ef () ; raise e))
       in
-         (* WARNING: Totally ignores links. *)
+         (* WARNING: Tests always for read access only. *)
          fun access (p, _) =
              try (fn () => TextIO.openIn p,
                   fn s => (TextIO.closeIn s ; true),
                   fn _ => false)
 
-         (* WARNING: Tests always for only read access only. *)
+         (* WARNING: Totally ignores links. *)
          fun fullPath p =
              case getDir ()
               of cwd =>
