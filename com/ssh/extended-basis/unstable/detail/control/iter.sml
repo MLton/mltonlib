@@ -25,7 +25,10 @@ structure Iter :> ITER = struct
    exception S
    fun (m until p) f = m (fn x => if p x then raise S else f x) handle S => ()
 
-   fun index m f = (fn i => m (fn a => f (a & !i before i := !i+1))) (ref 0)
+   fun indexFromBy i d m f =
+       (fn i => m (fn a => f (a & !i) before i := !i+d)) (ref i)
+   fun indexFrom i = indexFromBy i 1
+   fun index m = indexFrom 0 m
 
    fun iterate f = unfold (fn x => SOME (x, f x))
 

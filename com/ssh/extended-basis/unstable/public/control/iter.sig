@@ -58,8 +58,14 @@ signature ITER = sig
     * x(i) = false} for all {0<=i<=n} and {p x(n+1) = true}.
     *)
 
+   val indexFromBy : Int.t -> Int.t -> 'a t -> ('a, Int.t) Product.t t
+   (** {indexFromBy i d [<x(0), x(1), ...>] = [<x(0) & i+0*d, x(1) & i+1*d, ...>]} *)
+
+   val indexFrom : Int.t -> 'a t -> ('a, Int.t) Product.t t
+   (** {indexFrom i = indexFromBy i 1} *)
+
    val index : 'a t -> ('a, Int.t) Product.t t
-   (** {index [<x(0), x(1), ...>] = [<x(0) & 0, x(1) & 1, ...>]} *)
+   (** {index = indexFrom 0} *)
 
    val iterate : 'a UnOp.t -> 'a -> 'a t
    (** {iterate f x = [<x, f x, f (f x), ...>]} *)
