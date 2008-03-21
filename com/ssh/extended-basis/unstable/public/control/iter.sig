@@ -49,7 +49,7 @@ signature ITER = sig
    (**
     *> unfold g s f =
     *>    case g s of NONE        => ()
-    *>              | SOME (x, s) => (f x ; unfold g s f)
+    *>              | SOME (x, s) => (f x ; unfold g s f)
     *)
 
    val until : 'a t * 'a UnPr.t -> 'a t
