@@ -41,7 +41,7 @@ end = struct
    type 'a eq_t = 'a t
 
    val eq = id
-   val notEq = negate
+   val notEq = neg
 
    fun iso b (a2b, _) = b o Pair.map (Sq.mk a2b)
 

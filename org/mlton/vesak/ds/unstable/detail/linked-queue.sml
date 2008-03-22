@@ -45,7 +45,7 @@ structure LinkedQueue :> LINKED_QUEUE = struct
    fun filter c (T {back, front}) =
        back := Node.filter c (!front)
 
-   fun filterOut c = filter (negate c)
+   fun filterOut c = filter (neg c)
 
    fun appClear ef (T {back, front}) =
        back := Node.appClear ef (!front)

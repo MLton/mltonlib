@@ -67,7 +67,7 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
        case getT t
         of IN eq => fn xy =>
            eq (HashMap.new {eq = HashUniv.eq, hash = HashUniv.hash}, xy)
-   fun notSeq t = negate (seq t)
+   fun notSeq t = neg (seq t)
    fun withSeq eq = mapT (const (lift eq))
 
    structure Open = LayerDepCases

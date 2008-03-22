@@ -115,7 +115,7 @@ structure TopLevel = struct
 
    (** == UnPr == *)
 
-   val negate = UnPr.negate
+   val neg = UnPr.neg
 
    val op andAlso = UnPr.andAlso
    val op orElse = UnPr.orElse

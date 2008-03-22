@@ -15,8 +15,8 @@ signature UN_PR = sig
    val andAlso : 'a t BinOp.t
    (** Conjunction of predicates ({(p andAlso q) x = p x andalso q y}). *)
 
-   val negate : 'a t UnOp.t
-   (** Predicate negation ({negate p = not o p}). *)
+   val neg : 'a t UnOp.t
+   (** Predicate negation ({neg p = not o p}). *)
 
    val orElse : 'a t BinOp.t
    (** Disjunction of predicates ({(p orElse q) x = p x orelse q x}). *)
