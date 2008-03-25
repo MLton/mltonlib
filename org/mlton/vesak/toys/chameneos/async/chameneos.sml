@@ -35,12 +35,11 @@ fun arrive tally color =
            | {waiter = NONE, done = d, quota = q} =>
              (MVar.fill mp {waiter = SOME color, done = d, quota = q}
             ; when (MVar.take wake) (arrive (tally+1)))
-           | {quota = q, waiter = SOME color0, done = d} => let
-                val color = compl (color & color0)
-             in MVar.fill wake color
-              ; MVar.fill mp {quota = q-1, waiter = NONE, done = d}
-              ; arrive (tally+1) color
-             end)
+           | {quota = q, waiter = SOME color0, done = d} =>
+             case compl (color & color0)
+              of color => (MVar.fill wake color
+                         ; MVar.fill mp {quota = q-1, waiter = NONE, done = d}
+                         ; arrive (tally+1) color))
 
 val n = valOf (Int.fromString (hd (CommandLine.arguments ()))) handle _ => 1
 
