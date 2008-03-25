@@ -16,16 +16,14 @@ structure Async :> ASYNC = struct
 
    structure Handler = struct
       datatype 'a t =
-         T of {unlink : Unit.t Effect.t List.t Ref.t, effect : 'a Effect.t}
-      fun new () = T {unlink = ref [], effect = id}
+         T of {unlink : Unit.t Effect.t Ref.t, effect : 'a Effect.t}
+      fun new () = T {unlink = ref Effect.nop, effect = id}
       fun prepend f (T t) = T {unlink = #unlink t, effect = #effect t o f}
-      fun pushFront ul (h as T t) =
-          (List.push (#unlink t) (UnlinkableList.pushFront ul h)
-         ; false)
+      fun pushFront ul (h as T {unlink, ...}) =
+          (unlink := !unlink o UnlinkableList.pushFront ul h ; false)
       val handlers : Unit.t Effect.t Queue.t = Queue.new ()
       fun schedule a (T {unlink, effect}) =
-          (app (pass ()) (!unlink)
-         ; Queue.enque handlers (fn () => effect a))
+          (!unlink () ; Queue.enque handlers (fn () => effect a))
       fun runAll () = Queue.appClear (pass ()) handlers
    end
 
@@ -33,17 +31,16 @@ structure Async :> ASYNC = struct
       datatype 'a t = E of ('a Handler.t UnPr.t, 'a) Sum.t Thunk.t
       fun on (E t) f =
           E (fn () =>
-                INL (fn h => let
-                           val h = Handler.prepend f h
-                        in
-                           case t ()
-                            of INL ef => ef h
-                             | INR v =>
-                               (Handler.schedule
-                                   ()
-                                   (Handler.prepend (const v) h)
-                              ; true)
-                        end))
+                INL (fn h =>
+                        case Handler.prepend f h
+                         of h =>
+                            case t ()
+                             of INL ef => ef h
+                              | INR v =>
+                                (Handler.schedule
+                                  ()
+                                  (Handler.prepend (const v) h)
+                               ; true)))
       fun (E l) <|> (E r) =
           E (fn () =>
                 case l ()
@@ -77,16 +74,16 @@ structure Async :> ASYNC = struct
          val rs = Array.array (!n, NONE)
       in
          List.appi
-            (fn (i, e) =>
-                when e (fn v =>
-                           (Array.update (rs, i, SOME v)
-                          ; n := !n - 1
-                          ; if 0 = !n
-                            then done (Stream.toList
-                                          (Stream.map
-                                              valOf (Stream.fromArray rs)))
-                            else ())))
-            es
+          (fn (i, e) =>
+              when e (fn v =>
+                         (Array.update (rs, i, SOME v)
+                        ; n := !n - 1
+                        ; if 0 = !n
+                          then done (Stream.toList
+                                      (Stream.map
+                                        valOf (Stream.fromArray rs)))
+                          else ())))
+          es
       end
    end
 
@@ -108,10 +105,9 @@ structure Async :> ASYNC = struct
                 case UnlinkableList.popBack ts
                  of SOME th => (Handler.schedule v th ; INR ())
                   | NONE =>
-                    INL (fn h as Handler.T t =>
-                            (List.push (#unlink t)
-                                       (UnlinkableList.pushFront
-                                           gs {handler = h, value = v})
+                    INL (fn h as Handler.T {unlink, ...} =>
+                            (unlink := !unlink o UnlinkableList.pushFront
+                                                  gs {handler = h, value = v}
                            ; false)))
    end
 
