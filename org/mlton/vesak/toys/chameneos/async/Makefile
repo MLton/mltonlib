@@ -8,4 +8,6 @@ args := @MLton fixed-heap 1.5m -- 5000000
 
 root := ../../../../../..
 
+mlton-opts := -loop-passes 2
+
 include ../../common.mk
