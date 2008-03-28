@@ -5,9 +5,9 @@
  *)
 
 structure Iter :> ITER = struct
-   open Product UnPr Effect Fn
+   open Option Product UnPr Effect Fn
 
-   infix 1 <|> whilst whilst' until until' when unless by
+   infix 1 <|>
    infix 0 >>= &
 
    type 'a t = ('a, Unit.t) CPS.t
@@ -22,34 +22,31 @@ structure Iter :> ITER = struct
    fun unfold g s f =
        case g s of NONE => () | SOME (x, s) => (f x : Unit.t ; unfold g s f)
 
-   fun (m until p) f = let
+   fun until p m f = let
       exception S
    in
       m (fn x => if p x then raise S else f x) handle S => ()
    end
 
-   fun (m until' p) f = let
+   fun until' p m f = let
       exception S
    in
       m (fn x => (f x : Unit.t ; if p x then raise S else ())) handle S => ()
    end
 
-   fun m whilst p = m until neg p
-   fun m whilst' p = m until' neg p
+   fun whilst p = until (neg p)
+   fun whilst' p = until' (neg p)
 
-   fun indexFromBy i d m f =
-       (fn i => m (fn a => f (a & !i) before i := !i+d)) (ref i)
-   fun indexFrom i = indexFromBy i 1
-   fun index m = indexFrom 0 m
+   fun subscript b = if b then () else raise Subscript
+
+   fun take n =
+       (subscript (0 <= n)
+      ; fn m => fn f => case ref n of n =>
+           if !n <= 0 then () else until' (fn _ => (n := !n-1 ; !n <= 0)) m f)
 
    fun iterate f = unfold (fn x => SOME (x, f x))
 
-   fun m unless p = m >>= (fn x => if p x then zero else return x)
-   fun m when p = m unless neg p
-
-   fun m by f = map f m
-
-   fun subscript b = if b then () else raise Subscript
+   fun filter p m = m >>= (fn x => if p x then return x else zero)
 
    fun repeat x = iterate id x
    fun replicate n =
@@ -57,35 +54,33 @@ structure Iter :> ITER = struct
       ; fn x => unfold (fn 0 => NONE | n => SOME (x, n-1)) n)
    fun cycle m f = (m f : Unit.t ; cycle m f)
 
-   fun take n =
-       (subscript (0 <= n)
-      ; fn m => fn f => case ref n of n =>
-           if !n <= 0 then () else (m until' (fn _ => (n := !n-1 ; !n <= 0))) f)
+   type ('f, 't, 'b) mod = 'f * 't * 'b
 
-   val up = iterate (fn x => x+1)
-   fun upToBy l u d =
-       (subscript (l <= u andalso 0 < d)
-      ; unfold (fn l => if l < u then SOME (l, l+d) else NONE) l)
-   fun upTo l u = upToBy l u 1
-   val down = unfold (fn x => SOME (x-1, x-1))
-   fun downToBy u l d =
-       (subscript (l <= u andalso 0 < d)
-      ; unfold (fn u => if l < u then SOME (u-d, u-d) else NONE) u)
-   fun downTo u l = downToBy u l 1
-   val integers = up 0
+   fun From ? = Fold.mapSt1 (fn f => fn (_, t, b) => (f, t, b)) ?
+   fun To   ? = Fold.mapSt1 (fn t => fn (f, _, b) => (f, t, b)) ?
+   fun By   ? = Fold.mapSt1 (fn b => fn (f, t, _) => (f, t, b)) ?
 
-   fun rangeBy f t d = let
-      val op < = case Int.compare (f, t)
-                  of LESS    => op <
-                   | EQUAL   => op <>
-                   | GREATER => op >
-   in
-      subscript (f = t orelse f < t andalso 0 < d)
-    ; unfold (fn f => if f < t then SOME (f, f+d) else NONE) f
-   end
-   fun range f t = if f < t then rangeBy f t 1 else rangeBy f t ~1
+   fun up ? = Fold.wrap ((0, (), 1), fn (l, (), s) =>
+       (subscript (0 < s) ; iterate (fn l => l+s) l)) ?
+
+   fun down ? = Fold.wrap ((0, (), 1), fn (u, (), s) =>
+       (subscript (0 < s) ; iterate (fn u => u-s) (u-s))) ?
+
+   fun upTo u = Fold.wrap ((0, u, 1), fn (l, u, s) =>
+       (subscript (l = u orelse 0 < s)
+      ; unfold (fn l => if l < u then SOME (l, l+s) else NONE) l))
+
+   fun downFrom u = Fold.wrap ((u, 0, 1), fn (u, l, s) =>
+       (subscript (l = u orelse 0 < s)
+      ; unfold (fn u => if l < u then SOME (u-s, u-s) else NONE) u))
+
+   val integers = up Fold.$
+
+   fun index ? = Fold.wrap ((0, (), 1), fn (i, (), d) =>
+    fn m => fn f => (fn i => m (fn a => f (a & !i) before i := !i+d)) (ref i)) ?
 
    fun inList s = unfold List.getItem s
+   fun onList s = unfold (fn [] => NONE | l as _::t => SOME (l, t)) s
 
    fun inArraySlice s = unfold BasisArraySlice.getItem s
    fun inVectorSlice s = unfold BasisVectorSlice.getItem s
@@ -116,4 +111,6 @@ structure Iter :> ITER = struct
    fun collect m = rev (fold op :: [] m)
    fun first m = find (const true) m
    fun last m = fold (SOME o #1) NONE m
+   fun all p = isNone o find (neg p)
+   fun exists p = isSome o find p
 end

@@ -11,20 +11,23 @@ signature ITER = sig
 
    (** == Running Iterators == *)
 
-   val for : 'a t -> ('a, Unit.t) CPS.t
+   val all : 'a UnPr.t -> 'a t UnPr.t
    (**
-    *> for [<>]                f = ()
-    *> for [<x(0), x(1), ...>] f = (f x(0) ; for [<x(1), ...>] f)
+    *> all p [<>]                = true
+    *> all p [<x(0), x(1), ...>] = p x(0) andalso all p [<x(1), ...>]
     *
-    * This is actually the identity function and is provided purely for
-    * syntactic sugar.
+    *> all = neg o exists o neg
     *)
 
-   val fold : ('a * 'b -> 'b) -> 'b -> 'a t -> 'b
+   val collect : 'a t -> 'a List.t
+   (** {collect [<x(0), x(1), ..., x(n)>] = [x(0), x(1), ..., x(n)]} *)
+
+   val exists : 'a UnPr.t -> 'a t UnPr.t
    (**
-    *> fold f s [<>]                      = s
-    *> fold f s [<x(0), x(1), ..., x(n)>] =
-    *>    fold f (f (x(0), s)) [<x(1), ..., x(n)>]
+    *> exists p [<>]                = false
+    *> exists p [<x(0), x(1), ...>] = p x(0) orelse exists p [<x(1), ...>]
+    *
+    *> exists = neg o all o neg
     *)
 
    val find : 'a UnPr.t -> 'a t -> 'a Option.t
@@ -34,18 +37,28 @@ signature ITER = sig
     *>    if p x(0) then SOME x(n) else find p [<x(1), ...>]
     *)
 
-   val reduce : 'b -> 'b BinOp.t -> ('a -> 'b) -> 'a t -> 'b
-   (** {reduce zero plus one = fold plus zero o Monad.map one} *)
-
-   val collect : 'a t -> 'a List.t
-   (** {collect [<x(0), x(1), ..., x(n)>] = [x(0), x(1), ..., x(n)]} *)
-
    val first : 'a t -> 'a Option.t
    (**
     *> first [<>]                = NONE
     *> first [<x(0), x(1), ...>] = SOME x(0)
     *
     * Only the first element, if any, of the iterator will be computed.
+    *)
+
+   val fold : ('a * 'b -> 'b) -> 'b -> 'a t -> 'b
+   (**
+    *> fold f s [<>]                      = s
+    *> fold f s [<x(0), x(1), ..., x(n)>] =
+    *>    fold f (f (x(0), s)) [<x(1), ..., x(n)>]
+    *)
+
+   val for : 'a t -> ('a, Unit.t) CPS.t
+   (**
+    *> for [<>]                f = ()
+    *> for [<x(0), x(1), ...>] f = (f x(0) ; for [<x(1), ...>] f)
+    *
+    * This is actually the identity function and is provided purely for
+    * syntactic sugar.
     *)
 
    val last : 'a t -> 'a Option.t
@@ -56,7 +69,13 @@ signature ITER = sig
     * Note that all elements of the iterator will be computed.
     *)
 
-   (** == Monad == *)
+   val reduce : 'b -> 'b BinOp.t -> ('a -> 'b) -> 'a t -> 'b
+   (** {reduce zero plus one = fold plus zero o Monad.map one} *)
+
+   (** == Monad ==
+    *
+    * Iterators essentially form a monad with plus.
+    *)
 
    include MONADP_CORE where type 'a monad = 'a t
    structure Monad : MONADP where type 'a monad = 'a t
@@ -75,16 +94,13 @@ signature ITER = sig
 
    (** == Combinators == *)
 
-   val by : 'a t * ('a -> 'b) -> 'b t
+   val filter : 'a UnPr.t -> 'a t UnOp.t
    (**
-    *> [<x(0), x(1), ...>] by f = [<f x(0), f x(1), ...>]
+    *> filter p [<x(0), x(1), ...>] =
+    *>    (if p x(0) then [<x(0)>] else [<>]) <|> filter p [<x(1), ...>]
     *
-    * {s by f} is the same as {Monad.map f s}.
+    *> fun filter p m = m >>= (fn x => if p x then return x else zero)
     *)
-
-   val unless : 'a t * 'a UnPr.t -> 'a t
-   val when : 'a t * 'a UnPr.t -> 'a t
-   (** {m when p = m unless neg p} *)
 
    val >< : 'a t * 'b t -> ('a, 'b) Product.t t
    (**
@@ -102,7 +118,7 @@ signature ITER = sig
    (** {repeat x = [<x, x, ...>]} *)
 
    val replicate : Int.t -> 'a -> 'a t
-   (** {replicate n x = [<x, x, ..., x>]} *)
+   (** {replicate n x = [<x(1), x(2), ..., x(n)>]} *)
 
    val cycle : 'a t UnOp.t
    (**
@@ -112,7 +128,7 @@ signature ITER = sig
     *>      ...>]
     *)
 
-   (** == Stopping == *)
+   (** == Stopping Early == *)
 
    val take : Int.t -> 'a t UnOp.t
    (**
@@ -120,83 +136,108 @@ signature ITER = sig
     *> take n [<x(0), x(1), ..., x(n-1), ...>] = [<x(0), x(1), ..., x(n-1)>]
     *)
 
-   val until : 'a t * 'a UnPr.t -> 'a t
+   val until : 'a UnPr.t -> 'a t UnOp.t
    (**
-    * {[<x(0), x(1), ...>] until p = [<x(0), x(1), ..., x(n)>]} where {p
+    * {until p [<x(0), x(1), ...>] = [<x(0), x(1), ..., x(n)>]} where {p
     * x(i) = false} for all {0<=i<=n} and {p x(n+1) = true}.
     *)
 
-   val until' : 'a t * 'a UnPr.t -> 'a t
+   val until' : 'a UnPr.t -> 'a t UnOp.t
    (**
-    * {[<x(0), x(1), ...>] until' p = [<x(0), x(1), ..., x(n)>]} where {p
+    * {until' p [<x(0), x(1), ...>] = [<x(0), x(1), ..., x(n)>]} where {p
     * x(i) = false} for all {0<=i<n} and {p x(n) = true}.
     *)
 
-   val whilst : 'a t * 'a UnPr.t -> 'a t
-   (** {m whilst p = m until neg p} *)
+   val whilst : 'a UnPr.t -> 'a t UnOp.t
+   (** {whilst = until o neg} *)
 
-   val whilst' : 'a t * 'a UnPr.t -> 'a t
-   (** {m whilst' p = m until' neg p} *)
+   val whilst' : 'a UnPr.t -> 'a t UnOp.t
+   (** {whilst' = until' o neg} *)
 
-   (** == Indexing == *)
-
-   val indexFromBy : Int.t -> Int.t -> 'a t -> ('a, Int.t) Product.t t
-   (**
-    *> indexFromBy i d [<x(0), x(1), ...>] = [<x(0) & i+0*d, x(1) & i+1*d, ...>]
+   (** == Optional Argument Modifiers ==
+    *
+    * The following modifiers are used to specify additional optional
+    * arguments to a number of iterators.  They are optional and can
+    * be specified in any order.  The default value, when a modifier is
+    * absent, depends on the iterator.
     *)
 
-   val indexFrom : Int.t -> 'a t -> ('a, Int.t) Product.t t
-   (** {indexFrom i = indexFromBy i 1} *)
+   type ('f, 't, 'b) mod
 
-   val index : 'a t -> ('a, Int.t) Product.t t
-   (** {index = indexFrom 0} *)
+   val From : ('f,
+               (('f, 't, 'b) mod, 'd, 'r) Fold.t,
+               (('f, 't, 'b) mod, 'd, 'r) Fold.t, 'k) Fold.s1
 
-   (** == Iterating over Integers ==
+   val To : ('t,
+             (('f, 't, 'b) mod, 'd, 'r) Fold.t,
+             (('f, 't, 'b) mod, 'd, 'r) Fold.t, 'k) Fold.s1
+
+   val By : ('b,
+             (('f, 't, 'b) mod, 'd, 'r) Fold.t,
+             (('f, 't, 'b) mod, 'd, 'r) Fold.t, 'k) Fold.s1
+
+   (** == Iterating over Integer Ranges == *)
+
+   val upTo : Int.t -> (((Int.t, Int.t, Int.t) mod,
+                         (Int.t, Int.t, Int.t) mod,
+                         Int.t t) Fold.t, 'k) CPS.t
+   (**
+    *> upTo u From l By d $ =
+    *>    [<l + 0*d, l + 1*d, ..., l + (u-l) div d * d>]
     *
-    * Note that the semantics of the {range[By]} iterators are different
-    * from the semantics of the {(up|down)[To[By]]} iterators.
-    *
-    * Given an invalid specification of a range, the iterators over
-    * integers raise {Subscript}.
+    * Defaults: {From 0 By 1}
     *)
 
-   val up : Int.t -> Int.t t
-   (** {up l = [<l, l+1, ...>]} *)
-
-   val upTo : Int.t -> Int.t -> Int.t t
-   (** {upTo l u = [<l, l+1, ..., u-1>]} *)
-
-   val upToBy : Int.t -> Int.t -> Int.t -> Int.t t
-   (** {upToBy l u d = [<l + 0*d, l + 1*d, ..., l + (u-l) div d * d>]} *)
-
-   val down : Int.t -> Int.t t
-   (** {down u = [<u-1, u-2, ...>]} *)
-
-   val downTo : Int.t -> Int.t -> Int.t t
-   (** {downTo u l = [<u-1, u-2, ..., l>]} *)
-
-   val downToBy : Int.t -> Int.t -> Int.t -> Int.t t
+   val downFrom : Int.t -> (((Int.t, Int.t, Int.t) mod,
+                             (Int.t, Int.t, Int.t) mod,
+                             Int.t t) Fold.t, 'k) CPS.t
    (**
-    *> downToBy u l d = [<u - 1*d, u - 2*d, ..., u - (u-l+d-1) div d * d>]
+    *> downFrom u To l By d $ =
+    *>    [<u - 1*d, u - 2*d, ..., u - (u-l+d-1) div d * d>]
     *
     * Note that {u - (u-l+d-1) div d * d} may be less than {l}.
+    *
+    * Defaults: {To 0 By 1}
     *)
 
-   val range : Int.t -> Int.t -> Int.t t
-   (** {range f t = if f < t then rangeBy f t 1 else rangeBy f t ~1} *)
-
-   val rangeBy : Int.t -> Int.t -> Int.t -> Int.t t
+   val up : (((Int.t, Unit.t, Int.t) mod,
+              (Int.t, Unit.t, Int.t) mod,
+              Int.t t) Fold.t, 'k) CPS.t
    (**
-    *> rangeBy f t d = [<f + 0*d, f + 1*d, ..., f + (t-f) div d * d>]
+    *> up From l By d $ = [<l + 0*d, l + 1*d, ...>]
     *
-    * If {f < t} then it must be that {0 < d}.  If {f > t} then it must be
-    * that {0 > d}.
+    * Defaults: {From 0 By 1}
+    *)
+
+   val down : (((Int.t, Unit.t, Int.t) mod,
+                (Int.t, Unit.t, Int.t) mod,
+                Int.t t) Fold.t, 'k) CPS.t
+   (**
+    *> down From u By d $ = [<u - 1*d, u - 2*d, ...>]
+    *
+    * Defaults: {From 0 By 1}
     *)
 
    val integers : Int.t t
-   (** {integers = [<0, 1, 2, ...>]} *)
+   (** {integers = up $ = [<0, 1, 2, ...>]} *)
 
-   (** == Iterators Over Standard Sequences == *)
+   (** == Indexing == *)
+
+   val index : (((Int.t, Unit.t, Int.t) mod,
+                 (Int.t, Unit.t, Int.t) mod,
+                 'a t -> ('a, Int.t) Product.t t) Fold.t, 'k) CPS.t
+   (**
+    *> index From i By d $ [<x(0), x(1), ...>] =
+    *>    [<x(0) & i+0*d, x(1) & i+1*d, ...>]
+    *
+    * Defaults: {From 0 By 1}
+    *)
+
+   (** == Iterators Over Standard Sequences ==
+    *
+    * Each of the {inX} iterators iterates over all the elements in the
+    * given sequence of type {X}.
+    *)
 
    val inList : 'a List.t -> 'a t
 
@@ -215,4 +256,14 @@ signature ITER = sig
    val inWord8ArraySlice : Word8ArraySlice.t -> Word8.t t
    val inWord8Vector : Word8Vector.t -> Word8.t t
    val inWord8VectorSlice : Word8VectorSlice.t -> Word8.t t
+
+   val onList : 'a List.t -> 'a List.t t
+   (**
+    *> onList []                      = [<>]
+    *> onList [x(0), x(1), ..., x(n)] =
+    *>   [<[x(0), x(1), ..., x(n)],
+    *>     [x(1), ..., x(n)],
+    *>     ...,
+    *>     [x(n)]>]
+    *)
 end

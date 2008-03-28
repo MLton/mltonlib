@@ -67,7 +67,7 @@ fun demo () = let
    fun render () = let
       val color = if SDL.Key.isPressed SDL.Key.Sym.SPACE then red else green
    in
-      (upToBy 0 w chestW >< upToBy 0 h chestH)
+      (upTo w By chestW $ >< upTo h By chestH $)
        (fn x & y =>
            SDL.Surface.blitRect
             chest {pos = {x=0, y=0}, dim = chestDim}
