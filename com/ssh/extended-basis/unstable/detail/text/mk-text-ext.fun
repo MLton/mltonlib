@@ -62,15 +62,15 @@ struct
       fun intToDigit i = (domain (Int.inRange (0, 9) i) ; chr (i + ord ch_0))
 
       fun hexDigitToInt c =
-          if inRange (ch_0, ch_9) c
-          then ord c - ord ch_0
-          else if inRange (ch_a, ch_f) c
-          then ord c - (ord ch_a - 10)
-          else (domain (inRange (ch_A, ch_F) c) ; ord c - (ord ch_A - 10))
+          ord c - (if inRange (ch_0, ch_9) c
+                   then ord ch_0
+                   else if inRange (ch_a, ch_f) c
+                   then ord ch_a - 10
+                   else (domain (inRange (ch_A, ch_F) c) ; ord ch_A - 10))
       fun intToHexDigit i =
-          if Int.inRange (0, 9) i
-          then chr (i + ord ch_0)
-          else (domain (Int.inRange (10, 15) i) ; chr (i + (ord ch_A - 10)))
+          chr (i + (if Int.inRange (0, 9) i
+                    then ord ch_0
+                    else (domain (Int.inRange (10, 15) i) ; ord ch_A - 10)))
    end
 
    structure CharVector = MkMonoVectorExt (CharVector)
