@@ -8,8 +8,11 @@ functor MkTextExt (structure Text : BASIS_TEXT
                    val stringToBytes :
                        Text.String.string -> BasisWord8Vector.vector
                    val bytesToString :
-                       BasisWord8Vector.vector -> Text.String.string)
-        : TEXT =
+                       BasisWord8Vector.vector -> Text.String.string
+                   val ch_0 : Text.Char.char val ch_1 : Text.Char.char
+                   val ch_7 : Text.Char.char val ch_9 : Text.Char.char
+                   val ch_a : Text.Char.char val ch_f : Text.Char.char
+                   val ch_A : Text.Char.char val ch_F : Text.Char.char) : TEXT =
 struct
    open Text
 
@@ -43,6 +46,31 @@ struct
       open Stringable
 
       open Core
+
+      val isBinDigit = inRange (ch_0, ch_1)
+      val isOctDigit = inRange (ch_0, ch_7)
+
+      fun domain b = if b then () else raise Domain
+
+      fun binDigitToInt c = (domain (isBinDigit c) ; ord c - ord ch_0)
+      fun intToBinDigit i = (domain (Int.inRange (0, 1) i) ; chr (i + ord ch_0))
+
+      fun octDigitToInt c = (domain (isOctDigit c) ; ord c - ord ch_0)
+      fun intToOctDigit i = (domain (Int.inRange (0, 7) i) ; chr (i + ord ch_0))
+
+      fun digitToInt c = (domain (isDigit c) ; ord c - ord ch_0)
+      fun intToDigit i = (domain (Int.inRange (0, 9) i) ; chr (i + ord ch_0))
+
+      fun hexDigitToInt c =
+          if inRange (ch_0, ch_9) c
+          then ord c - ord ch_0
+          else if inRange (ch_a, ch_f) c
+          then ord c - (ord ch_a - 10)
+          else (domain (inRange (ch_A, ch_F) c) ; ord c - (ord ch_A - 10))
+      fun intToHexDigit i =
+          if Int.inRange (0, 9) i
+          then chr (i + ord ch_0)
+          else (domain (Int.inRange (10, 15) i) ; chr (i + (ord ch_A - 10)))
    end
 
    structure CharVector = MkMonoVectorExt (CharVector)

@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -15,7 +15,12 @@ structure Word8Array : MONO_ARRAY =
 structure Word8ArraySlice : MONO_ARRAY_SLICE =
    MkMonoArraySliceExt (structure MonoArraySlice = BasisWord8ArraySlice)
 
-structure Text : TEXT = MkTextExt (structure Text = BasisText open BasisByte)
+structure Text : TEXT =
+   MkTextExt (structure Text = BasisText
+              open BasisByte
+              val ch_0 = #"0" val ch_1 = #"1" val ch_7 = #"7" val ch_9 = #"9"
+              val ch_a = #"a" val ch_f = #"f"
+              val ch_A = #"A" val ch_F = #"F")
 structure Char : CHAR = Text.Char
 structure CharArray : MONO_ARRAY = Text.CharArray
 structure CharArraySlice : MONO_ARRAY_SLICE = Text.CharArraySlice

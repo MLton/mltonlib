@@ -1,4 +1,4 @@
-(* Copyright (C) 2006 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2006-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -21,19 +21,40 @@ signature CHAR = sig
    val contains : string -> t UnPr.t
    val notContains : string -> t UnPr.t
 
+   (** == Digit Conversions ==
+    *
+    * Each of these raises {Domain} if the digit or int is not in the
+    * correct range.
+    *)
+
+   val binDigitToInt : t -> Int.t
+   val intToBinDigit : Int.t -> t
+
+   val octDigitToInt : t -> Int.t
+   val intToOctDigit : Int.t -> t
+
+   val digitToInt : t -> Int.t
+   val intToDigit : Int.t -> t
+
+   val intToHexDigit : Int.t -> t
+   val hexDigitToInt : t -> Int.t
+
    (** == Character Predicates == *)
 
-   val isAscii : t UnPr.t
+   val isBinDigit : t UnPr.t
+   val isOctDigit : t UnPr.t
+   val isDigit : t UnPr.t
+   val isHexDigit : t UnPr.t
+
    val isAlpha : t UnPr.t
    val isAlphaNum : t UnPr.t
+   val isAscii : t UnPr.t
    val isCntrl : t UnPr.t
-   val isDigit : t UnPr.t
    val isGraph : t UnPr.t
-   val isHexDigit : t UnPr.t
    val isLower : t UnPr.t
    val isPrint : t UnPr.t
-   val isSpace : t UnPr.t
    val isPunct : t UnPr.t
+   val isSpace : t UnPr.t
    val isUpper : t UnPr.t
 
    (** == Bounds == *)
