@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -88,7 +88,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
       infix  3 o <-->
       infix  2 andAlso >|
       infixr 2 |<
-      infix  1 := orElse >>= >>& :=: += -= >>* >>@
+      infix  1 := orElse >>= >< :=: += -= >>* >>@
       infixr 1 =<<
       infix  0 before <|> &` &
       infixr 0 -->
@@ -379,14 +379,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
 
       val string = share (Arg.Open.string ()) (mkSeq StringOps.ops char)
 
-      val c2b = Byte.charToByte
-      val b2c = Byte.byteToChar
-      fun h2n c =
-          c2b c - (if      Char.inRange (#"0", #"9") c then c2b #"0"
-                   else if Char.inRange (#"a", #"f") c then c2b #"a" - 0w10
-                   else if Char.inRange (#"A", #"F") c then c2b #"A" - 0w10
-                   else fail "Bug in fmt")
-      fun n2h n = b2c (n + (if n < 0w10 then c2b #"0" else c2b #"a" - 0w10))
+      val (h2n, n2h) = swap Word8.isoInt <--> Char.hexDigitIsoInt
       local
          fun makePos8 i =
              i + IntInf.<<
@@ -571,7 +564,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
             val P {rd = lR, wr = lW, sz = lS} = getP lT
             val P {rd = rR, wr = rW, sz = rS} = getP rT
          in
-            P {rd = let open I in lR >>& rR end,
+            P {rd = let open I in lR >< rR end,
                wr = let open O in fn l & r => lW l >> rW r end,
                sz = OptInt.+ (lS, rS)}
          end
