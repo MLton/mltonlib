@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -74,12 +74,14 @@ functor MkMonad (Core : MONAD_CORE) : MONAD = struct
 end
 
 functor MkMonadP (Core : MONADP_CORE) : MONADP = struct
-   infix <|>
+   infix <|> >>=
    structure Monad = MkMonad (Core)
    open Monad Core
    type 'a monadp_ex = 'a monad
 
    fun guard b = if b then return () else zero
+
+   fun filter p m = m >>= (fn x => if p x then return x else zero)
 
    fun sumWith x2yM =
     fn []    => zero
