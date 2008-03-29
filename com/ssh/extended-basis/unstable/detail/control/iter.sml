@@ -46,8 +46,6 @@ structure Iter :> ITER = struct
 
    fun iterate f = unfold (fn x => SOME (x, f x))
 
-   fun filter p m = m >>= (fn x => if p x then return x else zero)
-
    fun repeat x = iterate id x
    fun replicate n =
        (subscript (0 <= n)

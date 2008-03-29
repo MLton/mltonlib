@@ -100,6 +100,8 @@ signature ITER = sig
     *>    (if p x(0) then [<x(0)>] else [<>]) <|> filter p [<x(1), ...>]
     *
     *> fun filter p m = m >>= (fn x => if p x then return x else zero)
+    *
+    * This is the same as {Monad.filter}.
     *)
 
    val >< : 'a t * 'b t -> ('a, 'b) Product.t t
