@@ -52,25 +52,28 @@ struct
 
       fun domain b = if b then () else raise Domain
 
-      fun binDigitToInt c = (domain (isBinDigit c) ; ord c - ord ch_0)
-      fun intToBinDigit i = (domain (Int.inRange (0, 1) i) ; chr (i + ord ch_0))
+      local
+         fun dig i = chr (i + ord ch_0)
+         fun mk m =
+             (fn c => (domain (inRange (ch_0, dig m) c) ; ord c - ord ch_0),
+              fn i => (domain (Int.inRange (0, m) i) ; dig i))
+      in
+         val binDigitIsoInt as (binDigitToInt, intToBinDigit) = mk 1
+         val octDigitIsoInt as (octDigitToInt, intToOctDigit) = mk 7
+         val digitIsoInt    as (digitToInt,    intToDigit)    = mk 9
+      end
 
-      fun octDigitToInt c = (domain (isOctDigit c) ; ord c - ord ch_0)
-      fun intToOctDigit i = (domain (Int.inRange (0, 7) i) ; chr (i + ord ch_0))
-
-      fun digitToInt c = (domain (isDigit c) ; ord c - ord ch_0)
-      fun intToDigit i = (domain (Int.inRange (0, 9) i) ; chr (i + ord ch_0))
-
-      fun hexDigitToInt c =
-          ord c - (if inRange (ch_0, ch_9) c
-                   then ord ch_0
-                   else if inRange (ch_a, ch_f) c
-                   then ord ch_a - 10
-                   else (domain (inRange (ch_A, ch_F) c) ; ord ch_A - 10))
-      fun intToHexDigit i =
-          chr (i + (if Int.inRange (0, 9) i
-                    then ord ch_0
-                    else (domain (Int.inRange (10, 15) i) ; ord ch_A - 10)))
+      val hexDigitIsoInt as (hexDigitToInt, intToHexDigit) =
+          (fn c => ord c - (if inRange (ch_0, ch_9) c
+                            then ord ch_0
+                            else if inRange (ch_a, ch_f) c
+                            then ord ch_a - 10
+                            else (domain (inRange (ch_A, ch_F) c)
+                                ; ord ch_A - 10)),
+           fn i => chr (i + (if Int.inRange (0, 9) i
+                             then ord ch_0
+                             else (domain (Int.inRange (10, 15) i)
+                                 ; ord ch_A - 10))))
    end
 
    structure CharVector = MkMonoVectorExt (CharVector)

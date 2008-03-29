@@ -29,15 +29,19 @@ signature CHAR = sig
 
    val binDigitToInt : t -> Int.t
    val intToBinDigit : Int.t -> t
+   val binDigitIsoInt : (t, Int.t) Iso.t
 
    val octDigitToInt : t -> Int.t
    val intToOctDigit : Int.t -> t
+   val digitIsoInt : (t, Int.t) Iso.t
 
    val digitToInt : t -> Int.t
    val intToDigit : Int.t -> t
+   val octDigitIsoInt : (t, Int.t) Iso.t
 
    val intToHexDigit : Int.t -> t
    val hexDigitToInt : t -> Int.t
+   val hexDigitIsoInt : (t, Int.t) Iso.t
 
    (** == Character Predicates == *)
 
