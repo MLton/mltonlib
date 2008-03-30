@@ -5,7 +5,7 @@
  *)
 
 structure Iter :> ITER = struct
-   open Option Product UnPr Effect Fn
+   open Exn Option Product UnPr Effect Fn
 
    infix 1 <|>
    infix 0 >>= &
@@ -97,6 +97,17 @@ structure Iter :> ITER = struct
    val inString = inCharVector
    val inWord8Array = flip Word8Array.app
    val inWord8Vector = flip Word8Vector.app
+
+   fun inDir d e = let
+      open OS.FileSys
+      val i = openDir d
+      fun lp () =
+          case readDir i
+           of NONE   => ()
+            | SOME f => (e f : Unit.t ; lp ())
+   in
+      after (lp, fn () => closeDir i)
+   end
 
    val for = id
    fun fold f s m = (fn s => (m (fn x => s := f (x, !s)) : Unit.t ; !s)) (ref s)

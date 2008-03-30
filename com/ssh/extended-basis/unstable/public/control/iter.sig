@@ -134,7 +134,7 @@ signature ITER = sig
 
    val take : Int.t -> 'a t UnOp.t
    (**
-    *> take n [<x(0), x(1), ..., x(m)>] = [<x(0), x(1), ..., x(m)>], m <= n
+    *> take n [<x(0), x(1), ..., x(m)>] = [<x(0), x(1), ..., x(m)>], m < n
     *> take n [<x(0), x(1), ..., x(n-1), ...>] = [<x(0), x(1), ..., x(n-1)>]
     *)
 
@@ -258,6 +258,14 @@ signature ITER = sig
    val inWord8ArraySlice : Word8ArraySlice.t -> Word8.t t
    val inWord8Vector : Word8Vector.t -> Word8.t t
    val inWord8VectorSlice : Word8VectorSlice.t -> Word8.t t
+
+   val inDir : String.t -> String.t t
+   (**
+    * Iterates over the files in the specified directory.  This
+    * corresponds to iterating over the files returned by repeatedly
+    * calling {OS.FileSys.readDir} with a directory stream opened with
+    * {OS.FileSys.openDir}.
+    *)
 
    val onList : 'a List.t -> 'a List.t t
    (**
