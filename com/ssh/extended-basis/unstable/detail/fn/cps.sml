@@ -5,7 +5,10 @@
  *)
 
 structure CPS :> CPS = struct
-   open CPS
+   open Fn CPS
    fun return x f = f x
-   fun op >>= (aM, a2bM) = aM o Fn.flip a2bM
+   fun op >>= (aM, a2bM) = aM o flip a2bM
+   type ('a, 'c) cont = 'a -> 'c
+   fun callcc b k = b k k
+   fun throw k x _ = k x
 end
