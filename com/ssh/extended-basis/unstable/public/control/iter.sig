@@ -74,7 +74,27 @@ signature ITER = sig
 
    (** == Monad ==
     *
-    * Iterators essentially form a monad with plus.
+    * Iterators essentially form a monad with plus and satisfy the same
+    * laws, notably the left distribution law, as the (lazy) List monad.
+    *
+    * Monad {zero} is iterator for the empty sequence:
+    *
+    *> zero = [<>]
+    *
+    * Monad {<|>} (plus) is iterator concatenation:
+    *
+    *> [<a(0), a(1), ...>]       <|> [<b(0), b(1), ...>] = [<a(0), a(1), ...>]
+    *> [<a(0), a(1), ..., a(n)>] <|> [<b(0), b(1), ...>] =
+    *>    [<a(0), a(1), ..., a(n)>, b(0), b(1), ...]
+    *
+    * Monad {return} is an iterator for the singleton sequence:
+    *
+    *> return x = [<x>]
+    *
+    * Monad {>>=} (bind) is mapping and concatenation ({concatMap}) of
+    * iterators:
+    *
+    *> [<a(0), a(1), ...>] >>= a2bI = a2bI a(0) <|> a2bI a(1) <|> ...
     *)
 
    include MONADP_CORE where type 'a monad = 'a t
@@ -92,7 +112,11 @@ signature ITER = sig
    val iterate : 'a UnOp.t -> 'a -> 'a t
    (** {iterate f x = [<x, f x, f (f x), ...>]} *)
 
-   (** == Combinators == *)
+   (** == Frequently used Monad Combinators ==
+    *
+    * These combinators are copied from the {Monad} substructure, because
+    * they are frequently useful.
+    *)
 
    val filter : 'a UnPr.t -> 'a t UnOp.t
    (**
@@ -113,6 +137,11 @@ signature ITER = sig
     *
     * This is the same as {Monad.><}.
     *)
+
+   (** == Misc Combinators == *)
+
+   val intersperse : 'a -> 'a t UnOp.t
+   (** {intersperse x [<a(0), a(1), ...>] = [<a(0), x, a(1), x, ...>]} *)
 
    (** == Repetition == *)
 

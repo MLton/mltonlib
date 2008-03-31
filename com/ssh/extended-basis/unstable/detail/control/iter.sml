@@ -19,6 +19,11 @@ structure Iter :> ITER = struct
                 fun a <|> b = b o obs a)
    open Monad
 
+   fun intersperse x aM e =
+       case ref true
+        of isFirst =>
+           aM (fn a => (if !isFirst then isFirst := false else e x ; e a))
+
    fun unfold g s f =
        case g s of NONE => () | SOME (x, s) => (f x : Unit.t ; unfold g s f)
 
@@ -99,7 +104,7 @@ structure Iter :> ITER = struct
    val inWord8Vector = flip Word8Vector.app
 
    fun inDir d e = let
-      open OS.FileSys
+      open BasisOS.FileSys
       val i = openDir d
       fun lp () =
           case readDir i
