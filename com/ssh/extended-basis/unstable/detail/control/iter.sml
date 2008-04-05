@@ -10,7 +10,7 @@ structure Iter :> ITER = struct
    infix 1 <|>
    infix 0 >>= &
 
-   type 'a t = ('a, Unit.t) CPS.t
+   type 'a t = 'a Effect.t Effect.t
 
    structure Monad =
       MkMonadP (type 'a monad = 'a t

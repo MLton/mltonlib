@@ -6,7 +6,7 @@
 
 (** Signature for iterator or loop combinators. *)
 signature ITER = sig
-   type 'a t = ('a, Unit.t) CPS.t
+   type 'a t = 'a Effect.t Effect.t
    (** The type of iterator functions. *)
 
    (** == Running Iterators == *)
@@ -52,7 +52,7 @@ signature ITER = sig
     *>    fold f (f (x(0), s)) [<x(1), ..., x(n)>]
     *)
 
-   val for : 'a t -> ('a, Unit.t) CPS.t
+   val for : 'a t -> 'a Effect.t Effect.t
    (**
     *> for [<>]                f = ()
     *> for [<x(0), x(1), ...>] f = (f x(0) ; for [<x(1), ...>] f)
