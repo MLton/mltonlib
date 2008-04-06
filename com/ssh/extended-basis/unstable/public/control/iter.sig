@@ -255,6 +255,21 @@ signature ITER = sig
    val integers : Int.t t
    (** {integers = up $ = [<0, 1, 2, ...>]} *)
 
+   (** == Iterating over Non-Integer Ranges == *)
+
+   val realsTo : Real.t -> (((Real.t, Unit.t, Real.t) mod,
+                             (Real.t, Unit.t, Real.t) mod,
+                             Real.t t) Fold.t, 'k) CPS.t
+   (**
+    *> realsTo b From a By s $ = [<a+0.0*s, a+1.0*s, ..., a+(n-1.0)*s>]
+    *
+    * where {n = (b-a)/s}.  If {n} is negative the sequence will be empty.
+    * If {n} cannot be represented to sufficient precision or is NaN, then
+    * {Domain} will be raised.
+    *
+    * Defaults: {From 0.0 By 1.0}
+    *)
+
    (** == Indexing == *)
 
    val index : (((Int.t, Unit.t, Int.t) mod,

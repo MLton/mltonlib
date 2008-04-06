@@ -84,6 +84,17 @@ structure Iter :> ITER = struct
    fun index ? = Fold.wrap ((0, (), 1), fn (i, (), d) =>
     fn m => fn f => (fn i => m (fn a => f (a & !i) before i := !i+d)) (ref i)) ?
 
+   val maxRealInt = Real.Math.pow (2.0, Real.fromInt Real.precision)
+
+   fun realsTo e = Fold.wrap ((0.0, (), 1.0), fn (b, (), s) => let
+      val n = (e-b)/s
+      val n = if 0.0 <= n andalso n <= maxRealInt then n else
+              if n < 0.0 then 0.0
+              else raise Domain
+   in
+      unfold (fn i => if i < n then SOME (i*s + b, i+1.0) else NONE) 0.0
+   end)
+
    fun inList s = unfold List.getItem s
    fun onList s = unfold (fn [] => NONE | l as _::t => SOME (l, t)) s
 
