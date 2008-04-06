@@ -4,6 +4,6 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-$(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+../../basis.mlb
 
 eratosthenes.sml
