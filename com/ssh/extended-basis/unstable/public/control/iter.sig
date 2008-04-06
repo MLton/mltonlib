@@ -143,6 +143,9 @@ signature ITER = sig
    val intersperse : 'a -> 'a t UnOp.t
    (** {intersperse x [<a(0), a(1), ...>] = [<a(0), x, a(1), x, ...>]} *)
 
+   val on : 'a t -> 'a Effect.t -> 'a t
+   (** Apply effect on each element of the iterator. *)
+
    (** == Repetition == *)
 
    val repeat : 'a -> 'a t
@@ -196,15 +199,15 @@ signature ITER = sig
    type ('f, 't, 'b) mod
 
    val From : ('f,
-               (('f, 't, 'b) mod, 'd, 'r) Fold.t,
+               (('x, 't, 'b) mod, 'd, 'r) Fold.t,
                (('f, 't, 'b) mod, 'd, 'r) Fold.t, 'k) Fold.s1
 
    val To : ('t,
-             (('f, 't, 'b) mod, 'd, 'r) Fold.t,
+             (('f, 'x, 'b) mod, 'd, 'r) Fold.t,
              (('f, 't, 'b) mod, 'd, 'r) Fold.t, 'k) Fold.s1
 
    val By : ('b,
-             (('f, 't, 'b) mod, 'd, 'r) Fold.t,
+             (('f, 't, 'x) mod, 'd, 'r) Fold.t,
              (('f, 't, 'b) mod, 'd, 'r) Fold.t, 'k) Fold.s1
 
    (** == Iterating over Integer Ranges == *)
@@ -267,10 +270,19 @@ signature ITER = sig
    (** == Iterators Over Standard Sequences ==
     *
     * Each of the {inX} iterators iterates over all the elements in the
-    * given sequence of type {X}.
+    * given sequence of type {X.t}.
     *)
 
    val inList : 'a List.t -> 'a t
+   val onList : 'a List.t -> 'a List.t t
+   (**
+    *> onList []                      = [<>]
+    *> onList [x(0), x(1), ..., x(n)] =
+    *>   [<[x(0), x(1), ..., x(n)],
+    *>     [x(1), ..., x(n)],
+    *>     ...,
+    *>     [x(n)]>]
+    *)
 
    val inArray : 'a Array.t -> 'a t
    val inArraySlice : 'a ArraySlice.t -> 'a t
@@ -288,21 +300,33 @@ signature ITER = sig
    val inWord8Vector : Word8Vector.t -> Word8.t t
    val inWord8VectorSlice : Word8VectorSlice.t -> Word8.t t
 
+   (** == Iterators Over Input Streams == *)
+
+   val lines : BasisTextIO.instream -> String.t Option.t
+   (** This is the same as {TextIO.inputLine}. *)
+
+   val chars : BasisTextIO.instream -> Char.t Option.t
+   (** This is the same as {TextIO.input1}. *)
+
+   val inTextFile :
+       String.t ->
+       (((Unit.t, Unit.t, BasisTextIO.instream -> Char.t Option.t) mod,
+         (Unit.t, Unit.t, BasisTextIO.instream -> 'a Option.t) mod,
+         'a t) Fold.t, 'k) CPS.t
+   (**
+    *> inTextFile file By method $
+    *
+    * Iterates over elements input from the text {file} by the given
+    * {method}.
+    *
+    * Defaults: {By chars}
+    *)
+
    val inDir : String.t -> String.t t
    (**
     * Iterates over the files in the specified directory.  This
     * corresponds to iterating over the files returned by repeatedly
     * calling {OS.FileSys.readDir} with a directory stream opened with
     * {OS.FileSys.openDir}.
-    *)
-
-   val onList : 'a List.t -> 'a List.t t
-   (**
-    *> onList []                      = [<>]
-    *> onList [x(0), x(1), ..., x(n)] =
-    *>   [<[x(0), x(1), ..., x(n)],
-    *>     [x(1), ..., x(n)],
-    *>     ...,
-    *>     [x(n)]>]
     *)
 end

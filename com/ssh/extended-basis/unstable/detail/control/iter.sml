@@ -24,6 +24,8 @@ structure Iter :> ITER = struct
         of isFirst =>
            aM (fn a => (if !isFirst then isFirst := false else e x ; e a))
 
+   fun on i e = map (obs e) i
+
    fun unfold g s f =
        case g s of NONE => () | SOME (x, s) => (f x : Unit.t ; unfold g s f)
 
@@ -103,15 +105,25 @@ structure Iter :> ITER = struct
    val inWord8Array = flip Word8Array.app
    val inWord8Vector = flip Word8Vector.app
 
-   fun inDir d e = let
-      open BasisOS.FileSys
-      val i = openDir d
-      fun lp () =
-          case readDir i
-           of NONE   => ()
-            | SOME f => (e f : Unit.t ; lp ())
+   fun inImperativeStream openS closeS readS a e = let
+      val s = openS a
+      fun lp () = case readS s of NONE => () | SOME x => (e x : Unit.t ; lp ())
    in
-      after (lp, fn () => closeDir i)
+      after (lp, fn () => closeS s)
+   end
+
+   local
+      open BasisTextIO
+   in
+      val lines = inputLine
+      val chars = input1
+      fun inTextFile f = Fold.wrap (((), (), chars), fn ((), (), input) =>
+          inImperativeStream openIn closeIn input f)
+   end
+   val inDir = let
+      open BasisOS.FileSys
+   in
+      inImperativeStream openDir closeDir readDir
    end
 
    val for = id
