@@ -28,6 +28,8 @@
  * version.
  *)
 
+open Iter.Monad Iter
+
 (*** Expressions ***)
 
 datatype b = ADD | SUB | MUL | DIV
@@ -58,10 +60,10 @@ fun interleave x []      e = e [x] : unit
   | interleave x (y::ys) e =
     (e (x::y::ys) ; interleave x ys (fn ys => e (y::ys)))
 
-fun perms []      e = e [] : unit
-  | perms (x::xs) e = perms xs (fn p => interleave x p e)
+fun perms []      = return []
+  | perms (x::xs) = perms xs >>= interleave x
 
-fun choices xs e = subs xs (fn s => perms s e)
+fun choices xs = subs xs >>= perms
 
 (*** Brute force solution ***)
 
@@ -71,7 +73,7 @@ fun split []      _ = ()
 
 fun bops e = (e ADD ; e SUB ; e MUL ; e DIV) : unit
 
-fun combine l r e = bops (fn b => e (APP (b, l, r)))
+fun combine l r = map (fn b => APP (b, l, r)) bops
 
 fun exprs []  _ = ()
   | exprs [n] e = e (VAL n)
