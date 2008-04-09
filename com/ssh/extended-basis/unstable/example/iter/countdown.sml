@@ -32,22 +32,22 @@
 
 datatype b = ADD | SUB | MUL | DIV
 
-fun valid ADD _ _ = true
-  | valid SUB x y = x > y
-  | valid MUL _ _ = true
-  | valid DIV x y = x mod y = 0
+fun valid x y = fn ADD => true
+                 | SUB => x > y
+                 | MUL => true
+                 | DIV => x mod y = 0
 
-fun apply ADD x y = x + y
-  | apply SUB x y = x - y
-  | apply MUL x y = x * y
-  | apply DIV x y = x div y
+fun apply x y = fn ADD => x + y
+                 | SUB => x - y
+                 | MUL => x * y
+                 | DIV => x div y
 
 datatype x = VAL of int | APP of b * x * x
 
 fun eval (VAL n)         e = if n > 0 then e n else ()
-  | eval (APP (b, l, r)) e = eval l (fn l =>
-                             eval r (fn r =>
-                             if valid b l r then e (apply b l r) else ()))
+  | eval (APP (b, l, r)) e = eval l (fn x =>
+                             eval r (fn y =>
+                             if valid x y b then e (apply x y b) else ()))
 
 (*** Combinatorial functions ***)
 
@@ -86,7 +86,7 @@ fun solutions ns n e = choices ns (fn ns' =>
 (*** Combining generation and evaluation ***)
 
 fun combine' (l, x) (r, y) e =
-    bops (fn b => if valid b x y then e (APP (b, l, r), apply b x y) else ())
+    bops (fn b => if valid x y b then e (APP (b, l, r), apply x y b) else ())
 
 fun results []  _ = ()
   | results [n] e = if n > 0 then e (VAL n, n) else ()
@@ -100,13 +100,13 @@ fun solutions' ns n e =
 
 (*** Exploiting numeric properties ***)
 
-fun valid' ADD x y = x <= y
-  | valid' SUB x y = x > y
-  | valid' MUL x y = x <= y andalso 1 < x
-  | valid' DIV x y = y <> 1 andalso x mod y = 0
+fun valid' x y = fn ADD => x <= y
+                  | SUB => x > y
+                  | MUL => x <= y andalso 1 < x
+                  | DIV => y <> 1 andalso x mod y = 0
 
 fun combine'' (l, x) (r, y) e =
-    bops (fn b => if valid' b x y then e (APP (b, l, r), apply b x y) else ())
+    bops (fn b => if valid' x y b then e (APP (b, l, r), apply x y b) else ())
 
 fun results' []  _ = ()
   | results' [n] e = if n > 0 then e (VAL n, n) else ()
