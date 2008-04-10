@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 Vesa Karvonen
+(* Copyright (C) 2007-2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -10,7 +10,7 @@ structure SDL :> SDL = struct
    structure Word32Flags = MkWordFlags (Word32)
    structure Word8Flags = MkWordFlags (Word8)
 
-   val op >>& = With.Monad.>>&
+   val op >< = With.Monad.><
    fun withNew size = With.around (fn () => C.new' size) C.discard'
    fun withAlloc alloc = With.around alloc C.free'
    fun withZs mlStr = withAlloc (fn () => ZString.dupML' mlStr)
@@ -289,7 +289,7 @@ structure SDL :> SDL = struct
          local
             open E_'SDLMod
          in
-            val toML = Word32.fromInt o E_'SDLMod.m2i
+            val toML = Word32.fromInt o m2i
             val LSHIFT = toML e_KMOD_LSHIFT
             val RSHIFT = toML e_KMOD_RSHIFT
             val LCTRL  = toML e_KMOD_LCTRL
@@ -397,12 +397,12 @@ structure SDL :> SDL = struct
 
    structure Image = struct
       fun loadBMP path =
-          one (withZs path >>& withZs "rb")
+          one (withZs path >< withZs "rb")
               (fn path & rb =>
                   Surface.new o checkPtr |< F_SDL_LoadBMP_RW.f'
                      (F_SDL_RWFromFile.f' (path, rb), 1))
       fun saveBMP surface path =
-          one (withZs path >>& withZs "wb")
+          one (withZs path >< withZs "wb")
               (fn path & wb =>
                   (Surface.withPtr surface)
                      (fn surface =>
