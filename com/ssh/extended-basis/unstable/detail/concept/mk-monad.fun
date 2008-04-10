@@ -83,6 +83,8 @@ functor MkMonadP (Core : MONADP_CORE) : MONADP = struct
 
    fun filter p m = m >>= (fn x => if p x then return x else zero)
 
+   fun mapPartial f m = m >>= (fn NONE => zero | SOME x => return x) o f
+
    fun sumWith x2yM =
     fn []    => zero
      | [x]   => x2yM x

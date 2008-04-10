@@ -108,6 +108,7 @@ signature MONADP_EX = sig
    type 'a monadp_ex
    val guard : Bool.t -> Unit.t monadp_ex
    val filter : 'a UnPr.t -> 'a monadp_ex UnOp.t
+   val mapPartial : ('a -> 'b Option.t) -> 'a monadp_ex -> 'b monadp_ex
    val sum : 'a monadp_ex List.t -> 'a monadp_ex
    val sumWith : ('a -> 'b monadp_ex) -> 'a List.t -> 'b monadp_ex
 end
