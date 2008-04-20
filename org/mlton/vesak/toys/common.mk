@@ -15,10 +15,6 @@ mlb-path-map := $(gen-dir)/mlb-path-map
 
 exe := $(gen-dir)/$(name)
 
-ifneq ($(target-os),mingw)
-link-opts += -ldl
-endif
-
 ##########################################################################
 
 .PHONY : all clean help run
