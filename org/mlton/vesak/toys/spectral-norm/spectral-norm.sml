@@ -9,13 +9,15 @@
  * ``Computer Language Benchmarks Game'' (TheGame).  Compared to the
  * SML/MLton version of the benchmark in TheGame at the time of writing,
  * this one reuses a part of the logic, namely one of the multiplication
- * functions, by using a higher-order function.  This version also makes
- * use of a library of iterator combinators rather than a hand written
- * tail recursive functions or a special purpose for-function.
- * Nevertheless, performance stays the same, because MLton specializes the
- * code, eliminating the abstraction penalty.  As a result, this
- * implementation is significantly shorter than the implementation in
- * TheGame.
+ * functions, by using a higher-order function.  (Note that this
+ * deoptimization actually violates the rules of this particular
+ * benchmark, which dictate that four functions must be used.)  This
+ * version also makes use of a library of iterator combinators rather than
+ * a hand written tail recursive functions or a special purpose
+ * for-function.  Nevertheless, performance stays the same, because MLton
+ * specializes the code, eliminating the abstraction penalty.  As a
+ * result, this implementation is significantly shorter than the
+ * implementation in TheGame.
  *
  * This benchmark is clearly compute bound.  Disabling array bounds and
  * integer overflow checking
