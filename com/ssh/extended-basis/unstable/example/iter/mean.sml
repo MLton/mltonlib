@@ -12,7 +12,7 @@
  * translated to SML using iterator combinators.
  *
  * The mean computation runs in constant space.  The sequence of real
- * numbers is generated twice, first to compute the sum and then to
+ * numbers is generated twice: first to compute the sum and then to
  * compute the length.  Of course, one could also compute the sum and
  * length simultaneously and only generated the sequence once.
  *)
