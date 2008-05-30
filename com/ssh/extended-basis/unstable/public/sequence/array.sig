@@ -22,6 +22,8 @@ signature ARRAY = sig
     * equivalent to {tabulate (length a, fn i => sub (a, i))}.
     *)
 
+   val for : 'a t -> 'a Effect.t Effect.t
+
    (** == HOFs == *)
 
    val unfoldi : (Int.t * 'b -> 'a * 'b) -> Int.t * 'b -> 'a t * 'b

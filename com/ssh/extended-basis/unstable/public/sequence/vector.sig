@@ -21,6 +21,8 @@ signature VECTOR = sig
     * bi+1) = f (i, bi)}.
     *)
 
+   val for : 'a t -> 'a Effect.t Effect.t
+
    (** == Conversions == *)
 
    val toList : 'a t -> 'a List.t

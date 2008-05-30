@@ -8,7 +8,8 @@ functor MkSeqCommonExt (type 'a t
                         val tabulate : Int.t * (Int.t -> 'a) -> 'a t
                         val foldr : ('a * 'b -> 'b) -> 'b -> 'a t -> 'b
                         val fromList : 'a List.t -> 'a t
-                        val maxLen : Int.t) = struct
+                        val maxLen : Int.t
+                        val app : 'a Effect.t -> 'a t Effect.t) = struct
    fun empty () = tabulate (0, Basic.undefined)
    fun unfoldi fis (n, s) = let
       fun lp (i, s, xs) =
@@ -18,4 +19,5 @@ functor MkSeqCommonExt (type 'a t
    end
    fun toList t = foldr op :: [] t
    val isoList = (toList, fromList)
+   fun for xs ef = app ef xs
 end
