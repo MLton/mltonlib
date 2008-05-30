@@ -68,6 +68,10 @@ signature LIST = sig
 
    val concatMap : ('a -> 'b t) -> 'a t -> 'b t
 
+   val findSome : ('a -> 'b Option.t) -> 'a t -> 'b Option.t
+
+   val for : 'a t -> 'a Effect.t Effect.t
+
    (** == Indexed HOFs == *)
 
    val appi : (Int.t * 'a) Effect.t -> 'a t Effect.t
@@ -122,6 +126,9 @@ signature LIST = sig
 
    (** == Sorted Lists == *)
 
+   val merge : 'a Cmp.t -> 'a t BinOp.t
+   (** Merges two ordered lists. *)
+
    val sort : 'a Cmp.t -> 'a t UnOp.t
    (** Sorts given list to ascending order with respect to given ordering. *)
 
@@ -138,7 +145,7 @@ signature LIST = sig
 
    (** == Operations using equivalence relations and partial orders ==
     *
-    * The {ByEq} functions use a binary predicate and operates in O(n^2)
+    * The {ByEq} functions use a binary predicate and operate in O(n^2)
     * time.  The binary predicate is assumed to be an equivalence
     * relation.
     *

@@ -63,6 +63,9 @@ structure List : LIST = struct
       lp
    end
    fun concatMap f = rev o foldl (revAppend o Pair.map (f, Fn.id)) []
+   fun findSome x2yO =
+    fn []    => NONE
+     | x::xs => case x2yO x of NONE => findSome x2yO xs | SOME y => SOME y
    fun appr e = app e o rev
    fun foldli f y = #2 o foldl (fn (x, (i, y)) => (i+1, f (i+1, x, y))) (~1, y)
    fun foldri f y xs = let
@@ -123,6 +126,7 @@ structure List : LIST = struct
    in
       revAppend (lp (xs, ys, []))
    end
+   fun merge compare = rev o revMerge compare
    fun stableSort compare xs = let
       (* This optimized implementation of merge sort tries to minimize
        * list reversals by performing reverse merges and flipping the
@@ -164,4 +168,5 @@ structure List : LIST = struct
    end
    val sort = stableSort
    fun iso ? = Pair.map (map, map) ?
+   fun for xs ef = app ef xs
 end
