@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2007 Vesa Karvonen
+# Copyright (C) 2007-2008 Vesa Karvonen
 #
 # This code is released under the MLton license, a BSD-style license.
 # See the LICENSE file or http://mlton.org/License for details.
@@ -12,7 +12,7 @@ MLTON_LIB=`cd ../../../../.. && pwd`
 sources="public/use-lib.sig detail/use-lib.sml public/export.sml"
 
 function gen {
-    echo "(* Copyright (C) 2007 Vesa Karvonen
+    echo "(* Copyright (C) 2007-2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -50,7 +50,7 @@ gen alice '()' 'ignore'
 gen mosml '()' 'ignore'
 
 gen polyml                                      \
-    '(PolyML.get_print_depth ()                 \
+    '(!PolyML.Compiler.printDepth               \
       before PolyML.print_depth 0)'             \
     'PolyML.print_depth'
 
