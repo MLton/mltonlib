@@ -7,30 +7,30 @@
 val () = let
    open Generic UnitTest
 
-   fun listEither pair sumIn sumOut a =
+   fun listEither swap mirror a =
        (Tie.fix Y)
-          (fn aListLeft =>
-              iso (data (op +` (pair (C0' "nil",
-                                      C1' "::" (tuple2 (a, aListLeft))))))
-                  (sumIn o (fn [] => INL () | op :: ? => INR ?),
-                   (fn INL () => [] | INR ? => op :: ?) o sumOut))
+        (fn aListLeft =>
+            iso (data (op +` (swap (C0' "nil",
+                                    C1' "::" (tuple2 (a, aListLeft))))))
+                (mirror <--> (fn [] => INL () | op :: ? => INR ?,
+                              fn INL () => [] | INR ? => op :: ?)))
 
-   fun listL ? = listEither id        id       id       ?
-   fun listR ? = listEither Pair.swap Sum.swap Sum.swap ?
+   fun listL ? = listEither id   (id,     id)     ?
+   fun listR ? = listEither swap (mirror, mirror) ?
 in
    unitTests
-      (title "Generic.Some")
+    (title "Generic.Some")
 
-      (* Test that generation terminates both ways. *)
-      (testEq (list int)
-              (fn () =>
-                  {actual = some (listL int),
-                   expect = some (listR int)}))
+    (* Test that generation terminates both ways. *)
+    (testEq (list int)
+            (fn () =>
+                {actual = some (listL int),
+                 expect = some (listR int)}))
 
-      (testEq (BinTree.t int)
-              (fn () =>
-                  {actual = some (BinTree.t int),
-                   expect = BinTree.LF}))
+    (testEq (BinTree.t int)
+            (fn () =>
+                {actual = some (BinTree.t int),
+                 expect = BinTree.LF}))
 
-      $
+    $
 end

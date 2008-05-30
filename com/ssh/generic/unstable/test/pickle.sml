@@ -27,31 +27,31 @@ val () = let
                    val p = pickle t (some t)
                 in
                    thatRaises'
-                      (fn Pickle.TypeMismatch => ())
-                      (fn () => unpickle u p)
+                    (fn Pickle.TypeMismatch => ())
+                    (fn () => unpickle u p)
                 end)
 in
    unitTests
-      (title "Generic.Pickle")
+    (title "Generic.Pickle")
 
-      (testAllSeq (vector (option (list real))))
-      (testAllSeq (tuple2 (fixedInt, largeInt)))
-      (testAllSeq (largeReal &` largeWord))
-      (testAllSeq (tuple3 (word8, word32, int32)))
-      (testAllSeq (bool &` char &` int &` real &` string &` word))
+    (testAllSeq (vector (option (list real))))
+    (testAllSeq (tuple2 (fixedInt, largeInt)))
+    (testAllSeq (largeReal &` largeWord))
+    (testAllSeq (tuple3 (word8, word32, int32)))
+    (testAllSeq (bool &` char &` int &` real &` string &` word))
 
-      (title "Generic.Pickle.Cyclic")
+    (title "Generic.Pickle.Cyclic")
 
-      (testSeq (Graph.t int) Graph.intGraph1)
-      (testSeq (array exn) ExnArray.exnArray1)
+    (testSeq (Graph.t int) Graph.intGraph1)
+    (testSeq (array exn) ExnArray.exnArray1)
 
-      (title "Generic.Pickle.TypeMismatch")
+    (title "Generic.Pickle.TypeMismatch")
 
-      (testTypeMismatch int word)
-      (testTypeMismatch (list char) (vector word8))
-      (testTypeMismatch (array real) (option largeReal))
+    (testTypeMismatch int word)
+    (testTypeMismatch (list char) (vector word8))
+    (testTypeMismatch (array real) (option largeReal))
 
-      (title "Generic.Pickle.Customization")
+    (title "Generic.Pickle.Customization")
 
     (test (fn () => let
         (* This test shows how pickles can be versioned and multiple
@@ -77,18 +77,18 @@ in
                      (fn {id = a, extra = b, name = c} => a & b & c,
                       fn a & b & c => {id = a, extra = b, name = c})
 
-        (* Then we assign version {2} to the new type, keeping the
-         * version {1} for the old type: *)
+        (* Then we assign version {2} to the new type, keeping the version
+         * {1} for the old type: *)
         val t = versioned (version 1 t1
-                              (fn {id, name} =>
-                                  {id = id, extra = false, name = name}))
+                                   (fn {id, name} =>
+                                       {id = id, extra = false, name = name}))
                           $ 2 t2
 
-        (* Note that the original versioned {t} is no longer needed.
-         * In an actual program, you would have just edited the
-         * original definition instead of introducing a new one.
-         * However, the old type rep is required if you wish to be
-         * able to unpickle old versions. *)
+        (* Note that the original versioned {t} is no longer needed.  In
+         * an actual program, you would have just edited the original
+         * definition instead of introducing a new one.  However, the old
+         * type rep is required if you wish to be able to unpickle old
+         * versions. *)
      in
         thatEq t {expect = {id = 1, extra = false, name = "whatever"},
                   actual = unpickle t v1pickle}
@@ -100,8 +100,8 @@ in
     (title "Generic.Pickle.Format")
 
     (test (fn () => let
-        (* The main purpose of this highly ad hoc test is to help
-         * notice when the pickle format changes. *)
+        (* The main purpose of this highly ad hoc test is to help notice
+         * when the pickle format changes. *)
         datatype t =
            NIL
          | CON of {bool : Bool.t Vector.t,

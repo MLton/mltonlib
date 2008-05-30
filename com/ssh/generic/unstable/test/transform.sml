@@ -7,28 +7,27 @@
 val () = let
    open Generic UnitTest
 
-   fun testTransform t2t t unOp value expect = let
-      val transform = makeTransform t2t t unOp
-   in
-      testEq (t2t t) (fn () => {expect = expect, actual = transform value})
-   end
+   fun testTransform t2t t unOp value expect =
+       case makeTransform t2t t unOp
+        of transform =>
+           testEq (t2t t) (fn () => {expect = expect, actual = transform value})
 in
    unitTests
-      (title "Generic.Transform")
+    (title "Generic.Transform")
 
-      (testTransform list int (1 <\ op +) [1, 2, 3] [2, 3, 4])
-      (testTransform (fn t => tuple (T int *` T t)) int op ~ (1 & 3) (1 & ~3))
+    (testTransform list int (1 <\ op +) [1, 2, 3] [2, 3, 4])
+    (testTransform (fn t => tuple (T int *` T t)) int op ~ (1 & 3) (1 & ~3))
 
-      let
-         datatype t = datatype BinTree.t
-      in
-         testTransform
-            BinTree.t int (1 <\ op +)
-            (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
-            (BR (BR (LF, 1, LF), 2, BR (LF, 3, BR (LF, 4, LF))))
-      end
+    let
+       datatype t = datatype BinTree.t
+    in
+       testTransform
+        BinTree.t int (1 <\ op +)
+        (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
+        (BR (BR (LF, 1, LF), 2, BR (LF, 3, BR (LF, 4, LF))))
+    end
 
-      (testTransform Graph.t int op ~ Graph.intGraph1 Graph.intGraph1)
+    (testTransform Graph.t int op ~ Graph.intGraph1 Graph.intGraph1)
 
-      $
+    $
 end

@@ -39,42 +39,42 @@ val () = let
                (holesU t x)))
 in
    unitTests
-      (title "Generic.Uniplate")
+    (title "Generic.Uniplate")
 
-      (testUniplate (BinTree.t int))
-      (testUniplate (list int))
+    (testUniplate (BinTree.t int))
+    (testUniplate (list int))
 
-      (title "Generic.Uniplate.foldU")
+    (title "Generic.Uniplate.foldU")
 
-      (testFoldU (BinTree.t int))
-      (testFoldU (list int))
+    (testFoldU (BinTree.t int))
+    (testFoldU (list int))
 
-      (title "Generic.Uniplate.rewrite")
+    (title "Generic.Uniplate.rewrite")
 
-      let
-         open BinTree
-         val tryL =
-          fn BR (BR (a, x, b), y, r) =>
-             if y < x then SOME (BR (BR (a, y, b), x, r)) else NONE
-           | _ => NONE
-         val tryR =
-          fn BR (l, y, BR (c, z, d)) =>
-             if z < y then SOME (BR (l, z, BR (c, y, d))) else NONE
-           | _ => NONE
-      in
-         testRewrite
-            (t int)
-            (fn x => case tryL x of NONE => tryR x | some => some)
-      end
+    let
+       open BinTree
+       val tryL =
+        fn BR (BR (a, x, b), y, r) =>
+           if y < x then SOME (BR (BR (a, y, b), x, r)) else NONE
+         | _ => NONE
+       val tryR =
+        fn BR (l, y, BR (c, z, d)) =>
+           if z < y then SOME (BR (l, z, BR (c, y, d))) else NONE
+         | _ => NONE
+    in
+       testRewrite
+        (t int)
+        (fn x => case tryL x of NONE => tryR x | some => some)
+    end
 
-      (testRewrite (list int)
-                   (fn x::y::r => if y < x then SOME (y::x::r) else NONE
-                     | _       => NONE))
+    (testRewrite (list int)
+                 (fn x::y::r => if y < x then SOME (y::x::r) else NONE
+                   | _       => NONE))
 
-      (title "Generic.Uniplate.holesU")
+    (title "Generic.Uniplate.holesU")
 
-      (testHolesU (BinTree.t int))
-      (testHolesU (list int))
+    (testHolesU (BinTree.t int))
+    (testHolesU (list int))
 
-      $
+    $
 end

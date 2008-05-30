@@ -357,7 +357,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
       end
 
       fun mkSeq (Ops.S {length, toSlice, getItem, fromList, ...})
-               (P {rd = aR, wr = aW, ...}) =
+                (P {rd = aR, wr = aW, ...}) =
           P {rd = let
                 open I
                 fun lp (0, es) = return (fromList (rev es))

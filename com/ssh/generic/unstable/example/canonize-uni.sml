@@ -72,9 +72,9 @@ local
 in
    fun free term =
        difference
-          (union (refs term,
-                  reduceC Lambda.t empty union free term),
-           decs term)
+        (union (refs term,
+                reduceC Lambda.t empty union free term),
+         decs term)
 end
 (* To understand how the {free} function works, note that the {refs} and
  * {decs} functions return just the immediate variable references and

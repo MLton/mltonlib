@@ -27,39 +27,39 @@ local
    in
       fun free (IN term) =
           difference
-             (union (refs term,
-                     makeReduce f t empty union free term),
-              decs term)
+           (union (refs term,
+                   makeReduce f t empty union free term),
+            decs term)
    end
 in
    val () =
        unitTests
-          (title "Generic.Reduce")
+        (title "Generic.Reduce")
 
-          (testReduce list int int 0 op + id [1, 2, 3] 6)
-          (testReduce list real int 0 op + (const 1) [1.0, 4.0, 6.0] 3)
-          (testReduce (fn t => tuple (T t *` T int *` T t)) int int 0 op + id
-                      (1 & 3 & 7) 8)
+        (testReduce list int int 0 op + id [1, 2, 3] 6)
+        (testReduce list real int 0 op + (const 1) [1.0, 4.0, 6.0] 3)
+        (testReduce (fn t => tuple (T t *` T int *` T t)) int int 0 op + id
+                    (1 & 3 & 7) 8)
 
-          let open BinTree in
-             testReduce t int (list int) [] op @ (fn x => [x])
-                        (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
-                        [0, 1, 2, 3]
-          end
+        let open BinTree in
+           testReduce t int (list int) [] op @ (fn x => [x])
+                      (BR (BR (LF, 0, LF), 1, BR (LF, 2, BR (LF, 3, LF))))
+                      [0, 1, 2, 3]
+        end
 
-          (testEq (list string)
-                  (fn () => let
-                         open Lambda
-                         fun ` f = IN o f
-                      in
-                         {actual = free (`APP (`FUN ("x",
-                                                     `APP (`REF "y", `REF "x")),
-                                               `FUN ("z",
-                                                     `APP (`REF "x",
-                                                           `APP (`REF "y",
-                                                                 `REF "x"))))),
-                          expect = ["y", "x"]}
-                      end))
+        (testEq (list string)
+                (fn () => let
+                       open Lambda
+                       fun ` f = IN o f
+                    in
+                       {actual = free (`APP (`FUN ("x",
+                                                   `APP (`REF "y", `REF "x")),
+                                             `FUN ("z",
+                                                   `APP (`REF "x",
+                                                         `APP (`REF "y",
+                                                               `REF "x"))))),
+                        expect = ["y", "x"]}
+                    end))
 
-          $
+        $
 end

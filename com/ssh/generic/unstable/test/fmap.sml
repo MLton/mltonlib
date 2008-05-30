@@ -12,26 +12,26 @@ local
 in
    val () =
        unitTests
-          (title "Generic.Fmap")
+        (title "Generic.Fmap")
 
-          (testEq (list word)
+        (testEq (list word)
+                (fn () =>
+                    {expect = [0w1, 0w2, 0w3],
+                     actual = ListF.map Word.fromInt [1, 2, 3]}))
+
+        let
+           open BinTree BinTreeF
+        in
+           testEq (t word)
                   (fn () =>
-                      {expect = [0w1, 0w2, 0w3],
-                       actual = ListF.map Word.fromInt [1, 2, 3]}))
+                      {expect = BR (BR (LF, 0w0, LF),
+                                    0w1,
+                                    BR (LF, 0w2, BR (LF, 0w3, LF))),
+                       actual = map Word.fromInt
+                                    (BR (BR (LF, 0, LF),
+                                         1,
+                                         BR (LF, 2, BR (LF, 3, LF))))})
+        end
 
-          let
-             open BinTree BinTreeF
-          in
-             testEq (t word)
-                    (fn () =>
-                        {expect = BR (BR (LF, 0w0, LF),
-                                      0w1,
-                                      BR (LF, 0w2, BR (LF, 0w3, LF))),
-                         actual = map Word.fromInt
-                                      (BR (BR (LF, 0, LF),
-                                           1,
-                                           BR (LF, 2, BR (LF, 3, LF))))})
-          end
-
-          $
+        $
 end

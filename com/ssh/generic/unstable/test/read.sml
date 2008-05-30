@@ -19,7 +19,7 @@ val () = let
           app (fn format =>
                   thatSeq t {expect = x,
                              actual = read t (Prettier.render
-                                                 (SOME 5) (fmt t format x))})
+                                               (SOME 5) (fmt t format x))})
               formats)
 
    fun testRs t ss =
@@ -39,13 +39,13 @@ val () = let
    in
       fun ps t =
           mapPrinter
-             (fn p => fn x =>
-                 p x >>= (fn (a, d) =>
-                 return (if Word.isOdd (hash t x)
-                         then (a, d)
-                         else (Fixity.ATOMIC,
-                               txt " (* (*:-)*) *) ( (* :-( *) " <^> d <^>
-                               txt " (*) *) ) (* foo *) "))))
+           (fn p => fn x =>
+               p x >>= (fn (a, d) =>
+               return (if Word.isOdd (hash t x)
+                       then (a, d)
+                       else (Fixity.ATOMIC,
+                             txt " (* (*:-)*) *) ( (* :-( *) " <^> d <^>
+                             txt " (*) *) ) (* foo *) "))))
              t
    end
 
@@ -67,32 +67,32 @@ val () = let
                 fn a & b & c => {foo = a, + = b, bar = c}))
 in
    unitTests
-      (title "Generic.Read")
+    (title "Generic.Read")
 
-      (testSR word (fmts Fmt.wordRadix radices))
-      (testSR int (fmts Fmt.intRadix radices))
+    (testSR word (fmts Fmt.wordRadix radices))
+    (testSR int (fmts Fmt.intRadix radices))
 
-      (testSR (array (refc order)) [Fmt.default])
+    (testSR (array (refc order)) [Fmt.default])
 
-      (testSR foobar [Fmt.default])
+    (testSR foobar [Fmt.default])
 
-      (testRs foobar [("{+ = ( ( ) ) , bar = #\"3\", foo = true}",
-                       {foo = true, + = (), bar = #"3"})])
+    (testRs foobar [("{+ = ( ( ) ) , bar = #\"3\", foo = true}",
+                     {foo = true, + = (), bar = #"3"})])
 
-      (testRs (tuple2 (int, string))
-              [("{1 = 3, 2 = \"4\"}",
-                {1 = 3, 2 = "4"}),
-               ("((*;)*)({2 = \"2\", 1 = 1}(*;)*))) (*;)*)",
-                {1 = 1, 2 = "2"}),
-               ("(2, \"1\")",
-                (2, "1"))])
+    (testRs (tuple2 (int, string))
+            [("{1 = 3, 2 = \"4\"}",
+              {1 = 3, 2 = "4"}),
+             ("((*;)*)({2 = \"2\", 1 = 1}(*;)*))) (*;)*)",
+              {1 = 1, 2 = "2"}),
+             ("(2, \"1\")",
+              (2, "1"))])
 
-      (testRs real [("-2.0e~10", ~2.0e~10), (" ( 1.2 ) ", 1.2)])
+    (testRs real [("-2.0e~10", ~2.0e~10), (" ( 1.2 ) ", 1.2)])
 
-      (testSR (tuple2 (tuple2 (string, vector (option unit)), list char))
-              [Fmt.default])
+    (testSR (tuple2 (tuple2 (string, vector (option unit)), list char))
+            [Fmt.default])
 
-      (testFails (fn () => read int "0 garbage accepted"))
+    (testFails (fn () => read int "0 garbage accepted"))
 
-      $
+    $
 end
