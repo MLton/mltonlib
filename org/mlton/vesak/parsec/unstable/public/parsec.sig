@@ -35,5 +35,18 @@ signature PARSEC = sig
    val take : Sequence.Elem.t UnPr.t -> Sequence.Elem.t List.t t
 
    val peek : 'a t UnOp.t
-   val ^* : 'a t -> 'a List.t t
+
+   val many : 'a t -> 'a List.t t
+   val many1 : 'a t -> 'a List.t t
+
+   val option : 'a -> 'a t UnOp.t
+
+   val between : 'a t -> 'b t -> 'c t UnOp.t
+
+   val sepBy : 'a t -> 'b t -> 'a List.t t
+   val sepBy1 : 'a t -> 'b t -> 'a List.t t
+
+   val skip : 'a t -> Unit.t t
+   val skipMany : 'a t -> Unit.t t
+   val skipMany1 : 'a t -> Unit.t t
 end

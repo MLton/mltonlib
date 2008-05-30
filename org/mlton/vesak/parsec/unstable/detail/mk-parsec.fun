@@ -142,7 +142,20 @@ struct
                                     of OK (x, _, m) => taste (OK (x, s, m))
                                      | FAIL m       => taste (FAIL m)
 
-   fun ^* p = p >>= (fn x => ^* p >>= (fn xs => return (x::xs))) <|> return []
+   fun many p = many1 p <|> return []
+   and many1 p = p >>= (fn x => many p >>= (fn xs => return (x::xs)))
+
+   fun between b a p = b >>= (fn _ => p >>= (fn r => a >>= (fn _ => return r)))
+
+   fun option alt p = p <|> return alt
+
+   fun sepBy1 p s =
+       p >>= (fn x => many (s >>= (fn _ => p)) >>= (fn xs => return (x::xs)))
+   fun sepBy p s = sepBy1 p s <|> return []
+
+   fun skip p = p >>= return o ignore
+   fun skipMany p = skipMany1 p <|> return ()
+   and skipMany1 p = p >>= (fn _ => skipMany p)
 
    structure Monad = MkMonadP
      (type 'a monad = 'a t

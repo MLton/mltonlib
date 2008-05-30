@@ -78,7 +78,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    val symbolicId = id isSymbolic isSymbolic
 
    val shortId = alphaId <|> symbolicId
-   val longId = map op :: (shortId >>* ^* (E#"." >> shortId))
+   val longId = map op :: (shortId >>* many (E#"." >> shortId))
    fun I s = shortId >>= (fn i => if i = s then return () else zero)
 
    val numLabel = id (Char.inRange (#"1", #"9")) Char.isDigit
