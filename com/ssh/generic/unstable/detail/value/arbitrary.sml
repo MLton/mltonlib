@@ -78,7 +78,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
          val IN {gen = aG, cog = aC} = getP aP
          val IN {gen = bG, cog = bC} = getP bP
       in
-         IN {gen = G.Monad.>>& (aG, bG), cog = fn a & b => aC a o bC b}
+         IN {gen = G.Monad.>< (aG, bG), cog = fn a & b => aC a o bC b}
       end
       val T      = getT
       fun R _    = getT
