@@ -8,6 +8,6 @@ args := 1 5 200 200
 
 root := ../../../../../..
 
-mlton-opts := -const 'MLton.safe false' -const 'MLton.detectOverflow false' -loop-passes 2
+mlton-opts := -align 8 -loop-passes 16
 
 include ../../common.mk
