@@ -1,4 +1,5 @@
 (* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ * Copyright (C) 2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -21,6 +22,7 @@ in
          public/numerical-recipes.sig
          detail/numerical-recipes.sml
 
+         detail/ran0-gen.sml
          detail/ranqd1-gen.sml
 
          detail/ml/$(SML_COMPILER)/random-dev.mlb
