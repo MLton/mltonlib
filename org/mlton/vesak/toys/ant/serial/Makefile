@@ -8,6 +8,6 @@ args := 1 5 200 200
 
 root := ../../../../../..
 
-mlton-opts := -align 8 -loop-passes 16
+mlton-opts := -align 8 -loop-passes 4
 
 include ../../common.mk
