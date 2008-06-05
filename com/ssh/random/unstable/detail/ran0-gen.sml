@@ -20,10 +20,9 @@ structure Ran0Gen :> RANDOM_GEN where type RNG.Seed.t = Word32.t =
        fun value s = Seed.toWord (s - 0w1)
        fun next s = let
           val k = s div iq
-          val a = ia * (s - k * iq)
-          val b = ir * k
+          val s = ia * (s - k * iq) - ir * k
        in
-          if a < b then a - b + im else a - b
+          s + Seed.andb (Seed.~>> (s, 0w31), im)
        end
        fun split w = make o #2 o NumericalRecipes.psdes /> Seed.fromWord w
        val maxValue = Seed.toWord (im - 0w2))
