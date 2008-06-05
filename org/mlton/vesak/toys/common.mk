@@ -32,7 +32,8 @@ clean :
 	rm -rf $(gen-dir)
 
 run : $(exe)
-	bash -c 'time $(exe) $(args)'
+	bash -c 'time $(exe) @MLton gc-summary -- $(args)'
+	bash -c 'if test mlmon.out -nt $(exe) ; then mlprof $(exe) mlmon.out ; fi'
 
 ##########################################################################
 
