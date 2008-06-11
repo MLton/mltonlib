@@ -13,7 +13,7 @@ in
       open BinFn
       fun t (a, b) : ('a, 'b) t Rep.t = Sq.t a --> b
    end
-   structure BinOp = struct open UnOp val t = Generic.binOp end
+   structure BinOp = struct open BinOp val t = Generic.binOp end
    structure Bool = struct open Bool val t = Generic.bool end
    structure CPS = struct
       open CPS
