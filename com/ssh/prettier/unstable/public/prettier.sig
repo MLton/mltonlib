@@ -1,4 +1,5 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2008 Vesa Karvonen
+ * Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -31,6 +32,9 @@ signature PRETTIER = sig
 
    val render : Int.t Option.t -> t -> String.t
    (** Renders the document as a string. *)
+
+   val output : TextIO.outstream -> Int.t Option.t -> t Effect.t
+   (** Writes the document to the output stream. *)
 
    val println : Int.t Option.t -> t Effect.t
    (** Writes the document to stdOut with a newline and flushes stdOut. *)

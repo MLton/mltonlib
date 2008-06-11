@@ -1,4 +1,5 @@
-(* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2008 Vesa Karvonen
+ * Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -221,7 +222,9 @@ structure Prettier :> PRETTIER = struct
           SS.full
    end
 
+   fun output outstream c d =
+       ignore (renderer c (IOSMonad.fromPutter TextIO.output) d outstream)
+
    fun println c d =
-       (ignore (renderer c (IOSMonad.fromPutter TextIO.output) d TextIO.stdOut)
-      ; print "\n")
+       (output TextIO.stdOut c d ; print "\n")
 end
