@@ -1,4 +1,5 @@
-(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2008 Vesa Karvonen
+ * Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -22,6 +23,7 @@ signature VECTOR = sig
     *)
 
    val for : 'a t -> 'a Effect.t Effect.t
+   val fori : 'a t -> (Int.t * 'a) Effect.t Effect.t
 
    (** == Conversions == *)
 

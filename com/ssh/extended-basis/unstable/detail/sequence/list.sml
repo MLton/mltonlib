@@ -1,4 +1,5 @@
-(* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
+(* Copyright (C) 2008 Vesa Karvonen
+ * Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -169,4 +170,5 @@ structure List : LIST = struct
    val sort = stableSort
    fun iso ? = Pair.map (map, map) ?
    fun for xs ef = app ef xs
+   fun fori xs ef = appi ef xs
 end
