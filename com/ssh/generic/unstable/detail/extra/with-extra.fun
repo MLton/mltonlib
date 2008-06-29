@@ -1,4 +1,5 @@
 (* Copyright (C) 2007 SSH Communications Security, Helsinki, Finland
+ * Copyright (C) 2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -18,6 +19,10 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
    fun C0' n = C0 (C n)
    fun C1' n = C1 (C n)
    fun R' n = R (L n)
+
+   fun data' s = iso (data s)
+   fun record' p = iso (record p)
+   fun tuple' p = iso (tuple p)
 
    local
       fun lift f a = SOME (f a) handle Match => NONE

@@ -1,4 +1,5 @@
 (* Copyright (C) 2007-2008 SSH Communications Security, Helsinki, Finland
+ * Copyright (C) 2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -8,10 +9,7 @@
  * Signature for frequently used derived type representations.
  *)
 signature GENERIC_EXTRA = sig
-   include GENERICS
-      where type Label.t = Generics.Label.t
-      where type Con.t = Generics.Con.t
-   include GENERIC
+   include GENERICS GENERIC
 
    (** == Shorthands for Types with Labels or Constructors ==
     *
@@ -26,6 +24,12 @@ signature GENERIC_EXTRA = sig
    val regExn0' : String.t -> Exn.t -> (Exn.t -> Unit.t) Effect.t
    val regExn1' : String.t -> ('a, 'x) Open.Rep.t
                   -> ('a -> Exn.t) -> (Exn.t -> 'a) Effect.t
+
+   (** == Shorthands for Types with an Isomorphism == *)
+
+   val data' : ('b, 'y) Open.Rep.s -> ('a, 'b) Iso.t -> 'a Rep.t
+   val record' : ('b, Record.t, 'y) Open.Rep.p -> ('a, 'b) Iso.t -> 'a Rep.t
+   val tuple' : ('b, Tuple.t, 'y) Open.Rep.p -> ('a, 'b) Iso.t -> 'a Rep.t
 
    (** == Tuples ==
     *
