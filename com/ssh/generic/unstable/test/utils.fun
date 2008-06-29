@@ -26,8 +26,8 @@ in
          fun withT aV = refc (list aV)
       in
          fun v a = Tie.fix Y (fn aV =>
-             iso (data (C1 cVTX (tuple2 (a, withT aV))))
-                 (fn VTX ? => ?, VTX))
+             data' (C1 cVTX (tuple2 (a, withT aV)))
+                   (fn VTX ? => ?, VTX))
          fun t a = withT (v a)
       end
 
@@ -76,9 +76,9 @@ in
          val cBR = C "BR"
       in
          fun t a = Tie.fix Y (fn aT =>
-             iso (data (C0 cLF +` C1 cBR (tuple3 (aT, a, aT))))
-                 (fn LF => INL () | BR ? => INR ?,
-                  fn INL () => LF | INR ? => BR ?))
+             data' (C0 cLF +` C1 cBR (tuple3 (aT, a, aT)))
+                   (fn LF => INL () | BR ? => INR ?,
+                    fn INL () => LF | INR ? => BR ?))
       end
    end
 
@@ -118,21 +118,21 @@ in
          val cREF = C "REF"
       in
          fun f t =
-             iso (data (C1 cFUN (tuple2 (Id.t, t))
-                     +` C1 cAPP (sq t)
-                     +` C1 cREF Id.t))
-                 (fn FUN ? => INL (INL ?)
-                   | APP ? => INL (INR ?)
-                   | REF ? => INR ?,
-                  fn INL (INL ?) => FUN ?
-                   | INL (INR ?) => APP ?
-                   | INR ? => REF ?)
+             data' (C1 cFUN (tuple2 (Id.t, t))
+                 +` C1 cAPP (sq t)
+                 +` C1 cREF Id.t)
+                   (fn FUN ? => INL (INL ?)
+                     | APP ? => INL (INR ?)
+                     | REF ? => INR ?,
+                    fn INL (INL ?) => FUN ?
+                     | INL (INR ?) => APP ?
+                     | INR ? => REF ?)
       end
 
       local
          val cIN = C "IN"
       in
-         val t = Tie.fix Y (fn t => iso (data (C1 cIN (f t))) (out, IN))
+         val t = Tie.fix Y (fn t => data' (C1 cIN (f t)) (out, IN))
       end
    end
 end

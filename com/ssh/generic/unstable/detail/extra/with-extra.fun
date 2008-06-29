@@ -31,13 +31,9 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
       fun regExn1' n t e p = regExn1 (C n) t (e, lift p)
    end
 
-   local
-      fun mk t = iso (tuple t)
-   in
-      fun tuple2 (a, b) = mk (T a *` T b) Product.isoTuple2
-      fun tuple3 (a, b, c) = mk (T a *` T b *` T c) Product.isoTuple3
-      fun tuple4 (a, b, c, d) = mk (T a *` T b *` T c *` T d) Product.isoTuple4
-   end
+   fun tuple2 (a, b) = tuple' (T a *` T b) Product.isoTuple2
+   fun tuple3 (a, b, c) = tuple' (T a *` T b *` T c) Product.isoTuple3
+   fun tuple4 (a, b, c, d) = tuple' (T a *` T b *` T c *` T d) Product.isoTuple4
 
    local
       val fits = fn (SOME n, SOME m) => n <= m
@@ -60,19 +56,19 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
       val some = C "SOME"
    in
       fun option a =
-          iso (data (C0 none +` C1 some a))
-              (fn NONE => INL () | SOME a => INR a,
-               fn INL () => NONE | INR a => SOME a)
+          data' (C0 none +` C1 some a)
+                (fn NONE => INL () | SOME a => INR a,
+                 fn INL () => NONE | INR a => SOME a)
    end
 
    val order =
-       iso (data (C0' "LESS" +` C0' "EQUAL" +` C0' "GREATER"))
-           (fn LESS => INL (INL ())
-             | EQUAL => INL (INR ())
-             | GREATER => INR (),
-            fn INL (INL ()) => LESS
-             | INL (INR ()) => EQUAL
-             | INR () => GREATER)
+       data' (C0' "LESS" +` C0' "EQUAL" +` C0' "GREATER")
+             (fn LESS => INL (INL ())
+               | EQUAL => INL (INR ())
+               | GREATER => INR (),
+              fn INL (INL ()) => LESS
+               | INL (INR ()) => EQUAL
+               | INR () => GREATER)
 
    local
       val et = C "&"

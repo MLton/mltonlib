@@ -10,10 +10,10 @@ val () = let
    fun listEither swap mirror a =
        (Tie.fix Y)
         (fn aListLeft =>
-            iso (data (op +` (swap (C0' "nil",
-                                    C1' "::" (tuple2 (a, aListLeft))))))
-                (mirror <--> (fn [] => INL () | op :: ? => INR ?,
-                              fn INL () => [] | INR ? => op :: ?)))
+            data' (op +` (swap (C0' "nil",
+                                C1' "::" (tuple2 (a, aListLeft)))))
+                  (mirror <--> (fn [] => INL () | op :: ? => INR ?,
+                                fn INL () => [] | INR ? => op :: ?)))
 
    fun listL ? = listEither id   (id,     id)     ?
    fun listR ? = listEither swap (mirror, mirror) ?

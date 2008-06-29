@@ -60,10 +60,10 @@ in
         open Pickle
 
         (* First a plain old type rep for our data: *)
-        val t1 = iso (record (R' "id" int
-                           *` R' "name" string))
-                     (fn {id = a, name = b} => a & b,
-                      fn a & b => {id = a, name = b})
+        val t1 = record' (R' "id" int
+                       *` R' "name" string)
+                         (fn {id = a, name = b} => a & b,
+                          fn a & b => {id = a, name = b})
 
         (* Then we assign version {1} to the type: *)
         val t = versioned $ 1 t1
@@ -71,11 +71,11 @@ in
         val v1pickle = pickle t {id = 1, name = "whatever"}
 
         (* Then a plain old type rep for our new data: *)
-        val t2 = iso (record (R' "id" int
-                           *` R' "extra" bool
-                           *` R' "name" string))
-                     (fn {id = a, extra = b, name = c} => a & b & c,
-                      fn a & b & c => {id = a, extra = b, name = c})
+        val t2 = record' (R' "id" int
+                       *` R' "extra" bool
+                       *` R' "name" string)
+                         (fn {id = a, extra = b, name = c} => a & b & c,
+                          fn a & b & c => {id = a, extra = b, name = c})
 
         (* Then we assign version {2} to the new type, keeping the version
          * {1} for the old type: *)

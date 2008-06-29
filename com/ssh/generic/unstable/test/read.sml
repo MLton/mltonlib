@@ -62,9 +62,9 @@ val () = let
    val vector = fn ? => ps (vector ?)
    val word = ps word
    val foobar =
-       ps (iso (record (R' "foo" bool *` R' "+" unit *` R' "bar" char))
-               (fn {foo = a, + = b, bar = c} => a & b & c,
-                fn a & b & c => {foo = a, + = b, bar = c}))
+       ps (record' (R' "foo" bool *` R' "+" unit *` R' "bar" char)
+                   (fn {foo = a, + = b, bar = c} => a & b & c,
+                    fn a & b & c => {foo = a, + = b, bar = c}))
 in
    unitTests
     (title "Generic.Read")

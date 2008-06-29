@@ -64,11 +64,11 @@ in
 
     (tst (SOME 9)
          let open Fmt in default & fieldNest := SOME 4 end
-         (iso (record (R' "1" int
-                    *` R' "+" (unOp int)
-                    *` R' "long" char))
-              (fn {1 = a, + = b, long = c} => a & b & c,
-               fn a & b & c => {1 = a, + = b, long = c}))
+         (record' (R' "1" int
+                *` R' "+" (unOp int)
+                *` R' "long" char)
+                  (fn {1 = a, + = b, long = c} => a & b & c,
+                   fn a & b & c => {1 = a, + = b, long = c}))
          "{1 = 200000000,\n\
          \ + = #fn,\n\
          \ long =\n\
@@ -83,8 +83,8 @@ in
        tst (SOME 50) Fmt.default
            ((Tie.fix Y)
              (fn s =>
-                 iso (data (C1' "S" (sq (refc (option s)))))
-                     (fn S ? => ?, S)))
+                 data' (C1' "S" (sq (refc (option s))))
+                       (fn S ? => ?, S)))
            "S\n\
            \ (#0=ref\n\
            \   (SOME (S (#0, #1=ref (SOME (S (#0, #1)))))),\n\
