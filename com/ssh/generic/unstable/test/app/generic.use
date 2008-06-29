@@ -25,4 +25,6 @@ lib ["${MLTON_LIB}/com/ssh/random/unstable/lib.use",
      "../../with/ord.sml",
      "../../with/shrink.sml",
      "../../with/close-pretty-with-extra.sml",
-     "../../with/reg-basis-exns.sml"] ;
+     "../../with/reg-basis-exns.sml",
+     "../../with/types.sml",
+     "../../with/types-${SML_COMPILER}.sml"] ;

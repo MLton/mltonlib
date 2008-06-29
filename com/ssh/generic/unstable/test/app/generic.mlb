@@ -5,6 +5,7 @@
  *)
 
 local
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
    $(MLTON_LIB)/com/ssh/random/unstable/lib.mlb
 
    ../../lib.mlb
@@ -29,4 +30,6 @@ in
    ../../with/shrink.sml
    ../../with/close-pretty-with-extra.sml
    ../../with/reg-basis-exns.sml
+   ../../with/types.sml
+   ../../with/types-$(SML_COMPILER).sml
 end
