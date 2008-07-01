@@ -20,7 +20,7 @@ signature VAR_ED = sig
     *)
    structure Group : sig
       type t
-      (** The tyoe if variable groups. *)
+      (** The type of variable groups. *)
 
       val new : {parent : t,
                  name : String.t} -> t
