@@ -1,0 +1,45 @@
+(* Copyright (C) 2008 Vesa Karvonen
+ *
+ * This code is released under the MLton license, a BSD-style license.
+ * See the LICENSE file or http://mlton.org/License for details.
+ *)
+
+local
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+   $(APPLICATION)/generic.mlb
+   public/export/infixes.sml
+in
+   ann
+      "forceUsed"
+      "sequenceNonUnit warn"
+      "warnUnused true"
+   in
+      local
+         public/scalar.sig
+
+         public/seq.sig
+         detail/mk-seq.fun
+
+         public/vec.sig
+         detail/mk-vec.fun
+
+         public/quat.sig
+         detail/mk-quat.fun
+
+         public/rot.sig
+         detail/mk-rot.fun
+
+         public/rbt.sig
+         detail/mk-rbt.fun
+
+         public/plane.sig
+         detail/mk-plane.fun
+
+         detail/ml/common.sml
+         detail/ml/$(SML_COMPILER).sml
+      in
+         public/export/common.sml
+         public/export/$(SML_COMPILER).sml
+      end
+   end
+end

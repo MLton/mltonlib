@@ -1,0 +1,57 @@
+Basic 3D Math Primitives
+------------------------
+
+   This library contains some basic math primitives for 3D graphics.  No
+   attempt is necessarily made to generalize the design beyond the
+   requirements of basic 3D graphics.
+
+
+Info
+----
+
+   License:         MLton license (a BSD-style license)
+   Portability:     portable
+   Ported to:       MLton, Poly/ML
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
+
+
+About Library Organization
+--------------------------
+
+   public/
+
+      This directory contains the documented signature definitions (*.sig)
+      and listings of all top-level bindings exported by this library
+      (export/*.sml).  The contents of this directory should ideally provide
+      sufficient documentation to use the library.
+
+   lib.{mlb, use}
+
+      These build files define the library.
+
+   detail/
+
+      This directory contains the implementation details of the library.
+
+
+Contributions
+-------------
+
+   The signatures and structures defined by this library are not meant to
+   be cast in stone!  We welcome contributions including new
+   functionality, bug fixes, and ports to new compilers.  The recommended
+   submit method for small contributions to this library is to send a
+   message with a brief description of the proposed contribution as well
+   as a patch containing full code and documentation (signature comments)
+   to either the MLton-user list
+
+      mlton-user@mlton.org
+
+   or the MLton list
+
+      mlton@mlton.org .
+
+   For larger extensions or changes we recommend that you first contact
+   the active maintainer(s) of this library.  The preferred contact method
+   is through the above mailing lists.
