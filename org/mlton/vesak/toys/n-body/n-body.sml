@@ -9,14 +9,14 @@
  * ``Computer Language Benchmarks Game'' (TheGame).
  *
  * In this version, 3D vector arithmetic used in the simulation is
- * implemented using essentially a separate reusable library rather than
- * manually inlined and specialized code.  The representation of the
- * system has also been simplified to use a list of records instead of
- * multiple arrays.  These changes significantly reduce the amount of code
- * required to write the simulation code and make it significantly more
- * readable.  Nevertheless, the run-time performance of this version is
- * essentially the same as (actually slightly better than) in the SML
- * version used in TheGame at the time of writing.
+ * implemented using a reusable library rather than manually inlined and
+ * specialized code.  The representation of the system has also been
+ * simplified to use a list of records instead of multiple arrays.  These
+ * changes significantly reduce the amount of code required to write the
+ * simulation code and make it significantly more readable.  Nevertheless,
+ * the run-time performance of this version is essentially the same as
+ * (actually slightly better than) in the SML version used in TheGame at
+ * the time of writing.
  *
  * Note that the version currently used in TheGame was originally
  * translated to SML by Matthias Blume who probably tweaked the code for
@@ -25,12 +25,12 @@
  * vectors used in the simulation.
  *)
 
-open V3R
+open Cvt Vec3D
 
 val solarMass = 4.0 * Math.pi * Math.pi
 val daysPerYear = 365.24
 
-type body = {pos : v Ref.t, vel : v Ref.t, mass : Real.t}
+type body = {pos : Vec3D.t Ref.t, vel : Vec3D.t Ref.t, mass : Real.t}
 
 fun pos (b : body) = ! (#pos b)
 fun vel (b : body) = ! (#vel b)
@@ -38,7 +38,7 @@ fun vel (b : body) = ! (#vel b)
 val system =
     map (fn {pos, vel, mass} =>
             {pos = ref pos,
-             vel = ref (vel :* daysPerYear),
+             vel = ref (vel |* daysPerYear),
              mass = mass * solarMass})
         [{pos = {x = 0.0, y = 0.0, z = 0.0},
           vel = {x = 0.0, y = 0.0, z = 0.0},
@@ -76,38 +76,35 @@ fun advance dt =
  fn []    => ()
   | a::bs =>
     (app (fn b => let
-                val d = pos a :-: pos b
+                val d = pos a |-| pos b
                 val l = mag d
                 val m = dt / (l * l * l)
              in
-                #vel a := vel a :-: d :* #mass b * m
-              ; #vel b := vel b :+: d :* #mass a * m
+                #vel a := vel a |-| d |* #mass b * m
+              ; #vel b := vel b |+| d |* #mass a * m
              end)
          bs
-   ; #pos a := pos a :+: dt *: vel a
+   ; #pos a := pos a |+| vel a |* dt
    ; advance dt bs)
 
 val offsetMomentum =
  fn []           => fail "Empty system"
   | sun::planets =>
-    #vel sun := foldl (fn (b, v) => v :-: vel b :* #mass b)
+    #vel sun := foldl (fn (b, v) => v |-| vel b |* #mass b)
                       {x = 0.0, y = 0.0, z = 0.0}
-                      planets :/ solarMass
+                      planets |/ solarMass
 
 fun energy e =
  fn []    => e
   | a::bs =>
-    energy (foldl (fn (b, e) => e - #mass a * #mass b / mag (pos a :-: pos b))
+    energy (foldl (fn (b, e) => e - #mass a * #mass b / mag (pos a |-| pos b))
                   (e + 0.5 * #mass a * norm (vel a))
                   bs)
            bs
 
-val pr = println o String.map (fn #"~" => #"-" | c => c) o
-         Real.fmt (StringCvt.FIX (SOME 9))
-
 val n = valOf (Int.fromString (hd (CommandLine.arguments ()))) handle _ => 1000
 
 val () = (offsetMomentum system
-        ; pr (energy 0.0 system)
+        ; println (R'#F 9 (energy 0.0 system))
         ; repeat (fn () => advance 0.01 system) n ()
-        ; pr (energy 0.0 system))
+        ; println (R'#F 9 (energy 0.0 system)))
