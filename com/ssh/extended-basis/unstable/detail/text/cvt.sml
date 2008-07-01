@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 Vesa Karvonen
+(* Copyright (C) 2007-2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -11,29 +11,39 @@ structure Cvt :> CVT = struct
 
    type ('c, 's) sel = ('c -> 's) -> 's
 
+   val fixSign = BasisString.map (fn #"~" => #"-" | other => other)
+
    val C = str
    val B = Bool.toString
-   val D =  Int.toString
+   val D = Int.toString
+   val D' = fixSign o Int.toString
    val X = Word.toString
    val G = Real.toString
+   val G' = fixSign o Real.toString
 
-   fun I k = k {b = Int.fmt BIN,
-                o = Int.fmt OCT,
-                d = Int.fmt DEC,
-                x = Int.fmt HEX}
+   fun mk fmt k = k {b = fmt BIN,
+                     o = fmt OCT,
+                     d = fmt DEC,
+                     x = fmt HEX}
+
+   fun I k = mk Int.fmt k
+   fun I' k = mk (fn c => fixSign o Int.fmt c) k
 
    fun W k = k {b = Word.fmt BIN,
                 o = Word.fmt OCT,
                 d = Word.fmt DEC,
                 x = Word.fmt HEX}
 
-   fun R k = k {s = Real.fmt (SCI NONE),
-                S = Real.fmt o SCI o SOME,
-                f = Real.fmt (FIX NONE),
-                F = Real.fmt o FIX o SOME,
-                g = Real.fmt (GEN NONE),
-                G = Real.fmt o GEN o SOME,
-                e = Real.fmt EXACT}
+   fun mk fmt k = k {s = fmt (SCI NONE),
+                     S = fmt o SCI o SOME,
+                     f = fmt (FIX NONE),
+                     F = fmt o FIX o SOME,
+                     g = fmt (GEN NONE),
+                     G = fmt o GEN o SOME,
+                     e = fmt EXACT}
+
+   fun R k = mk Real.fmt k
+   fun R' k = mk (fn c => fixSign o Real.fmt c) k
 
    fun seq prefix suffix foldr full get c xs =
        case get (full xs)

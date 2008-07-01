@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 Vesa Karvonen
+(* Copyright (C) 2007-2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -22,6 +22,9 @@
  * in scientific notation with 3 digits after the decimal point.  To do
  * that you could write {R#S 3 aReal}, which is equivalent to {Real.fmt
  * (StringCvt.SCI (SOME 3)) aReal}.
+ *
+ * The primed formatters {D'}, {G'}, {I'}, and {R'} use "-" as sign rather
+ * than SML's "~".
  *)
 signature CVT = sig
    type 'a t = 'a -> String.t
@@ -35,13 +38,21 @@ signature CVT = sig
    val C :        Char.t t  (** Same as {str}. *)
    val B :        Bool.t t  (** Same as {Bool.toString}. *)
    val D :         Int.t t  (** Same as {Int.toString} and {I#d}. *)
+   val D':         Int.t t
    val X :        Word.t t  (** Same as {Word.toString} and {W#x}. *)
    val G :        Real.t t  (** Same as {Real.toString} and {R#g}. *)
+   val G':        Real.t t
 
    val I : ({b :   Int.t t  (** {I#b = Int.fmt BIN} *)
            , o :   Int.t t  (** {I#o = Int.fmt OCT} *)
            , d :   Int.t t  (** {I#d = Int.fmt DEC} *)
            , x :   Int.t t  (** {I#x = Int.fmt HEX} *)
+            }, 'k) sel
+
+   val I': ({b : Int.t t
+           , o : Int.t t
+           , d : Int.t t
+           , x : Int.t t
             }, 'k) sel
 
    val W : ({b :  Word.t t (** {W#b = Word.fmt BIN} *)
@@ -57,6 +68,15 @@ signature CVT = sig
            , g :          Real.t t (** {R#g   = Real.fmt (GEN NONE)} *)
            , G : Int.t -> Real.t t (** {R#G n = Real.fmt (GEN (SOME n))} *)
            , e :          Real.t t (** {R#e   = Real.fmt EXACT} *)
+            }, 'k) sel
+
+   val R': ({s :          Real.t t
+           , S : Int.t -> Real.t t
+           , f :          Real.t t
+           , F : Int.t -> Real.t t
+           , g :          Real.t t
+           , G : Int.t -> Real.t t
+           , e :          Real.t t
             }, 'k) sel
 
    (** == Formatter Combinators == *)
