@@ -33,7 +33,7 @@ clean :
 
 run : $(exe)
 	bash -c 'time $(exe) @MLton gc-summary -- $(args)'
-	bash -c 'if test mlmon.out -nt $(exe) ; then mlprof $(exe) mlmon.out ; fi'
+	bash -c 'if test mlmon.out -nt $(exe) ; then mlprof -show-line true $(exe) mlmon.out ; fi'
 
 ##########################################################################
 
@@ -41,6 +41,7 @@ $(mlb-path-map) : Makefile
 	mkdir -p $(@D)
 	echo 'MLTON_LIB $(shell cd $(root) && pwd)' > $@
 	echo 'SML_COMPILER mlton' >> $@
+	echo 'APPLICATION $(shell pwd)/app' >> $@
 
 $(exe) : $(name).mlb $(mlb-path-map)
 	mlton -stop f -mlb-path-map $(mlb-path-map) $<            \
