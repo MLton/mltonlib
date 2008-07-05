@@ -7,6 +7,30 @@
 local
    open Generic
 in
+   structure TopLevel = struct
+      open TopLevel
+      val C = C
+      val C0 = C0
+      val C0' = C0'
+      val C1 = C1
+      val C1' = C1'
+      val L = L
+      val R = R
+      val R' = R'
+      val T = T
+      val Y = Y
+      val data = data
+      val data' = data'
+      val iso = iso
+      val op *` = op *`
+      val op +` = op +`
+      val op --> = op -->
+      val record = record
+      val record' = record'
+      val tuple = tuple
+      val tuple' = tuple'
+   end
+   open TopLevel
    structure Array = struct open Array val t = Generic.array end
    structure Sq = struct open Sq val t = Generic.sq end
    structure BinFn = struct
