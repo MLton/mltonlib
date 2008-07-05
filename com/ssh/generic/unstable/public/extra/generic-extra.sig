@@ -38,9 +38,9 @@ signature GENERIC_EXTRA = sig
     * the following pattern:
     *
     *> fun tupleN (t1, ..., tN) =
-    *>     iso (tuple (T t1 *` ... *` T tN))
-    *>         (fn (v1, ..., vN) => v1 & ... & vN,
-    *>          fn v1 & ... & vN => (v1, ..., vN))
+    *>     tuple' (T t1 *` ... *` T tN)
+    *>            (fn (v1, ..., vN) => (v1 & ... & vN),
+    *>             fn (v1 & ... & vN) => (v1, ..., vN))
     *)
 
    val tuple2 : ('a, 's) Open.Rep.t *
