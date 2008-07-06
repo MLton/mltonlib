@@ -17,7 +17,7 @@ signature RBT = sig
    structure Vec : VEC3 sharing Vec = Rot.Vec
 
    type t
-   val t : t Generic.Rep.t
+   val t : t Rep.t
 
    val identity : t
 

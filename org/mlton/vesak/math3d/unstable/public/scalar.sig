@@ -6,5 +6,5 @@
 
 signature SCALAR = sig
    include REAL
-   val t : t Generic.Rep.t
+   val t : t Rep.t
 end

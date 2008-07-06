@@ -14,7 +14,7 @@ signature ROT = sig
    structure Vec : VEC3 sharing Vec = Quat.Vec
 
    type t
-   val t : t Generic.Rep.t
+   val t : t Rep.t
 
    val identity : t
 

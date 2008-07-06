@@ -17,7 +17,7 @@ signature PLANE = sig
    structure Vec : VEC3 sharing Vec = RBT.Vec
 
    type t
-   val t : t Generic.Rep.t
+   val t : t Rep.t
 
    val plane : {normal : Vec.t, distance : Scalar.t} -> t
 

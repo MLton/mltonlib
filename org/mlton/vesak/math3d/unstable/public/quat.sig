@@ -13,7 +13,7 @@ signature QUAT = sig
    structure Scalar : SCALAR sharing Scalar = Vec.Scalar
 
    type t
-   val t : t Generic.Rep.t
+   val t : t Rep.t
 
    val quat : {scalar : Scalar.t, vec : Vec.t} -> t
 

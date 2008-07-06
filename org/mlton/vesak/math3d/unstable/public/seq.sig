@@ -6,7 +6,7 @@
 
 signature SEQ_CORE = sig
    type 'a t
-   val t : 'a Generic.Rep.t -> 'a t Generic.Rep.t
+   val t : 'a Rep.t -> 'a t Rep.t
    val findSome : ('a -> 'b Option.t) -> 'a t -> 'b Option.t
    val foldr : ('a * 'b -> 'b) -> 'b -> 'a t -> 'b
    val map : ('a -> 'b) -> 'a t -> 'b t

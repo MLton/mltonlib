@@ -13,7 +13,7 @@ signature VEC = sig
    include VEC_CORE
 
    type t (* = Scalar.t Seq.t *)
-   val t : t Generic.Rep.t
+   val t : t Rep.t
 
    val fromSeq : Scalar.t Seq.t -> t
    val toSeq : t -> Scalar.t Seq.t
