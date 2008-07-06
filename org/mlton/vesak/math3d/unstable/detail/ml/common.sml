@@ -5,7 +5,6 @@
  *)
 
 local
-   open Generic
    val x = L"x" val y = L"y" val z = L"z" val w = L"w"
 in
    structure SeqXY =

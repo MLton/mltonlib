@@ -8,13 +8,10 @@ functor MkPlane (Arg : PLANE_CORE) : PLANE = struct
    open Arg open RBT open Vec open Scalar open Math
 
    datatype t = PLANE of {n : Vec.t, d : Scalar.t}
-   val t = let
-      open Generic
-   in
-      data' (C1'"PLANE" (record (R'"n" Vec.t *` R'"d" Scalar.t)))
-            (fn (PLANE {n=n, d=d}) => (n & d),
-             fn (n & d) => (PLANE {n=n, d=d}))
-   end
+   val t =
+       data' (C1'"PLANE" (record (R'"n" Vec.t *` R'"d" Scalar.t)))
+             (fn (PLANE {n=n, d=d}) => (n & d),
+              fn (n & d) => (PLANE {n=n, d=d}))
 
    fun out (PLANE r) = r
    val normal = #n o out

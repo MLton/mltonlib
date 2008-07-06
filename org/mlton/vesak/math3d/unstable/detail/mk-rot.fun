@@ -9,7 +9,7 @@ functor MkRot (Arg : ROT_CORE) : ROT = struct
 
    datatype t = ROT of Quat.t
    fun out (ROT q) = q
-   val t = let open Generic in data' (C1'"ROT" Quat.t) (out, ROT) end
+   val t = data' (C1'"ROT" Quat.t) (out, ROT)
 
    val identity = ROT one
 

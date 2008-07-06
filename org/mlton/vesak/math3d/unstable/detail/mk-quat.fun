@@ -10,13 +10,10 @@ functor MkQuat (Arg : QUAT_CORE) : QUAT = struct
    datatype t = QUAT of {s : Scalar.t, v : Vec.t}
    fun out (QUAT r) = r
 
-   val t = let
-      open Generic
-   in
-      data' (C1'"QUAT" (record (R'"s" Scalar.t *` R'"v" Vec.t)))
-            (fn QUAT {s=s, v=v} => s & v,
-             fn s & v => QUAT {s=s, v=v})
-   end
+   val t =
+       data' (C1'"QUAT" (record (R'"s" Scalar.t *` R'"v" Vec.t)))
+             (fn QUAT {s=s, v=v} => s & v,
+              fn s & v => QUAT {s=s, v=v})
 
    val scalar = #s o out
    val vec = #v o out

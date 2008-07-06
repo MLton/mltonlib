@@ -10,13 +10,10 @@ functor MkRBT (Arg : RBT_CORE) : RBT = struct
    datatype t = RBT of {r : Rot.t, t : Vec.t}
    fun out (RBT r) = r
 
-   val t = let
-      open Generic
-   in
-      data' (C1'"RBT" (record (R'"r" Rot.t *` R'"t" Vec.t)))
-            (fn (RBT {r=r, t=t}) => (r & t),
-             fn (r & t) => (RBT {r=r, t=t}))
-   end
+   val t =
+       data' (C1'"RBT" (record (R'"r" Rot.t *` R'"t" Vec.t)))
+             (fn (RBT {r=r, t=t}) => (r & t),
+              fn (r & t) => (RBT {r=r, t=t}))
 
    val identity = RBT {r = Rot.identity, t = zero}
 
