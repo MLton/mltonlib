@@ -7,6 +7,7 @@
 local
    open Generic
 in
+   structure Rep = Rep
    structure TopLevel = struct
       open TopLevel
       val C = C
