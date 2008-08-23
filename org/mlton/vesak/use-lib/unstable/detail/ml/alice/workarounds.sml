@@ -1,4 +1,4 @@
-(* Copyright (C) 2007 Vesa Karvonen
+(* Copyright (C) 2007-2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -33,7 +33,8 @@ structure OS = struct
                            else case Path.splitDirFile p
                                  of {dir, file} =>
                                     (if "" <> dir then chDir dir else ()
-                                   ; Path.joinDirFile {dir = getDir (), file = file}),
+                                   ; Path.joinDirFile {dir = getDir (),
+                                                       file = file}),
                         fn () => chDir cwd)
       end
    end
