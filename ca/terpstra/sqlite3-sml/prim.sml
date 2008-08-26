@@ -289,9 +289,9 @@ structure Prim :> PRIM =
          in
             catch error f (context, args)
          end
-      val () = _export "mlton_sqlite3_ufnhook" : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
+      val () = _export "mlton_sqlite3_ufnhook" private : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
                   fnCallback
-      val fnCallbackPtr = _address "mlton_sqlite3_ufnhook" : FnPtr.t;
+      val fnCallbackPtr = _address "mlton_sqlite3_ufnhook" private : FnPtr.t;
       
       fun createFunction (db, name, f, n) =
          let
@@ -346,12 +346,12 @@ structure Prim :> PRIM =
             catch error final context;
             Buffer.free (agtbl, it)
          end
-      val () = _export "mlton_sqlite3_uagstep" : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
+      val () = _export "mlton_sqlite3_uagstep" private : (Context.t * int * MLton.Pointer.t -> unit) -> unit;
                   agStepCallback
-      val () = _export "mlton_sqlite3_uagfinal" : (Context.t -> unit) -> unit;
+      val () = _export "mlton_sqlite3_uagfinal" private : (Context.t -> unit) -> unit;
                   agFinalCallback
-      val agStepCallbackPtr = _address "mlton_sqlite3_uagstep" : FnPtr.t;
-      val agFinalCallbackPtr = _address "mlton_sqlite3_uagfinal" : FnPtr.t;
+      val agStepCallbackPtr = _address "mlton_sqlite3_uagstep" private : FnPtr.t;
+      val agFinalCallbackPtr = _address "mlton_sqlite3_uagfinal" private : FnPtr.t;
       
       fun createAggregate (db, name, gen, n) =
          let
@@ -383,9 +383,9 @@ structure Prim :> PRIM =
               | EQUAL => 0
               | GREATER => 1
          end
-      val () = _export "mlton_sqlite3_colhook" : (word * int * CStr.out * int * CStr.out -> int) -> unit;
+      val () = _export "mlton_sqlite3_colhook" private : (word * int * CStr.out * int * CStr.out -> int) -> unit;
                   colCallback
-      val colCallbackPtr = _address "mlton_sqlite3_colhook" : FnPtr.t;
+      val colCallbackPtr = _address "mlton_sqlite3_colhook" private : FnPtr.t;
       fun createCollation (db, name, f) =
          let
             val id = Buffer.push (colt, f)
@@ -485,9 +485,9 @@ structure Prim :> PRIM =
               | DENY => 1
               | IGNORE => 2
          end
-      val () = _export "mlton_sqlite3_authhook" : (word * int * CStr.out * CStr.out * CStr.out * CStr.out -> int) -> unit;
+      val () = _export "mlton_sqlite3_authhook" private : (word * int * CStr.out * CStr.out * CStr.out * CStr.out -> int) -> unit;
                   authCallback
-      val authCallbackPtr = _address "mlton_sqlite3_authhook" : FnPtr.t;
+      val authCallbackPtr = _address "mlton_sqlite3_authhook" private : FnPtr.t;
       fun unsetAuthorizer db = code (db, PsetAuthorizer (db, FnPtr.null, 0w0))
       fun setAuthorizer (db, auth) =
          let
