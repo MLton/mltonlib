@@ -1,8 +1,10 @@
-/* Copyright (C) 2007 Vesa Karvonen
+/* Copyright (C) 2007-2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
  */
+
+/* SDL */
 
 #define _BITS_PTHREADTYPES_H 1
 #define _SDL_endian_h
@@ -29,3 +31,7 @@
 #undef HAVE_SYS_TYPES_H
 
 #undef HAVE_ICONV
+
+/* GL */
+
+#define GL_GLEXT_PROTOTYPES
