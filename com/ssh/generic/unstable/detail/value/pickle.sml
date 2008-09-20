@@ -689,7 +689,9 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
          val char = char
          val bool = iso' word8 (swap Word8.isoInt <--> Bool.isoInt)
          val int =
-             if case Int.precision of NONE => false | SOME n => n <= Word.wordSize
+             if case Int.precision
+                 of NONE => false
+                  | SOME n => n <= Word.wordSize
              then mkFixedInt WordOps.ops Word.isoIntX
              else if isSome Int.precision
              then iso' fixedInt Int.isoFixedInt
