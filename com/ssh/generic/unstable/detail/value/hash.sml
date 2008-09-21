@@ -172,7 +172,13 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
       val real = mkReal RealOps.ops
       val word = prim id
 
-      val fixedInt = viaWord id op mod (Iso.swap Word.isoFixedInt)
+      val fixedInt =
+          case FixedInt.precision
+           of NONE => fail "FixedInt.precision = NONE"
+            | SOME p =>
+              if p <= Word.wordSize
+              then prim Word.fromFixedInt
+              else viaWord id op mod (Iso.swap Word.isoFixedInt)
       val largeInt = viaWord id op mod (Iso.swap Word.isoLargeInt)
 
       val largeReal = mkReal LargeRealOps.ops
