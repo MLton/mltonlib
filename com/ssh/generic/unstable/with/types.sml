@@ -81,4 +81,8 @@ in
    structure Vector = struct open Vector val t = Generic.vector end
    structure Word32 = struct open Word32 val t = Generic.word32 end
    structure Word8 = struct open Word8 val t = Generic.word8 end
+   structure Word8Vector = struct
+      open Word8Vector
+      val t = iso (Vector.t Word8.t) (Iso.swap isoPoly)
+   end
 end
