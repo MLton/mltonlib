@@ -1,0 +1,77 @@
+RPC (Remote Procedure Call) Library
+-----------------------------------
+
+   This library implements a simple RPC mechanism.  One can conveniently
+   define a server that allows a client to call a set of procedures
+   defined on the server via TCP sockets.  A custom binary protocol based
+   on generic serialization is used for communication.
+
+
+Info
+----
+
+   License:         MLton license (a BSD-style license)
+   Portability:     portable
+   Ported to:       MLton
+   Stability:       experimental
+   Maintainer:      Vesa Karvonen <vesa.a.j.k@gmail.com>
+
+
+About Library Organization
+--------------------------
+
+   example/
+
+      This directory contains examples of using the RPC library.
+
+   public/{client/,server/,}
+
+      These directories contain the documented signature definitions
+      (*.sig) and listings of all top-level bindings exported by this
+      library (export.sml).  There are actually two libraries: one for
+      clients and another for servers.  The contents of these directories
+      should ideally provide sufficient documentation to use the library.
+
+   lib-{client,server}.mlb
+
+      Build files for the client and server sides of the RPC library.
+
+   detail/
+
+      Implementation details of the library.
+
+
+Motivation
+----------
+
+   The motivation for an easy-to-use RPC mechanism should be fairly clear.
+   However, one of the motivations for building this library was actually
+   the idea that one could use an RPC like mechanism to implement
+   separately compiled libraries in SML.  Using this library one can
+   fairly easily define a separately compiled server program that can be
+   used about as conveniently as a separately compiled library.  Such a
+   library program could also be compiled with a particular SML
+   implementation and used from a program running on a different SML
+   implementation.
+
+
+Contributions
+-------------
+
+   The signatures and structures defined by this library are not meant to
+   be cast in stone!  We welcome contributions including new functionality,
+   bug fixes, and ports to new compilers.  The recommended submit method
+   for small contributions to this library is to send a message with a
+   brief description of the proposed contribution as well as a patch
+   containing full code and documentation (signature comments) to either
+   the MLton-user list
+
+      mlton-user@mlton.org
+
+   or the MLton list
+
+      mlton@mlton.org .
+
+   For larger extensions or changes we recommend that you first contact
+   the active maintainer(s) of this library.  The preferred contact method
+   is through the above mailing lists.
