@@ -33,7 +33,7 @@ signature HASH = sig
    val hashParam : ('a, 'x) HashRep.t
                    -> {totWidth : Int.t,
                        maxDepth : Int.t}
-                   -> 'a -> Word.t
+                   -> 'a -> Word32.t
    (**
     * Returns a hash function.  The {totWidth} and {maxDepth} parameters
     * give some control over hashing.  The {totWidth} parameter controls
@@ -42,7 +42,7 @@ signature HASH = sig
     * function descends into a (possibly recursive) datatype.
     *)
 
-   val hash : ('a, 'x) HashRep.t -> 'a -> Word.t
+   val hash : ('a, 'x) HashRep.t -> 'a -> Word32.t
    (** Returns the default hash function. *)
 end
 

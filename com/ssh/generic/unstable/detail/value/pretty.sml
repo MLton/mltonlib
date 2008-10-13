@@ -138,7 +138,7 @@ functor WithPretty (Arg : WITH_PRETTY_DOM) = let
       val ctorRef = Generics.C "ref"
 
       fun cyclic aT aP =
-          case HashUniv.new {eq = op =, hash = Arg.hash aT}
+          case HashUniv.new {eq = op =, hash = Word32.toWord o Arg.hash aT}
            of (to, _) =>
               fn (e as E ({map, cnt, ...}, _), v) =>
                  case to v

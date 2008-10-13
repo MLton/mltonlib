@@ -30,7 +30,7 @@ functor WithSize (Arg : WITH_SIZE_DOM) : SIZE_CASES = struct
                         foldl (fn (x, s) => s + f (e, x)) (2 * wordSize) a)
 
    fun cyclic xT xS = let
-      val (to, _) = HashUniv.new {eq = op =, hash = Arg.hash xT}
+      val (to, _) = HashUniv.new {eq = op =, hash = Word32.toWord o Arg.hash xT}
    in
       DYNAMIC (fn (e, x) => let
          val d = to x

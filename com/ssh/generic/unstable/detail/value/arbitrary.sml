@@ -29,6 +29,8 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
    datatype 'a t = IN of {gen : 'a G.t, cog : 'a -> Univ.t G.t UnOp.t}
    fun out (IN r) = r
 
+   fun variantHash aT = G.variant o Word32.toWord o Arg.hash (aT ())
+
    fun mkInt (Ops.I {precision, isoLarge = (_, fromLarge), ...}) aT = let
       fun gen n =
           map (fn i => fromLarge (i - IntInf.<< (1, Word.fromInt n - 0w1)))
@@ -37,16 +39,16 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
       IN {gen = case precision
                  of NONE   => G.sized (0 <\ G.intInRange) >>= gen o 1 <\ op +
                   | SOME n => G.intInRange (1, n) >>= gen,
-          cog = G.variant o Arg.hash (aT ())}
+          cog = variantHash aT}
    end
 
    fun mkReal fromReal aT =
        IN {gen = G.sized ((fn r => map fromReal (G.realInRange (~r,r))) o real),
-           cog = G.variant o Arg.hash (aT ())}
+           cog = variantHash aT}
 
    fun mkWord (Ops.W {wordSize, isoLargeInt = (_, fromLargeInt), ...}) aT =
        IN {gen = map fromLargeInt (G.bits wordSize),
-           cog = G.variant o Arg.hash (aT ())}
+           cog = variantHash aT}
 
    fun iso' (IN {gen, cog}) (a2b, b2a) =
        IN {gen = map b2a gen, cog = cog o a2b}
@@ -122,7 +124,7 @@ functor WithArbitrary (Arg : WITH_ARBITRARY_DOM) : ARBITRARY_CASES = struct
       val exn = IN {gen = G.return () >>= (fn () =>
                           G.intInRange (0, Buffer.length exns-1) >>= (fn i =>
                           Buffer.sub (exns, i))),
-                    cog = G.variant o Arg.hash (Arg.Open.exn ())}
+                    cog = variantHash Arg.Open.exn}
       fun regExn0 _ (e, _) = Buffer.push exns (G.return e)
       fun regExn1 _ aT (a2e, _) = Buffer.push exns (map a2e (arbitrary aT))
 

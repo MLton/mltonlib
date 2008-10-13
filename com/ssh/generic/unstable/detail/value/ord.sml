@@ -39,7 +39,7 @@ functor WithOrd (Arg : WITH_ORD_DOM) : ORD_CASES = struct
               end)
 
    fun cyclic aT (IN aO) =
-       case HashUniv.new {eq = op =, hash = Arg.hash aT}
+       case HashUniv.new {eq = op =, hash = Word32.toWord o Arg.hash aT}
         of (to, _) =>
            IN (fn (e, (l, r)) => let
                      val lD = to l

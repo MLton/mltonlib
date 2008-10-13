@@ -306,7 +306,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
       val fixedInt = mkFixedInt LargeWordOps.ops LargeWord.isoFixedIntX
 
       fun cyclic {readProxy, readBody, writeWhole, self} = let
-         val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq self, hash = Arg.hash self}
+         val (toDyn, fromDyn) =
+             Dyn.new {eq = Arg.eq self, hash = Word32.toWord o Arg.hash self}
          open I
       in
          P {rd = rd size >>= (fn key => Map.get >>= (fn arr =>
@@ -330,7 +331,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
       end
 
       fun share aT (P {rd = aR, wr = aW, ...}) = let
-         val (toDyn, fromDyn) = Dyn.new {eq = Arg.eq aT, hash = Arg.hash aT}
+         val (toDyn, fromDyn) =
+             Dyn.new {eq = Arg.eq aT, hash = Word32.toWord o Arg.hash aT}
          open I
       in
          P {rd = rd size >>= (fn key => Map.get >>= (fn arr =>

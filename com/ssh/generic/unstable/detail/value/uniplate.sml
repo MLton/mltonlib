@@ -28,7 +28,7 @@ functor WithUniplate (Arg : WITH_UNIPLATE_DOM) : UNIPLATE_CASES = struct
    val none = IN (dummy, fn (_, c, _) => c, fn (_, c, x) => (x, c))
 
    fun cyclic aT (IN (_, aKi, aKo)) = let
-      val (to, _) = HashUniv.new {eq = op =, hash = Arg.hash aT}
+      val (to, _) = HashUniv.new {eq = op =, hash = Word32.toWord o Arg.hash aT}
    in
       IN (dummy,
           fn args as ((_, e), c, x) => let

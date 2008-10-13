@@ -29,7 +29,7 @@ functor WithSeq (Arg : WITH_SEQ_DOM) : SEQ_CASES = struct
               end)
 
    fun cyclic aT (IN aE) = let
-      val (to, _) = HashUniv.new {eq = op =, hash = Arg.hash aT}
+      val (to, _) = HashUniv.new {eq = op =, hash = Word32.toWord o Arg.hash aT}
    in
       IN (fn (e, (l, r)) => let
                 val lD = to l

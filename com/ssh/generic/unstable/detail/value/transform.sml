@@ -28,7 +28,7 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
         of c => if ID = c then default else IN (c, fs2f (aT, bT))
 
    fun cyclic aT aF =
-       case HashUniv.new {eq = op =, hash = Arg.hash aT}
+       case HashUniv.new {eq = op =, hash = Word32.toWord o Arg.hash aT}
         of (to, _) => fn (x, e) => case to x of xD =>
            if isSome (HashMap.find e xD) then x
            else (HashMap.insert e (xD, ()) ; aF (x, e))
@@ -84,7 +84,8 @@ functor WithTransform (Arg : WITH_TRANSFORM_DOM) : TRANSFORM_CASES = struct
 
       fun list aT = un (fn xF => fn (l, e) => map (xF /> e) l) (getT aT)
 
-      fun vector aT = un (fn xF => fn (v, e) => Vector.map (xF /> e) v) (getT aT)
+      fun vector aT =
+          un (fn xF => fn (v, e) => Vector.map (xF /> e) v) (getT aT)
 
       fun array aT =
           un (fn xF => cyclic (Arg.Open.array ignore aT)

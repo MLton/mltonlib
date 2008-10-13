@@ -41,7 +41,7 @@ val () = let
           mapPrinter
            (fn p => fn x =>
                p x >>= (fn (a, d) =>
-               return (if Word.isOdd (hash t x)
+               return (if Word32.isOdd (hash t x)
                        then (a, d)
                        else (Fixity.ATOMIC,
                              txt " (* (*:-)*) *) ( (* :-( *) " <^> d <^>

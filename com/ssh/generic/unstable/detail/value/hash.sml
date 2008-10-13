@@ -9,22 +9,26 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
    open TopLevel
    infix  4 <\
    infixr 4 />
+   infix  3 <-->
    infix  0 &
    (* SML/NJ workaround --> *)
 
+   val op <--> = Iso.<-->
+   val swap = Iso.swap
+
    type p = {totWidth : Int.t, maxDepth : Int.t}
-   type 'a t = 'a * p -> Word.t
+   type 'a t = 'a * p -> Word32.t
 
    fun prim f : 'a t = f o #1
 
    fun viaWord x2V op mod (v2w, w2v) =
-       prim (fn x => v2w (x2V x mod w2v Word.largestPrime))
+       prim (fn x => v2w (x2V x mod w2v Word32.largestPrime))
 
    fun iso' bH (a2b, _) = bH o Pair.map (a2b, id)
 
    fun sequ (Ops.S {length, sub, ...}) hashElem (s, {totWidth, maxDepth}) = let
       val n = length s
-      val h = Word.fromInt n
+      val h = Word32.fromInt n
    in
       case Int.min (Int.quot (totWidth+3, 4), Int.quot (n+1, 2))
        of 0          => h
@@ -41,13 +45,13 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
    val mkReal =
     fn Ops.R {isoBits = SOME (toBits, _),
               bitsOps = Ops.W {isoWord, mod, ...}, ...} =>
-       viaWord toBits op mod isoWord
+       viaWord toBits op mod (swap Word32.isoWord <--> isoWord)
      | Ops.R {toBytes, ...} =>
        prim (Word8Vector.foldl
-                (fn (w, h) => h * 0wxFB + Word8.toWord w)
+                (fn (w, h) => h * 0wxFB + Word32.fromWord (Word8.toWord w))
                 0w0 o toBytes)
 
-   val exns : (Exn.t * p -> Word.t Option.t) Buffer.t = Buffer.new ()
+   val exns : (Exn.t * p -> Word32.t Option.t) Buffer.t = Buffer.new ()
 
    structure HashRep = LayerRep' (open Arg type 'a t = 'a t)
 
@@ -57,12 +61,12 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
 
    fun hashParam t = let
       val h = getT t
-      val th = Word32.toWord (Arg.typeHash t)
+      val th = Arg.typeHash t
    in
       fn p =>
          if #totWidth p < 0 orelse #maxDepth p < 0
          then raise Domain
-         else th <\ Word.xorb o h /> p
+         else th <\ Word32.xorb o h /> p
    end
 
    fun hash t = hashParam t defaultHashParam
@@ -98,8 +102,8 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
          val aH = getS aS
          val bH = getS bS
       in
-         fn (INL a, p) => Word.xorb (0wx04D55ADB, aH (a, p))
-          | (INR b, p) => Word.xorb (0wx05B6D5A3, bH (b, p))
+         fn (INL a, p) => Word32.xorb (0wx04D55ADB, aH (a, p))
+          | (INR b, p) => Word32.xorb (0wx05B6D5A3, bH (b, p))
       end
       val unit = prim (Thunk.mk 0wx062DAD9B)
       fun C0 _ = unit
@@ -118,7 +122,7 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
 
       fun refc _ = prim (fn _ => 0wx35996C53)
 
-      val int = prim Word.fromInt
+      val int = prim Word32.fromInt
 
       fun list xT = let
          val xH = getT xT
@@ -139,15 +143,15 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
                           then h
                           else lp (h * 0w17 + xH (x, p), n-1, xs)
                    in
-                      lp (Word.fromInt n, n, xs)
+                      lp (Word32.fromInt n, n, xs)
                    end
             end
       end
 
-      fun array _ = prim (fn a => 0wx6D52A54D * Word.fromInt (Array.length a))
+      fun array _ = prim (fn a => 0wx6D52A54D * Word32.fromInt (Array.length a))
       fun vector aT = sequ VectorOps.ops (getT aT)
 
-      val char = prim (Word.fromInt o ord)
+      val char = prim (Word32.fromInt o ord)
       val string = sequ StringOps.ops char
 
       fun exn (e, {maxDepth, totWidth}) =
@@ -166,26 +170,26 @@ functor WithHash (Arg : WITH_HASH_DOM) : HASH_CASES = struct
                           (fn (e, p) =>
                               case e2t e
                                of NONE   => NONE
-                                | SOME v => SOME (Word.xorb (c, t (v, p))))
+                                | SOME v => SOME (Word32.xorb (c, t (v, p))))
 
       val bool = prim (fn true => 0wx096DB16D | false => 0wx01B56B6D)
       val real = mkReal RealOps.ops
-      val word = prim id
+      val word = prim Word32.fromWord
 
       val fixedInt =
           case FixedInt.precision
            of NONE => fail "FixedInt.precision = NONE"
             | SOME p =>
-              if p <= Word.wordSize
-              then prim Word.fromFixedInt
-              else viaWord id op mod (Iso.swap Word.isoFixedInt)
-      val largeInt = viaWord id op mod (Iso.swap Word.isoLargeInt)
+              if p <= Word32.wordSize
+              then prim Word32.fromFixedInt
+              else viaWord id op mod (swap Word32.isoFixedInt)
+      val largeInt = viaWord id op mod (swap Word32.isoLargeInt)
 
       val largeReal = mkReal LargeRealOps.ops
-      val largeWord = viaWord id op mod LargeWord.isoWord
+      val largeWord = viaWord id op mod (swap Word32.isoLarge)
 
-      val word8  = prim Word8.toWord
-      val word32 = prim Word32.toWord
+      val word8  = prim (Word32.fromWord o Word8.toWord)
+      val word32 = prim id
 (*
       val word64 = viaWord id op mod Word64.isoWord
 *)
