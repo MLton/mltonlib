@@ -528,8 +528,8 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
 
       fun pickler aT =
           case wr (getT aT)
-           of aW => fn a =>
-              O.run (ref 0, HashMap.new {eq = Dyn.eq, hash = Dyn.hash}) aW a
+           of aW => fn a => fn b => fn c =>
+              O.run (ref 0, HashMap.new {eq = Dyn.eq, hash = Dyn.hash}) aW a b c
       fun unpickler aT =
           case rd (getT aT)
            of aR => fn cR => fn s => I.run (ResizableArray.new ()) aR cR s
