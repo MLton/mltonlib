@@ -63,7 +63,7 @@ structure Client :> CLIENT = struct
          fun lp i =
              if i < ResizableArray.length live
              then case ResizableArray.sub (live, i)
-                   of handler as {token, ...} =>
+                   of handler as {token, setExn=_, recvCod=_} =>
                       if token = token'
                       then (ResizableArray.update
                              (live,
