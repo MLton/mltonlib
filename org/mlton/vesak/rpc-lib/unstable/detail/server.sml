@@ -18,13 +18,14 @@ structure Server :> SERVER = struct
    val sendExn = send Exn.t
 
    fun define (signature' as (dom, cod, _)) = let
+      val fingerprint = Fingerprint.make signature'
       val recvDom = recv dom
       val sendCod = send cod
       open Reply
    in
       fn f =>
          (push entries)
-          {fingerprint = Fingerprint.make signature',
+          {fingerprint = fingerprint,
            procedure = fn token =>
             recvDom >>= (fn x =>
              try (fn () => f x,
