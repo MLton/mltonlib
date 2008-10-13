@@ -100,7 +100,7 @@ end = struct
 
    structure Token = struct
       open Word32
-      val zero = 0w0
+      val zero : t = 0w0
       fun next w : t = w+0w1
    end
 
