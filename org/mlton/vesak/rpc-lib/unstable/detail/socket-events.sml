@@ -7,27 +7,28 @@
 structure SocketEvents :> sig
    exception Closed
 
-   type socket = Socket.active INetSock.stream_sock
+   type 'm socket = 'm INetSock.stream_sock
 
-   include MONAD_CORE
-   where type 'a monad = socket -> (Exn.t, 'a) Sum.t Async.Event.t
+   type ('a, 'm) monad = 'm socket -> (Exn.t, 'a) Sum.t Async.Event.t
+   val return : 'a -> ('a, 'm) monad
+   val >>= : ('a, 'm) monad * ('a -> ('b, 'm) monad) -> ('b, 'm) monad
 
-   val error : Exn.t -> 'a monad
+   val error : Exn.t -> ('a, 'm) monad
 
-   val sockEvt : OS.IO.poll_desc UnOp.t -> socket monad
+   val sockEvt : OS.IO.poll_desc UnOp.t -> ('m socket, 'm) monad
 
-   val recv : Word8ArraySlice.t -> Word8ArraySlice.t monad
+   val recv : Word8ArraySlice.t -> (Word8ArraySlice.t, Socket.active) monad
 
-   val sendArr : Word8ArraySlice.t -> Unit.t monad
-   val sendVec : Word8VectorSlice.t -> Unit.t monad
+   val sendArr : Word8ArraySlice.t -> (Unit.t, Socket.active) monad
+   val sendVec : Word8VectorSlice.t -> (Unit.t, Socket.active) monad
 end = struct
    open PollLoop Async
 
    exception Closed
 
-   type socket = Socket.active INetSock.stream_sock
+   type 'm socket = 'm INetSock.stream_sock
 
-   type 'a monad = socket -> (Exn.t, 'a) Sum.t Async.Event.t
+   type ('a, 'm) monad = 'm socket -> (Exn.t, 'a) Sum.t Async.Event.t
    fun error e _ =
        case IVar.new ()
         of result => (IVar.fill result (INL e) ; IVar.read result)
@@ -83,10 +84,10 @@ end = struct
                        | SOME n =>
                          lp (subslice (slice, n, NONE))))
    in
-      val sendArr : Word8ArraySlice.t -> Unit.t monad =
+      val sendArr : Word8ArraySlice.t -> (Unit.t, Socket.active) monad =
           mk Word8ArraySlice.isEmpty Word8ArraySlice.subslice Socket.sendArrNB
 
-      val sendVec : Word8VectorSlice.t -> Unit.t monad =
+      val sendVec : Word8VectorSlice.t -> (Unit.t, Socket.active) monad =
           mk Word8VectorSlice.isEmpty Word8VectorSlice.subslice Socket.sendVecNB
    end
 end

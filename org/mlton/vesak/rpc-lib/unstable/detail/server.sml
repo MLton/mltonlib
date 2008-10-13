@@ -9,7 +9,7 @@ structure Server :> SERVER = struct
 
    val entries :
        {fingerprint : Fingerprint.t,
-        procedure : Token.t -> Unit.t monad} List.t Ref.t =
+        procedure : Token.t -> (Unit.t, Socket.active) monad} List.t Ref.t =
        ref []
 
    fun find fingerprint =

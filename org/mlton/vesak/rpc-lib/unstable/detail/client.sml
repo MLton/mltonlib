@@ -20,11 +20,12 @@ structure Client :> CLIENT = struct
 
    structure Conn = struct
       datatype t =
-         IN of {socket : socket,
+         IN of {socket : Socket.active socket,
                 token : Token.t Ref.t,
                 live : {token : Token.t,
                         setExn : Exn.t Effect.t,
-                        recvCod : Unit.t monad} ResizableArray.t}
+                        recvCod : (Unit.t, Socket.active) monad}
+                        ResizableArray.t}
 
       fun close (IN {socket, ...}) =
           Socket.close socket

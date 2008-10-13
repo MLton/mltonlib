@@ -5,9 +5,9 @@
  *)
 
 structure Protocol :> sig
-   val skip : Unit.t SocketEvents.monad
-   val recv : 'a Rep.t -> 'a SocketEvents.monad
-   val send : 'a Rep.t -> 'a -> Unit.t SocketEvents.monad
+   val skip : (Unit.t, Socket.active) SocketEvents.monad
+   val recv : 'a Rep.t -> ('a, Socket.active) SocketEvents.monad
+   val send : 'a Rep.t -> 'a -> (Unit.t, Socket.active) SocketEvents.monad
 
    structure Fingerprint : sig
       eqtype t
@@ -28,8 +28,8 @@ structure Protocol :> sig
          CALL of {token : Token.t,
                   fingerprint : Fingerprint.t} (* value *)
       val t : t Rep.t
-      val recv : t SocketEvents.monad
-      val send : t -> Unit.t SocketEvents.monad
+      val recv : (t, Socket.active) SocketEvents.monad
+      val send : t -> (Unit.t, Socket.active) SocketEvents.monad
    end
 
    structure Reply : sig
@@ -38,15 +38,15 @@ structure Protocol :> sig
        | RESULT of Token.t (* value *)
        | EXN of Token.t (* value *)
       val t : t Rep.t
-      val recv : t SocketEvents.monad
-      val send : t -> Unit.t SocketEvents.monad
+      val recv : (t, Socket.active) SocketEvents.monad
+      val send : t -> (Unit.t, Socket.active) SocketEvents.monad
    end
 
    structure Version : sig
       eqtype t
       val current : t
-      val recv : t SocketEvents.monad
-      val send : t -> Unit.t SocketEvents.monad
+      val recv : (t, Socket.active) SocketEvents.monad
+      val send : t -> (Unit.t, Socket.active) SocketEvents.monad
    end
 end = struct
    open SocketEvents
