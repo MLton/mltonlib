@@ -38,17 +38,33 @@ functor WithExtra (Arg : GENERIC) : GENERIC_EXTRA = struct
    local
       val fits = fn (SOME n, SOME m) => n <= m
                   | _                => false
-      fun mk precision int' fixed' large' =
-          if      fits (precision,      Int.precision) then iso      int   int'
-          else if fits (precision, FixedInt.precision) then iso fixedInt fixed'
-          else                                              iso largeInt large'
+      fun chop op mod op < bounds (to, from) =
+          case bounds
+           of NONE => (to, from)
+            | SOME (minInt, maxInt) =>
+              (to,
+               from o (fn x =>
+                          if x < to minInt then
+                             x mod to minInt
+                          else if to maxInt < x then
+                             x mod to maxInt
+                          else
+                             x))
+      fun mk bounds precision int' fixed' large' =
+          if fits (precision, Int.precision) then
+             iso int (chop op mod op < bounds int')
+          else if fits (precision, FixedInt.precision) then
+             iso fixedInt (chop op mod op < bounds fixed')
+          else
+             iso largeInt (chop op mod op < bounds large')
    in
-      val int32 = let open Int32 in mk precision isoInt isoFixedInt isoLarge end
-(*
-      val int64 = let open Int64 in mk precision isoInt isoFixedInt isoLarge end
-*)
-      val position =
-          let open Position in mk precision isoInt isoFixedInt isoLarge end
+      val int32 =
+          let open Int32 in mk bounds precision isoInt isoFixedInt isoLarge end
+      val position = let
+         open Position
+      in
+         mk bounds precision isoInt isoFixedInt isoLarge
+      end
    end
 
    local
