@@ -83,10 +83,10 @@ end = struct
                        | SOME n =>
                          lp (subslice (slice, n, NONE))))
    in
-      val sendArr =
+      val sendArr : Word8ArraySlice.t -> Unit.t monad =
           mk Word8ArraySlice.isEmpty Word8ArraySlice.subslice Socket.sendArrNB
 
-      val sendVec =
+      val sendVec : Word8VectorSlice.t -> Unit.t monad =
           mk Word8VectorSlice.isEmpty Word8VectorSlice.subslice Socket.sendVecNB
    end
 end
