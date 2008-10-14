@@ -59,35 +59,27 @@ end = struct
     (*fun iodEvt ? = mk id ?*)
    end
 
-   fun recv fullSlice =
-       recur fullSlice (fn lp =>
-          fn slice =>
-             if Word8ArraySlice.isEmpty slice
-             then return fullSlice
-             else sockEvt OS.IO.pollIn >>= (fn socket =>
-                  case Socket.recvArrNB (socket, slice)
-                   of NONE   => error (Fail "impossible")
-                    | SOME 0 => error Closed
-                    | SOME n =>
-                      lp (Word8ArraySlice.subslice (slice, n, NONE))))
-
    local
-      fun mk isEmpty subslice sendNB slice =
+      fun mk isEmpty subslice poll operNB result slice =
           recur slice (fn lp =>
              fn slice =>
                 if isEmpty slice
-                then return ()
-                else sockEvt OS.IO.pollOut >>= (fn socket =>
-                     case sendNB (socket, slice)
+                then return result
+                else sockEvt poll >>= (fn socket =>
+                     case operNB (socket, slice)
                       of NONE   => error (Fail "impossible")
                        | SOME 0 => error Closed
                        | SOME n =>
                          lp (subslice (slice, n, NONE))))
    in
-      val sendArr : Word8ArraySlice.t -> (Unit.t, Socket.active) monad =
-          mk Word8ArraySlice.isEmpty Word8ArraySlice.subslice Socket.sendArrNB
-
-      val sendVec : Word8VectorSlice.t -> (Unit.t, Socket.active) monad =
-          mk Word8VectorSlice.isEmpty Word8VectorSlice.subslice Socket.sendVecNB
+      fun recv slice =
+          mk Word8ArraySlice.isEmpty Word8ArraySlice.subslice
+             OS.IO.pollIn Socket.recvArrNB slice slice
+      fun sendArr slice =
+          mk Word8ArraySlice.isEmpty Word8ArraySlice.subslice
+             OS.IO.pollOut Socket.sendArrNB () slice
+      fun sendVec slice =
+          mk Word8VectorSlice.isEmpty Word8VectorSlice.subslice
+             OS.IO.pollOut Socket.sendVecNB () slice
    end
 end
