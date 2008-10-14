@@ -26,38 +26,24 @@ end = struct
 
    exception Closed
 
+   fun withFill ef =
+       case IVar.new ()
+        of result => (ef (IVar.fill result) : Unit.t ; IVar.read result)
+
    type 'm socket = 'm INetSock.stream_sock
-
    type ('a, 'm) monad = 'm socket -> (Exn.t, 'a) Sum.t Async.Event.t
-   fun error e _ =
-       case IVar.new ()
-        of result => (IVar.fill result (INL e) ; IVar.read result)
-   fun return x _ =
-       case IVar.new ()
-        of result => (IVar.fill result (INR x) ; IVar.read result)
+   fun error e _ = withFill (pass (INL e))
+   fun return x _ = withFill (pass (INR x))
    fun (xM >>= x2yM) socket =
-       case IVar.new ()
-        of result =>
-           ((when (xM socket))
-             (fn INL e => IVar.fill result (INL e)
-               | INR x =>
-                 (when (x2yM x socket))
-                  (IVar.fill result))
-          ; IVar.read result)
+       withFill (fn fill =>
+        (when (xM socket))
+         (fn INL e => fill (INL e)
+           | INR x => when (x2yM x socket) fill))
 
-   local
-      fun mk toIODesc poll s = let
-         val ch = IVar.new ()
-         val pollDesc = poll (valOf (OS.IO.pollDesc (toIODesc s)))
-      in
-         addDesc
-          (pollDesc, fn _ => (IVar.fill ch (INR s) ; remDesc pollDesc))
-       ; IVar.read ch
-      end
-   in
-      fun sockEvt ? = mk Socket.ioDesc ?
-    (*fun iodEvt ? = mk id ?*)
-   end
+   fun sockEvt poll socket =
+       withFill (fn fill =>
+        case poll (valOf (OS.IO.pollDesc (Socket.ioDesc socket)))
+         of pd => addDesc (pd, fn _ => (fill (INR socket) ; remDesc pd)))
 
    local
       fun mk isEmpty subslice poll operNB result slice =
