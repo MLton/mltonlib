@@ -7,46 +7,45 @@
 structure Server :> SERVER = struct
    open SocketEvents Async Protocol
 
-   val entries :
-       {fingerprint : Fingerprint.t,
-        procedure : Token.t -> (Unit.t, Socket.active) monad} List.t Ref.t =
-       ref []
-
-   fun find fingerprint =
-       List.find (eq fingerprint o #fingerprint) (!entries)
+   val entries : (Fingerprint.t,
+                  Token.t -> (Unit.t, Socket.active) monad) HashMap.t =
+       HashMap.new {eq = op =, hash = Word32.toWord o Fingerprint.toWord32}
 
    val sendExn = send Exn.t
 
-   fun define (signature' as (dom, cod, _)) = let
+   fun define (signature' as (dom, cod, name)) = let
       val fingerprint = Fingerprint.make signature'
       val recvDom = recv dom
       val sendCod = send cod
       open Reply
    in
       fn f =>
-         (push entries)
-          {fingerprint = fingerprint,
-           procedure = fn token =>
-            recvDom >>= (fn x =>
-             try (fn () => f x,
-                  fn y =>
-                     send (RESULT token) >>= (fn () =>
-                     sendCod y),
-                  fn e =>
-                     send (EXN token) >>= (fn () =>
-                     sendExn e)))}
+         case HashMap.find entries fingerprint
+          of SOME _ => fails ["fingerprint of ", name, " already in use"]
+           | NONE =>
+             (HashMap.insert entries)
+              (fingerprint,
+               fn token =>
+                  recvDom >>= (fn x =>
+                  try (fn () => f x,
+                       fn y =>
+                          send (RESULT token) >>= (fn () =>
+                          sendCod y),
+                       fn e =>
+                          send (EXN token) >>= (fn () =>
+                          sendExn e))))
    end
 
    fun serve () =
        Request.recv >>= (fn req =>
        case req
-        of Request.CALL {token = token, fingerprint = fingerprint} =>
-           case find fingerprint
+        of Request.CALL {token, fingerprint} =>
+           case HashMap.find entries fingerprint
             of NONE =>
                skip >>= (fn () =>
                Reply.send (Reply.UNKNOWN token) >>=
                serve)
-             | SOME {procedure, ...} =>
+             | SOME procedure =>
                procedure token >>= serve)
 
    fun run {port, accept=filter} = let
