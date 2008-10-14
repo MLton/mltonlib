@@ -440,7 +440,7 @@ functor WithPickle (Arg : WITH_PICKLE_DOM) = let
              in
                 rd size >>= (fn 0 => return 0 | n => lp ([], n))
              end,
-             sz = NONE : OptInt.t}
+             sz = SOME 4}
 
       val exns : {rd : String.t -> Exn.t I.monad Option.t,
                   wr : Exn.t -> Unit.t O.monad Option.t} Buffer.t =
