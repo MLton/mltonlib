@@ -62,13 +62,14 @@ end = struct
               (#1 (Word8ArraySlice.base data), 0)))))
 
    fun recv t =
-       case #1 o Generic.unpickler
-                  t
-                  (IOSMonad.fromReader Word8ArraySlice.getItem)
+       case Generic.unpickler t (IOSMonad.fromReader Word8ArraySlice.getItem)
         of unpickle =>
            recv1 >>= (fn data =>
            try (fn () => unpickle data,
-                return,
+                fn (v, s) =>
+                   if Word8ArraySlice.isEmpty s
+                   then return v
+                   else error (Fail "garbage in packet"),
                 error))
 
    val skip = recv1 >>= (fn _ => return ())
