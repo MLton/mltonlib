@@ -95,7 +95,7 @@ end = struct
       val toWord32 = id
       fun make (dom, cod, name) =
           Generic.typeHash dom +
-          Generic.typeHash cod +
+          Generic.typeHash cod * 0w71 +
           Generic.hash String.t name
    end
 
