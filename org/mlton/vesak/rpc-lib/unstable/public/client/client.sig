@@ -41,9 +41,9 @@ signature CLIENT = sig
       (** Waits for the asynchronous reply and returns it. *)
    end
 
-   val declare : 'd Rep.t * 'c Rep.t * String.t -> Conn.t -> 'd -> 'c Reply.t
+   val declare : ('d, 'c) Protocol.Signature.t -> Conn.t -> 'd -> 'c Reply.t
    (**
-    * Declares a procedure with the given signature {(dom, cod, name)} and
-    * allows it to be called through the given connection.
+    * Declares a procedure with the given signature and allows it to be
+    * called through the given connection.
     *)
 end

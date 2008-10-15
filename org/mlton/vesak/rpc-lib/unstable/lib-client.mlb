@@ -20,6 +20,8 @@ in
       "warnUnused true"
    in
       local
+         public/protocol.sig
+
          public/client/client.sig
          detail/client.sml
       in

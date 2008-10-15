@@ -6,3 +6,6 @@
 
 signature SERVER = SERVER
 structure Server : SERVER = Server
+
+signature PROTOCOL = PROTOCOL
+structure Protocol : PROTOCOL = Protocol

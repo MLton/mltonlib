@@ -21,6 +21,8 @@ in
       "warnUnused true"
    in
       local
+         public/protocol.sig
+
          public/server/server.sig
          detail/server.sml
       in

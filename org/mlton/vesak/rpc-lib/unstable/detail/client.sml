@@ -113,7 +113,7 @@ structure Client :> CLIENT = struct
    end
 
    fun declare (signature' as (dom, cod, _)) = let
-      val fingerprint = Fingerprint.make signature'
+      val fingerprint = Fingerprint.fromSignature signature'
       val sendDom = send dom
       val recvCod = recv cod
    in

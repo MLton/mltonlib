@@ -9,11 +9,16 @@ structure Protocol :> sig
    val recv : 'a Rep.t -> ('a, Socket.active) SocketEvents.monad
    val send : 'a Rep.t -> 'a -> (Unit.t, Socket.active) SocketEvents.monad
 
+   structure Signature : sig
+      type ('d, 'c) t = 'd Rep.t * 'c Rep.t * String.t
+   end
+
    structure Fingerprint : sig
       eqtype t
       val t : t Rep.t
+      val toString : t -> String.t
       val toWord32 : t -> Word32.t
-      val make : 'd Rep.t * 'c Rep.t * String.t -> t
+      val fromSignature : ('d, 'c) Signature.t -> t
    end
 
    structure Token : sig
@@ -45,6 +50,7 @@ structure Protocol :> sig
    structure Version : sig
       eqtype t
       val current : t
+      val toString : t -> String.t
       val recv : (t, Socket.active) SocketEvents.monad
       val send : t -> (Unit.t, Socket.active) SocketEvents.monad
    end
@@ -90,10 +96,14 @@ end = struct
                        ; buffer)) >>= (fn () =>
                   SocketEvents.sendVec (Word8VectorSlice.full data))
 
+   structure Signature = struct
+      type ('d, 'c) t = 'd Rep.t * 'c Rep.t * String.t
+   end
+
    structure Fingerprint = struct
       open Word32
       val toWord32 = id
-      fun make (dom, cod, name) =
+      fun fromSignature (dom, cod, name) =
           Generic.typeHash dom +
           Generic.typeHash cod * 0w71 +
           Generic.hash String.t name

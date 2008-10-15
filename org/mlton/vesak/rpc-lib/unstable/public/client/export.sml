@@ -6,3 +6,6 @@
 
 signature CLIENT = CLIENT
 structure Client : CLIENT = Client
+
+signature PROTOCOL = PROTOCOL
+structure Protocol : PROTOCOL = Protocol

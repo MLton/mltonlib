@@ -10,6 +10,7 @@ lib ["${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
      "${MLTON_LIB}/com/ssh/async/unstable/example/poll-loop/lib.use",
      "${APPLICATION}/generic.use",
      "detail/protocol.use",
+     "public/protocol.sig",
      "public/client/client.sig",
      "detail/client.sml",
      "public/client/export.sml"] ;

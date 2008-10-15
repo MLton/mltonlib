@@ -12,10 +12,19 @@ in
    fun bindings () = !assoc
 end
 
-val () = Server.define (Pair.t (String.t, Int.t), Unit.t, "bind") bind
-val () = Server.define (String.t, Option.t Int.t, "find") find
-val () = Server.define
-          (Unit.t, List.t (Pair.t (String.t, Int.t)), "bindings")
-          bindings
-
-val () = Server.run {port = 4321, accept = const true}
+val () = let
+   open Server
+   val procMap = ProcMap.new ()
+   fun add ? = ProcMap.add procMap ?
+in
+   add (Pair.t (String.t, Int.t), Unit.t, "bind") bind
+ ; add (String.t, Option.t Int.t, "find") find
+ ; add (Unit.t, List.t (Pair.t (String.t, Int.t)), "bindings") bindings
+ ; TCP.start procMap let
+      open TCP.Opts
+   in
+      default
+       & maxAccepts := SOME 1
+   end
+ ; run ()
+end
