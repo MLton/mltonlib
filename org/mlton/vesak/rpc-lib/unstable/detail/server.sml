@@ -52,12 +52,10 @@ structure Server :> SERVER = struct
             , serverError : Exn.t Effect.t
             , closed : Unit.t Effect.t
             , accept : {addr : INetSock.sock_addr} UnPr.t
-            , unknownProtocol :
+            , protocolMismatch :
                {addr : INetSock.sock_addr,
                 version : Protocol.Version.t} Effect.t
-            , connected :
-               {addr : INetSock.sock_addr,
-                version : Protocol.Version.t} Effect.t
+            , connected : {addr : INetSock.sock_addr} Effect.t
             , unknownProc :
                {addr : INetSock.sock_addr,
                 fingerprint : Protocol.Fingerprint.t} Effect.t
@@ -76,7 +74,7 @@ structure Server :> SERVER = struct
                , serverError = ignore
                , closed = ignore
                , accept = const true
-               , unknownProtocol = ignore
+               , protocolMismatch = ignore
                , connected = ignore
                , unknownProc = ignore
                , protocolError = ignore
@@ -91,7 +89,7 @@ structure Server :> SERVER = struct
                                 , serverError
                                 , closed
                                 , accept
-                                , unknownProtocol
+                                , protocolMismatch
                                 , connected
                                 , unknownProc
                                 , protocolError
@@ -104,7 +102,7 @@ structure Server :> SERVER = struct
                                     , serverError = ref serverError
                                     , closed = ref closed
                                     , accept = ref accept
-                                    , unknownProtocol = ref unknownProtocol
+                                    , protocolMismatch = ref protocolMismatch
                                     , connected = ref connected
                                     , unknownProc = ref unknownProc
                                     , protocolError = ref protocolError
@@ -119,7 +117,7 @@ structure Server :> SERVER = struct
                                    , serverError = get #serverError
                                    , closed = get #closed
                                    , accept = get #accept
-                                   , unknownProtocol = get #unknownProtocol
+                                   , protocolMismatch = get #protocolMismatch
                                    , connected = get #connected
                                    , unknownProc = get #unknownProc
                                    , protocolError = get #protocolError
@@ -134,7 +132,7 @@ structure Server :> SERVER = struct
          val serverError = mk #serverError #serverError
          val closed = mk #closed #closed
          val accept = mk #accept #accept
-         val unknownProtocol = mk #unknownProtocol #unknownProtocol
+         val protocolMismatch = mk #protocolMismatch #protocolMismatch
          val connected = mk #connected #connected
          val unknownProc = mk #unknownProc #unknownProc
          val protocolError = mk #protocolError #protocolError
@@ -152,7 +150,7 @@ structure Server :> SERVER = struct
                         , serverError
                         , closed
                         , accept
-                        , unknownProtocol
+                        , protocolMismatch
                         , connected
                         , unknownProc
                         , protocolError
@@ -172,13 +170,13 @@ structure Server :> SERVER = struct
                      serve addr))
 
          fun negotiate addr =
-             Version.recv >>= (fn version' =>
-             if version' <> Version.current
-             then (unknownProtocol {addr = addr, version = version'}
+             Version.send Version.current >>= (fn () =>
+             Version.recv >>= (fn version =>
+             if version <> Version.current
+             then (protocolMismatch {addr = addr, version = version}
                  ; return ())
-             else (connected {addr = addr, version = version'}
-                 ; Version.send version' >>= (fn () =>
-                   serve addr)))
+             else (connected {addr = addr}
+                 ; serve addr)))
 
          fun listen maxAccepts =
              if SOME 0 = maxAccepts

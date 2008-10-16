@@ -6,7 +6,7 @@
 
 (**
  * Signature for the {Server} module for programming RPC servers.
-*)
+ *)
 signature SERVER = sig
 
    structure ProcMap : sig
@@ -66,14 +66,12 @@ signature SERVER = sig
          val accept : {addr : INetSock.sock_addr} UnPr.t opt
          (** default: {const true} *)
 
-         val unknownProtocol :
+         val protocolMismatch :
              {addr : INetSock.sock_addr,
               version : Protocol.Version.t} Effect.t opt
          (** default: {ignore} *)
 
-         val connected :
-             {addr : INetSock.sock_addr,
-              version : Protocol.Version.t} Effect.t opt
+         val connected : {addr : INetSock.sock_addr} Effect.t opt
          (** default: {ignore} *)
 
          val unknownProc :
