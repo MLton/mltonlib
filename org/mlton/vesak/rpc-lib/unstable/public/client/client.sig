@@ -8,13 +8,13 @@
  * Signature for the {Client} module for programming RPC clients.
  *)
 signature CLIENT = sig
-   exception Unknown
+   exception UnknownProcedure of Protocol.Fingerprint.t
    (**
     * Raised when an attempt is made to call a declared procedure that is
     * not defined on the server.
     *)
 
-   exception ProtocolMismatch
+   exception ProtocolMismatch of Protocol.Version.t
    (**
     * Raised during the connection process if the server doesn't support
     * the protocol of the client.

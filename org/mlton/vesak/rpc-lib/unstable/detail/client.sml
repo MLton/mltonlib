@@ -7,8 +7,8 @@
 structure Client :> CLIENT = struct
    open SocketEvents Async Protocol
 
-   exception Unknown
-   exception ProtocolMismatch
+   exception UnknownProcedure of Fingerprint.t
+   exception ProtocolMismatch of Version.t
 
    fun run xM socket =
        case ref (INL (Fail "impossible"))
@@ -19,13 +19,15 @@ structure Client :> CLIENT = struct
           ; Exn.reflect (!result))
 
    structure Conn = struct
+      datatype handler =
+         HANDLER of {token : Token.t,
+                     fingerprint : Fingerprint.t,
+                     setExn : Exn.t Effect.t,
+                     recvCod : (Unit.t, Socket.active) monad}
       datatype t =
          IN of {socket : Socket.active socket,
                 token : Token.t Ref.t,
-                live : {token : Token.t,
-                        setExn : Exn.t Effect.t,
-                        recvCod : (Unit.t, Socket.active) monad}
-                        ResizableArray.t}
+                handlers : handler ResizableArray.t}
 
       fun close (IN {socket, ...}) =
           Socket.close socket
@@ -44,13 +46,13 @@ structure Client :> CLIENT = struct
                        run (Version.send Version.current >>= (fn () =>
                             Version.recv >>= (fn version =>
                             if version <> Version.current
-                            then error ProtocolMismatch
+                            then error (ProtocolMismatch version)
                             else return ())))
                            socket,
                     fn () =>
                        IN {socket = socket,
                            token = ref Token.zero,
-                           live = ResizableArray.new ()},
+                           handlers = ResizableArray.new ()},
                     fn e =>
                        (Socket.close socket
                       ; raise e)))
@@ -60,19 +62,19 @@ structure Client :> CLIENT = struct
       datatype 'a t =
          IN of (Conn.t, (Exn.t, 'a) Sum.t) Sum.t Ref.t
 
-      fun drop live token' = let
+      fun drop handlers token' = let
          fun lp i =
-             if i < ResizableArray.length live
-             then case ResizableArray.sub (live, i)
-                   of handler as {token, setExn=_, recvCod=_} =>
+             if i < ResizableArray.length handlers
+             then case ResizableArray.sub (handlers, i)
+                   of handler as Conn.HANDLER {token, ...} =>
                       if token = token'
                       then (ResizableArray.update
-                             (live,
+                             (handlers,
                               i,
                               ResizableArray.sub
-                               (live,
-                                ResizableArray.length live - 1))
-                          ; ignore (ResizableArray.pop live)
+                               (handlers,
+                                ResizableArray.length handlers - 1))
+                          ; ignore (ResizableArray.pop handlers)
                           ; SOME handler)
                       else lp (i+1)
              else NONE
@@ -85,10 +87,10 @@ structure Client :> CLIENT = struct
       fun sync (reply as IN result) =
           case !result
            of INR result => Exn.reflect result
-            | INL (Conn.IN {socket, live, ...}) =>
+            | INL (Conn.IN {socket, handlers, ...}) =>
               (run (Reply.recv >>= (fn reply =>
                     case drop
-                          live
+                          handlers
                           (case reply
                             of Reply.UNKNOWN token => token
                              | Reply.EXN token => token
@@ -98,7 +100,8 @@ structure Client :> CLIENT = struct
                           of Reply.UNKNOWN _ => return ()
                            | Reply.EXN _ => skip
                            | Reply.RESULT _ => skip)
-                      | SOME {setExn, recvCod, ...} =>
+                      | SOME
+                         (Conn.HANDLER {setExn, recvCod, fingerprint, ...}) =>
                         (case reply
                           of Reply.RESULT _ => recvCod
                            | Reply.EXN _ =>
@@ -106,7 +109,7 @@ structure Client :> CLIENT = struct
                              (setExn e
                             ; return ()))
                            | Reply.UNKNOWN _ =>
-                             (setExn Unknown
+                             (setExn (UnknownProcedure fingerprint)
                             ; return ()))))
                    socket
              ; sync reply)
@@ -117,7 +120,7 @@ structure Client :> CLIENT = struct
       val sendDom = send dom
       val recvCod = recv cod
    in
-      fn conn as Conn.IN {socket, live, token, ...} => fn value => let
+      fn conn as Conn.IN {socket, handlers, token, ...} => fn value => let
             val token' = Token.next (!token)
             val result = ref (INL conn)
          in
@@ -129,12 +132,14 @@ structure Client :> CLIENT = struct
                  sendDom value))
                 socket
           ; ResizableArray.push
-             live
-             {token = token',
-              setExn = fn e => result := INR (INL e),
-              recvCod = recvCod >>= (fn v =>
-                        (result := INR (INR v)
-                       ; return ()))}
+             handlers
+             (Conn.HANDLER
+               {token = token',
+                fingerprint = fingerprint,
+                setExn = fn e => result := INR (INL e),
+                recvCod = recvCod >>= (fn v =>
+                          (result := INR (INR v)
+                         ; return ()))})
           ; Reply.IN result
          end
    end
