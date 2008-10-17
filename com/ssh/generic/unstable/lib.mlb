@@ -134,9 +134,7 @@ in
 
          detail/extra/close-pretty-with-extra.fun
 
-         ann "nonexhaustiveExnMatch ignore" in
-            detail/extra/reg-basis-exns.fun
-         end
+         detail/extra/reg-basis-exns.fun
       in
          public/export.sml
       end
