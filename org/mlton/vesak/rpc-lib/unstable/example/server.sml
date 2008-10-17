@@ -8,8 +8,8 @@ local
    val assoc : (String.t * Int.t) List.t Ref.t = ref []
 in
    fun bind (k, v) = assoc := (k, v) :: List.filter (notEq k o #1) (!assoc)
-   fun find k = Option.map #2 (List.find (eq k o #1) (!assoc))
    fun bindings () = !assoc
+   fun find k = Option.map #2 (List.find (eq k o #1) (!assoc))
 end
 
 val () = let
