@@ -5,14 +5,7 @@
  *)
 
 local
-   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
-   $(MLTON_LIB)/com/ssh/generic/unstable/lib.mlb
-   $(MLTON_LIB)/com/ssh/async/unstable/lib.mlb
-   $(MLTON_LIB)/com/ssh/async/unstable/example/poll-loop/lib.mlb
-
-   $(APPLICATION)/generic.mlb
-
-   detail/protocol.mlb
+   detail/common.mlb
 in
    ann
       "forceUsed"

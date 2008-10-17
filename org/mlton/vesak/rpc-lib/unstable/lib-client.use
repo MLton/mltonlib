@@ -4,12 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-lib ["${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
-     "${MLTON_LIB}/com/ssh/generic/unstable/lib.use",
-     "${MLTON_LIB}/com/ssh/async/unstable/lib.use",
-     "${MLTON_LIB}/com/ssh/async/unstable/example/poll-loop/lib.use",
-     "${APPLICATION}/generic.use",
-     "detail/protocol.use",
+lib ["detail/common.use",
      "public/protocol.sig",
      "public/client/client.sig",
      "detail/client.sml",
