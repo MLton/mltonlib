@@ -47,7 +47,7 @@ structure Server :> SERVER = struct
          datatype t = IN
           of {name : String.t
             , port : Int.t
-            , maxAccepts : Int.t Option.t
+            , numAccepts : Int.t Option.t
             , tcpNoDelay : Bool.t
             , serverError : Exn.t Effect.t
             , closed : Unit.t Effect.t
@@ -69,8 +69,8 @@ structure Server :> SERVER = struct
          val default : t =
              IN {name = "127.0.0.1"
                , port = 45678
-               , maxAccepts = NONE
-               , tcpNoDelay = true
+               , numAccepts = NONE
+               , tcpNoDelay = false
                , serverError = ignore
                , closed = ignore
                , accept = const true
@@ -84,7 +84,7 @@ structure Server :> SERVER = struct
              OPT {set = fn value =>
                            fn IN {name
                                 , port
-                                , maxAccepts
+                                , numAccepts
                                 , tcpNoDelay
                                 , serverError
                                 , closed
@@ -97,7 +97,7 @@ structure Server :> SERVER = struct
                                  val opts =
                                      {name = ref name
                                     , port = ref port
-                                    , maxAccepts = ref maxAccepts
+                                    , numAccepts = ref numAccepts
                                     , tcpNoDelay = ref tcpNoDelay
                                     , serverError = ref serverError
                                     , closed = ref closed
@@ -112,7 +112,7 @@ structure Server :> SERVER = struct
                                  set opts := value
                                ; IN {name = get #name
                                    , port = get #port
-                                   , maxAccepts = get #maxAccepts
+                                   , numAccepts = get #numAccepts
                                    , tcpNoDelay = get #tcpNoDelay
                                    , serverError = get #serverError
                                    , closed = get #closed
@@ -127,7 +127,7 @@ structure Server :> SERVER = struct
 
          val name = mk #name #name
          val port = mk #port #port
-         val maxAccepts = mk #maxAccepts #maxAccepts
+         val numAccepts = mk #numAccepts #numAccepts
          val tcpNoDelay = mk #tcpNoDelay #tcpNoDelay
          val serverError = mk #serverError #serverError
          val closed = mk #closed #closed
@@ -145,7 +145,7 @@ structure Server :> SERVER = struct
       fun start entries
                 (Opts.IN {name
                         , port
-                        , maxAccepts
+                        , numAccepts
                         , tcpNoDelay
                         , serverError
                         , closed
@@ -178,8 +178,8 @@ structure Server :> SERVER = struct
              else (connected {addr = addr}
                  ; serve addr)))
 
-         fun listen maxAccepts =
-             if SOME 0 = maxAccepts
+         fun listen numAccepts =
+             if SOME 0 = numAccepts
              then return ()
              else SocketEvents.sockEvt OS.IO.pollIn >>= (fn socket =>
                   case Socket.acceptNB socket
@@ -187,7 +187,7 @@ structure Server :> SERVER = struct
                     | SOME (socket, addr) =>
                       (if not (accept {addr = addr})
                        then (Socket.close socket
-                           ; listen maxAccepts)
+                           ; listen numAccepts)
                        else (INetSock.TCP.setNODELAY (socket, tcpNoDelay)
                            ; (when (negotiate addr socket))
                               (fn r =>
@@ -198,7 +198,7 @@ structure Server :> SERVER = struct
                                      | INL e =>
                                        protocolError {addr = addr, error = e}
                                  ; disconnected {addr = addr}))
-                           ; listen (Option.map (fn n => n-1) maxAccepts))))
+                           ; listen (Option.map (fn n => n-1) numAccepts))))
 
          val socket = INetSock.TCP.socket ()
       in
@@ -210,7 +210,7 @@ structure Server :> SERVER = struct
               port))
         ; Socket.listen (socket, 16))
          handle e => (Socket.close socket ; raise e)
-       ; (when (listen maxAccepts socket))
+       ; (when (listen numAccepts socket))
           (fn r =>
               (Socket.close socket
              ; case r

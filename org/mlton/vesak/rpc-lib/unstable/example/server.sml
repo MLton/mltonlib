@@ -24,7 +24,7 @@ in
       open TCP.Opts
    in
       default
-       & maxAccepts := SOME 1
+       & numAccepts := SOME 1
    end
  ; run ()
 end

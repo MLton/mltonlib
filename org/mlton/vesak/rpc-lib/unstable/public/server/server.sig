@@ -35,7 +35,7 @@ signature SERVER = sig
           * Example:
           *
           *> default & port := 4321
-          *>         & maxAccepts := SOME 1
+          *>         & numAccepts := SOME 1
           *)
 
          val & : t * ('a opt * 'a) -> t
@@ -47,13 +47,18 @@ signature SERVER = sig
          (** default: {"127.0.0.1"} *)
 
          val port : Int.t opt
-         (** default: 45678 *)
+         (** default: {45678} *)
 
-         val maxAccepts : Int.t Option.t opt
-         (** default: {NONE} *)
+         val numAccepts : Int.t Option.t opt
+         (**
+          * Optional number of connections to accept after which the
+          * listener port is closed automatically.
+          *
+          * default: {NONE}
+          *)
 
          val tcpNoDelay : Bool.t opt
-         (** default: {true} *)
+         (** default: {false} *)
 
          (** == Server Events == *)
 
