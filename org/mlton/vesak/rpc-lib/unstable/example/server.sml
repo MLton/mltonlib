@@ -15,11 +15,9 @@ end
 val () = let
    open Server
    val procMap = ProcMap.new ()
-   fun add ? = ProcMap.add procMap ?
+   fun ` f s = ProcMap.add procMap s (verbose "server: " s f)
 in
-   add (Pair.t (String.t, Int.t), Unit.t, "bind") bind
- ; add (String.t, Option.t Int.t, "find") find
- ; add (Unit.t, List.t (Pair.t (String.t, Int.t)), "bindings") bindings
+   mkLib {bind = `bind, bindings = `bindings, find = `find} >| ignore
  ; TCP.start procMap let
       open TCP.Opts
    in

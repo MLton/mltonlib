@@ -7,25 +7,16 @@
 val conn = Client.Conn.byName {host = "127.0.0.1", port = 45678}
 
 local
-   fun mk signature' conn =
-       Client.Reply.sync o Client.declare signature' conn
+   fun mk s = verbose "client: " s (Client.Reply.sync o Client.declare s conn)
 in
-   val bind = mk (Pair.t (String.t, Int.t), Unit.t, "bind") conn
-   val find = mk (String.t, Option.t Int.t, "find") conn
-   val bindings =
-       mk (Unit.t, List.t (Pair.t (String.t, Int.t)), "bindings") conn
+   val {bind, bindings, find} =
+       mkLib {bind = mk, bindings = mk, find = mk}
 end
 
-fun tell x =
-    printlns [x, " => ",
-              case find x
-               of NONE => "undefined"
-                | SOME x => Int.toString x]
-
 val () =
-    (tell "x"
+    (find "x" >| ignore
    ; bind ("x", 1234)
-   ; tell "x"
-   ; println (Generic.show (List.t (Pair.t (String.t, Int.t))) (bindings ())))
+   ; find "x" >| ignore
+   ; bindings () >| ignore)
 
 val () = Client.Conn.close conn

@@ -15,6 +15,7 @@ ann
    "warnUnused true"
 in
    local
+      common.sml
       client.sml
    in
    end

@@ -7,4 +7,5 @@
 lib ["${MLTON_LIB}/com/ssh/extended-basis/unstable/basis.use",
      "../lib-client.use",
      "${APPLICATION}/generic.use",
+     "common.sml",
      "client.sml"] ;
