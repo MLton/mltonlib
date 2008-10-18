@@ -1,4 +1,5 @@
 (* Copyright (C) 2006-2007 SSH Communications Security, Helsinki, Finland
+ * Copyright (C) 2008 Vesa Karvonen
  *
  * This code is released under the MLton license, a BSD-style license.
  * See the LICENSE file or http://mlton.org/License for details.
@@ -50,6 +51,8 @@ signature SIGNED = SIGNED
 signature STRINGABLE = STRINGABLE
 signature STRINGABLE_CORE = STRINGABLE_CORE
 signature T = T
+signature T'1 = T'1
+signature T'2 = T'2
 signature WORDABLE = WORDABLE
 signature WORDABLE_X = WORDABLE_X
 
