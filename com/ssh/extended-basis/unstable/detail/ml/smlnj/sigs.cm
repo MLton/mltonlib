@@ -13,6 +13,7 @@ is
    ../../../public/concept/bounded.sig
    ../../../public/concept/cased.sig
    ../../../public/concept/cstringable.sig
+   ../../../public/concept/empty.sig
    ../../../public/concept/equality.sig
    ../../../public/concept/etaexp.sig
    ../../../public/concept/flags.sig
