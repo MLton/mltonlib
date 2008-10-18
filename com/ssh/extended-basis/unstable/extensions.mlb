@@ -105,6 +105,9 @@ in
          public/basic.sig
          detail/basic.sml
 
+         (* Id *)
+         public/data/id.sig
+
          (* Unit *)
          public/data/unit.sig
 

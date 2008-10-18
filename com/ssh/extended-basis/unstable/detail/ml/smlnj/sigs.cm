@@ -34,6 +34,7 @@ is
    ../../../public/control/iter.sig
    ../../../public/control/with.sig
    ../../../public/data/bool.sig
+   ../../../public/data/id.sig
    ../../../public/data/option.sig
    ../../../public/data/order.sig
    ../../../public/data/pair.sig

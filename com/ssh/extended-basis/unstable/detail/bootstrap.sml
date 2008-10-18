@@ -45,7 +45,10 @@ structure Word8 = struct open BasisWord8 type t = word end
 structure Word8Array = struct open BasisWord8Array type t = array end
 structure Word8ArraySlice = struct open BasisWord8ArraySlice type t = slice end
 structure Word8Vector = struct open BasisWord8Vector type t = vector end
-structure Word8VectorSlice = struct open BasisWord8VectorSlice type t = slice end
+structure Word8VectorSlice = struct
+   open BasisWord8VectorSlice
+   type t = slice
+end
 structure Pair = struct
    type ('a, 'b) pair = 'a * 'b
    type ('a, 'b) t = ('a, 'b) pair
@@ -76,3 +79,4 @@ structure BinFn = struct type ('a, 'b) t = 'a Sq.t -> 'b end
 structure IEEEReal = BasisIEEEReal
 structure Time = struct open BasisTime type t = time end
 structure CPS = struct type ('a, 'b) t = ('a -> 'b) -> 'b end
+structure Id = struct type 'a t = 'a end
