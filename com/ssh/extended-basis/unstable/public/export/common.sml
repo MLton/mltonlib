@@ -171,7 +171,6 @@ structure Fix : FIX = Fix
 structure FixedInt : INTEGER = FixedInt
 structure Fn : FN = Fn
 structure Fold : FOLD = Fold
-structure Id : ID = Id
 structure IOSMonad : IOS_MONAD = IOSMonad
 structure Int : INTEGER = Int
 structure Iso : ISO = Iso
@@ -209,6 +208,13 @@ structure Word8Array : MONO_ARRAY = Word8Array
 structure Word8ArraySlice : MONO_ARRAY_SLICE = Word8ArraySlice
 structure Word8Vector : MONO_VECTOR = Word8Vector
 structure Word8VectorSlice : MONO_VECTOR_SLICE = Word8VectorSlice
+
+(*
+ * These structures are mentioned separately here, rather than in the
+ * above list sorted alphabetically, because otherwise SML/NJ (v110.68)
+ * barfs.
+ *)
+structure Id : ID = Id
 
 (** === Functors === *)
 
