@@ -14,6 +14,9 @@ signature FRU = sig
    type ('rec, 'upds) t'
    type ('rec, 'upds, 'data) t =
         (('rec, 'upds) t', ('rec, 'upds) t', 'data UnOp.t) Fold.t
+   type ('value, 'rec) upd = 'value -> 'rec UnOp.t
+   type ('args, 'upds, 'result) args =
+        (('args, 'upds) t', ('args, 'upds) t', 'result) Fold.t
 
    val fru :
        (((('a -> Unit.t) * 'b UnOp.t, 'c, 'd, 'e, 'c) StaticSum.t,
@@ -34,6 +37,14 @@ signature FRU = sig
          (('rec, 'upds, 'data) t, 't) CPS.t) Fold.t,
         'u) CPS.t
 
+   val args :
+       (((('a -> Unit.t) * ('b -> 'b), 'c, 'd, 'e, 'c) StaticSum.t,
+         ('f, 'f, 'g, 'g,
+          (('h -> 'i -> 'j) -> 'k) * ('h -> 'l -> 'm)) StaticSum.t,
+         ('i -> 'l) * ('m -> 'j) -> 'n * ('k -> 'o) -> 'p -> ('p -> 'q) ->
+         ((('r, 'o) t', ('p, 's) t', 'q) Fold.t, 't) CPS.t) Fold.t,
+        'u) CPS.t
+
    val A :
        ((('a * 'b, 'c UnOp.t * ('d -> 'e -> 'd),
           (('f -> 'g) -> 'h) * ('i -> 'j -> 'k),
@@ -47,6 +58,6 @@ signature FRU = sig
    val U :
        ('upds -> 'val -> 'rec UnOp.t) ->
        'val ->
-       (('rec, 'upds, 'data) t,
-        ('rec, 'upds, 'data) t, 'k) Fold.s
+       ((('rec, 'upds) t', ('rec, 'upds) t', 'result) Fold.t,
+        (('rec, 'upds) t', ('rec, 'upds) t', 'result) Fold.t, 'k) Fold.s
 end
