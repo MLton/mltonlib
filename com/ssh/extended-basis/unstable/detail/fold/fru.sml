@@ -10,15 +10,15 @@ structure FRU :> FRU = struct
         (('rec, 'upds) t', ('rec, 'upds) t', 'data UnOp.t) Fold.t
 
    local
+      open StaticSum
       datatype product = datatype Product.product
-      datatype sum = datatype Sum.sum
       infix &
 
       fun fin (m, u) iso (_, p2r) =
           p2r (m (Fn.map iso o u))
 
       fun make ? =
-          Fold.NSZ.wrap {none = fin, some = fin, zero = (Fn.const (), Fn.id)} ?
+          Fold.wrap (StaticSum.inL (Fn.const (), Fn.id), fin o out) ?
 
       fun out (IN ?) = ?
 
@@ -26,13 +26,13 @@ structure FRU :> FRU = struct
           Fold.wrap (IN (Fn.id, u), Fn.map iso o Pair.fst o out)
    in
       fun A ? =
-          Fold.NSZ.mapSt
-             {none = Pair.map (Fn.const Fn.id, Fn.const Fn.const),
-              some = Pair.map (fn m => fn p => m (p o INL) & (p o INR),
-                               fn u => fn INL p => (fn l & r => u p l & r)
-                                        | INR v => (fn l & _ => l & v))} ?
+          Fold.mapSt
+             (inR o sum (Pair.map (Fn.const Fn.id, Fn.const Fn.const),
+                         Pair.map (fn m => fn p => m (p o inL) & (p o inR),
+                                   fn u => sum (fn p => fn l & r => u p l & r,
+                                                fn v => fn l & _ => l & v)))) ?
 
-      fun fruData (iso : ('data, 'rec) Iso.t) =
+      fun fruData iso =
           Fold.post (fn f => fn ~ => updData iso o f ~) make
 
       fun fru ? =

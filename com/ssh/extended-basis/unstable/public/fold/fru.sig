@@ -16,44 +16,33 @@ signature FRU = sig
         (('rec, 'upds) t', ('rec, 'upds) t', 'data UnOp.t) Fold.t
 
    val fru :
-       (((('a -> unit) * 'b UnOp.t, 'c, 'd, 'e, 'f, 'c, 'd) Fold.NSZ.t',
-         ('g,
-          (('h -> 'i UnOp.t) -> 'j) * ('h -> 'k UnOp.t),
-          ('i, 'k) Iso.t -> ('l, 'j) Iso.t -> 'l,
-          (('m -> 'n UnOp.t) -> 'o) * ('m -> 'p UnOp.t),
-          ('n, 'p) Iso.t -> ('q, 'o) Iso.t -> 'q,
-          'g,
-          'r -> 's -> 'upds) Fold.NSZ.t',
-         'r -> 's ->
-         (('rec, 'upds, 'rec) t, 'v) CPS.t) Fold.t,
-        'w) CPS.t
+       (((('a -> Unit.t) * 'b UnOp.t, 'c, 'd, 'e, 'c) StaticSum.t,
+         ('f, 'f, 'g, 'g,
+          (('h -> 'rec UnOp.t) -> 'prod_upds) *
+          ('h -> 'prod UnOp.t)) StaticSum.t,
+         ('rec, 'prod) Iso.t -> ('upds, 'prod_upds) Iso.t ->
+         (('rec, 'upds, 'rec) t, 's) CPS.t) Fold.t,
+        't) CPS.t
 
    val fruData :
        ('data, 'rec) Iso.t ->
-       (((('c -> unit) * 'd UnOp.t, 'e, 'f, 'g, 'h, 'e, 'f) Fold.NSZ.t',
-         ('i,
-          (('j -> 'k UnOp.t) -> 'l) * ('j -> 'm UnOp.t),
-          ('k, 'm) Iso.t -> ('n, 'l) Iso.t -> 'n,
-          (('o -> 'p UnOp.t) -> 'q) * ('o -> 'r UnOp.t),
-          ('p, 'r) Iso.t -> ('s, 'q) Iso.t -> 's,
-          'i,
-          't -> 'u -> 'upds) Fold.NSZ.t',
-         't -> 'u ->
-         (('rec, 'upds, 'data) t, 'w) CPS.t) Fold.t,
-        'x) CPS.t
+       (((('c -> Unit.t) * 'd UnOp.t, 'e, 'f, 'g, 'e) StaticSum.t,
+         ('h, 'h, 'i, 'i,
+          (('j -> 'rec UnOp.t) -> 'prod_upds) *
+          ('j -> 'prod UnOp.t)) StaticSum.t,
+         ('rec, 'prod) Iso.t -> ('upds, 'prod_upds) Iso.t ->
+         (('rec, 'upds, 'data) t, 't) CPS.t) Fold.t,
+        'u) CPS.t
 
    val A :
-       ((('a,
-          'b * 'c,
-          'd UnOp.t * ('e -> 'f -> 'e),
-          (('g -> 'h) -> 'i) * ('j -> 'k UnOp.t),
-          ((('g, 'l) Sum.t -> 'h) -> ('i, 'l -> 'h) Product.t) *
-          (('j, 'm) Sum.t -> ('k, 'm) Product.t UnOp.t),
-          'a,
-          'n) Fold.NSZ.t',
-         'o,
-         'p) Fold.t,
-        (('n, 'q, 'r, 's, 't, 's, 't) Fold.NSZ.t', 'o, 'p) Fold.t, 'u) Fold.s
+       ((('a * 'b, 'c UnOp.t * ('d -> 'e -> 'd),
+          (('f -> 'g) -> 'h) * ('i -> 'j -> 'k),
+          ((('f, 'l, 'm, 'l, 'l) StaticSum.t -> 'g) ->
+           ('h, 'm -> 'g) Product.t) *
+          (('i, ('j, 'n) Product.t -> ('k, 'n) Product.t,
+            'o, ('p, 'q) Product.t -> ('p, 'o) Product.t,
+            'r) StaticSum.t -> 'r), 's) StaticSum.t, 't, 'u) Fold.t,
+        (('v, 'w, 's, 'x, 'x) StaticSum.t, 't, 'u) Fold.t, 'y) Fold.s
 
    val U :
        ('upds -> 'val -> 'rec UnOp.t) ->
