@@ -4,7 +4,7 @@
  * See the LICENSE file or http://mlton.org/License for details.
  *)
 
-val conn = Client.Conn.byName {host = "127.0.0.1", port = 45678}
+val conn = Client.TCP.connect (U#tcpNoDelay true) $
 
 local
    fun mk s = verbose "client: " s (Client.Reply.sync o Client.declare s conn)

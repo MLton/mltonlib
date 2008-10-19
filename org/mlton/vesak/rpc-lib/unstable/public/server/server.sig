@@ -24,76 +24,43 @@ signature SERVER = sig
    end
 
    structure TCP : sig
-      structure Opts : sig
-         type t and 'a opt
-
-         val default : t
-         (** Default options. *)
-
-         (** == Updating Options ==
-          *
-          * Example:
-          *
-          *> default & port := 4321
-          *>         & numAccepts := SOME 1
-          *)
-
-         val & : t * ('a opt * 'a) -> t
-         val := : ('a opt * 'a) UnOp.t
-
-         (** == Server Settings == *)
-
-         val name : String.t opt
-         (** default: {"127.0.0.1"} *)
-
-         val port : Int.t opt
-         (** default: {45678} *)
-
-         val numAccepts : Int.t Option.t opt
-         (**
-          * Optional number of connections to accept after which the
-          * listener port is closed automatically.
-          *
-          * default: {NONE}
-          *)
-
-         val tcpNoDelay : Bool.t opt
-         (** default: {false} *)
-
-         (** == Server Events == *)
-
-         val serverError : Exn.t Effect.t opt
-         (** default: {ignore} *)
-
-         val closed : Unit.t Effect.t opt
-         (** default: {ignore} *)
-
-         val accept : {addr : INetSock.sock_addr} UnPr.t opt
-         (** default: {const true} *)
-
-         val protocolMismatch :
+      type start_args
+      type 'a start = ('a, start_args) FRU.upd
+      val start :
+          ProcMap.t ->
+          ((start_args,
+            {name : String.t start
+             (** default: {"127.0.0.1"} *)
+           , port : Int.t start
+             (** default: {45678} *)
+           , numAccepts : Int.t Option.t start
+             (** default: {45678} *)
+           , tcpNoDelay : Bool.t start
+             (** default: {false} *)
+           , serverError : Exn.t Effect.t start
+             (** default: {ignore} *)
+           , closed : Unit.t Effect.t start
+             (** default: {ignore} *)
+           , accept : {addr : INetSock.sock_addr} UnPr.t start
+             (** default: {const true} *)
+           , protocolMismatch :
              {addr : INetSock.sock_addr,
-              version : Protocol.Version.t} Effect.t opt
-         (** default: {ignore} *)
-
-         val connected : {addr : INetSock.sock_addr} Effect.t opt
-         (** default: {ignore} *)
-
-         val unknownProc :
+              version : Protocol.Version.t} Effect.t start
+             (** default: {ignore} *)
+           , connected : {addr : INetSock.sock_addr} Effect.t start
+             (** default: {ignore} *)
+           , unknownProc :
              {addr : INetSock.sock_addr,
-              fingerprint : Protocol.Fingerprint.t} Effect.t opt
-         (** default: {ignore} *)
-
-         val protocolError :
-             {addr : INetSock.sock_addr,
-              error : Exn.t} Effect.t opt
-         (** default: {ignore} *)
-
-         val disconnected : {addr : INetSock.sock_addr} Effect.t opt
-         (** default: {ignore} *)
-      end
-
-      val start : ProcMap.t -> Opts.t Effect.t
+              fingerprint : Protocol.Fingerprint.t} Effect.t start
+             (** default: {ignore} *)
+           , protocolError :
+             {addr : INetSock.sock_addr, error : Exn.t} Effect.t start
+             (** default: {ignore} *)
+           , disconnected : {addr : INetSock.sock_addr} Effect.t start
+             (** default: {ignore} *)
+            },
+            Unit.t) FRU.args,
+           'k) CPS.t
       (**
        * Starts an async server handler listening on the specified {name}d
        * address and {port} for clients using the TCP protocol.

@@ -26,11 +26,23 @@ signature CLIENT = sig
 
       val close : t Effect.t
       (** Explicitly closes the connection. *)
+   end
 
-      val byName : {host : String.t, port : Int.t} -> t
+   structure TCP : sig
+      type connect_args
+      type 'a connect = ('a, connect_args) FRU.upd
+      val connect :
+          ((connect_args,
+            {host : String.t connect
+             (** default: {"127.0.0.1"} *)
+           , port : Int.t connect
+             (** default: {45678} *)
+           , tcpNoDelay : Bool.t connect
+             (** default: {false} *)
+            },
+            Conn.t) FRU.args,
+           'k) CPS.t
       (** Connects to the server on the specified host and port. *)
-
-    (*val spawn : {exe : String.t, port : Int.t} -> t*)
    end
 
    structure Reply : sig

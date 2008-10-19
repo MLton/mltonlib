@@ -31,31 +31,46 @@ structure Client :> CLIENT = struct
 
       fun close (IN {socket, ...}) =
           Socket.close socket
+   end
 
-      fun byName {host, port} =
-          case INetSock.TCP.socket ()
-           of socket =>
-              (INetSock.TCP.setNODELAY (socket, true)
-             ; Socket.connect
-                (socket,
-                 INetSock.toAddr
-                  (NetHostDB.addr
-                    (valOf (NetHostDB.getByName host)),
-                   port))
-             ; try (fn () =>
-                       run (Version.send Version.current >>= (fn () =>
-                            Version.recv >>= (fn version =>
-                            if version <> Version.current
-                            then error (ProtocolMismatch version)
-                            else return ())))
-                           socket,
-                    fn () =>
-                       IN {socket = socket,
-                           token = ref Token.zero,
-                           handlers = ResizableArray.new ()},
-                    fn e =>
-                       (Socket.close socket
-                      ; raise e)))
+   structure TCP = struct
+      type connect_args =
+           {host : String.t,
+            port : Int.t,
+            tcpNoDelay : Bool.t}
+      type 'a connect = ('a, connect_args) FRU.upd
+
+      val ~ = (fn {host=a, port=b, tcpNoDelay=c} => (a&b&c),
+               fn (a&b&c) => {host=a, port=b, tcpNoDelay=c})
+
+      fun connect ? =
+          let open FRU in args A A A $ ~ ~ end
+           {host = "127.0.0.1", port = 45678, tcpNoDelay = false}
+           (fn {host, port, tcpNoDelay} =>
+               case INetSock.TCP.socket ()
+                of socket =>
+                   (INetSock.TCP.setNODELAY (socket, tcpNoDelay)
+                  ; Socket.connect
+                     (socket,
+                      INetSock.toAddr
+                       (NetHostDB.addr
+                         (valOf (NetHostDB.getByName host)),
+                        port))
+                  ; try (fn () =>
+                            run (Version.send Version.current >>= (fn () =>
+                                 Version.recv >>= (fn version =>
+                                 if version <> Version.current
+                                 then error (ProtocolMismatch version)
+                                 else return ())))
+                                socket,
+                         fn () =>
+                            Conn.IN {socket = socket,
+                                     token = ref Token.zero,
+                                     handlers = ResizableArray.new ()},
+                         fn e =>
+                            (Socket.close socket
+                           ; raise e))))
+           ?
    end
 
    structure Reply = struct

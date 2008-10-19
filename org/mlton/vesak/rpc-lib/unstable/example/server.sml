@@ -18,11 +18,6 @@ val () = let
    fun ` f s = ProcMap.add procMap s (verbose "server: " s f)
 in
    mkLib {bind = `bind, bindings = `bindings, find = `find} >| ignore
- ; TCP.start procMap let
-      open TCP.Opts
-   in
-      default
-       & numAccepts := SOME 1
-   end
+ ; TCP.start procMap (U#numAccepts (SOME 1)) (U#tcpNoDelay true) $
  ; run ()
 end

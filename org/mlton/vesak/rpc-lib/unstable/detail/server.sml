@@ -43,118 +43,30 @@ structure Server :> SERVER = struct
    end
 
    structure TCP = struct
-      structure Opts = struct
-         datatype t = IN
-          of {name : String.t
-            , port : Int.t
-            , numAccepts : Int.t Option.t
-            , tcpNoDelay : Bool.t
-            , serverError : Exn.t Effect.t
-            , closed : Unit.t Effect.t
-            , accept : {addr : INetSock.sock_addr} UnPr.t
-            , protocolMismatch :
-               {addr : INetSock.sock_addr,
-                version : Protocol.Version.t} Effect.t
-            , connected : {addr : INetSock.sock_addr} Effect.t
-            , unknownProc :
-               {addr : INetSock.sock_addr,
-                fingerprint : Protocol.Fingerprint.t} Effect.t
-            , protocolError :
-               {addr : INetSock.sock_addr,
-                error : Exn.t} Effect.t
-            , disconnected : {addr : INetSock.sock_addr} Effect.t}
+      type start_args =
+           {name : String.t,
+            port : Int.t,
+            numAccepts : Int.t Option.t,
+            tcpNoDelay : Bool.t,
+            serverError : Exn.t Effect.t,
+            closed : Unit.t Effect.t,
+            accept : {addr : INetSock.sock_addr} UnPr.t,
+            protocolMismatch :
+            {addr : INetSock.sock_addr,
+             version : Protocol.Version.t} Effect.t,
+            connected : {addr : INetSock.sock_addr} Effect.t,
+            unknownProc :
+            {addr : INetSock.sock_addr,
+             fingerprint : Protocol.Fingerprint.t} Effect.t,
+            protocolError :
+            {addr : INetSock.sock_addr, error : Exn.t} Effect.t,
+            disconnected : {addr : INetSock.sock_addr} Effect.t}
+      type 'a start = ('a, start_args) FRU.upd
 
-         datatype 'a opt = OPT of {get : t -> 'a, set : 'a -> t UnOp.t}
-
-         val default : t =
-             IN {name = "127.0.0.1"
-               , port = 45678
-               , numAccepts = NONE
-               , tcpNoDelay = false
-               , serverError = ignore
-               , closed = ignore
-               , accept = const true
-               , protocolMismatch = ignore
-               , connected = ignore
-               , unknownProc = ignore
-               , protocolError = ignore
-               , disconnected = ignore}
-
-         fun mk get set =
-             OPT {set = fn value =>
-                           fn IN {name
-                                , port
-                                , numAccepts
-                                , tcpNoDelay
-                                , serverError
-                                , closed
-                                , accept
-                                , protocolMismatch
-                                , connected
-                                , unknownProc
-                                , protocolError
-                                , disconnected} => let
-                                 val opts =
-                                     {name = ref name
-                                    , port = ref port
-                                    , numAccepts = ref numAccepts
-                                    , tcpNoDelay = ref tcpNoDelay
-                                    , serverError = ref serverError
-                                    , closed = ref closed
-                                    , accept = ref accept
-                                    , protocolMismatch = ref protocolMismatch
-                                    , connected = ref connected
-                                    , unknownProc = ref unknownProc
-                                    , protocolError = ref protocolError
-                                    , disconnected = ref disconnected}
-                                 fun get field = !(field opts)
-                              in
-                                 set opts := value
-                               ; IN {name = get #name
-                                   , port = get #port
-                                   , numAccepts = get #numAccepts
-                                   , tcpNoDelay = get #tcpNoDelay
-                                   , serverError = get #serverError
-                                   , closed = get #closed
-                                   , accept = get #accept
-                                   , protocolMismatch = get #protocolMismatch
-                                   , connected = get #connected
-                                   , unknownProc = get #unknownProc
-                                   , protocolError = get #protocolError
-                                   , disconnected = get #disconnected}
-                              end,
-                  get = fn IN r => get r}
-
-         val name = mk #name #name
-         val port = mk #port #port
-         val numAccepts = mk #numAccepts #numAccepts
-         val tcpNoDelay = mk #tcpNoDelay #tcpNoDelay
-         val serverError = mk #serverError #serverError
-         val closed = mk #closed #closed
-         val accept = mk #accept #accept
-         val protocolMismatch = mk #protocolMismatch #protocolMismatch
-         val connected = mk #connected #connected
-         val unknownProc = mk #unknownProc #unknownProc
-         val protocolError = mk #protocolError #protocolError
-         val disconnected = mk #disconnected #disconnected
-
-         fun opts & (OPT {set, ...}, value) = set value opts
-         val op := = id
-      end
-
-      fun start entries
-                (Opts.IN {name
-                        , port
-                        , numAccepts
-                        , tcpNoDelay
-                        , serverError
-                        , closed
-                        , accept
-                        , protocolMismatch
-                        , connected
-                        , unknownProc
-                        , protocolError
-                        , disconnected}) = let
+      fun start' entries
+                 ({name, port, numAccepts, tcpNoDelay, serverError, closed,
+                   accept, protocolMismatch, connected, unknownProc,
+                   protocolError, disconnected} : start_args) = let
          fun serve addr =
              Request.recv >>= (fn req =>
              case req
@@ -218,6 +130,24 @@ structure Server :> SERVER = struct
                  | INR () => ()
              ; closed ()))
       end
+
+      val ~ =
+          (fn {name=a, port=b, numAccepts=c, tcpNoDelay=d, serverError=e,
+               closed=f, accept=g, protocolMismatch=h, connected=i,
+               unknownProc=j, protocolError=k, disconnected=l} =>
+              (a&b&c&d&e&f&g&h&i&j&k&l),
+           fn (a&b&c&d&e&f&g&h&i&j&k&l) =>
+              {name=a, port=b, numAccepts=c, tcpNoDelay=d, serverError=e,
+               closed=f, accept=g, protocolMismatch=h, connected=i,
+               unknownProc=j, protocolError=k, disconnected=l})
+
+      fun start entries =
+          let open FRU in args A A A A A A A A A A A A $ ~ ~ end
+           {name = "127.0.0.1", port = 45678, numAccepts = NONE,
+            tcpNoDelay = false, serverError = ignore, closed = ignore,
+            accept = const true, protocolMismatch = ignore, connected = ignore,
+            unknownProc = ignore, protocolError = ignore, disconnected = ignore}
+           (start' entries)
    end
 
    fun run () = PollLoop.run Handler.runAll
