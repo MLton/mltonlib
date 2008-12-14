@@ -98,15 +98,6 @@ struct
 
    open Monad
 
-   fun map x2y xM s =
-       case xM s
-        of EMPTY (FAIL m)       => EMPTY (FAIL m)
-         | EMPTY (OK (x, s, m)) => EMPTY (OK (x2y x, s, m))
-         | TASTE th             =>
-           TASTE (fn () => case th ()
-                            of FAIL m       => FAIL m
-                             | OK (x, s, m) => OK (x2y x, s, m))
-
    fun guess p s =
        case p s
         of EMPTY r  => EMPTY r
@@ -160,37 +151,37 @@ struct
                                     of OK (x, _, m) => taste (OK (x, s, m))
                                      | FAIL m       => taste (FAIL m)
 
-   fun foldMany f s p = let
-      fun lp s = p >>= (fn x => lp (f (x, s))) <|> (fn ? => return s ?)
+   fun foldMany g f s p = let
+      fun lp s = p >>= (fn x => lp (f (x, s))) <|> (fn ? => return (g s) ?)
    in
       lp s
    end
 
-   fun manyRev p = foldMany op :: [] p
-   fun many p = map rev (manyRev p)
+   fun manyRev p = foldMany id op :: [] p
+   fun many p = foldMany rev op :: [] p
 
-   fun oneMany p q = p >>= (fn x => map (fn xs => x::xs) (many q))
+   fun oneMany p q = p >>= (fn x => foldMany rev op :: [x] q)
 
    fun many1 p = oneMany p p
 
+   val op ->> = op >>
    fun p >>- s = p >>= (fn x => map (const x) s)
-   fun s ->> p = s >>= const p
 
-   fun between b a p = b ->> p >>- a
+   fun between b a p = b ->> (p >>- a)
 
-   fun foldCount f s p n = let
+   fun foldCount g f s p n = let
       fun lp s n =
           if 0 < n
           then p >>= (fn x => lp (f (x, s)) (n-1))
-          else return s
+          else return (g s)
    in
       if n < 0 then raise Domain else lp s n
    end
 
-   fun count p = map rev o foldCount op :: [] p
+   fun count p = foldCount rev op :: [] p
 
    fun skip p = map General.ignore p
-   fun skipCount p = foldCount General.ignore () p
+   fun skipCount p = foldCount General.ignore General.ignore () p
    fun skipMany p = skipMany1 p <|> return ()
    and skipMany1 p = p >>= (fn _ => skipMany p)
 
