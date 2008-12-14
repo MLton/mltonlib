@@ -20,7 +20,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    infixr 0 -->
    (* SML/NJ workaround --> *)
 
-   infix 1 << >> <<< >>>
+   infix 1 ->> >>- <<< >>>
 
    structure Parsec = MkParsec
      (structure Sequence = struct
@@ -59,7 +59,6 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    val ignored = ignored 0
 
-   fun l << r = l >>= (fn l => r >> return l)
    fun l >>> r = l >> ignored >> r
    fun l <<< r = l >>= (fn l => ignored >> r >> return l)
 
@@ -78,7 +77,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    val symbolicId = id isSymbolic isSymbolic
 
    val shortId = alphaId <|> symbolicId
-   val longId = map op :: (shortId >>* many (E#"." >> shortId))
+   val longId = sepBy1 shortId (E#".")
    fun I s = shortId >>= (fn i => if i = s then return () else zero)
 
    val numLabel = id (Char.inRange (#"1", #"9")) Char.isDigit
@@ -154,7 +153,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
               then x
               else error s
             | INL s => error s) o
-          reader' (getT t << ignored)
+          reader' (getT t >>- ignored)
                   StringSequence.get o
           StringSequence.full
    end
@@ -233,7 +232,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
          val {fromLabel, fromArray} = getP aP 0
          val n = Arg.numElems aP
          fun lp a i =
-             if i = n
+             if i >= n
              then E#"}" >> return (fromArray a)
              else label >>= (fn l =>
                   case fromLabel l
@@ -290,17 +289,11 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       val bool = parens (alphaId >>= (fn "true"  => return true
                                        | "false" => return false
                                        | _       => zero))
-      val char = parens (L"#\"" >> fromScan Char.scan << E#"\"")
+      val char = parens (between (L"#\"") (E#"\"") (fromScan Char.scan))
       val int = mkInt IntOps.ops
 
       val string = let
-         fun satN p n = let
-            fun lp cs =
-             fn 0 => return (rev cs)
-              | n => sat p >>= (fn c => lp (c::cs) (n-1))
-         in
-            lp [] n
-         end
+         val satN = count o sat
          fun chars cs =
              E#"\\" >>= (fn _ => escape cs)
          <|> E#"\"" >>= (fn _ => return (implode (rev cs)))
