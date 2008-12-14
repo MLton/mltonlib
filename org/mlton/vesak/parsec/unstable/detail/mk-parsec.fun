@@ -20,7 +20,7 @@ struct
    infixr 4 </ />
    infix  2 >| andAlso
    infixr 2 |<
-   infix  1 orElse >>=
+   infix  1 orElse >>= ->> >>-
    infix  0 & <|>
    infixr 0 -->
    (* SML/NJ workaround --> *)
@@ -79,7 +79,7 @@ struct
          | EMPTY (OK (x, s, m)) => replyNone m (x2yM x s)
          | TASTE th             =>
            TASTE (fn () => case th ()
-                            of FAIL e       => FAIL e
+                            of FAIL m       => FAIL m
                              | OK (x, s, m) => bindSome m (x2yM x s))
 
    fun zero s = EMPTY (FAIL (pos s))
@@ -88,6 +88,24 @@ struct
        case p s
         of EMPTY (FAIL m) => replyNone m (q s)
          | other          => other
+
+   structure Monad = MkMonadP
+     (type 'a monad = 'a t
+      val return = return
+      val op >>= = op >>=
+      val zero = zero
+      val op <|> = op <|>)
+
+   open Monad
+
+   fun map x2y xM s =
+       case xM s
+        of EMPTY (FAIL m)       => EMPTY (FAIL m)
+         | EMPTY (OK (x, s, m)) => EMPTY (OK (x2y x, s, m))
+         | TASTE th             =>
+           TASTE (fn () => case th ()
+                            of FAIL m       => FAIL m
+                             | OK (x, s, m) => OK (x2y x, s, m))
 
    fun guess p s =
        case p s
@@ -142,27 +160,58 @@ struct
                                     of OK (x, _, m) => taste (OK (x, s, m))
                                      | FAIL m       => taste (FAIL m)
 
-   fun many p = many1 p <|> return []
-   and many1 p = p >>= (fn x => many p >>= (fn xs => return (x::xs)))
+   fun foldMany f s p = let
+      fun lp s = p >>= (fn x => lp (f (x, s))) <|> (fn ? => return s ?)
+   in
+      lp s
+   end
 
-   fun between b a p = b >>= (fn _ => p >>= (fn r => a >>= (fn _ => return r)))
+   fun manyRev p = foldMany op :: [] p
+   fun many p = map rev (manyRev p)
 
-   fun option alt p = p <|> return alt
+   fun oneMany p q = p >>= (fn x => map (fn xs => x::xs) (many q))
 
-   fun sepBy1 p s =
-       p >>= (fn x => many (s >>= (fn _ => p)) >>= (fn xs => return (x::xs)))
-   fun sepBy p s = sepBy1 p s <|> return []
+   fun many1 p = oneMany p p
 
-   fun skip p = p >>= return o ignore
+   fun p >>- s = p >>= (fn x => map (const x) s)
+   fun s ->> p = s >>= const p
+
+   fun between b a p = b ->> p >>- a
+
+   fun foldCount f s p n = let
+      fun lp s n =
+          if 0 < n
+          then p >>= (fn x => lp (f (x, s)) (n-1))
+          else return s
+   in
+      if n < 0 then raise Domain else lp s n
+   end
+
+   fun count p = map rev o foldCount op :: [] p
+
+   fun skip p = map General.ignore p
+   fun skipCount p = foldCount General.ignore () p
    fun skipMany p = skipMany1 p <|> return ()
    and skipMany1 p = p >>= (fn _ => skipMany p)
 
-   structure Monad = MkMonadP
-     (type 'a monad = 'a t
-      val return = return
-      val op >>= = op >>=
-      val zero = zero
-      val op <|> = op <|>)
+   fun option alt p = p <|> return alt
+   fun opt p = option NONE (map SOME p)
+   fun optional p = skip p <|> return ()
 
-   open Monad
+   fun endBy p = many o p <\ op >>-
+   fun endBy1 p = many1 o p <\ op >>-
+
+   fun sepBy1 p s = oneMany p (s ->> p)
+   fun sepBy p s = sepBy1 p s <|> return []
+
+   fun sepEndBy p s = let
+      fun done xs ? = return (rev xs) ?
+      fun pee xs = p >>= (fn x => ess (x::xs)) <|> done xs
+      and ess xs = s >>= (fn _ => pee xs) <|> done xs
+   in
+      pee []
+   end
+
+   fun sepEndBy1 p s =
+       p >>= (fn x => s >>= (fn _ => map (fn xs => x::xs) (sepEndBy p s)))
 end

@@ -34,19 +34,34 @@ signature PARSEC = sig
    val sat : Sequence.Elem.t UnPr.t -> Sequence.Elem.t t
    val take : Sequence.Elem.t UnPr.t -> Sequence.Elem.t List.t t
 
-   val peek : 'a t UnOp.t
-
-   val many : 'a t -> 'a List.t t
-   val many1 : 'a t -> 'a List.t t
-
-   val option : 'a -> 'a t UnOp.t
+   val ->> : 'a t * 'b t -> 'b t
+   val >>- : 'a t * 'b t -> 'a t
 
    val between : 'a t -> 'b t -> 'c t UnOp.t
 
-   val sepBy : 'a t -> 'b t -> 'a List.t t
-   val sepBy1 : 'a t -> 'b t -> 'a List.t t
+   val count : 'a t -> Int.t -> 'a List.t t
+
+   val endBy : 'a t -> 'end t -> 'a List.t t
+   val endBy1 : 'a t -> 'end t -> 'a List.t t
+
+   val many : 'a t -> 'a List.t t
+   val manyRev : 'a t -> 'a List.t t
+   val many1 : 'a t -> 'a List.t t
+
+   val opt : 'a t -> 'a Option.t t
+   val option : 'a -> 'a t UnOp.t
+   val optional : 'a t -> Unit.t t
+
+   val peek : 'a t UnOp.t
+
+   val sepBy : 'a t -> 'sep t -> 'a List.t t
+   val sepBy1 : 'a t -> 'sep t -> 'a List.t t
+
+   val sepEndBy : 'a t -> 'sep t -> 'a List.t t
+   val sepEndBy1 : 'a t -> 'sep t -> 'a List.t t
 
    val skip : 'a t -> Unit.t t
+   val skipCount : 'a t -> Int.t -> Unit.t t
    val skipMany : 'a t -> Unit.t t
    val skipMany1 : 'a t -> Unit.t t
 end
