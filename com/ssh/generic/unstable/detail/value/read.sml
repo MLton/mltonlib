@@ -40,7 +40,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    fun L l = fromReader let
       fun lp i s =
-          if i = size l
+          if i >= size l
           then SOME ((), s)
           else case Sequence.get s
                 of NONE         => NONE
@@ -200,7 +200,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
          val {fromLabel, fromArray} = getP aP 0
          val n = Arg.numElems aP
          fun pl a i =
-             if i = n
+             if i >= n
              then E#")" >> return (fromArray a)
              else case fromLabel i
                    of NONE        => fail "impossible"
@@ -211,7 +211,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
                         then ignored
                         else ignored >> E#"," >> ignored) >> pl a (i+1)))
          fun rl a i =
-             if i = n
+             if i >= n
              then E#"}" >> return (fromArray a)
              else numLabel >>= (fn l =>
                   case fromLabel (valOf (Int.fromString l) - 1)
