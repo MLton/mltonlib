@@ -81,7 +81,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    fun I s = shortId >>= (fn i => if i = s then return () else zero)
 
    val numLabel = id (Char.inRange (#"1", #"9")) Char.isDigit
-   val label = numLabel <|> shortId
+   val label = shortId <|> numLabel
 
    fun mkSequ pre suf (Ops.S {fromList, ...}) p = let
       fun fin xs _ = return (fromList (rev xs))
