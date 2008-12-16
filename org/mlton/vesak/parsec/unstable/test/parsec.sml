@@ -84,5 +84,10 @@ in
     (chk (sepBy1 l u |>> implode) String.t
          [F "-" 0, S "aXb-" "ab" "-", F "aXbY" 4])
 
+    (chk (sepEndBy l u |>> implode) String.t
+         [S"x-""x""-", S"xA-""x""-", S"aXb-""ab""-", S"bXaY-""ba""-"])
+    (chk (sepEndBy1 l u |>> implode) String.t
+         [S"x-""x""-", S"xA-""x""-", S"aXb-""ab""-", S"bXaY-""ba""-", F"-"0])
+
     $
 end

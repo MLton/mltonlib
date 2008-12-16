@@ -195,14 +195,16 @@ struct
    fun sepBy1 p s = oneMany p (s ->> p)
    fun sepBy p s = sepBy1 p s <|> return []
 
-   fun sepEndBy p s = let
+   fun sepEndBy' p s = let
       fun done xs ? = return (rev xs) ?
       fun pee xs = p >>= (fn x => ess (x::xs)) <|> done xs
       and ess xs = s >>= (fn _ => pee xs) <|> done xs
    in
-      pee []
+      pee
    end
 
+   fun sepEndBy p s = sepEndBy' p s []
+
    fun sepEndBy1 p s =
-       p >>= (fn x => s >>= (fn _ => map (fn xs => x::xs) (sepEndBy p s)))
+       p >>= (fn x => s >>= (fn _ => sepEndBy' p s [x]) <|> return [x])
 end
