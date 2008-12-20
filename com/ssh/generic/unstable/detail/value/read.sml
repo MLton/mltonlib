@@ -52,7 +52,9 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
       lp 0
    end
 
-   fun ignored 0 = drop Char.isSpace >> (L"(*" >> eta ignored 1 <|> return ())
+   val skipSpaces = skipManySatisfy Char.isSpace
+
+   fun ignored 0 = skipSpaces >> (L"(*" >> eta ignored 1 <|> return ())
      | ignored n = L"*)" >> eta ignored (n-1) <|>
                    L"(*" >> eta ignored (n+1) <|>
                    elem  >> eta ignored n
@@ -66,15 +68,14 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
 
    datatype radix = datatype StringCvt.radix
 
-   fun id first rest =
-       sat first >>= (fn c => take rest >>= (fn cs => return (implode (c::cs))))
+   fun id first rest = map implode (many1Satisfy2 first rest)
 
    val alphaId = id Char.isAlpha
                     (fn c => Char.isAlpha c
                              orelse Char.isDigit c
                              orelse #"'" = c orelse #"_" = c)
    val isSymbolic = Char.contains "!#$%&*+-/:<=>?@\\^`|~"
-   val symbolicId = id isSymbolic isSymbolic
+   val symbolicId = map implode (many1Satisfy isSymbolic)
 
    val shortId = alphaId <|> symbolicId
    val longId = sepBy1 shortId (E#".")
@@ -304,7 +305,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
          <|> E#"u" >> satN Char.isHexDigit 4 >>= (fn ds => scan (#"u" :: ds) cs)
          <|> E#"U" >> satN Char.isHexDigit 8 >>= (fn ds => scan (#"U" :: ds) cs)
          <|> sat Char.isGraph >>= (fn c => scan [c] cs)
-         <|> sat Char.isSpace >> drop Char.isSpace >> E#"\\" >>= (fn _ =>
+         <|> sat Char.isSpace >> skipSpaces >> E#"\\" >>= (fn _ =>
              chars cs)
          and scan c cs =
              case Char.scan List.getItem (#"\\" :: c)

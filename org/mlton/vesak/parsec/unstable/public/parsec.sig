@@ -12,6 +12,9 @@ end
 signature PARSEC = sig
    include MK_PARSEC_DOM
 
+   structure Elem : T
+   sharing Elem = Sequence.Elem
+
    include ETAEXP'
    include MONADP where type 'a monad = 'a etaexp
 
@@ -23,16 +26,25 @@ signature PARSEC = sig
    val getState : State.t t
    val setState : State.t -> Unit.t t
 
-   val fromScan : ((Sequence.Elem.t, Sequence.t) Reader.t
-                   -> ('a, Sequence.t) Reader.t) -> 'a t
+   val fromScan :
+       ((Elem.t, Sequence.t) Reader.t -> ('a, Sequence.t) Reader.t) -> 'a t
    val fromReader : ('a, Sequence.t) Reader.t -> 'a t
 
    val guess : 'a t UnOp.t
 
-   val elem : Sequence.Elem.t t
-   val drop : Sequence.Elem.t UnPr.t -> Unit.t t
-   val sat : Sequence.Elem.t UnPr.t -> Sequence.Elem.t t
-   val take : Sequence.Elem.t UnPr.t -> Sequence.Elem.t List.t t
+   val elem : Elem.t t
+
+   val sat : Elem.t UnPr.t -> Elem.t t
+
+   val manySatisfy : Elem.t UnPr.t -> Elem.t List.t t
+   val manySatisfy2 : Elem.t UnPr.t -> Elem.t UnPr.t -> Elem.t List.t t
+   val many1Satisfy : Elem.t UnPr.t -> Elem.t List.t t
+   val many1Satisfy2 : Elem.t UnPr.t -> Elem.t UnPr.t -> Elem.t List.t t
+
+   val skipManySatisfy : Elem.t UnPr.t -> Unit.t t
+   val skipManySatisfy2 : Elem.t UnPr.t -> Elem.t UnPr.t -> Unit.t t
+   val skipMany1Satisfy : Elem.t UnPr.t -> Unit.t t
+   val skipMany1Satisfy2 : Elem.t UnPr.t -> Elem.t UnPr.t -> Unit.t t
 
    val ->> : 'a t * 'b t -> 'b t
    val >>- : 'a t * 'b t -> 'a t

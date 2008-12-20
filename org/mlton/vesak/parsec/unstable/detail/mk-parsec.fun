@@ -26,6 +26,7 @@ struct
    (* SML/NJ workaround --> *)
 
    open Arg
+   open Sequence
    type 'a etaexp_dom = Sequence.t * State.t
    type msg = Sequence.Pos.t
    datatype 'a reply =
@@ -110,16 +111,34 @@ struct
         of NONE        => EMPTY (FAIL (pos s))
          | SOME (c, s) => taste (OK (c, s, pos s))
 
-   fun drop p s = let
-      fun done f s = f (OK ((), s, pos s))
-      fun some (c, s') s = if p c then lp s' else done taste s
-      and body f s =
-          case get s
-           of NONE    => done f s
-            | SOME cs => some cs s
-      and lp s = body taste s
+   local
+      fun mk isZero zero plus finish req1 q p s = let
+         fun ok v s = OK (finish v, s, pos s)
+         fun done v =
+             if isZero v
+             then EMPTY o (if req1 then FAIL o pos else ok v)
+             else taste o ok v
+         fun step p es s =
+             case get s
+              of NONE        => done es s
+               | SOME (e, t) => if p e then body (plus (e, es)) t else done es s
+         and body es = step p es
+      in
+         case q
+          of NONE   => body zero s
+           | SOME q => step q zero s
+      end
+      val mkMany = mk null [] op :: rev
+      val mkSkip = mk id true (const false) General.ignore
    in
-      body EMPTY s
+      val many1Satisfy = mkMany true NONE
+      val many1Satisfy2 = mkMany true o SOME
+      val manySatisfy = mkMany false NONE
+      val manySatisfy2 = mkMany false o SOME
+      val skipMany1Satisfy = mkSkip true NONE
+      val skipMany1Satisfy2 = mkSkip true o SOME
+      val skipManySatisfy = mkSkip false NONE
+      val skipManySatisfy2 = mkSkip false o SOME
    end
 
    fun sat p s =
@@ -127,21 +146,6 @@ struct
         of NONE         => EMPTY (FAIL (pos s))
          | SOME (c, s') =>
            if p c then taste (OK (c, s', pos s')) else EMPTY (FAIL (pos s))
-
-   fun take p = let
-      fun done s =
-       fn [] => EMPTY (OK ([], s, pos s))
-        | cs => taste (OK (rev cs, s, pos s))
-      fun lp cs s =
-          case get s
-           of NONE => done s cs
-            | SOME (c, s') =>
-              if p c
-              then lp (c::cs) s'
-              else done s cs
-   in
-      lp []
-   end
 
    fun peek p s =
        case p s
