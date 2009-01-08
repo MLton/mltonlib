@@ -60,4 +60,9 @@ signature FRU = sig
        'val ->
        ((('rec, 'upds) t', ('rec, 'upds) t', 'result) Fold.t,
         (('rec, 'upds) t', ('rec, 'upds) t', 'result) Fold.t, 'k) Fold.s
+
+   val D :
+       'rec ->
+       ((('rec, 'upds) t', ('rec, 'upds) t', 'result) Fold.t,
+        (('rec, 'upds) t', ('rec, 'upds) t', 'result) Fold.t, 'k) Fold.s
 end

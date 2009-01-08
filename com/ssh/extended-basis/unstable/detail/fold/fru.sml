@@ -53,5 +53,8 @@ structure FRU :> FRU = struct
 
       fun U s v =
           Fold.mapSt (fn IN (f, u) => IN (s u v o f, u))
+
+      fun D r =
+          Fold.mapSt (fn IN (_, u) => IN (Fn.const r, u))
    end
 end
