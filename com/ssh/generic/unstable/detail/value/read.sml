@@ -15,7 +15,7 @@ functor WithRead (Arg : WITH_READ_DOM) : READ_CASES = struct
    infixr 4 </ />
    infix  2 >| andAlso
    infixr 2 |<
-   infix  1 orElse >>= >>& >>*
+   infix  1 orElse >> >>= >>& >>*
    infix  0 & <|>
    infixr 0 -->
    (* SML/NJ workaround --> *)
