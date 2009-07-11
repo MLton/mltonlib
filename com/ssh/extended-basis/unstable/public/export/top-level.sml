@@ -94,6 +94,10 @@ structure TopLevel = struct
    type yes = Phantom.yes
    type no = Phantom.no
 
+   type ('f, 't, 'r) B = ('f, 't, 'r) Phantom.Bool.t
+   type ('f, 't) T = ('f, 't) Phantom.Bool.T
+   type ('f, 't) F = ('f, 't) Phantom.Bool.F
+
    (** == Product == *)
 
    datatype product = datatype Product.product
