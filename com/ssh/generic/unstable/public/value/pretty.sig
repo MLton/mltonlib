@@ -236,7 +236,7 @@ signature PRETTY = sig
       (** Functionally updates the pretty printing action in a type rep. *)
 
       val mapPrinter : 'a t UnOp.t -> ('a, 'x) PrettyRep.t UnOp.t
-      (** {mapPrinter f t} is equivalent to {setPrinter (f (getPrinter t)) t}. *)
+      (** {mapPrinter f t} is the same as {setPrinter (f (getPrinter t)) t}. *)
 
       (** == Infix Constructors ==
        *
