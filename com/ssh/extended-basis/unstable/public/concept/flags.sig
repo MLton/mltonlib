@@ -36,6 +36,9 @@ signature FLAGS = sig
    (** This is always equivalent to {(toWord, fromWord)}. *)
 
    (** == Constants == *)
+   
+   val none: flags
+   (** The empty set. *)
 
    val all : flags
    (** The union of all flags. *)
