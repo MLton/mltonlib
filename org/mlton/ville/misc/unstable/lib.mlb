@@ -1,0 +1,24 @@
+local
+   $(SML_LIB)/basis/mlton.mlb
+   $(MLTON_LIB)/com/ssh/extended-basis/unstable/basis.mlb
+   $(MLTON_LIB)/org/mlton/ville/mersenne-twister/unstable/lib.mlb
+   $(APPLICATION)/generic.mlb
+
+   public/bit-field.sig
+   public/deck.sig
+   public/histogram.sig
+   public/probability-vector.sig
+   public/subsets.sig
+   public/time-limit.sig
+   public/random.sig
+
+   detail/bit-field.sml
+   detail/histogram.sml
+   detail/probability-vector.sml
+   detail/subsets.sml
+   detail/time-limit.sml
+   detail/mk-random.sml
+   detail/mk-deck.sml
+in
+   public/export.sml
+end
