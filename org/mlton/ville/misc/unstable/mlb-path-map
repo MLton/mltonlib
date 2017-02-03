@@ -1,0 +1,3 @@
+APPLICATION /Users/ville/Projects/mltonlib/org/mlton/ville/misc/unstable
+MLTON_LIB /Users/ville/Projects/mltonlib
+SML_COMPILER mlton

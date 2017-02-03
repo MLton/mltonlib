@@ -1,0 +1,24 @@
+This is an ad-hoc collection of miscellaneous small libraries.
+
+The code is divided into subdirectories as follows:
+
+   public/
+
+      The exported signatures and structures are defined here.  The
+      signatures there also serve as documentation.  The contents of
+      this directory should be enough to understand how to use the
+      libraries.
+
+   tests/
+
+      This directory holds test programs.  Build and run them with the
+      command "make check".
+
+   detail/
+
+      The implementations are in the detail/ subdirectory.
+
+If you have comments or suggestions, send them to the MLton-user
+mailing list
+
+   mlton-user@mlton.org
