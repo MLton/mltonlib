@@ -7,7 +7,7 @@
 (* Shorthand *)
 val ` = NUM o INT
 
-(* Naïve Benchmark
+(* NaÃ¯ve Benchmark
  *
  * NOTES:
  * - Seems not to be eliminated by MLton, but wouldn't count on it.

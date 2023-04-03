@@ -62,7 +62,7 @@
  * GADT based implementation, is described in the article:
  *
  *   Typed Contracts for Functional Programming
- *   Ralf Hinze, Johan Jeuring, and Andres Löh
+ *   Ralf Hinze, Johan Jeuring, and Andres LÃ¶h
  *   FLOPS 2006
  *   [http://people.cs.uu.nl/andres/Contracts.html]
  *)
