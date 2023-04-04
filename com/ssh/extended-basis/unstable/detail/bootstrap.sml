@@ -6,7 +6,7 @@
 
 (* Minimal modules for bootstrapping. *)
 
-structure Void = struct abstype t = T of t with fun void t = void t end end
+structure Void = struct datatype t = T of t fun void (T t) = void t end
 structure Exn = struct type t = exn end
 structure Fn = struct type ('a, 'b) t = 'a -> 'b end
 structure Unit = struct type t = unit fun compare ((), ()) = EQUAL end
