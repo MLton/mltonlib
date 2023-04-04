@@ -149,7 +149,7 @@ References
       USA, 2004.  ACM Press.
 
   [7] Comparing Approaches to Generic Programming in Haskell.
-      Ralf Hinze, Johan Jeuring, and Andres Löh.
+      Ralf Hinze, Johan Jeuring, and Andres LÃ¶h.
       In Spring School on Datatype-Generic Programming, 2006.
 
   [8] Generics for the Working ML'er.
@@ -162,7 +162,7 @@ References
 
  [10] Scrap your boilerplate: A practical design pattern for generic
       programming.
-      Ralf Lämmel and Simon Peyton Jones.
+      Ralf LÃ¤mmel and Simon Peyton Jones.
       ACM SIG-PLAN Notices, 38(3):26--37, March 2003.
 
  [11] TypeCase: A Design Pattern for Type-Indexed Functions.
@@ -171,7 +171,7 @@ References
       Haskell, pages 98--109, New York, NY, USA, 2005.  ACM Press.
 
  [12] Generics as a Library.
-      Bruno C.d.S. Oliveira, Ralf Hinze, and Andres Löh.
+      Bruno C.d.S. Oliveira, Ralf Hinze, and Andres LÃ¶h.
       In Henrik Nilsson and Marko van Eekelen, editors, Seventh Symposium
       on Trends in Functional Programming 2006.
 

@@ -6,7 +6,7 @@
 
 (*
  * This program note explores yet another approach to generic programming
- * in SML'97.  This is one is based on Lämmel and Jones' ``Scrap Your
+ * in SML'97.  This is one is based on LÃ¤mmel and Jones' ``Scrap Your
  * Boilerplate'' (SYB) approach [1].  The SYB approach makes use of rank-2
  * types, a cast primitive, type classes, and boilerplate code generation.
  *
@@ -15,7 +15,7 @@
  *
  * [1] Scrap Your Boilerplate: A Practical Design Pattern for Generic
  *     Programming.
- *     Ralf Lämmel and Simon Peyton Jones.
+ *     Ralf LÃ¤mmel and Simon Peyton Jones.
  *     ACM SIGPLAN Notices, 38(3):26-37, March 2003.
  *)
 

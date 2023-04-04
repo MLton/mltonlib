@@ -19,7 +19,7 @@
  *     [http://citeseer.ist.psu.edu/540174.html]
  *
  * [2] Generics as a Library.
- *     Bruno C.d.S. Oliveira, Ralf Hinze and Andres Löh.
+ *     Bruno C.d.S. Oliveira, Ralf Hinze and Andres LÃ¶h.
  *     In Henrik Nilsson, editor, Seventh Symposium on Trends in
  *     Functional Programming, 19-21 April, 2006, Nottingham, UK.
  *     [http://www.informatik.uni-bonn.de/~ralf/publications/GenLib.pdf]
